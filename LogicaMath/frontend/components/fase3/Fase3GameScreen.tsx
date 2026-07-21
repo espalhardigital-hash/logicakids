@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { DetectiveNotebook } from './DetectiveNotebook';
-import { OperationBuilder } from './OperationBuilder';
 import { getFase3Question, submitFase3Answer, getFase3Reading, graduateFase3 } from './Fase3Service';
 import { Fase3Pregunta, Fase3AnswerResult, Fase3Lectura } from './Fase3Types';
 import { CustomKeyboard } from '../common/CustomKeyboard';
@@ -506,18 +504,7 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
   const moduleName = MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`;
   const moduleColor = MODULE_COLORS[moduloId] ?? '#F97316';
 
-  const maxErroresPermitidos = useMemo(() => {
-    if (!isChallenge) return 0;
-    const porcAprobacion = 90;
-    let minAciertosReq = maxAciertos;
-    for (let c = 0; c <= maxAciertos; c++) {
-      if (Math.floor((c / maxAciertos) * 100) >= porcAprobacion) {
-        minAciertosReq = c;
-        break;
-      }
-    }
-    return maxAciertos - minAciertosReq;
-  }, [isChallenge, maxAciertos]);
+  const [maxErroresTolerados, setMaxErroresTolerados] = useState<number | null>(null);
 
   // Premium splash welcome control
   const [showSplash, setShowSplash] = useState(true);
@@ -528,8 +515,6 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
   
   const [respuesta, setRespuesta] = useState('');
   const [selectedAltId, setSelectedAltId] = useState<number | null>(null);
-  const [tokens, setTokens] = useState<any[]>([]);
-  const [availableNumbers, setAvailableNumbers] = useState<number[]>([]);
 
   const [timer, setTimer] = useState<number | null>(null);
   const [maxTimer, setMaxTimer] = useState<number>(1);
@@ -671,7 +656,6 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
     setLoading(true);
     setRespuesta('');
     setSelectedAltId(null);
-    setAvailableNumbers([]);
     try {
       const q = await getFase3Question(moduloId, nivelId);
       if (q && q.tipo_pregunta) {
@@ -680,19 +664,13 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
       setPregunta(q);
       // Sync dynamic required count from backend
       if (q.cantidad_requerida) setMaxAciertos(q.cantidad_requerida);
+      if (q.max_errores_tolerados !== undefined) setMaxErroresTolerados(q.max_errores_tolerados);
       
       if (q.tiene_cronometro && q.tiempo_limite_segundos) {
         setTimer(q.tiene_cronometro && !showReading ? q.tiempo_limite_segundos : null);
         setMaxTimer(q.tiempo_limite_segundos);
       } else {
         setTimer(null);
-      }
-
-      if (q.datos_numericos?.tokens) {
-        setTokens(q.datos_numericos.tokens);
-      } else {
-        setTokens([q.enunciado]);
-        setAvailableNumbers(extractNumbers(q.enunciado));
       }
     } catch (error) {
       console.error("Error loading question:", error);
@@ -701,10 +679,7 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
     }
   };
 
-  const extractNumbers = (text: string): number[] => {
-    const nums = text.match(/\d+/g);
-    return nums ? nums.map(Number) : [];
-  };
+
 
   useEffect(() => {
     if (timer === null || showReading || showSplash) return;
@@ -838,6 +813,10 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
         porcentaje: resultado.porcentaje_actual,
       });
 
+      if (resultado.max_errores_tolerados !== undefined && resultado.max_errores_tolerados !== null) {
+        setMaxErroresTolerados(resultado.max_errores_tolerados);
+      }
+
       if (resultado.early_exit) {
         setFeedback({ visible: true, esCorrecta: false, resultado });
         return;
@@ -871,9 +850,7 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
     }
   }, [pregunta, moduloId, nivelId, respuesta, selectedAltId, timer, feedback, handleFeedbackClose, navigate]);
 
-  const handleDataFound = (num: number) => {
-    setAvailableNumbers(prev => [...prev, num]);
-  };
+
 
   if (loading) {
     return (
@@ -1042,8 +1019,8 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
             {isChallenge && (
               <>
                 <span className="f3-badge-divider">|</span>
-                <span className="f3-badge-errors animate-pulse" style={{ color: (progreso.intentos - progreso.aciertos) >= maxErroresPermitidos ? '#EF4444' : '#F59E0B', fontWeight: 800 }}>
-                  ERRORES: {progreso.intentos - progreso.aciertos}/{maxErroresPermitidos}
+                <span className="f3-badge-errors animate-pulse" style={{ color: maxErroresTolerados !== null && (progreso.intentos - progreso.aciertos) >= maxErroresTolerados ? '#EF4444' : '#F59E0B', fontWeight: 800 }}>
+                  ERRORES: {progreso.intentos - progreso.aciertos}/{maxErroresTolerados ?? '—'}
                 </span>
               </>
             )}
@@ -1075,16 +1052,7 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
             </motion.div>
           )}
 
-          {pregunta.tipo_pregunta === 'constructor_operaciones' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <motion.div animate={shaking ? { x: [-8, 8, -6, 6, -4, 4, 0] } : {}} className={`f3-question-card ${shaking ? 'shake-error' : ''}`} style={{ borderColor: feedback.visible ? (feedback.esCorrecta ? '#10B981' : '#EF4444') : '#1e293b' }}>
-                <DetectiveNotebook textSegments={tokens} onDataFound={handleDataFound} />
-              </motion.div>
-              <div className="flex flex-col justify-end">
-                <OperationBuilder availableNumbers={availableNumbers} onSubmit={handleSubmit} onClear={() => {}} />
-              </div>
-            </div>
-          )}
+
 
           {pregunta.tipo_pregunta === 'respuesta_numerica' && (
             <div className="flex flex-col items-center justify-center space-y-8 w-full max-w-2xl mx-auto">

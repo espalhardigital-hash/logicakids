@@ -19,6 +19,11 @@ from app.models.sql_models import (
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
+from app.fase5.svg_helpers import (
+    svg_rect, svg_square, svg_triangle_equilateral,
+    svg_rect_all_labels, svg_l_shape, svg_polygon_labeled,
+    svg_shaded_rect, svg_grid_halves, svg_scale_bar, svg_rect_diagonal
+)
 
 from app.utils.graphics_generator import (
     generate_grid_shape_image,
@@ -43,8 +48,18 @@ _graphic_url_cache: Dict[str, str] = {}
 
 async def clear_fase5_data(session: AsyncSession):
     print("Purging existing Fase 5 data for a clean overwrite...")
-    result = await session.execute(select(Pregunta.id).where(Pregunta.fase_id == FASE5_ID))
-    pregunta_ids_list = result.scalars().all()
+    result = await session.execute(select(Pregunta.id, Pregunta.datos_numericos).where(Pregunta.fase_id == FASE5_ID))
+    rows = result.all()
+    pregunta_ids_list = [r[0] for r in rows]
+    
+    urls_a_borrar = [
+        r[1]["url"] for r in rows
+        if r[1] and isinstance(r[1], dict) and r[1].get("url")
+    ]
+    for url in urls_a_borrar:
+        await storage_service.delete_file(url)
+    if urls_a_borrar:
+        print(f"MinIO: {len(urls_a_borrar)} imágenes huérfanas eliminadas antes de re-sembrar.")
     
     if pregunta_ids_list:
         await session.execute(delete(Alternativa).where(Alternativa.pregunta_id.in_(pregunta_ids_list)))
@@ -74,13 +89,13 @@ async def seed_teoria_niveles(session: AsyncSession):
             "modulo_id": 1, "nivel_id": 1,
             "titulo": "Conteo directo de unidades lineales",
             "texto_descubrimiento": "¡Hola, exploradora del espacio! 🚀 ¿Sabías que las figuras geométricas tienen 'fronteras'? El perímetro es la suma de todo el borde exterior de una figura.\nImagínate a una pequeña hormiguita caminando justo por la línea más externa de tu dibujo. En este nivel, vas a contar cada rayita de la cuadrícula por la que camina la hormiguita para dar una vuelta completa. ¡Es muy fácil y divertido!",
-            "diccionario": {"Perímetro": "Es la suma de las longitudes de todos los lados que forman el borde de una figura."},
+            "diccionario": {"Perímetro": "Es la suma de las longitudes de todos los lados que forman el borde de una figura.", "Lado": "Cada una de las líneas que forman una figura plana.", "Contorno": "Línea que marca el límite exterior de una figura."},
             "advertencia": "¡Atención, pequeña detective! No vayas a contar las líneas que están adentro del dibujo. A la hormiguita solo le gusta caminar por el borde exterior.",
             "ejemplos": obtener_ejemplos_expandidos_fase5(1, 1),
             "interactivos": [
                 {
                     "pregunta": "Un rectángulo tiene lados de 3 y 4 cm. ¿Cuál es su perímetro en cm?<br/>"
-                                 "<svg width='260' height='220' viewBox='-15 -15 150 145' style='margin:10px auto; display:block; background:#FFFFFF; border:2px solid #E5E7EB; border-radius:12px;'>"
+                                 "<svg width='260' height='220' viewBox='-15 -15 150 145' style='margin:10px auto; display:block; background:#111827; border:2px solid #E5E7EB; border-radius:12px;'>"
                                  "  <path d='M20,0 V120 M40,0 V120 M60,0 V120 M80,0 V120 M100,0 V120 M0,20 H120 M0,40 H120 M0,60 H120 M0,80 H120 M0,100 H120' stroke='#E5E7EB' stroke-width='1'/>"
                                  "  <rect x='30' y='20' width='60' height='80' fill='#E0F2FE' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
                                  "  <text x='60' y='14' fill='#1E293B' font-size='16' font-weight='bold' text-anchor='middle'>3 cm</text>"
@@ -91,8 +106,8 @@ async def seed_teoria_niveles(session: AsyncSession):
                     "feedback_error": "Recuerda sumar todos los bordes externos: 3+4+3+4."
                 },
                 {
-                    "pregunta": "Un cuadrado tiene un lado que mide 5. Su perímetro es:<br/>"
-                                 "<svg width='260' height='220' viewBox='-20 -10 160 140' style='margin:10px auto; display:block; background:#FFFFFF; border:2px solid #E5E7EB; border-radius:12px;'>"
+                    "pregunta": "Un cuadrado tiene un lado que mide 5 cm. Su perímetro es:<br/>"
+                                 "<svg width='260' height='220' viewBox='-20 -10 160 140' style='margin:10px auto; display:block; background:#111827; border:2px solid #E5E7EB; border-radius:12px;'>"
                                  "  <path d='M20,0 V120 M40,0 V120 M60,0 V120 M80,0 V120 M100,0 V120 M0,20 H120 M0,40 H120 M0,60 H120 M0,80 H120 M0,100 H120' stroke='#E5E7EB' stroke-width='1'/>"
                                  "  <rect x='10' y='10' width='100' height='100' fill='#E0F2FE' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
                                  "  <text x='60' y='65' fill='#1E293B' font-size='14' font-weight='bold' text-anchor='middle'>Lado = 5</text>"
@@ -103,7 +118,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 },
                 {
                     "pregunta": "El perímetro de un triángulo equilátero con lado de 6 m es:<br/>"
-                                 "<svg width='260' height='220' viewBox='-15 -10 150 135' style='margin:10px auto; display:block; background:#FFFFFF; border:2px solid #E5E7EB; border-radius:12px;'>"
+                                 "<svg width='260' height='220' viewBox='-15 -10 150 135' style='margin:10px auto; display:block; background:#111827; border:2px solid #E5E7EB; border-radius:12px;'>"
                                  "  <polygon points='60,20 100,100 20,100' fill='#E0F2FE' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
                                  "  <text x='60' y='122' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>6 m</text>"
                                  "  <text x='30' y='65' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>6 m</text>"
@@ -119,26 +134,26 @@ async def seed_teoria_niveles(session: AsyncSession):
             "modulo_id": 1, "nivel_id": 2,
             "titulo": "Cálculo analítico de perímetros sumando magnitudes",
             "texto_descubrimiento": "¡Ahora vamos a ser ingenieras! 📐 A veces las figuras no están dibujadas sobre una cuadrícula de juego. En ese caso, ¡no podemos contar rayitas! Pero no te preocupes, porque las figuras nos revelan cuánto mide cada uno de sus lados.\nPara hallar el perímetro, solo debemos sumar los números de todos los lados de la figura. ¡Como una gran suma de equipo!",
-            "diccionario": {"Lado (Arista)": "El segmento de línea que une dos esquinas de la figura."},
+            "diccionario": {"Lado (Arista)": "El segmento de línea que une dos esquinas de la figura.", "Polígono": "Figura geométrica plana compuesta por una secuencia finita de segmentos rectos.", "Cuadrilátero": "Polígono de cuatro lados."},
             "advertencia": "Asegúrate de sumar absolutamente TODOS los lados. Si dejas un lado olvidado en el camino, ¡el perímetro quedará incompleto!",
             "ejemplos": obtener_ejemplos_expandidos_fase5(1, 2),
             "interactivos": [
-                {"pregunta": "Una figura tiene cuatro lados que miden: 2 cm, 3 cm, 2 cm y 3 cm. Perímetro:", "respuesta": "10", "feedback_acierto": "¡Correcto!", "feedback_error": "Suma: 2+3+2+3."},
-                {"pregunta": "Una estrella de 5 lados tiene cada lado de 1 m. Perímetro:", "respuesta": "5", "feedback_acierto": "¡Excelente!", "feedback_error": "Suma los cinco lados de 1: 1+1+1+1+1."},
-                {"pregunta": "Un rectángulo mide 10 cm de largo y 5 cm de ancho. Perímetro:", "respuesta": "30", "feedback_acierto": "¡Brillante!", "feedback_error": "Suma los cuatro lados: 10+5+10+5."}
+                {"pregunta": "Una figura tiene cuatro lados que miden: 2 cm, 3 cm, 2 cm y 3 cm. Perímetro:<br/>" + svg_rect_all_labels(3, 2, unit="cm"), "respuesta": "10", "feedback_acierto": "¡Correcto!", "feedback_error": "Suma: 2+3+2+3."},
+                {"pregunta": "Un pentágono irregular tiene 5 lados y cada lado mide 1 m. Perímetro:<br/>" + svg_polygon_labeled([(10, 40), (20, 10), (30, 40), (25, 70), (15, 70)], [(15, 20, "1 m"), (25, 20, "1 m"), (35, 55, "1 m"), (20, 80, "1 m"), (5, 55, "1 m")], unit="m"), "respuesta": "5", "feedback_acierto": "¡Excelente!", "feedback_error": "Suma los cinco lados de 1: 1+1+1+1+1."},
+                {"pregunta": "Un rectángulo mide 10 cm de largo y 5 cm de ancho. Perímetro:<br/>" + svg_rect(10, 5, unit="cm"), "respuesta": "30", "feedback_acierto": "¡Brillante!", "feedback_error": "Suma los cuatro lados: 10+5+10+5."}
             ]
         },
         {
             "modulo_id": 1, "nivel_id": 3,
             "titulo": "Conversión de unidades de longitud",
             "texto_descubrimiento": "Las medidas de longitud pueden usar diferentes 'apellidos' según qué tan grandes sean: milímetros (para hormiguitas), centímetros (para lápices), decímetros, metros (para ti) y kilómetros (para autos).\nPara comparar perímetros, necesitamos que todos usen el mismo apellido. ¡Aprenderemos a convertir estas unidades usando una escalera mágica!",
-            "diccionario": {"1 metro (m)": "Equivale a 100 centímetros (cm)", "1 kilómetro (km)": "Equivale a 1000 metros (m)"},
+            "diccionario": {"1 metro (m)": "Equivale a 100 centímetros (cm)", "1 kilómetro (km)": "Equivale a 1000 metros (m)", "Unidad de longitud": "Cantidad estandarizada de longitud.", "Escalera de conversión": "Método visual para convertir unidades."},
             "advertencia": "Si vas a un paso más pequeño, multiplicas. Si vas a un paso más grande, divides. ¡Fíjate bien si subes o bajas en la escalera!",
             "ejemplos": obtener_ejemplos_expandidos_fase5(1, 3),
             "interactivos": [
-                {"pregunta": "¿Cuántos centímetros hay en 3 metros?", "respuesta": "300", "feedback_acierto": "¡Correcto! 3 x 100 = 300 cm.", "feedback_error": "Multiplica los metros por 100."},
-                {"pregunta": "¿Cuántos metros hay en 5 kilómetros?", "respuesta": "5000", "feedback_acierto": "¡Excelente! 5 x 1000 = 5000 m.", "feedback_error": "Multiplica los kilómetros por 1000."},
-                {"pregunta": "¿Cuántos milímetros hay en 2 centímetros?", "respuesta": "20", "feedback_acierto": "¡Brillante! 2 x 10 = 20 mm.", "feedback_error": "Multiplica los centímetros por 10."}
+                {"pregunta": "¿Cuántos centímetros hay en 3 metros?<br/>" + svg_rect(3, 1, unit="m"), "respuesta": "300", "feedback_acierto": "¡Correcto! 3 x 100 = 300 cm.", "feedback_error": "Multiplica los metros por 100."},
+                {"pregunta": "¿Cuántos metros hay en 5 kilómetros?<br/>" + svg_rect(5, 1, unit="km"), "respuesta": "5000", "feedback_acierto": "¡Excelente! 5 x 1000 = 5000 m.", "feedback_error": "Multiplica los kilómetros por 1000."},
+                {"pregunta": "¿Cuántos milímetros hay en 2 centímetros?<br/>" + svg_rect(2, 1, unit="cm"), "respuesta": "20", "feedback_acierto": "¡Brillante! 2 x 10 = 20 mm.", "feedback_error": "Multiplica los centímetros por 10."}
             ]
         },
         # --- MÓDULO 2: Área en Malha ---
@@ -146,39 +161,39 @@ async def seed_teoria_niveles(session: AsyncSession):
             "modulo_id": 2, "nivel_id": 1,
             "titulo": "Conteo analítico de unidades confinadas",
             "texto_descubrimiento": "El área es la medida de la superficie de una figura. Imagina que quieres cubrir el suelo de tu habitación con baldosas.\nEn una cuadrícula, el área nos dice cuántos cuadraditos completos caben adentro de una figura geométrica. Mientras el perímetro mide el borde, el área mide el interior relleno. ¡A contar baldosas!",
-            "diccionario": {"Área": "La cantidad de espacio o cuadraditos que caben dentro del contorno de una figura."},
+            "diccionario": {"Área": "La cantidad de espacio o cuadraditos que caben dentro del contorno de una figura.", "Unidad cuadrada": "Cuadrado cuyos lados miden 1 unidad.", "Base y altura": "Lados perpendiculares de un rectángulo."},
             "advertencia": "No te confundas con el perímetro. Aquí no medimos la frontera, medimos todo lo que está pintado adentro.",
             "ejemplos": obtener_ejemplos_expandidos_fase5(2, 1),
             "interactivos": [
-                {"pregunta": "Si un cuadrado mide 4x4 cm, ¿cuál es su área en cm²?", "respuesta": "16", "feedback_acierto": "¡Correcto! 4 filas de 4 cuadraditos = 16.", "feedback_error": "Multiplica base por altura (4x4) o cuenta todos los cuadros."},
-                {"pregunta": "Un rectángulo mide 5 cm de base y 2 cm de altura. Su área en cm² es:", "respuesta": "10", "feedback_acierto": "¡Excelente! 5 x 2 = 10.", "feedback_error": "Multiplica 5x2."},
-                {"pregunta": "Si pinto 3 filas de 3 cuadros (de 1 cm² cada uno), ¿cuál es el área total?", "respuesta": "9", "feedback_acierto": "¡Brillante!", "feedback_error": "Multiplica 3x3."}
+                {"pregunta": "Si un cuadrado mide 4x4 cm, ¿cuál es su área en cm²?<br/>" + svg_shaded_rect(4, 4, unit="cm²"), "respuesta": "16", "feedback_acierto": "¡Correcto! 4 filas de 4 cuadraditos = 16.", "feedback_error": "Multiplica base por altura (4x4) o cuenta todos los cuadros."},
+                {"pregunta": "Un rectángulo mide 5 cm de base y 2 cm de altura. Su área en cm² es:<br/>" + svg_shaded_rect(5, 2, unit="cm²"), "respuesta": "10", "feedback_acierto": "¡Excelente! 5 x 2 = 10.", "feedback_error": "Multiplica 5x2."},
+                {"pregunta": "Si pinto 3 filas de 3 cuadros (de 1 cm² cada uno), ¿cuál es el área total?<br/>" + svg_shaded_rect(3, 3, unit="cm²"), "respuesta": "9", "feedback_acierto": "¡Brillante!", "feedback_error": "Multiplica 3x3."}
             ]
         },
         {
             "modulo_id": 2, "nivel_id": 2,
             "titulo": "Fusión de sectores triangulares",
             "texto_descubrimiento": "¡A veces las figuras tienen cortes inclinados! Si cortas un cuadrado en diagonal, obtienes dos mitades (triángulos iguales).\nLa regla mágica es: si juntas dos mitades triangulares iguales, ¡hacen exactamente un cuadrado entero! Es como armar un rompecabezas: 1/2 + 1/2 = 1. ¡Une las piezas para contar enteros!",
-            "diccionario": {"Fusión de áreas": "Juntar dos mitades de cuadrado para formar una unidad cuadrada entera."},
+            "diccionario": {"Fusión de áreas": "Juntar dos mitades de cuadrado para formar una unidad cuadrada entera.", "Diagonal de un cuadrado": "Línea que une dos esquinas opuestas de un cuadrado.", "Triángulo rectángulo": "Triángulo con un ángulo de 90 grados."},
             "advertencia": "¡Cuidado al contar! Agrupa las mitades de dos en dos para formar nuevos enteros y no te quedes a la mitad.",
             "ejemplos": obtener_ejemplos_expandidos_fase5(2, 2),
             "interactivos": [
-                {"pregunta": "Si tengo 4 cuadrados enteros de 1 cm² y 2 mitades. Área total en cm²:", "respuesta": "5", "feedback_acierto": "¡Correcto! 4 enteros + 1 entero de las mitades = 5.", "feedback_error": "Las dos mitades forman 1 entero."},
-                {"pregunta": "Figura con 0 enteros y 4 mitades de cm². Área en cm²:", "respuesta": "2", "feedback_acierto": "¡Excelente! 4 mitades son 2 enteros.", "feedback_error": "4 mitades divididas entre 2 da 2 enteros."},
-                {"pregunta": "Si tengo 10 enteros y 6 mitades, área total en cm²:", "respuesta": "13", "feedback_acierto": "¡Brillante! 6 mitades son 3 enteros.", "feedback_error": "6 mitades son 3 enteros. Suma 10+3."}
+                {"pregunta": "Si tengo 4 cuadrados enteros de 1 cm² y 2 mitades. Área total en cm²:<br/>" + svg_grid_halves(4, 2, unit="cm²"), "respuesta": "5", "feedback_acierto": "¡Correcto! 4 enteros + 1 entero de las mitades = 5.", "feedback_error": "Las dos mitades forman 1 entero."},
+                {"pregunta": "Figura con 0 enteros y 4 mitades de cm². Área en cm²:<br/>" + svg_grid_halves(0, 4, unit="cm²"), "respuesta": "2", "feedback_acierto": "¡Excelente! 4 mitades son 2 enteros.", "feedback_error": "4 mitades divididas entre 2 da 2 enteros."},
+                {"pregunta": "Si tengo 10 enteros y 6 mitades, área total en cm²:<br/>" + svg_grid_halves(10, 6, unit="cm²"), "respuesta": "13", "feedback_acierto": "¡Brillante! 6 mitades son 3 enteros.", "feedback_error": "6 mitades son 3 enteros. Suma 10+3."}
             ]
         },
         {
             "modulo_id": 2, "nivel_id": 3,
             "titulo": "Estimación analítica de áreas irregulares",
             "texto_descubrimiento": "Las figuras en la naturaleza (como hojas de árboles o lagunas) son irregulares y no encajan perfecto en la cuadrícula.\nPara calcular su área en mallas densas, contamos todos los cuadrados que están completamente llenos y luego estimamos y sumamos las mitades o esquinas. ¡Una gran aventura de aproximación!",
-            "diccionario": {"Área irregular": "Figura que no tiene lados rectos ni formas clásicas predefinidas."},
+            "diccionario": {"Área irregular": "Figura que no tiene lados rectos ni formas clásicas predefinidas.", "Aproximación": "Cálculo que no es exacto pero se acerca al valor real.", "Estimación": "Valor aproximado de una cantidad."},
             "advertencia": "Usa una estrategia ordenada: primero marca los enteros y luego combina las fracciones sobrantes.",
             "ejemplos": obtener_ejemplos_expandidos_fase5(2, 3),
             "interactivos": [
-                {"pregunta": "¿Cuánto es 8 enteros más 8 mitades en cm²?", "respuesta": "12", "feedback_acierto": "¡Correcto!", "feedback_error": "8 mitades son 4 enteros. 8 + 4 = 12."},
-                {"pregunta": "¿Cuánto es 12 enteros más 2 mitades en cm²?", "respuesta": "13", "feedback_acierto": "¡Excelente!", "feedback_error": "2 mitades son 1 entero. 12 + 1 = 13."},
-                {"pregunta": "Si un polígono ocupa 5 enteros y 4 mitades, su área en cm² es:", "respuesta": "7", "feedback_acierto": "¡Brillante!", "feedback_error": "4 mitades = 2. 5 + 2 = 7."}
+                {"pregunta": "¿Cuánto es 8 enteros más 8 mitades en cm²?<br/>" + svg_grid_halves(8, 8, unit="cm²"), "respuesta": "12", "feedback_acierto": "¡Correcto!", "feedback_error": "8 mitades son 4 enteros. 8 + 4 = 12."},
+                {"pregunta": "¿Cuánto es 12 enteros más 2 mitades en cm²?<br/>" + svg_grid_halves(12, 2, unit="cm²"), "respuesta": "13", "feedback_acierto": "¡Excelente!", "feedback_error": "2 mitades son 1 entero. 12 + 1 = 13."},
+                {"pregunta": "Si un polígono ocupa 5 enteros y 4 mitades, su área en cm² es:<br/>" + svg_grid_halves(5, 4, unit="cm²"), "respuesta": "7", "feedback_acierto": "¡Brillante!", "feedback_error": "4 mitades = 2. 5 + 2 = 7."}
             ]
         },
         # --- MÓDULO 3: Figuras Compuestas y Simetría ---
@@ -186,52 +201,52 @@ async def seed_teoria_niveles(session: AsyncSession):
             "modulo_id": 3, "nivel_id": 1,
             "titulo": "Descomposición estructural de polígonos",
             "texto_descubrimiento": "¡Las figuras compuestas son como castillos armados con bloques simples! Si tienes una figura en forma de 'L', de cruz o de casita, no hay fórmulas directas para ellas.\nPero si las dividimos con una línea imaginaria, podemos separarlas en rectángulos y cuadrados simples. Calculas el área de cada pieza y luego las sumas. ¡Divide y vencerás!",
-            "diccionario": {"Descomponer": "Dividir una figura compleja en partes geométricas simples conocidas."},
+            "diccionario": {"Descomponer": "Dividir una figura compleja en partes geométricas simples conocidas.", "Figura compuesta": "Figura formada por varias figuras simples.", "Superposición": "Poner una figura sobre otra."},
             "advertencia": "¡Cuidado al dividir! Las partes no deben superponerse (encimarse) ni debes dejar huecos sin contar.",
             "ejemplos": obtener_ejemplos_expandidos_fase5(3, 1),
             "interactivos": [
-                {"pregunta": "Un rectángulo de 10 cm² y otro de 8 cm² pegados suman (en cm²):", "respuesta": "18", "feedback_acierto": "¡Correcto!", "feedback_error": "Suma ambas áreas."},
-                {"pregunta": "Figura T compuesta por un techo de 12 m² y una base de 4 m². Área total:", "respuesta": "16", "feedback_acierto": "¡Excelente!", "feedback_error": "Suma 12+4."},
-                {"pregunta": "Una 'L' de 15 cm² en el alto y 5 cm² en el piso. Total:", "respuesta": "20", "feedback_acierto": "¡Brillante!", "feedback_error": "Suma 15+5."}
+                {"pregunta": "Un rectángulo de 10 cm² y otro de 8 cm² pegados suman (en cm²):<br/>" + svg_l_shape(5, 2, 4, 2, unit="cm"), "respuesta": "18", "feedback_acierto": "¡Correcto!", "feedback_error": "Suma ambas áreas."},
+                {"pregunta": "Figura T compuesta por un techo de 12 m² y una base de 4 m². Área total:<br/>" + svg_l_shape(6, 2, 2, 2, unit="m"), "respuesta": "16", "feedback_acierto": "¡Excelente!", "feedback_error": "Suma 12+4."},
+                {"pregunta": "Una 'L' de 15 cm² en el alto y 5 cm² en el piso. Total:<br/>" + svg_l_shape(5, 3, 5, 1, unit="cm"), "respuesta": "20", "feedback_acierto": "¡Brillante!", "feedback_error": "Suma 15+5."}
             ]
         },
         {
             "modulo_id": 3, "nivel_id": 2,
             "titulo": "Análisis de conservación del área mediante Tangram",
             "texto_descubrimiento": "¡El Tangram es un juego mágico chino de 7 piezas! Puedes armar un gato, una casa, un pato o un barco.\nLo fabuloso es que, sin importar la forma que crees, si usas las mismas piezas, ¡el área total de la figura sigue siendo exactamente la misma! El área se conserva porque las piezas no cambian de tamaño al moverlas.",
-            "diccionario": {"Conservación del área": "El área de un objeto no cambia cuando este cambia de forma o de posición."},
+            "diccionario": {"Conservación del área": "El área de un objeto no cambia cuando este cambia de forma o de posición.", "Tangram": "Juego de 7 piezas que forman un cuadrado.", "Congruencia": "Dos figuras son iguales en forma y tamaño."},
             "advertencia": "Aunque una figura parezca más grande por estar estirada, si usa las mismas piezas, su área sigue siendo igual. ¡No te dejes engañar por el ojo!",
             "ejemplos": obtener_ejemplos_expandidos_fase5(3, 2),
             "interactivos": [
-                {"pregunta": "Si un triángulo de 3 cm² se rota, su nueva área es:", "respuesta": "3", "feedback_acierto": "¡Correcto! Rotar no cambia el área.", "feedback_error": "Rotar no cambia el área."},
-                {"pregunta": "Corto un papel de 10 cm² en dos piezas. ¿Cuánto suman las dos piezas juntas?", "respuesta": "10", "feedback_acierto": "¡Excelente! Siguen sumando lo mismo que al principio.", "feedback_error": "Suman lo mismo que el original."},
-                {"pregunta": "Armo una casa con un Tangram de 16 cm². El área de la casa es:", "respuesta": "16", "feedback_acierto": "¡Brillante!", "feedback_error": "El área se conserva al usar todas las piezas."}
+                {"pregunta": "Si un triángulo de 3 cm² se rota, su nueva área es:<br/>" + svg_triangle_equilateral(3, unit="cm"), "respuesta": "3", "feedback_acierto": "¡Correcto! Rotar no cambia el área.", "feedback_error": "Rotar no cambia el área."},
+                {"pregunta": "Corto un papel de 10 cm² en dos piezas. ¿Cuánto suman las dos piezas juntas?<br/>" + svg_rect(5, 2, unit="cm"), "respuesta": "10", "feedback_acierto": "¡Excelente! Siguen sumando lo mismo que al principio.", "feedback_error": "Suman lo mismo que el original."},
+                {"pregunta": "Armo una casa con un Tangram de 16 cm². El área de la casa es:<br/>" + svg_square(4, unit="cm"), "respuesta": "16", "feedback_acierto": "¡Brillante!", "feedback_error": "El área se conserva al usar todas las piezas."}
             ]
         },
         {
             "modulo_id": 3, "nivel_id": 3,
             "titulo": "Cálculo analítico de áreas sombreadas",
             "texto_descubrimiento": "A veces nos piden el área de una zona pintada que tiene un hueco o agujero adentro (como una dona o un marco de fotos).\nPara resolver esto, usamos la resta geométrica: calculas el área de la figura exterior grande, calculas el área del hueco blanco interior, y las restas. ¡Le quitamos el agujero al total!",
-            "diccionario": {"Resta geométrica": "Resta del área total menos el área del hueco blanco."},
+            "diccionario": {"Resta geométrica": "Resta del área total menos el área del hueco blanco.", "Área sombreada": "Parte coloreada de una figura.", "Figura hueca": "Figura con una parte interior vacía."},
             "advertencia": "Asegúrate de calcular primero las dos áreas por separado antes de restarlas.",
             "ejemplos": obtener_ejemplos_expandidos_fase5(3, 3),
             "interactivos": [
-                {"pregunta": "Área exterior 50 m², área interior en blanco 10 m². ¿Área pintada en m²?", "respuesta": "40", "feedback_acierto": "¡Correcto! 50 - 10 = 40.", "feedback_error": "Resta 50 - 10."},
-                {"pregunta": "Caja de 100 cm² con agujero de 25 cm². Área restante:", "respuesta": "75", "feedback_acierto": "¡Excelente!", "feedback_error": "Resta 100 - 25."},
-                {"pregunta": "Pared de 20 m² con ventana de 4 m². ¿Área a pintar?", "respuesta": "16", "feedback_acierto": "¡Brillante!", "feedback_error": "Resta 20 - 4."}
+                {"pregunta": "Área exterior 50 m², área interior en blanco 10 m². ¿Área pintada en m²?<br/>" + svg_rect(10, 5, unit="m"), "respuesta": "40", "feedback_acierto": "¡Correcto! 50 - 10 = 40.", "feedback_error": "Resta 50 - 10."},
+                {"pregunta": "Caja de 100 cm² con agujero de 25 cm². Área restante:<br/>" + svg_square(10, unit="cm"), "respuesta": "75", "feedback_acierto": "¡Excelente!", "feedback_error": "Resta 100 - 25."},
+                {"pregunta": "Pared de 20 m² con ventana de 4 m². ¿Área a pintar?<br/>" + svg_rect(5, 4, unit="m"), "respuesta": "16", "feedback_acierto": "¡Brillante!", "feedback_error": "Resta 20 - 4."}
             ]
         },
         {
             "modulo_id": 3, "nivel_id": 4,
             "titulo": "Identificación de Ejes de Simetría",
             "texto_descubrimiento": "¡La simetría es la magia del espejo! Un eje de simetría es una línea que divide una figura exactamente por la mitad.\nSi doblas la figura por esa línea, las dos mitades deben coincidir perfectamente, esquina con esquina. ¡Como tus manos al aplaudir o las alas de una mariposa!",
-            "diccionario": {"Eje de simetría": "Línea imaginaria que divide una figura en dos partes iguales que son reflejos una de otra."},
+            "diccionario": {"Eje de simetría": "Línea imaginaria que divide una figura en dos partes iguales que son reflejos una de otra.", "Simetría axial": "Simetría respecto a un eje.", "Reflejo/Espejo": "Imagen que se forma al reflejarse en una superficie."},
             "advertencia": "Algunas figuras parecen simétricas, pero si las doblas a la mitad no coinciden. ¡Verifica el doblez en tu mente!",
             "ejemplos": obtener_ejemplos_expandidos_fase5(3, 4),
             "interactivos": [
-                {"pregunta": "¿Cuántos ejes de simetría tiene un círculo (escribe: infinitos)?", "respuesta": "infinitos", "feedback_acierto": "¡Correcto! El círculo es perfectamente simétrico en cualquier dirección.", "feedback_error": "El círculo es perfectamente simétrico en cualquier diámetro. Escribe 'infinitos'."},
-                {"pregunta": "¿Cuántos ejes de simetría tiene un cuadrado perfecto?", "respuesta": "4", "feedback_acierto": "¡Excelente!", "feedback_error": "Un cuadrado tiene vertical, horizontal y dos diagonales (4 en total)."},
-                {"pregunta": "¿Cuántos ejes tiene un triángulo equilátero?", "respuesta": "3", "feedback_acierto": "¡Brillante!", "feedback_error": "Desde cada esquina al lado opuesto."}
+                {"pregunta": "¿Cuántos ejes de simetría tiene un círculo (escribe: infinitos)?<br/>" + svg_square(4, unit="cm"), "respuesta": "infinitos", "feedback_acierto": "¡Correcto! El círculo es perfectamente simétrico en cualquier dirección.", "feedback_error": "El círculo es perfectamente simétrico en cualquier diámetro. Escribe 'infinitos'."},
+                {"pregunta": "¿Cuántos ejes de simetría tiene un cuadrado perfecto?<br/>" + svg_square(4, unit="cm"), "respuesta": "4", "feedback_acierto": "¡Excelente!", "feedback_error": "Un cuadrado tiene vertical, horizontal y dos diagonales (4 en total)."},
+                {"pregunta": "¿Cuántos ejes tiene un triángulo equilátero?<br/>" + svg_triangle_equilateral(3, unit="cm"), "respuesta": "3", "feedback_acierto": "¡Brillante!", "feedback_error": "Desde cada esquina al lado opuesto."}
             ]
         },
         # --- MÓDULO 4: Conversión y Pantallas ---
@@ -239,39 +254,39 @@ async def seed_teoria_niveles(session: AsyncSession):
             "modulo_id": 4, "nivel_id": 1,
             "titulo": "Interpretación de la escala gráfica base",
             "texto_descubrimiento": "¡Los mapas son versiones mini de la vida real! Como no podemos cargar un mapa del tamaño de una ciudad, usamos escalas.\nLa escala gráfica nos dice la correspondencia: por ejemplo, '1 centímetro en el papel representa 10 metros en la realidad'. Así, multiplicando la medida del mapa por el valor de escala, ¡descubrimos distancias reales!",
-            "diccionario": {"Escala gráfica": "Barra dividida en segmentos que muestra la relación entre las distancias del plano y las reales."},
+            "diccionario": {"Escala gráfica": "Barra dividida en segmentos que muestra la relación entre las distancias del plano y las reales.", "Distancia real": "Medida verdadera de un objeto en el mundo real.", "Proporción": "Relación de igualdad entre dos razones."},
             "advertencia": "No olvides multiplicar por la escala. La regla de la escala gráfica siempre funciona multiplicando.",
             "ejemplos": obtener_ejemplos_expandidos_fase5(4, 1),
             "interactivos": [
-                {"pregunta": "Escala 1 cm = 10m. Si un borde en el mapa mide 4 cm, ¿cuántos metros son?", "respuesta": "40", "feedback_acierto": "¡Correcto! 4 x 10 = 40m.", "feedback_error": "Multiplica 4x10."},
-                {"pregunta": "Escala 1 cm = 5km. Viajo 6 cm en el plano. ¿Distancia real en km?", "respuesta": "30", "feedback_acierto": "¡Excelente! 6 x 5 = 30km.", "feedback_error": "Multiplica 6x5."},
-                {"pregunta": "Escala 1 cm = 2m. Altura de 15 cm en el plano. ¿Altura real en metros?", "respuesta": "30", "feedback_acierto": "¡Brillante!", "feedback_error": "Multiplica 15x2."}
+                {"pregunta": "Escala 1 cm = 10m. Si un borde en el mapa mide 4 cm, ¿cuántos metros son?<br/>" + svg_scale_bar(4, 10, unit="cm"), "respuesta": "40", "feedback_acierto": "¡Correcto! 4 x 10 = 40m.", "feedback_error": "Multiplica 4x10."},
+                {"pregunta": "Escala 1 cm = 5km. Viajo 6 cm en el plano. ¿Distancia real en km?<br/>" + svg_scale_bar(6, 5, unit="cm"), "respuesta": "30", "feedback_acierto": "¡Excelente! 6 x 5 = 30km.", "feedback_error": "Multiplica 6x5."},
+                {"pregunta": "Escala 1 cm = 2m. Altura de 15 cm en el plano. ¿Altura real en metros?<br/>" + svg_scale_bar(15, 2, unit="cm"), "respuesta": "30", "feedback_acierto": "¡Brillante!", "feedback_error": "Multiplica 15x2."}
             ]
         },
         {
             "modulo_id": 4, "nivel_id": 2,
             "titulo": "Modelado analítico de la diagonal (pantallas)",
-            "texto_descubrimiento": "Cuando compramos una pantalla de televisión, de celular o tablet, nos dicen su tamaño en pulgadas (por ejemplo, 32 pulgadas o 50 pulgadas).\n¡Pero esa medida no es el ancho ni el alto! El tamaño de las pantallas siempre se mide en línea recta cruzando desde una esquina hasta la esquina contraria. ¡Eso es la diagonal!",
-            "diccionario": {"Diagonal": "Segmento de recta que une dos vértices (esquinas) no consecutivos de un polígono."},
+            "texto_descubrimiento": "Cuando compramos una pantalla de televisión, de celular o tablet, nos dicen su tamaño en pulgadas (por ejemplo, 32 pulgadas o 50 pulgadas).\n¡Pero esa medida no es el ancho ni el alto! El tamaño de las pantallas siempre se mide en línea recta cruzando desde una esquina hasta la esquina contraria. ¡Eso es la diagonal!\n¿Sabías que existe una fórmula mágica para calcular la diagonal sin medirla directamente? Se llama el Teorema de Pitágoras: si conocemos la base y la altura de un rectángulo, la diagonal al cuadrado es igual a la suma de la base al cuadrado más la altura al cuadrado (diagonal² = base² + altura²). Por ejemplo, si la base mide 3 y la altura mide 4: 3² + 4² = 9 + 16 = 25, y la raíz cuadrada de 25 es 5. ¡La diagonal mide 5!",
+            "diccionario": {"Diagonal": "Segmento de recta que une dos vértices (esquinas) no consecutivos de un polígono.", "Teorema de Pitágoras": "En un triángulo rectángulo, el cuadrado de la hipotenusa es la suma de los cuadrados de los catetos.", "Hipotenusa": "El lado más largo de un triángulo rectángulo."},
             "advertencia": "La diagonal siempre es el lado más largo de la pantalla. ¡Es mayor que la base y mayor que la altura!",
             "ejemplos": obtener_ejemplos_expandidos_fase5(4, 2),
             "interactivos": [
-                {"pregunta": "Si un monitor se anuncia como '24 pulgadas', ¿qué mide 24 pulgadas? (escribe: la diagonal)", "respuesta": "la diagonal", "feedback_acierto": "¡Correcto! Se mide en diagonal.", "feedback_error": "Las pantallas se miden en diagonal. Escribe 'la diagonal'."},
-                {"pregunta": "En un rectángulo de 3x4, ¿la diagonal mide 5? (Escribe 1 para SÍ, 2 para NO)", "respuesta": "1", "feedback_acierto": "¡Excelente!", "feedback_error": "Sí, 3^2 + 4^2 = 5^2. Escribe 1."},
-                {"pregunta": "¿Qué es más largo en un TV, la base o la diagonal? (escribe: diagonal)", "respuesta": "diagonal", "feedback_acierto": "¡Brillante!", "feedback_error": "La diagonal siempre es la más larga. Escribe 'diagonal'."}
+                {"pregunta": "Si un monitor se anuncia como '24 pulgadas', ¿qué mide 24 pulgadas? (escribe: la diagonal)<br/>" + svg_rect_diagonal(20, 12, diag_label="24 pulg", unit="pulg"), "respuesta": "la diagonal", "feedback_acierto": "¡Correcto! Se mide en diagonal.", "feedback_error": "Las pantallas se miden en diagonal. Escribe 'la diagonal'."},
+                {"pregunta": "En un rectángulo de 3x4, ¿la diagonal mide 5? (Escribe 1 para SÍ, 2 para NO)<br/>" + svg_rect_diagonal(4, 3, diag_label="5", unit="cm"), "respuesta": "1", "feedback_acierto": "¡Excelente!", "feedback_error": "Sí, 3^2 + 4^2 = 5^2. Escribe 1."},
+                {"pregunta": "¿Qué es más largo en un TV, la base o la diagonal? (escribe: diagonal)<br/>" + svg_rect_diagonal(16, 9, diag_label="?", unit="cm"), "respuesta": "diagonal", "feedback_acierto": "¡Brillante!", "feedback_error": "La diagonal siempre es la más larga. Escribe 'diagonal'."}
             ]
         },
         {
             "modulo_id": 4, "nivel_id": 3,
             "titulo": "Conversión de unidades de superficie",
             "texto_descubrimiento": "¡Cuidado con las unidades al cuadrado! Cuando medimos área, medimos en dos dimensiones (ancho × alto).\nPor eso, 1 metro lineal son 100 centímetros, ¡pero 1 metro cuadrado (m²) son 100 cm × 100 cm = 10,000 cm²! Para convertir áreas, aplicamos la escala dos veces (la escala al cuadrado). ¡Las superficies crecen muy rápido!",
-            "diccionario": {"Metro cuadrado (m²)": "Área de un cuadrado que mide 1 metro de lado (equivalente a 10,000 cm²)."},
+            "diccionario": {"Metro cuadrado (m²)": "Área de un cuadrado que mide 1 metro de lado (equivalente a 10,000 cm²).", "Centímetro cuadrado (cm²)": "Unidad de área de 1 cm x 1 cm.", "Decímetro cuadrado (dm²)": "Unidad de área de 10 cm x 10 cm."},
             "advertencia": "Confusión clásica: al convertir unidades de área (superficie), recuerda multiplicar por la conversión al cuadrado, no por la lineal.",
             "ejemplos": obtener_ejemplos_expandidos_fase5(4, 3),
             "interactivos": [
-                {"pregunta": "¿Cuántos centímetros cuadrados hay en 1 m²?", "respuesta": "10000", "feedback_acierto": "¡Correcto! 100 x 100 = 10,000.", "feedback_error": "Multiplica 100x100 para hallar los cm²."},
-                {"pregunta": "Si 1 dm = 10 cm, ¿cuántos cm² hay en 1 dm²?", "respuesta": "100", "feedback_acierto": "¡Excelente! 10 x 10 = 100.", "feedback_error": "Multiplica 10x10."},
-                {"pregunta": "Si 1 m = 10 dm, ¿cuántos dm² hay en 2 m²?", "respuesta": "200", "feedback_acierto": "¡Brillante! 1 m² = 100 dm², entonces 2 m² = 200 dm².", "feedback_error": "1 m² = 100 dm². Multiplica por 2."}
+                {"pregunta": "¿Cuántos centímetros cuadrados hay en 1 m²?<br/>" + svg_square(1, unit="m"), "respuesta": "10000", "feedback_acierto": "¡Correcto! 100 x 100 = 10,000.", "feedback_error": "Multiplica 100x100 para hallar los cm²."},
+                {"pregunta": "Si 1 dm = 10 cm, ¿cuántos cm² hay en 1 dm²?<br/>" + svg_square(1, unit="dm"), "respuesta": "100", "feedback_acierto": "¡Excelente! 10 x 10 = 100.", "feedback_error": "Multiplica 10x10."},
+                {"pregunta": "Si 1 m = 10 dm, ¿cuántos dm² hay en 2 m²?<br/>" + svg_rect(2, 1, unit="m"), "respuesta": "200", "feedback_acierto": "¡Brillante! 1 m² = 100 dm², entonces 2 m² = 200 dm².", "feedback_error": "1 m² = 100 dm². Multiplica por 2."}
             ]
         }
     ]
@@ -395,8 +410,9 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                         url = _graphic_url_cache[cache_key]
                     else:
                         vertices = [(1, 1), (1 + a, 1), (1 + a, 1 + b), (1, 1 + b)]
-                        img_bytes = generate_grid_shape_image(vertices, grid_size=(max(10, a + 3), max(10, b + 3)), fill_color=(224, 247, 250, 180), outline_color=(30, 30, 30, 255))
-                        url = await storage_service.upload_question_graphic(img_bytes, f"grid_p_{a}_{b}_v2.png")
+                        labels = {(0, 1): f"{a} u", (1, 2): f"{b} u"}
+                        img_bytes = generate_grid_shape_image(vertices, grid_size=(max(10, a + 3), max(10, b + 3)), fill_color=(224, 247, 250, 150), outline_color=(30, 30, 30, 255), labels=labels)
+                        url = await storage_service.upload_question_graphic(img_bytes, f"grid_p_{a}_{b}_v4.png")
                         _graphic_url_cache[cache_key] = url
                 
                 errores_previstos[str(a*b)] = "Calculaste el área (base por altura) en lugar del perímetro (sumar los bordes)."
@@ -459,7 +475,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 
                 unidad = rng.choice(["cm", "m", "mm"])
                 svg_quad = (
-                    f"<svg width='240' height='200' viewBox='-10 -10 260 220' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='200' viewBox='-10 -10 260 220' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <polygon points='30,160 210,160 190,40 50,40' fill='#E0F2FE' fill-opacity='0.7' stroke='#1E293B' stroke-width='2.5'/>"
                     f"  <text x='120' y='178' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} {unidad}</text>"
                     f"  <text x='215' y='110' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} {unidad}</text>"
@@ -493,7 +509,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 ans_str = str(ans)
                 # SVG rectángulo con etiquetas de unidades mixtas
                 svg_conv = (
-                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='30' y='30' width='180' height='100' fill='#FEF9C3' fill-opacity='0.8' stroke='#1E293B' stroke-width='2.5'/>"
                     f"  <text x='120' y='18' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} m</text>"
                     f"  <text x='225' y='84' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} cm</text>"
@@ -512,7 +528,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 ans = 2 * (a * 10 + b)
                 ans_str = str(ans)
                 svg_conv = (
-                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='30' y='30' width='180' height='100' fill='#FEF9C3' fill-opacity='0.8' stroke='#1E293B' stroke-width='2.5'/>"
                     f"  <text x='120' y='18' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} m</text>"
                     f"  <text x='225' y='84' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} dm</text>"
@@ -531,7 +547,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 ans = 2 * (a * 1000 + b)
                 ans_str = str(ans)
                 svg_conv = (
-                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='30' y='30' width='180' height='100' fill='#FEF9C3' fill-opacity='0.8' stroke='#1E293B' stroke-width='2.5'/>"
                     f"  <text x='120' y='18' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} km</text>"
                     f"  <text x='225' y='84' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} m</text>"
@@ -608,8 +624,9 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                         url = _graphic_url_cache[cache_key]
                     else:
                         vertices = [(1, 1), (1 + a, 1), (1 + a, 1 + b), (1, 1 + b)]
-                        img_bytes = generate_grid_shape_image(vertices, grid_size=(max(10, a + 3), max(10, b + 3)), fill_color=(224, 247, 250, 180), outline_color=(30, 30, 30, 255))
-                        url = await storage_service.upload_question_graphic(img_bytes, f"grid_a_{a}_{b}_{unidad}_v2.png")
+                        labels = {(0, 1): f"{a} {unidad}", (1, 2): f"{b} {unidad}"}
+                        img_bytes = generate_grid_shape_image(vertices, grid_size=(max(10, a + 3), max(10, b + 3)), fill_color=(224, 247, 250, 150), outline_color=(30, 30, 30, 255), labels=labels)
+                        url = await storage_service.upload_question_graphic(img_bytes, f"grid_a_{a}_{b}_{unidad}_v4.png")
                         _graphic_url_cache[cache_key] = url
                 
                 errores_previstos[str(2*(a+b))] = "Calculaste el perímetro (sumar bordes) en lugar del área (multiplicar dimensiones)."
@@ -670,7 +687,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             grid_h = (row_i + 1) * cs + cy * 2
             svg_tri = (
                 f"<svg width='240' height='{min(180, grid_h+30)}' viewBox='-5 -5 {grid_w+10} {grid_h+20}' "
-                f"style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                f"style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 f"{svg_cells}"
                 f"<text x='{grid_w//2}' y='{grid_h+12}' fill='#1E293B' font-size='15' text-anchor='middle'>"
                 f"🔵={enteros} enteros  🔴={mitades} mitades</text>"
@@ -782,7 +799,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 total_h = r1h + r2h + 20
                 svg_l = (
                     f"<svg width='220' height='{min(200, total_h+50)}' viewBox='-10 -10 {total_w+20} {total_h+40}' "
-                    f"style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='10' y='10' width='{r1w}' height='{r1h}' fill='#BAE6FD' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
                     f"  <text x='{10+r1w//2}' y='{10+r1h//2}' fill='#1E293B' font-size='16' font-weight='bold' text-anchor='middle' dominant-baseline='middle'>{a}×{b} {unidad}</text>"
                     f"  <rect x='10' y='{10+r1h}' width='{r2w}' height='{r2h}' fill='#BBF7D0' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
@@ -827,7 +844,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             errores_previstos["0"] = "Esa figura sí tiene ejes de simetría (excepto la letra L). Imagina doblarla por la mitad."
             
             svg_sym = (
-                f"<svg width='200' height='180' viewBox='0 0 200 180' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                f"<svg width='200' height='180' viewBox='0 0 200 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 f"{svg_shape}"
                 f"<text x='100' y='175' fill='#F59E0B' font-size='15' font-weight='bold' text-anchor='middle'>— eje de simetría</text>"
                 f"</svg>"
@@ -894,7 +911,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 
                 # SVG: dos rectángulos apilados con sus áreas etiquetadas
                 svg_stack = (
-                    f"<svg width='200' height='180' viewBox='-10 -10 220 200' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='200' height='180' viewBox='-10 -10 220 200' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='20' y='10' width='160' height='70' fill='#BAE6FD' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
                     f"  <text x='100' y='50' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle' dominant-baseline='middle'>Área = {a} {unidad}²</text>"
                     f"  <rect x='20' y='80' width='160' height='70' fill='#BBF7D0' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
@@ -929,7 +946,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             
             # SVG: Tangram simplificado con piezas de colores y flecha de transformación
             svg_tangram = (
-                f"<svg width='260' height='130' viewBox='-5 -5 270 140' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                f"<svg width='260' height='130' viewBox='-5 -5 270 140' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 f"  <rect x='10' y='10' width='60' height='60' fill='#BAE6FD' fill-opacity='0.8' stroke='#1E293B' stroke-width='1.5'/>"
                 f"  <polygon points='70,10 130,10 130,70' fill='#BBF7D0' fill-opacity='0.8' stroke='#1E293B' stroke-width='1.5'/>"
                 f"  <polygon points='70,10 70,70 130,70' fill='#FCA5A5' fill-opacity='0.8' stroke='#1E293B' stroke-width='1.5'/>"
@@ -1008,7 +1025,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 
                 # SVG: marco exterior con hueco interior
                 svg_frame = (
-                    f"<svg width='200' height='180' viewBox='-10 -10 220 200' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='200' height='180' viewBox='-10 -10 220 200' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='10' y='10' width='180' height='140' fill='#BAE6FD' fill-opacity='0.7' stroke='#1E293B' stroke-width='2.5'/>"
                     f"  <rect x='50' y='40' width='100' height='80' fill='#FFFFFF' stroke='#1E293B' stroke-width='2' stroke-dasharray='5,3'/>"
                     f"  <text x='100' y='28' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>Ext = {ext} {unidad}²</text>"
@@ -1047,7 +1064,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             # SVG: mapa simplificado con regla de escala y segmento medido
             bar_w = u * 12
             svg_scale = (
-                f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#FFFBF0;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 f"  <rect x='10' y='10' width='220' height='120' fill='#FEF3C7' fill-opacity='0.4' rx='6'/>"
                 f"  <line x1='20' y1='70' x2='{20+bar_w}' y2='70' stroke='#1E293B' stroke-width='3' stroke-linecap='round'/>"
                 f"  <line x1='20' y1='60' x2='20' y2='80' stroke='#1E293B' stroke-width='2'/>"
@@ -1079,7 +1096,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             case = rng.choice([1, 2, 3, 4])
             # SVG TV/pantalla con diagonal destacada
             svg_tv = (
-                "<svg width='240' height='170' viewBox='-10 -10 260 190' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                "<svg width='240' height='170' viewBox='-10 -10 260 190' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 "  <rect x='20' y='20' width='200' height='120' rx='8' fill='#1E293B' stroke='#64748B' stroke-width='2'/>"
                 "  <rect x='30' y='28' width='180' height='104' rx='4' fill='#0EA5E9' fill-opacity='0.2'/>"
                 "  <line x1='30' y1='28' x2='210' y2='132' stroke='#F59E0B' stroke-width='3' stroke-linecap='round'/>"
@@ -1112,7 +1129,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 scale_svg = min(100 // max(a, b), 16)
                 rw, rh = a * scale_svg, b * scale_svg
                 svg_pyt = (
-                    f"<svg width='220' height='160' viewBox='-10 -10 {rw+80} {rh+80}' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='220' height='160' viewBox='-10 -10 {rw+80} {rh+80}' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='10' y='10' width='{rw}' height='{rh}' fill='#E0F2FE' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
                     f"  <line x1='10' y1='10' x2='{10+rw}' y2='{10+rh}' stroke='#F59E0B' stroke-width='2.5' stroke-dasharray='5,3'/>"
                     f"  <text x='{10+rw//2}' y='{10+rh+18}' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} {unidad}</text>"
@@ -1140,7 +1157,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             m2 = rng.randint(1, 8)
             # SVG: cuadrado con conversión de unidades de superficie
             svg_m2 = (
-                f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 f"  <rect x='20' y='15' width='100' height='100' fill='#BAE6FD' fill-opacity='0.7' stroke='#1E293B' stroke-width='2'/>"
                 f"  <text x='70' y='15' fill='#1E293B' font-size='16' text-anchor='middle'>1 m</text>"
                 f"  <text x='15' y='68' fill='#1E293B' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 m</text>"
@@ -1164,7 +1181,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 alts = [ans_str, str(m2*100), str(m2*1000), str(m2*100000)]
             elif case == 2:
                 svg_dm2 = (
-                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='20' y='15' width='100' height='100' fill='#BBF7D0' fill-opacity='0.7' stroke='#1E293B' stroke-width='2'/>"
                     f"  <text x='70' y='13' fill='#1E293B' font-size='16' text-anchor='middle'>1 dm</text>"
                     f"  <text x='15' y='68' fill='#1E293B' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 dm</text>"
@@ -1187,7 +1204,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 alts = [ans_str, str(m2*10), str(m2*1000), str(m2*10000)]
             else:
                 svg_m2dm2 = (
-                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#FFFFFF;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='20' y='15' width='100' height='100' fill='#FEF9C3' fill-opacity='0.7' stroke='#1E293B' stroke-width='2'/>"
                     f"  <text x='70' y='13' fill='#1E293B' font-size='16' text-anchor='middle'>1 m</text>"
                     f"  <text x='15' y='68' fill='#1E293B' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 m</text>"
@@ -1368,3 +1385,4 @@ async def run_fase5_seed():
 
 if __name__ == "__main__":
     asyncio.run(run_fase5_seed())
+

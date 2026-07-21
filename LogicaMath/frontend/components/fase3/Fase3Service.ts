@@ -86,12 +86,15 @@ export async function getFase3Question(
 export async function submitFase3Answer(
   payload: Fase3AnswerPayload
 ): Promise<Fase3AnswerResult> {
-  const res = await fetchWithTimeout(`${API_URL}/fase3/responder`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(payload),
+  const key = `answer-f3-${payload.pregunta_id}`;
+  return fetchDeduplicated(key, async () => {
+    const res = await fetchWithTimeout(`${API_URL}/fase3/responder`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+    return handleResponse<Fase3AnswerResult>(res);
   });
-  return handleResponse<Fase3AnswerResult>(res);
 }
 
 /**

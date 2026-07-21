@@ -766,8 +766,9 @@ async def responder_fase3(
             correct_alt = next((a for a in pregunta.alternativas if a.es_correcta), None)
             respuesta_correcta_str = correct_alt.texto if correct_alt else pregunta.respuesta_correcta
     else:
-        resp_dada = (payload.respuesta_dada or "").strip().lower().replace(",", ".").replace("r$ ", "")
-        resp_corr = respuesta_correcta_str.strip().lower().replace(",", ".").replace("r$ ", "")
+        is_money = (modulo_id == 3)
+        resp_dada = normalize_response(payload.respuesta_dada, is_money)
+        resp_corr = normalize_response(respuesta_correcta_str, is_money)
         es_correcta = resp_dada == resp_corr
 
     intento = Intento(

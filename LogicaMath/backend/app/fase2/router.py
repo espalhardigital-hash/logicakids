@@ -915,7 +915,7 @@ async def responder_fase2(
                 err_val_normalized = normalize_response(err.get("valor", ""), is_money)
                 if normalized_dada == err_val_normalized:
                     tipo_error_str = err.get("tipo_error", "calculo")
-                    tipo_error = TipoErrorEnum(tipo_error_str) if hasattr(TipoErrorEnum, tipo_error_str) else TipoErrorEnum.CALCULO
+                    tipo_error = TipoErrorEnum(tipo_error_str) if tipo_error_str in TipoErrorEnum._value2member_map_ else TipoErrorEnum.CALCULO
                     feedback_mostrado = err.get("feedback")
                     break
             
@@ -1237,7 +1237,7 @@ async def responder_fase2(
         intentos_espejo = 0
         soporte_avanzado = False
 
-        if not es_correcta and modulo_id in (1, 2, 3) and pregunta.estructura_padre_id:
+        if not es_correcta and pregunta.estructura_padre_id:
             res_fam = await db.execute(
                 select(Intento)
                 .join(Pregunta, Intento.pregunta_id == Pregunta.id)

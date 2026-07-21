@@ -46,6 +46,15 @@ class TipoErrorEnum(str, enum.Enum):
     VALOR_POSICIONAL = "valor_posicional"
     TROCO = "troco"
     INFERENCIA = "inferencia"
+    IMPULSO = "impulso"
+    PARENTESIS = "parentesis"
+    INVERSA = "inversa"
+    BALANZA = "balanza"
+    DECIMAL = "decimal"
+    VUELTO = "vuelto"
+    SUMA_DECIMAL = "suma_decimal"
+    PRESUPUESTO = "presupuesto"
+    DISTRACTOR = "distractor"
 
 
 class EstadoSimuladoEnum(str, enum.Enum):

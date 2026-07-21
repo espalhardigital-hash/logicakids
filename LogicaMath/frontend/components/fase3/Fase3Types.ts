@@ -14,7 +14,7 @@ export interface Fase3Pregunta {
   modulo_id: number;
   nivel_id: number;
   enunciado: string;
-  tipo_pregunta: 'respuesta_numerica' | 'multiple_opcion' | 'constructor_operaciones';
+  tipo_pregunta: 'respuesta_numerica' | 'multiple_opcion';
   tiene_cronometro: boolean;
   tiempo_limite_segundos?: number;
   alternativas?: Fase3AlternativaOut[];
@@ -24,6 +24,7 @@ export interface Fase3Pregunta {
   intentos_totales?: number;
   porcentaje_actual?: number;
   cantidad_requerida?: number;
+  max_errores_tolerados?: number;
 }
 
 export interface Fase3AnswerPayload {

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Helper para generar SVGs premium de teoría con diseño oscuro, cuadrícula y etiquetas externas.
 Fondo: #111827, cuadrícula sutil #374151, figura con borde blanco sin relleno,
 etiquetas FUERA con fuente grande, leyenda "1 cm" en esquina inferior derecha.
@@ -249,3 +249,73 @@ def svg_shaded_rect(w_u, h_u, unit="cm²", fill="#EC4899", border="#EC4899") -> 
     right_lbl = _lbl_rot(x1 + 22, cy, f"{h_u}", angle=90)
 
     return _svg_container(shape + top_lbl + right_lbl, border_color=border)
+
+def svg_grid_halves(enteros: int, mitades: int, unit="cm", border="#3B82F6") -> str:
+    """Rejilla con cuadrados enteros (rect) + triángulos mitad, para M2.L2 (fusión de sectores)."""
+    cols = min(enteros + mitades, 6)
+    if cols == 0:
+        return ""
+    cs = _INNER / cols
+    rows = (enteros + mitades + cols - 1) // cols
+    cx = _M + (_INNER - cols * cs) / 2
+    cy = _M + (_INNER - rows * cs) / 2
+
+    shape = ""
+    col_i = 0
+    row_i = 0
+    for _ in range(enteros):
+        if col_i >= cols:
+            col_i = 0
+            row_i += 1
+        x = cx + col_i * cs
+        y = cy + row_i * cs
+        shape += f"<rect x='{x:.1f}' y='{y:.1f}' width='{cs:.1f}' height='{cs:.1f}' fill='#BAE6FD' stroke='{_SHP}' stroke-width='1'/>"
+        col_i += 1
+    for _ in range(mitades):
+        if col_i >= cols:
+            col_i = 0
+            row_i += 1
+        x = cx + col_i * cs
+        y = cy + row_i * cs
+        shape += f"<polygon points='{x:.1f},{y:.1f} {x+cs:.1f},{y:.1f} {x+cs:.1f},{y+cs:.1f}' fill='#FCA5A5' stroke='{_SHP}' stroke-width='1'/>"
+        col_i += 1
+
+    return _svg_container(shape, border_color=border)
+
+def svg_scale_bar(u_val: int, scale: int, unit="cm", border="#F59E0B") -> str:
+    """Barra de escala gráfica tipo mapa, para M4.L1."""
+    bar_w = _INNER * 0.8
+    shape = (
+        f"<rect x='{_M:.1f}' y='{_M:.1f}' width='{_INNER:.1f}' height='{_INNER:.1f}' fill='#475569' fill-opacity='0.4' rx='6'/>"
+        f"<line x1='{_M+10:.1f}' y1='{_H/2:.1f}' x2='{_M+10+bar_w:.1f}' y2='{_H/2:.1f}' stroke='{_SHP}' stroke-width='3' stroke-linecap='round'/>"
+        f"<line x1='{_M+10:.1f}' y1='{_H/2-10:.1f}' x2='{_M+10:.1f}' y2='{_H/2+10:.1f}' stroke='{_SHP}' stroke-width='2'/>"
+        f"<line x1='{_M+10+bar_w:.1f}' y1='{_H/2-10:.1f}' x2='{_M+10+bar_w:.1f}' y2='{_H/2+10:.1f}' stroke='{_SHP}' stroke-width='2'/>"
+    )
+    lbl = _lbl(_M + 10 + bar_w/2, _H/2 - 12, f"{u_val} {unit}", fs=18)
+    return _svg_container(shape + lbl, border_color=border)
+
+def svg_rect_diagonal(w_u: int, h_u: int, diag_label: str = "?", unit="cm", border="#EC4899") -> str:
+    """Rectángulo con diagonal resaltada (para enseñar/practicar Pitágoras), para M4.L2."""
+    scale_fac = min(_INNER / w_u, _INNER / h_u)
+    pw = w_u * scale_fac
+    ph = h_u * scale_fac
+    x0 = (_W - pw) / 2
+    y0 = (_H - ph) / 2
+    x1, y1 = x0 + pw, y0 + ph
+    cx = (x0 + x1) / 2
+    cy = (y0 + y1) / 2
+    
+    shape = (
+        f"<rect x='{x0:.1f}' y='{y0:.1f}' width='{pw:.1f}' height='{ph:.1f}' fill='#1E40AF' fill-opacity='0.5' stroke='{_SHP}' stroke-width='2'/>"
+        f"<line x1='{x0:.1f}' y1='{y0:.1f}' x2='{x1:.1f}' y2='{y1:.1f}' stroke='#F59E0B' stroke-width='3' stroke-dasharray='5,3'/>"
+    )
+    
+    bottom_lbl = _lbl(cx, y1 + 18, f"{w_u} {unit}")
+    left_lbl   = _lbl_rot(x0 - 20, cy, f"{h_u} {unit}", angle=-90)
+    
+    import math
+    angle = math.degrees(math.atan2(y1 - y0, x1 - x0))
+    diag_lbl   = _lbl_rot(cx + 8, cy - 8, diag_label, angle=angle, fs=16)
+
+    return _svg_container(shape + bottom_lbl + left_lbl + diag_lbl, border_color=border)
+
