@@ -1404,7 +1404,13 @@ def generate_practice_question_fase4(modulo_id: int, nivel_id: int, fam: int, va
                 ans = (a + b + c) // 3
                 enunciado = f"{prefix}Las alturas de tres torres de bloques que armó {nombre} son {a}, {b} y {c} bloques. ¿Cuál es la altura promedio al nivelar las tres torres?"
                 feedback = f"Suma los tres valores para hacer la pila única ({a} + {b} + {c} = {a+b+c}) y divide el resultado entre 3 ({a+b+c} ÷ 3 = {ans})."
-            vals = {"a": a, "b": b, "c": c}
+            vals = {
+                "tipo_visual": "bar_chart",
+                "val_a": a,
+                "val_b": b,
+                "categorias": ["Torre A", "Torre B"],
+                "a": a, "b": b, "c": c
+            }
  
     # ── MÓDULO 4: Razón y Mezclas ────────────────────────────────────────────
     else:
@@ -1425,7 +1431,7 @@ def generate_practice_question_fase4(modulo_id: int, nivel_id: int, fam: int, va
                 ans = agua * factor
                 enunciado = f"{prefix}La receta de refresco de {nombre} usa una proporción de {agua} tazas de agua por 1 de jugo concentrado ({agua}:1). Si usas {factor} tazas de jugo concentrado en la jarra, ¿cuántas tazas de agua necesitas para conservar el sabor?"
                 feedback = f"El jugo se multiplicó por {factor}. Escala el agua multiplicándola por {factor}: {agua} × {factor} = {ans}."
-            vals = {"agua": agua, "limon": limon, "factor": factor}
+            vals = {"tipo_visual": "ratio_grid", "agua": agua, "limon": limon, "factor": factor}
             
         elif nivel_id == 2: # Reparto proporcional
             azul = rng.randint(1, 3)
@@ -1454,6 +1460,9 @@ def generate_practice_question_fase4(modulo_id: int, nivel_id: int, fam: int, va
                     enunciado = f"{prefix}{nombre} mezcla {azul} litros de {p1} con {amarillo} litros de {p2} (haciendo {receta_total} litros en total). Para preparar {pedido} litros de la misma pintura, ¿cuántos litros de {p2} necesita?"
                     feedback = f"Divide el pedido total ({pedido}) entre la receta base ({receta_total}) para hallar el lote: {pedido} ÷ {receta_total} = {factor} veces. Multiplicamos la porción de {p2}: {amarillo} × {factor} = {ans}."
                     vals = {
+                        "tipo_visual": "beaker",
+                        "cortes": azul * factor + amarillo * factor,
+                        "nivel": 0,
                         "es_interactivo": False,
                         "azul": azul,
                         "amarillo": amarillo,
@@ -1477,6 +1486,9 @@ def generate_practice_question_fase4(modulo_id: int, nivel_id: int, fam: int, va
                     enunciado = f"{prefix}{nombre} mezcla {azul} litros de {p1} con {amarillo} litros de {p2} (haciendo {receta_total} litros en total). Para preparar {pedido} litros de la misma pintura, ¿cuántos litros de {p1} necesita?"
                     feedback = f"Divide el pedido total ({pedido}) entre la receta base ({receta_total}) para hallar el lote: {pedido} ÷ {receta_total} = {factor} veces. Multiplica el {p1}: {azul} × {factor} = {ans}."
                     vals = {
+                        "tipo_visual": "beaker",
+                        "cortes": azul * factor + amarillo * factor,
+                        "nivel": 0,
                         "es_interactivo": False,
                         "azul": azul,
                         "amarillo": amarillo,
@@ -1508,6 +1520,9 @@ def generate_practice_question_fase4(modulo_id: int, nivel_id: int, fam: int, va
                     enunciado = f"{prefix}{nombre} creó un perfume mezclando {ess} parte de esencia por {alc} partes de alcohol (haciendo {total} partes en total). ¿Qué porcentaje del volumen representa el alcohol en este perfume?"
                     feedback = f"La fracción de alcohol es {alc} de {total} partes totales ({alc}/{total}). Multiplicamos por 100 para hallar el porcentaje: ({alc} ÷ {total}) × 100 = {ans}%."
                     vals = {
+                        "tipo_visual": "beaker",
+                        "cortes": total,
+                        "nivel": 0,
                         "es_interactivo": False,
                         "ess": ess,
                         "alc": alc,
@@ -1531,6 +1546,9 @@ def generate_practice_question_fase4(modulo_id: int, nivel_id: int, fam: int, va
                     enunciado = f"{prefix}{nombre} creó un perfume mezclando {ess} parte de esencia por {alc} partes de alcohol (haciendo {total} partes en total). ¿Qué porcentaje representa la esencia en este perfume?"
                     feedback = f"La fracción de esencia es 1 de {total} partes totales (1/{total}). Multiplicamos por 100 para hallar el porcentaje: 100 ÷ {total} = {ans}%."
                     vals = {
+                        "tipo_visual": "beaker",
+                        "cortes": total,
+                        "nivel": 0,
                         "es_interactivo": False,
                         "ess": ess,
                         "alc": alc,
@@ -1607,6 +1625,18 @@ async def seed_preguntas_practica(session: AsyncSession):
             
     await session.commit()
     print("Pool de Práctica Libre de Fase 4 insertado.")
+
+def _add_distractor(errores_previstos: Dict[str, str], ans: str, value: int, msg: str):
+    """
+    Agrega un distractor a errores_previstos evitando que coincida numéricamente
+    con la respuesta correcta (puede pasar por coincidencia según los valores
+    aleatorios elegidos para la pregunta).
+    """
+    v = value
+    if str(v) == str(ans):
+        v = value + 1 if value > 0 else value + 2
+    errores_previstos[str(v)] = msg
+
 
 def generate_challenge_question_fase4(modulo_id: int, desafio_id: int, idx: int) -> Dict[str, Any]:
     seed = FASE4_ID * 1000000 + modulo_id * 10000 + desafio_id * 1000 + idx
@@ -1763,9 +1793,9 @@ def generate_challenge_question_fase4(modulo_id: int, desafio_id: int, idx: int)
                 
             vals = {}
             if not (solvente == 2 and factor == 2):
-                errores_previstos[str(solvente + factor)] = "Sumaste los ingredientes. Las proporciones se mantienen multiplicando, no sumando."
-            errores_previstos[str(factor)] = "Escribiste solo el factor de multiplicación."
-            errores_previstos[str(solvente)] = "Esa es la cantidad de la receta básica para 1 parte."
+                _add_distractor(errores_previstos, ans, solvente + factor, "Sumaste los ingredientes. Las proporciones se mantienen multiplicando, no sumando.")
+            _add_distractor(errores_previstos, ans, factor, "Escribiste solo el factor de multiplicación.")
+            _add_distractor(errores_previstos, ans, solvente, "Esa es la cantidad de la receta básica para 1 parte.")
             
         elif categoria == 1:
             # Reparto de volúmenes
@@ -1783,9 +1813,9 @@ def generate_challenge_question_fase4(modulo_id: int, desafio_id: int, idx: int)
                 enunciado = f"Para el concreto, {nombre} mezcla {ing1} de cemento y {ing2} de arena ({receta} en total). Para hacer {pedido} unidades de mezcla, ¿cuánto cemento usa?"
                 
             vals = {}
-            errores_previstos[str(pedido // receta)] = "Calculaste cuántas veces se multiplica la receta (el factor), no la cantidad del ingrediente."
-            errores_previstos[str(ing2 * factor)] = "Calculaste la cantidad del otro ingrediente."
-            errores_previstos[str(pedido - ing1)] = "Restaste en lugar de usar proporciones."
+            _add_distractor(errores_previstos, ans, pedido // receta, "Calculaste cuántas veces se multiplica la receta (el factor), no la cantidad del ingrediente.")
+            _add_distractor(errores_previstos, ans, ing2 * factor, "Calculaste la cantidad del otro ingrediente.")
+            _add_distractor(errores_previstos, ans, pedido - ing1, "Restaste en lugar de usar proporciones.")
             
         else:
             # Porcentajes en mezclas
@@ -1798,9 +1828,13 @@ def generate_challenge_question_fase4(modulo_id: int, desafio_id: int, idx: int)
             enunciado = f"{nombre} creó una mezcla con {ess} parte de ingrediente activo y {alc} partes de base (haciendo {total} partes en total). ¿Qué porcentaje representa el ingrediente activo en esta mezcla?"
             
             vals = {}
-            errores_previstos[str((alc * 100) // total)] = "Calculaste el porcentaje de la base, no del ingrediente activo."
-            errores_previstos[str(100 // alc)] = "Dividiste entre la base en lugar del total de partes."
+            _add_distractor(errores_previstos, ans, (alc * 100) // total, "Calculaste el porcentaje de la base, no del ingrediente activo.")
+            _add_distractor(errores_previstos, ans, 100 // alc, "Dividiste entre la base en lugar del total de partes.")
         
+    # Ningún distractor previsto debe coincidir con la respuesta correcta
+    # (puede ocurrir por coincidencia numérica según los valores aleatorios elegidos).
+    errores_previstos = {k: v for k, v in errores_previstos.items() if k != str(ans)}
+
     return {
         "enunciado": enunciado,
         "respuesta_correcta": str(ans),
@@ -1848,8 +1882,15 @@ async def seed_preguntas_desafios(session: AsyncSession):
                 # Seeding alternativas for multiple choice challenges
                 if q_data["tipo_pregunta"] == TipoPreguntaEnum.MULTIPLE_OPCION:
                     correct_val = q_data["respuesta_correcta"]
-                    incorrect_choices = list(q_data.get("errores_previstos", {}).keys())
-                    
+                    # Los distractores sembrados en errores_previstos pueden coincidir
+                    # accidentalmente con la respuesta correcta (ver seed corregido en
+                    # generate_challenge_question_fase4); se filtran antes de usarlos
+                    # para no generar 2 alternativas marcadas como correctas.
+                    incorrect_choices = [
+                        v for v in q_data.get("errores_previstos", {}).keys()
+                        if v != correct_val
+                    ]
+
                     rng = random.Random(FASE4_ID * 100000 + seccion * 100 + idx)
                     
                     while len(incorrect_choices) < 3:

@@ -12,6 +12,9 @@ import { FractionPercentageVisualizer } from './FractionPercentageVisualizer';
 import { RatioGridVisualizer } from './RatioGridVisualizer';
 
 const SHAPES = ['circle', 'square', 'pentagon', 'hexagon'] as const;
+// Referencia estable: evita recrear una función nueva en cada render cuando
+// no se provee setVisualState (lo que forzaría un remount del canvas de Fabric.js).
+const NOOP_STATE_CHANGE = (_val: any) => {};
 
 export const getDeterministicShape = (seedText: string): 'circle' | 'square' | 'pentagon' | 'hexagon' => {
   let hash = 0;
@@ -315,11 +318,19 @@ export const Fase4VisualizerEngine: React.FC<Props> = ({
   if (tipoVisual === 'fraction_percentage') {
     const pct = pregunta.datos_numericos?.pct || 0;
     const total = pregunta.datos_numericos?.total || 100;
+    // El backend siembra el numerador/denominador objetivo reales en 'nivel'/'cortes'
+    // (para preguntas de fracción simple 'pct' queda en 0 solo para controlar el
+    // texto mostrado, así que el chequeo de acierto debe usar estos valores exactos
+    // en vez de derivar el objetivo desde 'pct').
+    const targetNum = pregunta.datos_numericos?.nivel;
+    const targetDen = pregunta.datos_numericos?.cortes;
 
     return (
       <FractionPercentageVisualizer
         percentage={pct}
         total={total}
+        targetNum={targetNum}
+        targetDen={targetDen}
         color={moduleColor}
         interactive={interactive || !!pregunta.datos_numericos?.es_interactivo}
         respuestaNum={respuestaNum}
@@ -334,7 +345,7 @@ export const Fase4VisualizerEngine: React.FC<Props> = ({
     return (
       <Fase4FabricVisualizer
         datos_numericos={pregunta.datos_numericos}
-        onStateChange={setVisualState || (() => {})}
+        onStateChange={setVisualState || NOOP_STATE_CHANGE}
       />
     );
   }
@@ -359,7 +370,7 @@ export const Fase4VisualizerEngine: React.FC<Props> = ({
     );
   }
 
-  if (moduloId === 4 && nivelId === 1) {
+  if (tipoVisual === 'ratio_grid') {
     return (
       <RatioGridVisualizer
         pregunta={pregunta}
@@ -368,5 +379,12 @@ export const Fase4VisualizerEngine: React.FC<Props> = ({
     );
   }
 
-  return null;
+  console.warn(
+    `Fase4VisualizerEngine: no hay visualizador para tipo_visual="${tipoVisual}" (modulo ${moduloId}, nivel ${nivelId}).`
+  );
+  return (
+    <div className="text-center text-slate-400 text-sm italic py-8 select-none">
+      Sin gráfico disponible para esta pregunta.
+    </div>
+  );
 };

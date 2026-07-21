@@ -43,6 +43,19 @@ export const Fase4FabricVisualizer: React.FC<Fase4FabricVisualizerProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
 
+  // Mantiene la última referencia de onStateChange sin forzar al efecto principal
+  // a re-ejecutarse (y por lo tanto destruir/recrear el canvas) cuando el padre
+  // pasa una función nueva en cada render.
+  const onStateChangeRef = useRef(onStateChange);
+  useEffect(() => {
+    onStateChangeRef.current = onStateChange;
+  }, [onStateChange]);
+
+  // Serializar solo las figuras (lo que realmente define el canvas) para que el
+  // efecto no se dispare por un simple cambio de referencia de `datos_numericos`
+  // que no altera las figuras en sí.
+  const shapesKey = JSON.stringify(datos_numericos?.shapes || []);
+
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -113,9 +126,7 @@ export const Fase4FabricVisualizer: React.FC<Fase4FabricVisualizerProps> = ({
         fill: obj.fill
       }));
 
-      if (onStateChange) {
-        onStateChange(objectsState);
-      }
+      onStateChangeRef.current?.(objectsState);
 
       /**
        * ═══════════════════════════════════════════════════════════════════════
@@ -146,7 +157,7 @@ export const Fase4FabricVisualizer: React.FC<Fase4FabricVisualizerProps> = ({
       canvas.dispose();
       fabricCanvasRef.current = null;
     };
-  }, [datos_numericos, onStateChange]);
+  }, [shapesKey]);
 
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-slate-950/50 border border-slate-800 rounded-2xl">

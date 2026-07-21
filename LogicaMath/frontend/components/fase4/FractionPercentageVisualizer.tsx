@@ -11,6 +11,12 @@ interface Props {
   respuestaDen?: string;
   setRespuestaNum?: (val: string) => void;
   setRespuestaDen?: (val: string) => void;
+
+  // Numerador/denominador objetivo reales (sembrados en datos_numericos.nivel/cortes).
+  // Cuando están presentes, el acierto se valida contra estos valores exactos en vez
+  // de derivarlos de `percentage` (que puede venir en 0 para preguntas de fracción simple).
+  targetNum?: number;
+  targetDen?: number;
 }
 
 export const FractionPercentageVisualizer: React.FC<Props> = ({
@@ -22,6 +28,8 @@ export const FractionPercentageVisualizer: React.FC<Props> = ({
   respuestaDen = '',
   setRespuestaNum,
   setRespuestaDen,
+  targetNum,
+  targetDen,
 }) => {
   // Internal state for selected fraction
   const [num, setNum] = useState<number | null>(
@@ -33,16 +41,25 @@ export const FractionPercentageVisualizer: React.FC<Props> = ({
   const [activeSlot, setActiveSlot] = useState<'num' | 'den'>('num');
   const [isCorrect, setIsCorrect] = useState(false);
 
-  // Available numbers for the bank (1-10)
-  const numberBank = [1, 2, 3, 4, 5, 6, 8, 10];
+  // Banco de números disponibles: cubre denominadores/numeradores hasta 12
+  // (los generadores del backend pueden pedir cualquier valor de 1 a 12).
+  const numberBank = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
   // Calculate target fraction values (e.g. 25% -> 1/4)
   useEffect(() => {
     if (num !== null && den !== null && den > 0) {
-      const currentVal = num / den;
-      const targetVal = percentage / 100;
-      // Allow floating point tolerance
-      const correct = Math.abs(currentVal - targetVal) < 0.001;
+      let correct: boolean;
+      if (targetNum !== undefined && targetDen !== undefined) {
+        // Comparación exacta contra el numerador/denominador sembrado (más fiable
+        // que derivarlo de `percentage`, que puede ser 0 para preguntas de
+        // fracción simple sin marco de porcentaje).
+        correct = num === targetNum && den === targetDen;
+      } else {
+        const currentVal = num / den;
+        const targetVal = percentage / 100;
+        // Allow floating point tolerance
+        correct = Math.abs(currentVal - targetVal) < 0.001;
+      }
       setIsCorrect(correct);
 
       // If correct, or if we want to sync whatever they wrote, propagate up
@@ -53,7 +70,7 @@ export const FractionPercentageVisualizer: React.FC<Props> = ({
     } else {
       setIsCorrect(false);
     }
-  }, [num, den, percentage, setRespuestaNum, setRespuestaDen]);
+  }, [num, den, percentage, targetNum, targetDen, setRespuestaNum, setRespuestaDen]);
 
   const handleNumberClick = (val: number) => {
     if (!interactive) return;

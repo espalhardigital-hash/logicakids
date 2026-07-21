@@ -666,7 +666,6 @@ async def responder_pregunta(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
-    print(f"DEBUG PAYLOAD: {payload.dict()}", flush=True)
     seccion, operacion = _seccion_operacion(payload.modulo_id, payload.nivel_id)
     is_challenge = payload.modulo_id == 99 or payload.nivel_id in (11, 12, 13)
     
@@ -818,6 +817,15 @@ async def responder_pregunta(
                     pool_item.pregunta_id = mirror_q.id
                     pool_item.numero_intentos = 0
                     es_espejo = True
+                else:
+                    print(
+                        f"⚠️ Bucle espejo Fase 4 no pudo activarse: "
+                        f"estructura_padre_id={pregunta.estructura_padre_id}, "
+                        f"siguiente_variante={siguiente_variante}, "
+                        f"mirror_q_encontrada={mirror_q is not None}, "
+                        f"pool_item_presente={pool_item is not None}",
+                        flush=True
+                    )
             else:
                 # Llegó al límite del bucle espejo (espejo 3). Habilitamos bypass fluido y mostramos explicación
                 explicacion_profunda = pregunta.explicacion_paso_a_paso.get("html") if pregunta.explicacion_paso_a_paso else None

@@ -969,6 +969,7 @@ export const Fase4GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
     const isInteractivePizza = pregunta.datos_numericos?.tipo_visual === 'pizza' && !!pregunta.datos_numericos?.es_interactivo;
     const isInteractiveShapes = pregunta.datos_numericos?.tipo_visual === 'shapes';
     const isInteractivePolygon = pregunta.datos_numericos?.tipo_visual === 'non_homogeneous_polygon';
+    const isInteractiveFraction = pregunta.datos_numericos?.tipo_visual === 'fraction_percentage';
 
     if (isInteractivePolygon && customAnswer === undefined) {
       finalAnswer = selectedPolygonIds.join(',');
@@ -991,6 +992,15 @@ export const Fase4GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
       } else {
         finalAnswer = `${interactiveSelectedCount}/${pregunta.datos_numericos?.cortes || 8}`;
       }
+    } else if (isInteractiveFraction && customAnswer === undefined) {
+      // El backend guarda respuesta_correcta como el valor entero resultante
+      // (ej. "num/den" del widget equivale a total*num/den), no como texto "num/den".
+      const numVal = Number(respuestaNum);
+      const denVal = Number(respuestaDen);
+      const total = pregunta.datos_numericos?.total ?? 100;
+      finalAnswer = (respuestaNum.trim() && respuestaDen.trim() && denVal > 0)
+        ? String(Math.round((numVal / denVal) * total))
+        : '';
     } else {
       const numVal = respuestaNum.trim();
       const denVal = respuestaDen.trim();
