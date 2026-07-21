@@ -16,6 +16,7 @@ build/
 # Documentación específica y otros
 /docs/Theme/
 /docs/cambio_para_vps.md
+/docs/checklist_despliegue_portainer.md
 DEPLOY.md
 APP_VERSION.md
 INSTRUCCIONES_MIGRACION_VPS.md
