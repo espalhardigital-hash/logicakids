@@ -1,0 +1,1741 @@
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { getFase4Question, submitFase4Answer, getFase4Reading, submitFase4CloseRescue, graduateFase4 } from './Fase4Service';
+import { Fase4Pregunta, Fase4AnswerResult, Fase4Lectura } from './Fase4Types';
+import { Fase4VisualizerEngine, getDeterministicShape, isDiscreteQuestion } from './Fase4VisualizerEngine';
+import { Fase4TheoryModal } from './Fase4TheoryModal';
+import { Fase4MirrorModal } from './Fase4MirrorModal';
+import { CustomKeyboard } from '../common/CustomKeyboard';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, BookOpen, Key, Sparkles, Trophy, Star, Target, Award, Compass, Clock, FastForward } from 'lucide-react';
+import { getCurrentUserFull } from '../../services/storageService';
+import { safeHtml } from '../../services/textService';
+import './Fase4Styles.css';
+
+const MODULE_NAMES: Record<number, string> = {
+  1: 'La Fracción Visual',
+  2: 'Fracción de Cantidad',
+  3: 'Porcentajes Rápidos y Promedios',
+  4: 'Razón y Mezclas',
+};
+
+const MODULE_COLORS: Record<number, string> = {
+  1: '#3B82F6', // Azul vívido (Fase 1)
+  2: '#A855F7', // Violeta (Conservado)
+  3: '#F97316', // Naranja vívido
+  4: '#10B981', // Verde vívido
+};
+
+const Fase4RescateModal: React.FC<{
+  explicacion: string | undefined;
+  moduleColor: string;
+  onClose: () => void;
+}> = ({ explicacion, moduleColor, onClose }) => {
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="f2-feedback-overlay"
+      style={{ zIndex: 1000 }}
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="f2-feedback-card rescate glass-card"
+        style={{ 
+          maxWidth: '550px', 
+          width: '90%', 
+          padding: '40px',
+          borderTop: `6px solid ${moduleColor}`,
+          maxHeight: '85vh',
+          overflowY: 'auto'
+        }}
+      >
+        <div className="f2-feedback-emoji" style={{ fontSize: '3rem', marginBottom: '20px' }}>💡</div>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '10px' }}>
+          ¡Vamos a repasar!
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '30px', fontSize: '1.1rem' }}>
+          No te preocupes, el Bucle Espejo está aquí para ayudarte a entender el concepto.
+        </p>
+
+        <div className="f4-rescate-html" style={{ textAlign: 'left', marginBottom: '40px', color: '#fff', lineHeight: 1.6 }}
+             dangerouslySetInnerHTML={safeHtml(explicacion || '')} />
+
+        <button
+          className="f2-submit-btn"
+          onClick={onClose}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '18px',
+            borderRadius: '20px',
+            background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+            color: 'white',
+            border: 'none',
+            fontWeight: 800,
+            fontSize: '1.1rem',
+            cursor: 'pointer',
+            boxShadow: `0 8px 24px ${moduleColor}30`
+          }}
+        >
+          ¡Entendido, continuar! →
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+interface FeedbackState {
+  visible: boolean;
+  esCorrecta: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+  resultado?: Fase4AnswerResult;
+}
+
+const getFractionForPercentage = (pct: number) => {
+  if (pct === 50) return { slices: 2, sombreados: [0] };
+  if (pct === 25) return { slices: 4, sombreados: [0] };
+  if (pct === 75) return { slices: 4, sombreados: [0, 1, 2] };
+  
+  for (let den = 2; den <= 20; den++) {
+    const val = (pct * den) / 100;
+    if (Number.isInteger(val)) {
+      return { slices: den, sombreados: Array.from({ length: val }, (_, i) => i) };
+    }
+  }
+  
+  const den = 10;
+  const num = Math.round((pct * den) / 100);
+  return { slices: den, sombreados: Array.from({ length: num }, (_, i) => i) };
+};
+
+const checkPositionsMatch = (current: any, target: any, tolerance: number): boolean => {
+  if (!Array.isArray(current) || !Array.isArray(target)) return false;
+  if (current.length !== target.length) return false;
+  
+  const matchedIndices = new Set<number>();
+  
+  for (const tgt of target) {
+    let found = false;
+    for (let i = 0; i < current.length; i++) {
+      if (matchedIndices.has(i)) continue;
+      const curr = current[i];
+      if (curr.type === tgt.type) {
+        const dx = Math.abs((curr.left ?? 0) - (tgt.left ?? 0));
+        const dy = Math.abs((curr.top ?? 0) - (tgt.top ?? 0));
+        if (dx <= tolerance && dy <= tolerance) {
+          matchedIndices.add(i);
+          found = true;
+          break;
+        }
+      }
+    }
+    if (!found) return false;
+  }
+  return true;
+};
+
+
+// ─── Componente: Modal de Salida Temprana (Early Exit) ─────────────────────
+const Fase4EarlyExitModal: React.FC<{
+  moduleColor: string;
+  moduloId: number;
+  nivelId: number;
+  aciertos: number;
+  intentos: number;
+  onClose: () => void;
+}> = ({ moduleColor, moduloId, nivelId, aciertos, intentos, onClose }) => {
+  const moduloText = moduloId === 99 ? 'Desafío Mixto' : MODULE_NAMES[moduloId] || `Módulo ${moduloId}`;
+  const challengeText = moduloId === 99 
+    ? 'Maestría Final' 
+    : (nivelId === 11 ? 'Desafío 1: Estándar' : nivelId === 12 ? 'Desafío 2: Avanzado' : 'Desafío Final: Maestría');
+  
+  const errores = intentos - aciertos;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="f4-feedback-overlay"
+      style={{ zIndex: 1100 }}
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="f4-feedback-card early-exit glass-card"
+        style={{ 
+          maxWidth: '500px', 
+          width: '90%', 
+          padding: '40px',
+          borderTop: '6px solid #EF4444',
+          textAlign: 'center'
+        }}
+      >
+        <div className="f4-feedback-emoji" style={{ fontSize: '3.5rem', marginBottom: '24px' }}>🛡️</div>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '16px' }}>
+          ¡Desafío Incompleto!
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '20px', fontSize: '1.1rem', lineHeight: 1.5 }}>
+          Dado el número de errores acumulados, ya no es posible alcanzar el puntaje mínimo de aprobación para este desafío.
+        </p>
+
+        {/* Reporte de Desempeño */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '24px',
+          padding: '20px',
+          marginBottom: '24px',
+          textAlign: 'left'
+        }}>
+          <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: moduleColor, fontWeight: 700, marginBottom: '4px' }}>
+            {moduloText}
+          </div>
+          <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '16px' }}>
+            {challengeText}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: '16px', padding: '12px' }}>
+              <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: '2px' }}>Aciertos</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#10B981' }}>{aciertos}</div>
+            </div>
+            <div style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)', borderRadius: '16px', padding: '12px' }}>
+              <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: '2px' }}>Errores</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#EF4444' }}>{errores}</div>
+            </div>
+          </div>
+        </div>
+
+        <p style={{ color: 'rgba(255,255,255,0.65)', marginBottom: '30px', fontSize: '1rem', lineHeight: 1.5 }}>
+          ¡No te preocupes! Cada error es una excelente oportunidad para aprender y ser más fuerte. Repasa la teoría, practica con calma y ¡vuelve a intentarlo! Tú puedes lograrlo. 💪🚀
+        </p>
+
+        <button
+          className="f4-mixed-challenge-btn w-full"
+          onClick={onClose}
+          style={{
+            background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+            boxShadow: `0 8px 24px ${moduleColor}30`,
+          }}
+        >
+          Entendido, volver a intentar 👍
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+
+// ─── Componente: Modal de Logros / Nivel Completado (Completion Modal) ───
+const Fase4CompletionModal: React.FC<{
+  moduloId: number;
+  nivelId: number;
+  isChallenge: boolean;
+  moduleColor: string;
+  progreso: { aciertos: number; intentos: number; porcentaje: number };
+  onClose: () => void;
+}> = ({ moduloId, nivelId, isChallenge, moduleColor, progreso, onClose }) => {
+  const precision = progreso.intentos > 0 ? Math.round((progreso.aciertos / progreso.intentos) * 100) : 100;
+  const rec = useMemo(() => {
+    if (moduloId === 99) {
+      return {
+        titulo: '¡Héroe de la Fase 4! 🎉',
+        mensaje: '¡Has dominado todos los desafíos de la Fase 4 de Fracciones! Tu razonamiento cuantitativo y velocidad de cálculo son excepcionales. ¡Listo para brillar!',
+        accion: 'Completar Fase 4 🚀'
+      };
+    }
+    
+    if (isChallenge) {
+      if (nivelId === 13) {
+        return {
+          titulo: '¡Módulo Dominado! 🏆',
+          mensaje: '¡Increíble! Has superado el Desafío de Maestría y dominado la sección al 100%. Sigue demostrando tu ingenio en el siguiente módulo de la Fase.',
+          accion: 'Siguiente Módulo 🚀'
+        };
+      } else {
+        return {
+          titulo: '¡Desafío Superado! ⭐',
+          mensaje: '¡Excelente precisión! Lograste superar este desafío con gran destreza. Prepárate para desbloquear la siguiente dificultad.',
+          accion: `Desafío ${nivelId - 9} 🚀`
+        };
+      }
+    } else {
+      const totalLevels = (moduloId === 1 || moduloId === 4) ? 3 : 4; // Config standard
+      if (nivelId === totalLevels) {
+        return {
+          titulo: '¡Práctica Finalizada! 💪',
+          mensaje: '¡Batería de entrenamiento completada al 100%! Ya estás listo para el reto supremo: superar la zona de desafíos del módulo.',
+          accion: 'Ir a Desafío 1 🚀'
+        };
+      } else {
+        return {
+          titulo: '¡Siguiente Nivel Desbloqueado! 🚀',
+          mensaje: `¡Buen entrenamiento! Has completado con éxito este nivel y el Nivel ${nivelId + 1} ya está disponible para ti.`,
+          accion: `Ir al Nivel ${nivelId + 1} 🚀`
+        };
+      }
+    }
+  }, [moduloId, nivelId, isChallenge]);
+
+  const levelText = isChallenge 
+    ? (nivelId === 13 ? 'Desafío Final: Maestría' : `Desafío ${nivelId - 10}`) 
+    : `Nivel ${nivelId}`;
+
+  const moduleText = MODULE_NAMES[moduloId] || `Módulo ${moduloId}`;
+
+  const containerVariants: any = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants: any = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 260, damping: 20 } }
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="f4-feedback-overlay"
+      style={{ zIndex: 1100 }}
+    >
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="f4-feedback-card completion glass-card"
+        style={{ 
+          maxWidth: '550px', 
+          width: '92%', 
+          padding: '40px',
+          borderTop: `6px solid ${moduleColor}`,
+          textAlign: 'center'
+        }}
+      >
+        <motion.div 
+          variants={itemVariants}
+          animate={{ rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.1, 1.1, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
+          className="f4-feedback-emoji" 
+          style={{ fontSize: '4.5rem', marginBottom: '20px' }}
+        >
+          🏆
+        </motion.div>
+
+        <motion.h2 
+          variants={itemVariants}
+          style={{ fontSize: '2.1rem', fontWeight: 900, color: '#fff', marginBottom: '8px' }}
+        >
+          {isChallenge ? '¡Desafío Superado!' : '¡Nivel Completado!'}
+        </motion.h2>
+
+        <motion.p 
+          variants={itemVariants}
+          style={{ fontSize: '1.1rem', color: moduleColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '24px', fontWeight: 700 }}
+        >
+          {moduleText} — {levelText}
+        </motion.p>
+
+        {/* Grid de Logros */}
+        <motion.div 
+          variants={itemVariants}
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '12px', 
+            marginBottom: '32px' 
+          }}
+        >
+          {/* Card 1: Aciertos */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '16px 8px' }}>
+            <Award size={24} style={{ color: '#F59E0B', margin: '0 auto 8px' }} />
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: '4px' }}>Aciertos</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#fff' }}>{progreso.aciertos}</div>
+          </div>
+
+          {/* Card 2: Precisión */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '16px 8px' }}>
+            <Target size={24} style={{ color: '#10B981', margin: '0 auto 8px' }} />
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: '4px' }}>Precisión</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#fff' }}>{precision}%</div>
+          </div>
+
+          {/* Card 3: Puntos */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '16px 8px' }}>
+            <Star size={24} style={{ color: '#8B5CF6', margin: '0 auto 8px' }} />
+            <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: '4px' }}>Puntos</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#fbbf24' }}>+{isChallenge ? '250' : '100'}</div>
+          </div>
+        </motion.div>
+
+        {/* Caja de Recomendación */}
+        <motion.div 
+          variants={itemVariants}
+          style={{ 
+            background: 'rgba(255,255,255,0.02)', 
+            borderLeft: `4px solid ${moduleColor}`, 
+            borderRadius: '12px', 
+            padding: '20px', 
+            textAlign: 'left', 
+            marginBottom: '32px' 
+          }}
+        >
+          <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.1rem', marginBottom: '6px' }}>{rec.titulo}</div>
+          <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.95rem', lineHeight: 1.45 }}>{rec.mensaje}</div>
+        </motion.div>
+
+        {/* Botón de Continuación */}
+        <motion.button
+          variants={itemVariants}
+          className="f4-mixed-challenge-btn w-full"
+          onClick={onClose}
+          style={{
+            background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+            boxShadow: `0 8px 24px ${moduleColor}30`,
+          }}
+        >
+          {rec.accion}
+        </motion.button>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// ─── Componente: Modal de Graduación de Fase (Phase Graduation Modal) ──────
+const Fase4PhaseGraduationModal: React.FC<{
+  studentName: string;
+  onClose: () => void;
+}> = ({ studentName, onClose }) => {
+  const containerVariants: any = {
+    hidden: { opacity: 0, scale: 0.95 },
+    show: {
+      opacity: 1,
+      scale: 1,
+      transition: { staggerChildren: 0.15, duration: 0.5, type: 'spring' }
+    }
+  };
+
+  const itemVariants: any = {
+    hidden: { y: 30, opacity: 0 },
+    show: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 200, damping: 20 } }
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="f4-feedback-overlay"
+      style={{ zIndex: 1200, background: 'rgba(7, 11, 25, 0.96)' }}
+    >
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="f4-feedback-card graduation glass-card"
+        style={{ 
+          maxWidth: '650px', 
+          width: '92%', 
+          padding: '45px 35px',
+          borderTop: '6px solid #10B981',
+          textAlign: 'center',
+          boxShadow: '0 0 40px rgba(16, 185, 129, 0.25)',
+          overflowY: 'auto',
+          maxHeight: '90vh'
+        }}
+      >
+        <motion.div 
+          variants={itemVariants}
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 360, 360] }}
+          transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3 }}
+          className="f4-feedback-emoji" 
+          style={{ fontSize: '5rem', marginBottom: '20px' }}
+        >
+          👑
+        </motion.div>
+
+        <motion.h1 
+          variants={itemVariants}
+          style={{ fontSize: '2.3rem', fontWeight: 900, color: '#fff', marginBottom: '10px', textShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
+        >
+          ¡Felicidades, {studentName}! 🎉
+        </motion.h1>
+
+        <motion.p 
+          variants={itemVariants}
+          style={{ fontSize: '1.15rem', color: 'rgba(255, 255, 255, 0.75)', marginBottom: '35px', maxWidth: '500px', margin: '0 auto 35px' }}
+        >
+          ¡Has completado y dominado con éxito toda la **Fase 4: Fracciones y Razones**! Eres oficialmente un maestro de las proporciones en LogicaKids. 🛡️✨
+        </motion.p>
+
+        {/* Infografía: El Gran Viaje de Fase 4 */}
+        <motion.div 
+          variants={itemVariants}
+          style={{ 
+            background: 'rgba(255, 255, 255, 0.02)', 
+            border: '1px solid rgba(255, 255, 255, 0.05)', 
+            borderRadius: '24px', 
+            padding: '24px', 
+            marginBottom: '35px',
+            position: 'relative'
+          }}
+        >
+          <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.1rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+            <Compass size={20} style={{ color: '#10B981' }} />
+            Tu Mapa de Ruta Conquistado - Fase 4
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', padding: '0 10px' }}>
+            {/* Línea Conectora */}
+            <div style={{ position: 'absolute', top: '24px', left: '40px', right: '40px', height: '4px', background: 'linear-gradient(90deg, #A855F7, #C084FC, #7C3AED, #6D28D9)', zIndex: 0, opacity: 0.6, borderRadius: '2px' }} />
+
+            {/* Módulo 1 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#A855F7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(168, 85, 247, 0.5)', border: '3px solid #fff' }}>
+                ✓
+              </div>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 1</span>
+              <span style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Visual</span>
+            </div>
+
+            {/* Módulo 2 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#C084FC', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(192, 132, 252, 0.5)', border: '3px solid #fff' }}>
+                ✓
+              </div>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 2</span>
+              <span style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Cantidad</span>
+            </div>
+
+            {/* Módulo 3 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(124, 58, 237, 0.5)', border: '3px solid #fff' }}>
+                ✓
+              </div>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 3</span>
+              <span style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Porcentaje</span>
+            </div>
+
+            {/* Módulo 4 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#6D28D9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(109, 40, 217, 0.5)', border: '3px solid #fff' }}>
+                ✓
+              </div>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 4</span>
+              <span style={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Razón</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Estadísticas de Graduación */}
+        <motion.div 
+          variants={itemVariants}
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '16px', 
+            marginBottom: '40px' 
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
+            <Award size={36} style={{ color: '#10B981' }} />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>26 / 26</div>
+              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Niveles Superados</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
+            <Trophy size={36} style={{ color: '#F59E0B' }} />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>4 / 4</div>
+              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Módulos Dominados</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
+            <Star size={36} style={{ color: '#A855F7' }} />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fbbf24' }}>300+</div>
+              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Ejercicios Logrados</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
+            <Target size={36} style={{ color: '#EC4899' }} />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>100%</div>
+              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Conceptos Dominados</div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.button
+          variants={itemVariants}
+          className="f4-mixed-challenge-btn w-full py-4 text-xl"
+          onClick={onClose}
+          style={{
+            background: 'linear-gradient(135deg, #10B981cc, #10B981)',
+            boxShadow: '0 10px 30px rgba(16, 185, 129, 0.4)',
+          }}
+        >
+          ¡Avanzar a la Siguiente Fase! 🚀
+        </motion.button>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// ─── Componente Principal ──────────────────────────────────────────────────
+export const Fase4GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEvaluatorMode }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const moduloId = Number(location.state?.moduloId || '1');
+  const nivelId = Number(location.state?.nivelId || '1');
+  
+  const isChallenge = moduloId === 99 || (nivelId >= 11 && nivelId <= 13);
+  const [maxAciertos, setMaxAciertos] = useState<number>(isChallenge ? (nivelId === 13 ? 10 : 20) : 15);
+  const moduleName = MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`;
+  const moduleColor = MODULE_COLORS[moduloId] ?? '#3B82F6';
+
+  const maxErroresPermitidos = useMemo(() => {
+    if (!isChallenge) return 0;
+    const porcAprobacion = 90;
+    let minAciertosReq = maxAciertos;
+    for (let c = 0; c <= maxAciertos; c++) {
+      if (Math.floor((c / maxAciertos) * 100) >= porcAprobacion) {
+        minAciertosReq = c;
+        break;
+      }
+    }
+    return maxAciertos - minAciertosReq;
+  }, [isChallenge, maxAciertos]);
+
+  // Splash welcome control
+  const [showSplash, setShowSplash] = useState(true);
+  const [countdown, setCountdown] = useState(8);
+  const [pregunta, setPregunta] = useState<Fase4Pregunta | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  
+  // Respuestas
+  const [respuestaNum, setRespuestaNum] = useState('');
+  const [respuestaDen, setRespuestaDen] = useState('');
+  const [activeInputField, setActiveInputField] = useState<'num' | 'den'>('num');
+  const [interactiveSelectedCount, setInteractiveSelectedCount] = useState<number>(0);
+  const [visualState, setVisualState] = useState<any>(null);
+
+  const [timer, setTimer] = useState<number | null>(null);
+  const [maxTimer, setMaxTimer] = useState<number>(1);
+  const [progreso, setProgreso] = useState({ aciertos: 0, intentos: 0, porcentaje: 0 });
+  const [feedback, setFeedback] = useState<FeedbackState>({ visible: false, esCorrecta: false });
+  const [shaking, setShaking] = useState(false);
+  
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Modals state
+  const [showReading, setShowReading] = useState(false);
+  const [isInitialReading, setIsInitialReading] = useState(true);
+  const [readingData, setReadingData] = useState<Fase4Lectura | null>(null);
+  const [userAvatar, setUserAvatar] = useState<string | undefined>(undefined);
+  const [studentName, setStudentName] = useState('Estudiante');
+
+  const [showEarlyExit, setShowEarlyExit] = useState(false);
+  const [showCompletion, setShowCompletion] = useState(false);
+  // Bucle Espejo — estados del modal (patrón Fase 2)
+  const [showMirrorModal, setShowMirrorModal] = useState(false);
+  const [mirrorPregunta, setMirrorPregunta] = useState<Fase4Pregunta | null>(null);
+  const [isExplanationMode, setIsExplanationMode] = useState(false);
+  const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string | undefined>(undefined);
+  const [lastQuestionEnunciado, setLastQuestionEnunciado] = useState<string | undefined>(undefined);
+  const [lastWrongAnswer, setLastWrongAnswer] = useState<string | undefined>(undefined);
+  const [showGraduation, setShowGraduation] = useState(false);
+  const [selectedAltId, setSelectedAltId] = useState<number | null>(null);
+  const [showRescate, setShowRescate] = useState(false);
+  const [selectedPolygonIds, setSelectedPolygonIds] = useState<number[]>([]);
+
+  // Memos de metadatos para la pantalla Splash Premium
+  const challengeName = useMemo(() => {
+    if (moduloId === 99) return "Maestría Final";
+    if (nivelId === 11) return "Desafío 1: Estándar";
+    if (nivelId === 12) return "Desafío 2: Avanzado";
+    if (nivelId === 13) return "Desafío Final: Maestría";
+    return `Desafío - Nivel ${nivelId}`;
+  }, [moduloId, nivelId]);
+
+  const displayModuleName = useMemo(() => {
+    if (moduloId === 99) return "Desafío Mixto de la Fase 4";
+    return MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`;
+  }, [moduloId]);
+
+  const displayTimeLimit = useMemo(() => {
+    if (pregunta && !pregunta.tiene_cronometro) return "Sin límite";
+    if (pregunta?.tiene_cronometro && pregunta?.tiempo_limite_segundos) {
+      return `${pregunta.tiempo_limite_segundos}s / pregunta`;
+    }
+    if (isChallenge) {
+      return moduloId === 99 ? "60s / pregunta" : (nivelId === 11 ? "25s / pregunta" : nivelId === 12 ? "40s / pregunta" : "50s / pregunta");
+    }
+    return "15s / pregunta";
+  }, [moduloId, nivelId, pregunta, isChallenge]);
+
+  const displayQuestionsCount = maxAciertos;
+
+  // Temporizador interactivo de Splash con 8s countdown e instant bypass
+  useEffect(() => {
+    if (showSplash) {
+      let intervalId: ReturnType<typeof setInterval>;
+      let timeoutId: ReturnType<typeof setTimeout>;
+
+      if (isChallenge) {
+        setCountdown(8);
+        intervalId = setInterval(() => {
+          setCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(intervalId);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+
+        timeoutId = setTimeout(() => {
+          setShowSplash(false);
+        }, 8000);
+      } else {
+        timeoutId = setTimeout(() => {
+          setShowSplash(false);
+        }, 2500);
+      }
+
+      const handleGlobalKeyDown = () => {
+        setShowSplash(false);
+      };
+      window.addEventListener('keydown', handleGlobalKeyDown);
+
+      return () => {
+        if (intervalId) clearInterval(intervalId);
+        if (timeoutId) clearTimeout(timeoutId);
+        window.removeEventListener('keydown', handleGlobalKeyDown);
+      };
+    }
+  }, [showSplash, isChallenge]);
+
+  // Load User Details
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await getCurrentUserFull();
+        if (user?.username) setStudentName(user.username);
+        if (user?.avatar) setUserAvatar(user.avatar);
+      } catch (e) {
+        console.error("Error loading user profile:", e);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Automatic Theory Loading
+  useEffect(() => {
+    if (isChallenge) {
+      setShowReading(false);
+      return;
+    }
+    const check = async () => {
+      setIsInitialReading(true);
+      try {
+        const data = await getFase4Reading(moduloId, nivelId);
+        setReadingData(data);
+        setShowReading(true);
+      } catch (err) {
+        console.error("Error loading theory:", err);
+      }
+    };
+    check();
+  }, [moduloId, nivelId, isChallenge]);
+
+  // Manual Theory Opener
+  const handleOpenReading = useCallback(async () => {
+    if (isChallenge && !isEvaluatorMode) return;
+    setIsInitialReading(false);
+    try {
+      const data = await getFase4Reading(moduloId, nivelId);
+      setReadingData(data);
+      setShowReading(true);
+    } catch (err) {
+      console.error("Error loading theory:", err);
+    }
+  }, [moduloId, nivelId, isChallenge]);
+
+  useEffect(() => {
+    loadNextQuestion(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduloId, nivelId]);
+
+  const loadNextQuestion = useCallback(async (reload: boolean = false) => {
+    setLoading(true);
+    setRespuestaNum('');
+    setRespuestaDen('');
+    setActiveInputField('num');
+    setInteractiveSelectedCount(0);
+    setSelectedAltId(null);
+    setSelectedPolygonIds([]);
+    try {
+      const q = await getFase4Question(moduloId, nivelId, reload);
+      
+      // Test de verificación 1.1: Clasificación de pregunta de colección discreta
+      const esDiscreta = isDiscreteQuestion(q.enunciado);
+      console.log(`[Fase4GameScreen] Pregunta cargada: "${q.enunciado}". ¿Es discreta? ${esDiscreta}`);
+      
+      if (q.cantidad_requerida) setMaxAciertos(q.cantidad_requerida);
+      if (q.aciertos_acumulados !== undefined) {
+        setProgreso(prev => ({
+          ...prev,
+          aciertos: q.aciertos_acumulados!,
+          intentos: q.intentos_totales ?? prev.intentos,
+          porcentaje: q.porcentaje_actual ?? prev.porcentaje,
+        }));
+      }
+
+      if (q.datos_numericos?.es_espejo) {
+        setMirrorPregunta(q);
+        setShowMirrorModal(true);
+        setPregunta(q);
+        setLoading(false);
+        return;
+      }
+
+      setPregunta(q);
+      setShowMirrorModal(false);
+      setMirrorPregunta(null);
+      
+      if (q.tiene_cronometro && q.tiempo_limite_segundos) {
+        setTimer(q.tiene_cronometro && !showReading ? q.tiempo_limite_segundos : null);
+        setMaxTimer(q.tiempo_limite_segundos);
+      } else {
+        setTimer(null);
+      }
+    } catch (error: any) {
+      console.error("Error loading question:", error);
+      setErrorMsg(error.message || "Error de conexión con el servidor");
+    } finally {
+      setLoading(false);
+    }
+  }, [moduloId, nivelId, showReading]);
+
+  // sync_required Listener
+  useEffect(() => {
+    const handleSync = (e: Event) => {
+      console.log('🔄 [Fase4GameScreen] Sync request received from admin. Reloading question...');
+      loadNextQuestion(true);
+    };
+    window.addEventListener('sync_required', handleSync);
+    return () => window.removeEventListener('sync_required', handleSync);
+  }, [loadNextQuestion]);
+
+  useEffect(() => {
+    if (timer === null || showReading || showSplash) return;
+    if (timer <= 0) { handleSubmit(); return; }
+    timerRef.current = setInterval(() => setTimer(t => (t !== null ? t - 1 : null)), 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [timer, showReading, showSplash]);
+
+  const stopTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = null;
+    setTimer(null);
+  };
+
+  const handleEvaluatorSkip = useCallback(() => {
+    if (feedback.visible) return;
+    setProgreso(prev => {
+      const newAciertos = prev.aciertos + 1;
+      const newIntentos = prev.intentos + 1;
+      if (newAciertos >= maxAciertos) {
+        setShowCompletion(true);
+      }
+      return {
+        aciertos: newAciertos,
+        intentos: newIntentos,
+        porcentaje: (newAciertos / maxAciertos) * 100
+      };
+    });
+    setFeedback({
+      visible: true,
+      esCorrecta: true,
+      resultado: {
+        es_correcta: true,
+        respuesta_correcta: 'Skipped',
+        aciertos_acumulados: progreso.aciertos + 1,
+        intentos_totales: progreso.intentos + 1,
+        porcentaje_actual: ((progreso.aciertos + 1) / maxAciertos) * 100
+      } as any
+    });
+    setTimeout(() => {
+      setFeedback({ visible: false, esCorrecta: false });
+      setRespuestaNum('');
+      setRespuestaDen('');
+      if (pregunta?.tiene_cronometro && pregunta?.tiempo_limite_segundos) {
+        setTimer(pregunta.tiempo_limite_segundos);
+      }
+      loadNextQuestion(true); // Move to next question automatically (force reload)
+    }, 500);
+  }, [feedback.visible, maxAciertos, progreso, pregunta, loadNextQuestion]);
+
+  const handleFeedbackClose = useCallback(() => {
+    if (feedback.resultado?.early_exit) {
+      setFeedback({ visible: false, esCorrecta: false });
+      setShowEarlyExit(true);
+      return;
+    }
+
+    if (feedback.isError) {
+      setFeedback({ visible: false, esCorrecta: false });
+      return;
+    }
+
+    setFeedback({ visible: false, esCorrecta: false });
+
+    if (feedback.resultado?.fase_completada) {
+      setShowGraduation(true);
+      return;
+    }
+
+    if (feedback.resultado?.bloque_completado) {
+      setShowCompletion(true);
+      return;
+    }
+
+    if (feedback.esCorrecta) {
+      loadNextQuestion();
+    } else {
+      if (feedback.resultado?.soporte_avanzado) {
+        setShowRescate(true);
+      } else if (isChallenge) {
+        loadNextQuestion();
+      } else if (feedback.resultado?.es_espejo) {
+        setLastCorrectAnswer(feedback.resultado?.respuesta_correcta);
+        loadNextQuestion();
+      } else {
+        setRespuestaNum('');
+        setRespuestaDen('');
+        setSelectedAltId(null);
+        setSelectedPolygonIds([]);
+        setVisualState(null);
+      }
+    }
+  }, [feedback, navigate, isChallenge, loadNextQuestion]);
+
+
+
+  useEffect(() => {
+    if (feedback.visible) {
+      if (feedback.esCorrecta && (feedback.resultado?.fase_completada || feedback.resultado?.bloque_completado)) {
+        const timer = setTimeout(() => {
+          handleFeedbackClose();
+        }, 2000);
+        return () => clearTimeout(timer);
+      } else if (!feedback.esCorrecta && feedback.resultado?.es_espejo) {
+        const timer = setTimeout(() => {
+          handleFeedbackClose();
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [feedback, handleFeedbackClose]);
+
+  const handleSubmit = useCallback(async (customAnswer?: string) => {
+    if (!pregunta) return;
+    if (feedback.visible) {
+      handleFeedbackClose();
+      return;
+    }
+
+    stopTimer();
+
+    // Determinar la respuesta a enviar
+    let finalAnswer = '';
+    
+    const isInteractivePizza = pregunta.datos_numericos?.tipo_visual === 'pizza' && !!pregunta.datos_numericos?.es_interactivo;
+    const isInteractiveShapes = pregunta.datos_numericos?.tipo_visual === 'shapes';
+    const isInteractivePolygon = pregunta.datos_numericos?.tipo_visual === 'non_homogeneous_polygon';
+
+    if (isInteractivePolygon && customAnswer === undefined) {
+      finalAnswer = selectedPolygonIds.join(',');
+    } else if (isInteractiveShapes && customAnswer === undefined) {
+      try {
+        const targetState = JSON.parse(pregunta.respuesta_correcta || '[]');
+        const tolerance = 15;
+        console.log("DEBUG F4: visualState =", JSON.stringify(visualState));
+        console.log("DEBUG F4: targetState =", JSON.stringify(targetState));
+        const isMatch = checkPositionsMatch(visualState, targetState, tolerance);
+        finalAnswer = isMatch ? pregunta.respuesta_correcta : JSON.stringify(visualState);
+      } catch (e) {
+        finalAnswer = JSON.stringify(visualState || '');
+      }
+    } else if (isInteractivePizza && customAnswer === undefined) {
+      const numVal = respuestaNum.trim();
+      const denVal = respuestaDen.trim();
+      if (numVal && denVal) {
+        finalAnswer = `${numVal}/${denVal}`;
+      } else {
+        finalAnswer = `${interactiveSelectedCount}/${pregunta.datos_numericos?.cortes || 8}`;
+      }
+    } else {
+      const numVal = respuestaNum.trim();
+      const denVal = respuestaDen.trim();
+      if (denVal) {
+        finalAnswer = `${numVal}/${denVal}`;
+      } else {
+        finalAnswer = numVal;
+      }
+    }
+
+
+    if (customAnswer !== undefined) {
+      finalAnswer = customAnswer;
+    }
+
+    let alternativaId: number | undefined = undefined;
+    if (pregunta.tipo_pregunta === 'multiple_opcion' && pregunta.alternativas) {
+      if (selectedAltId !== null) {
+        alternativaId = selectedAltId;
+        const match = pregunta.alternativas.find(alt => alt.id === selectedAltId);
+        if (match) finalAnswer = match.texto;
+      } else {
+        const match = pregunta.alternativas.find(alt => alt.texto === finalAnswer);
+        if (match) {
+          alternativaId = match.id;
+        }
+      }
+    }
+
+    const payload = {
+      modulo_id: moduloId,
+      nivel_id: nivelId,
+      pregunta_id: pregunta.id,
+      respuesta_dada: finalAnswer.trim() || undefined,
+      alternativa_id: alternativaId,
+      tiempo_respuesta_segundos: timer ? (pregunta.tiempo_limite_segundos || 0) - timer : 15,
+    };
+
+    try {
+      const resultado = await submitFase4Answer(payload);
+      
+      setProgreso({
+        aciertos: resultado.aciertos_acumulados,
+        intentos: resultado.intentos_totales,
+        porcentaje: resultado.porcentaje_actual,
+      });
+
+      if (resultado.early_exit) {
+        setFeedback({ visible: true, esCorrecta: false, resultado });
+        return;
+      }
+
+      if (resultado.es_correcta) {
+        setFeedback({ visible: true, esCorrecta: true, resultado });
+        if (resultado.fase_completada || resultado.bloque_completado) {
+          // Wait for tutor card before showing gorgeous trophies
+        } else {
+          setTimeout(() => {
+            setFeedback({ visible: false, esCorrecta: false });
+            loadNextQuestion();
+          }, 1200);
+        }
+      } else {
+        setShaking(true);
+        setTimeout(() => setShaking(false), 450);
+        setFeedback({ visible: true, esCorrecta: false, resultado });
+        
+        if (!isChallenge && resultado.es_espejo && pregunta) {
+          setLastQuestionEnunciado(pregunta.enunciado);
+          setLastWrongAnswer(respuestaNum || respuestaDen || String(selectedAltId || ''));
+        }
+        
+        if (isChallenge) {
+          setTimeout(() => handleFeedbackClose(), 1500);
+        }
+      }
+    } catch (error: any) {
+      setFeedback({
+        visible: true,
+        esCorrecta: false,
+        isError: true,
+        errorMessage: error instanceof Error ? error.message : 'No se pudo comunicar con el servidor.',
+      });
+    }
+  }, [pregunta, moduloId, nivelId, respuestaNum, respuestaDen, interactiveSelectedCount, timer, feedback, handleFeedbackClose, visualState, selectedPolygonIds, selectedAltId]);
+
+  const handleBypassRescue = async () => {
+    try {
+      setLoading(true);
+      const res = await submitFase4CloseRescue(moduloId, nivelId, pregunta?.id || 0);
+      if (res.success) {
+        setFeedback({ visible: false, esCorrecta: false });
+        loadNextQuestion();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAltSelect = (textoAlt: string) => {
+    if (feedback.visible) return;
+    handleSubmit(textoAlt);
+  };
+
+  const handleNumberPress = (num: string) => {
+    if (feedback.visible) return;
+    if (activeInputField === 'num') {
+      setRespuestaNum(prev => prev.length < 5 ? prev + num : prev);
+    } else {
+      setRespuestaDen(prev => prev.length < 5 ? prev + num : prev);
+    }
+  };
+
+  const handleDelete = () => {
+    if (feedback.visible) return;
+    if (activeInputField === 'num') {
+      setRespuestaNum(prev => prev.slice(0, -1));
+    } else {
+      setRespuestaDen(prev => prev.slice(0, -1));
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="f4-screen-wrapper">
+        <div className="f4-loading-spinner-wrap">
+          <div className="f4-spinner-element" style={{ borderTopColor: moduleColor }} />
+          <span>Cargando misión...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <div className="f4-screen-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="glass-card" style={{ padding: '40px', textAlign: 'center', maxWidth: '500px', borderTop: '6px solid #EF4444' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '16px' }}>Error de Conexión</h2>
+          <p style={{ color: 'rgba(255,255,255,0.8)', marginBottom: '30px' }}>{errorMsg}</p>
+          <button 
+            onClick={() => navigate('/welcome-fase4')} 
+            style={{ padding: '15px 30px', background: '#EF4444', color: '#fff', borderRadius: '12px', fontWeight: 'bold' }}
+          >
+            Volver al Menú
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!pregunta) return null;
+
+  const barWidth = Math.min(100, (progreso.aciertos / maxAciertos) * 100);
+  const isFractionAnswer = (pregunta.respuesta_correcta ?? '').includes('/');
+  const showFractionInput = isFractionAnswer;
+  const isInteractiveLayout = (pregunta.datos_numericos?.tipo_visual === 'pizza' || pregunta.datos_numericos?.tipo_visual === 'pie') && !!pregunta.datos_numericos?.es_interactivo;
+
+  return (
+    <div className="f4-screen-wrapper" style={{ ['--module-accent' as any]: moduleColor }}>
+      {/* Welcome Splash Overlay */}
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div 
+            initial={{ opacity: 1 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0, scale: 1.05, filter: 'blur(8px)' }}
+            className="f4-start-splash-overlay" 
+            onClick={() => setShowSplash(false)}
+          >
+            {isChallenge ? (
+              <motion.div 
+                initial={{ y: 30, opacity: 0 }} 
+                animate={{ y: 0, opacity: 1 }} 
+                transition={{ delay: 0.1, type: "spring", stiffness: 100, damping: 15 }} 
+                className="f4-splash-container-premium"
+              >
+                <div className="f4-splash-badge-premium" style={{ color: moduleColor }}>
+                  ¡Desafío Especial!
+                </div>
+                <h1 className="f4-splash-title-premium">{challengeName}</h1>
+                
+                {/* Metadatos en cuadrícula premium */}
+                <div className="f4-splash-metadata-grid">
+                  <div className="f4-splash-meta-card">
+                    <div className="f4-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
+                      {moduloId === 99 ? (
+                        <Trophy size={22} style={{ color: '#F59E0B' }} />
+                      ) : (
+                        <Compass size={22} style={{ color: moduleColor }} />
+                      )}
+                    </div>
+                    <span className="f4-splash-meta-label">Módulo</span>
+                    <span className="f4-splash-meta-value">{displayModuleName}</span>
+                  </div>
+
+                  <div className="f4-splash-meta-card">
+                    <div className="f4-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
+                      <Target size={22} style={{ color: moduleColor }} />
+                    </div>
+                    <span className="f4-splash-meta-label">Preguntas</span>
+                    <span className="f4-splash-meta-value">{displayQuestionsCount} a superar</span>
+                  </div>
+
+                  {displayTimeLimit !== "Sin límite" && (
+                    <div className="f4-splash-meta-card">
+                      <div className="f4-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
+                        <Clock size={22} style={{ color: moduleColor }} />
+                      </div>
+                      <span className="f4-splash-meta-label">Tiempo</span>
+                      <span className="f4-splash-meta-value">{displayTimeLimit}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Animación de cuenta regresiva circular */}
+                <div className="f4-splash-countdown-wrapper">
+                  <svg className="f4-splash-countdown-svg" viewBox="0 0 100 100">
+                    <circle className="f4-splash-countdown-bg" cx="50" cy="50" r="45" />
+                    <motion.circle 
+                      className="f4-splash-countdown-progress" 
+                      cx="50" cy="50" r="45"
+                      initial={{ pathLength: 1 }}
+                      animate={{ pathLength: 0 }}
+                      transition={{ duration: 8, ease: 'linear' }}
+                      style={{ stroke: moduleColor }}
+                    />
+                  </svg>
+                  <div className="f4-splash-countdown-number">{countdown}</div>
+                </div>
+
+                <div className="f4-splash-hint-premium mt-4">
+                  Haz clic o presiona cualquier tecla para comenzar ahora
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }} 
+                animate={{ y: 0, opacity: 1 }} 
+                transition={{ delay: 0.2 }} 
+                className="f4-splash-content"
+              >
+                <div className="f4-splash-badge" style={{ color: moduleColor }}>
+                  ENTRENAMIENTO LIBRE
+                </div>
+                <h1 className="f4-splash-title">{moduleName}</h1>
+                <div className="f4-splash-level" style={{ background: `${moduleColor}20`, borderColor: `${moduleColor}40` }}>
+                  {`NIVEL ${nivelId}`}
+                </div>
+                <motion.div 
+                  animate={{ scale: [1, 1.05, 1], opacity: [0.7, 1, 0.7] }} 
+                  transition={{ duration: 1.5, repeat: Infinity }} 
+                  className="f4-splash-hint"
+                >
+                  Toca para comenzar
+                </motion.div>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Ambient backgrounds */}
+      <AnimatePresence>
+        {feedback.visible && feedback.esCorrecta && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fg-ambient-glow correct" />
+        )}
+        {feedback.visible && !feedback.esCorrecta && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fg-ambient-glow incorrect" />
+        )}
+      </AnimatePresence>
+
+      {/* Header */}
+      <header className="f4-game-header-modern">
+        <button 
+          className="f4-nav-back-btn text-red-400 border-red-500/20" 
+          onClick={() => navigate('/welcome-fase4')}
+        >
+          <ArrowLeft size={18} />
+        </button>
+
+        <div className="f4-header-right-group">
+          {isEvaluatorMode && (
+            <button 
+              className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 px-4 py-2 rounded-2xl transition-all cursor-pointer text-white text-xs font-black mr-2 uppercase" 
+              onClick={handleEvaluatorSkip}
+              title="Siguiente Pregunta (Modo Evaluador)"
+            >
+              <FastForward size={14} />
+              <span>Siguiente Pregunta</span>
+            </button>
+          )}
+          {(!isChallenge || isEvaluatorMode) && (
+            <button 
+              className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 border border-purple-500/20 px-4 py-2 rounded-2xl transition-all cursor-pointer text-purple-400 text-xs font-black" 
+              onClick={handleOpenReading}
+            >
+              <BookOpen size={14} />
+              <span>TEORÍA</span>
+            </button>
+          )}
+
+          <div className="f4-header-badge-pill">
+            <span className="f4-badge-module" style={{ color: moduleColor }}>
+              {moduleName.toUpperCase()}
+            </span>
+            <span className="f4-badge-divider">|</span>
+            <span className="f4-badge-level">FASE 4</span>
+            <span className="f4-badge-divider">|</span>
+            <span className="f4-badge-challenge">
+              {isChallenge ? 'DESAFÍO' : 'PROGRESO'} {progreso.aciertos}/{maxAciertos}
+            </span>
+            {isChallenge && (
+              <>
+                <span className="f4-badge-divider">|</span>
+                <span className="f4-badge-errors animate-pulse" style={{ color: (progreso.intentos - progreso.aciertos) >= maxErroresPermitidos ? '#EF4444' : '#F59E0B', fontWeight: 800 }}>
+                  ERRORES: {progreso.intentos - progreso.aciertos}/{maxErroresPermitidos}
+                </span>
+              </>
+            )}
+            {timer !== null && (
+              <>
+                <span className="f4-badge-divider">|</span>
+                <span className="f4-badge-timer" style={{ color: timer <= 5 ? '#EF4444' : '#ffffff' }}>
+                  {timer}S
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Linear Progress Bar */}
+        <div className="f4-full-width-progress-bar">
+          <div 
+            className="f4-full-width-progress-fill"
+            style={{ 
+              width: `${barWidth}%`, 
+              background: `linear-gradient(90deg, ${moduleColor}80, ${moduleColor})`,
+              boxShadow: `0 0 10px ${moduleColor}`
+            }} 
+          />
+        </div>
+
+        {/* Chronometer visual helper */}
+        {timer !== null && (
+          <div className="f4-timer-progress-bar">
+            <div 
+              className="f4-full-width-progress-fill" 
+              style={{ 
+                width: `${(timer / maxTimer) * 100}%`, 
+                background: timer <= 5 ? '#EF4444' : 'linear-gradient(90deg, #8B5CF6, #EC4899)', 
+                height: '100%' 
+              }} 
+            />
+          </div>
+        )}
+      </header>
+
+      {/* Main game board */}
+      <main className="flex-grow flex flex-col items-center justify-center p-4 z-10 relative">
+
+
+        {isInteractiveLayout ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full max-w-4xl min-h-[400px]">
+            {/* Left Column: Interactive Visualizer */}
+            <motion.div 
+              animate={shaking ? { x: [-8, 8, -6, 6, -4, 4, 0] } : {}} 
+              transition={{ duration: 0.4 }}
+              className={`flex flex-col items-center justify-center bg-slate-900/40 border p-8 rounded-[2.5rem] min-h-[350px] ${
+                shaking ? 'shake-error' : ''
+              }`}
+              style={{ 
+                borderColor: feedback.visible 
+                  ? (feedback.esCorrecta ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)') 
+                  : 'rgba(255, 255, 255, 0.05)',
+                boxShadow: feedback.visible 
+                  ? (feedback.esCorrecta ? '0 0 25px rgba(16, 185, 129, 0.15)' : '0 0 25px rgba(239, 68, 68, 0.15)') 
+                  : 'none'
+              }}
+            >
+              <Fase4VisualizerEngine
+                pregunta={pregunta}
+                moduleColor={moduleColor}
+                moduloId={moduloId}
+                nivelId={nivelId}
+                interactive={true}
+                respuestaNum={respuestaNum}
+                respuestaDen={respuestaDen}
+                setRespuestaNum={setRespuestaNum}
+                setRespuestaDen={setRespuestaDen}
+                interactiveSelectedCount={interactiveSelectedCount}
+                setInteractiveSelectedCount={setInteractiveSelectedCount}
+              />
+            </motion.div>
+
+            {/* Right Column: Giant Purple Confirmation Button */}
+            <div className="flex flex-col items-center justify-center">
+              <button
+                onClick={() => handleSubmit()}
+                className="group relative flex items-center justify-center gap-4 w-full max-w-[280px] py-4 px-6 text-white font-sans font-black text-xl rounded-2xl transform active:scale-[0.95] transition-all duration-150 cursor-pointer overflow-hidden border-2 border-white/10"
+                style={{
+                  background: feedback.visible 
+                    ? (feedback.esCorrecta ? '#10B981' : '#EF4444') 
+                    : `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+                  boxShadow: feedback.visible 
+                    ? (feedback.esCorrecta ? '0 8px 20px rgba(16, 185, 129, 0.3)' : '0 8px 20px rgba(239, 68, 68, 0.3)') 
+                    : `0 8px 20px rgba(168, 85, 247, 0.3)`
+                }}
+              >
+                {/* Micro-sparkle ambient hover effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                
+                <span>{feedback.visible ? ((feedback.esCorrecta || isChallenge) ? 'Continuar →' : (feedback.resultado?.es_espejo ? 'Activando repaso...' : 'Intentar de nuevo ↺')) : 'CONFIRMAR'}</span>
+                
+                {/* Integrated checkmark circle */}
+                <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-transparent flex-shrink-0">
+                  <span className="text-white text-base font-black">
+                    {feedback.visible ? ((feedback.esCorrecta || isChallenge) ? '→' : (feedback.resultado?.es_espejo ? '...' : '↺')) : '✓'}
+                  </span>
+                </div>
+              </button>
+
+              {/* Embedded score widgets for normal module questions */}
+              {!isChallenge && (
+                <div className="f4-scores-container max-w-[400px] mt-8 w-full">
+                  <div className="f4-score-box correct">
+                    <span className="f4-score-label">CORRECTAS</span>
+                    <span className="f4-score-value">{progreso.aciertos}</span>
+                  </div>
+                  <div className="f4-score-box incorrect">
+                    <span className="f4-score-label">ERRORES</span>
+                    <span className="f4-score-value">{progreso.intentos - progreso.aciertos}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full max-w-4xl">
+            {/* Visual representations card */}
+            <motion.div 
+              animate={shaking ? { x: [-8, 8, -6, 6, -4, 4, 0] } : {}} 
+              transition={{ duration: 0.4 }}
+              className={`flex flex-col items-center justify-center bg-slate-900/40 border p-8 rounded-[2.5rem] min-h-[300px] ${
+                shaking ? 'shake-error' : ''
+              }`}
+              style={{ 
+                borderColor: feedback.visible 
+                  ? (feedback.esCorrecta ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)') 
+                  : 'rgba(255, 255, 255, 0.05)',
+                boxShadow: feedback.visible 
+                  ? (feedback.esCorrecta ? '0 0 25px rgba(16, 185, 129, 0.15)' : '0 0 25px rgba(239, 68, 68, 0.15)') 
+                  : 'none'
+              }}
+            >
+              <Fase4VisualizerEngine
+                pregunta={pregunta}
+                moduleColor={moduleColor}
+                moduloId={moduloId}
+                nivelId={nivelId}
+                interactive={false}
+                respuestaNum={respuestaNum}
+                respuestaDen={respuestaDen}
+                setRespuestaNum={setRespuestaNum}
+                setRespuestaDen={setRespuestaDen}
+                interactiveSelectedCount={interactiveSelectedCount}
+                setInteractiveSelectedCount={setInteractiveSelectedCount}
+                setVisualState={setVisualState}
+                selectedPolygonIds={selectedPolygonIds}
+                setSelectedPolygonIds={setSelectedPolygonIds}
+                visualState={visualState}
+              />
+              
+              <p className="text-lg font-bold text-center mt-6 text-slate-200" dangerouslySetInnerHTML={safeHtml((pregunta.enunciado || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'))} />
+
+              {/* Relocated input container for improved UX */}
+              {!pregunta.alternativas && pregunta.tipo_pregunta !== 'multiple_opcion' && pregunta.datos_numericos?.tipo_visual !== 'shapes' && pregunta.datos_numericos?.tipo_visual !== 'non_homogeneous_polygon' && (
+                <div className="mt-6">
+                  {showFractionInput ? (
+                    <div className="f4-fraction-input-box">
+                      <input
+                        type="text"
+                        readOnly
+                        placeholder="?"
+                        value={respuestaNum}
+                        onClick={() => setActiveInputField('num')}
+                        className={`f4-fraction-input-field ${activeInputField === 'num' ? 'focused' : ''}`}
+                      />
+                      <div className="f4-fraction-line" />
+                      <input
+                        type="text"
+                        readOnly
+                        placeholder="?"
+                        value={respuestaDen}
+                        onClick={() => setActiveInputField('den')}
+                        className={`f4-fraction-input-field ${activeInputField === 'den' ? 'focused' : ''}`}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full max-w-[200px]">
+                      <input
+                        type="text"
+                        readOnly
+                        placeholder="Respuesta"
+                        value={respuestaNum}
+                        className="w-full bg-white/5 border border-purple-500/30 rounded-2xl p-4 text-center text-white font-black text-xl outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Interactive input area */}
+            <div className="flex flex-col items-center justify-center">
+              {pregunta.datos_numericos?.tipo_visual === 'shapes' || pregunta.datos_numericos?.tipo_visual === 'non_homogeneous_polygon' ? (
+                <div className="w-full flex flex-col items-center gap-8">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
+
+                    
+                    <button
+                      onClick={() => handleSubmit()}
+                      className="group relative flex items-center justify-center gap-4 w-full max-w-[280px] py-4 px-6 text-white font-sans font-black text-xl rounded-2xl border-2 border-white/10 transform active:scale-[0.95] transition-all duration-150 cursor-pointer overflow-hidden"
+                      style={{
+                        background: feedback.visible 
+                          ? (feedback.esCorrecta ? '#10B981' : '#EF4444') 
+                          : `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+                        boxShadow: feedback.visible 
+                          ? (feedback.esCorrecta ? '0 8px 20px rgba(16, 185, 129, 0.3)' : '0 8px 20px rgba(239, 68, 68, 0.3)') 
+                          : `0 8px 20px rgba(168, 85, 247, 0.3)`
+                      }}
+                    >
+                      {/* Micro-sparkle ambient hover effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                      
+                      <span>{feedback.visible ? ((feedback.esCorrecta || isChallenge) ? 'Continuar →' : (feedback.resultado?.es_espejo ? 'Activando repaso...' : 'Intentar de nuevo ↺')) : 'CONFIRMAR'}</span>
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-transparent flex-shrink-0">
+                        <span className="text-white text-base font-black">
+                          {feedback.visible ? ((feedback.esCorrecta || isChallenge) ? '→' : (feedback.resultado?.es_espejo ? '...' : '↺')) : '✓'}
+                        </span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              ) : pregunta.tipo_pregunta === 'multiple_opcion' && pregunta.alternativas ? (
+                (() => {
+                  const isVisualMultipleChoice = pregunta.alternativas.some(alt => alt.texto.includes('<svg'));
+                  return (
+                    <div className="flex flex-col h-full justify-between w-full">
+                      <div className={isVisualMultipleChoice ? "grid grid-cols-2 gap-4 w-full" : "w-full space-y-4"}>
+                        {pregunta.alternativas.map(alt => (
+                          <button
+                            key={alt.id}
+                            onClick={() => setSelectedAltId(alt.id)}
+                            disabled={feedback.visible}
+                            className={`w-full py-5 px-6 bg-white/5 hover:bg-white/10 border rounded-2xl font-black text-xl text-white transition-all cursor-pointer flex items-center justify-center ${
+                              isVisualMultipleChoice ? 'text-center' : 'text-left'
+                            } ${
+                              selectedAltId === alt.id 
+                                ? 'border-purple-500 bg-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.3)]' 
+                                : 'border-white/10 hover:border-purple-500/30 active:scale-[0.98]'
+                            }`}
+                            dangerouslySetInnerHTML={safeHtml(alt.texto)}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => handleSubmit()}
+                        disabled={!feedback.visible && selectedAltId === null}
+                        className="group relative flex items-center justify-center gap-4 w-full max-w-[280px] mx-auto py-4 px-6 text-white font-sans font-black text-xl rounded-2xl border-2 border-white/10 transform active:scale-[0.95] transition-all duration-150 cursor-pointer overflow-hidden mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          background: feedback.visible 
+                            ? (feedback.esCorrecta ? '#10B981' : '#EF4444') 
+                            : `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+                          boxShadow: feedback.visible 
+                            ? (feedback.esCorrecta ? '0 8px 20px rgba(16, 185, 129, 0.3)' : '0 8px 20px rgba(239, 68, 68, 0.3)') 
+                            : (selectedAltId !== null ? `0 8px 20px rgba(168, 85, 247, 0.3)` : 'none')
+                        }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                        <span>{feedback.visible ? ((feedback.esCorrecta || isChallenge) ? 'Continuar →' : (feedback.resultado?.es_espejo ? 'Activando repaso...' : 'Intentar de nuevo ↺')) : 'CONFIRMAR'}</span>
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-transparent flex-shrink-0">
+                          <span className="text-white text-base font-black">
+                            {feedback.visible ? ((feedback.esCorrecta || isChallenge) ? '→' : (feedback.resultado?.es_espejo ? '...' : '↺')) : '✓'}
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+                  );
+                })()
+              ) : (
+                <div className="w-full flex flex-col items-center gap-8">
+                  {/* Keypad */}
+                  <CustomKeyboard
+                    onNumberPress={handleNumberPress}
+                    onDelete={handleDelete}
+                    onSubmit={() => handleSubmit()}
+                    disabled={feedback.visible}
+                    submitDisabled={showFractionInput ? (!respuestaNum || !respuestaDen) : !respuestaNum}
+                  />
+                </div>
+              )}
+              
+              {/* Embedded score widgets */}
+              {!isChallenge && (
+                <div className="f4-scores-container max-w-[400px]">
+                  <div className="f4-score-box correct">
+                    <span className="f4-score-label">CORRECTAS</span>
+                    <span className="f4-score-value">{progreso.aciertos}</span>
+                  </div>
+                  <div className="f4-score-box incorrect">
+                    <span className="f4-score-label">ERRORES</span>
+                    <span className="f4-score-value">{progreso.intentos - progreso.aciertos}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+
+
+
+      {/* Interactive Rich Theory Modal */}
+      <AnimatePresence>
+        {showReading && readingData && (
+          <Fase4TheoryModal
+            readingData={readingData}
+            moduleColor={moduleColor}
+            onClose={() => setShowReading(false)}
+            onAbort={() => {
+              if (isInitialReading) {
+                navigate('/welcome-fase4');
+              } else {
+                setShowReading(false);
+              }
+            }}
+            isInitialReading={isInitialReading}
+            isEvaluatorMode={isEvaluatorMode}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Early Exit Modal */}
+      <AnimatePresence>
+        {showEarlyExit && (
+          <Fase4EarlyExitModal 
+            moduleColor={moduleColor} 
+            moduloId={moduloId}
+            nivelId={nivelId}
+            aciertos={progreso.aciertos}
+            intentos={progreso.intentos}
+            onClose={() => {
+              setShowEarlyExit(false);
+              navigate('/welcome-fase4');
+            }} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Completion Modal */}
+      <AnimatePresence>
+        {showCompletion && (
+          <Fase4CompletionModal
+            moduloId={moduloId}
+            nivelId={nivelId}
+            isChallenge={isChallenge}
+            moduleColor={moduleColor}
+            progreso={progreso}
+            onClose={() => {
+              setShowCompletion(false);
+              navigate('/welcome-fase4');
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Graduation Modal */}
+      <AnimatePresence>
+        {showGraduation && (
+          <Fase4PhaseGraduationModal
+            studentName={studentName}
+            onClose={async () => {
+              try {
+                await graduateFase4();
+              } catch (e) {
+                console.error(e);
+              }
+              setShowGraduation(false);
+              navigate('/map');
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Bucle Espejo Modal — patrón estándar Fase 2 */}
+      <AnimatePresence>
+        {showMirrorModal && mirrorPregunta && (
+          <Fase4MirrorModal
+            pregunta={mirrorPregunta}
+            moduleColor={moduleColor}
+            moduloId={moduloId}
+            nivelId={nivelId}
+            lastCorrectAnswer={lastCorrectAnswer}
+            lastQuestionEnunciado={lastQuestionEnunciado}
+            lastWrongAnswer={lastWrongAnswer}
+            selectedPolygonIds={selectedPolygonIds}
+            onClose={(res) => {
+              setShowMirrorModal(false);
+              setMirrorPregunta(null);
+              if (res?.soporte_avanzado) {
+                setFeedback({ visible: false, esCorrecta: false, resultado: res });
+                setShowRescate(true);
+              } else if (!isExplanationMode) {
+                loadNextQuestion();
+              }
+              setIsExplanationMode(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Rescate Modal — patrón estándar Fase 2 */}
+      <AnimatePresence>
+        {showRescate && (
+          <Fase4RescateModal
+            explicacion={feedback.resultado?.explicacion_profunda}
+            moduleColor={moduleColor}
+            onClose={async () => {
+              if (pregunta?.id) {
+                try {
+                  await submitFase4CloseRescue(moduloId, nivelId, pregunta.id);
+                } catch (e) {
+                  console.error(e);
+                }
+              }
+              setShowRescate(false);
+              loadNextQuestion();
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default Fase4GameScreen;

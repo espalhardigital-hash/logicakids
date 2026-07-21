@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "fase": 4,
+    "modulo_id": 1,
+    "nivel_id": 3,
+    "pregunta_id": "",
+    "paso_actual": 1,
+    "dom_selector": "div > div.min-h-screen > div:nth-of-type(3) > div > div.f4-screen-wrapper > div.f4-reading-overlay > div.f4-reading-card > div.f4-reading-body > div.f4-flashcard-content > div.f4-reading-examples",
+    "viewport": "2560x945",
+    "comentario": "la imagen son demasiado graden se debe evitar usar el escrol vertical",
+    "tipo": "bug_visual",
+    "prioridad": "media",
+    "estado": "completado",
+    "screenshot_url": null,
+    "fecha_creacion": "2026-07-07T18:58:42.231853"
+  }
+]

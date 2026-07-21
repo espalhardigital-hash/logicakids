@@ -1,0 +1,27 @@
+.env
+.env*
+node_modules/
+dist/
+build/
+.DS_Store
+
+# Pruebas y configuración local SRE
+/docs/Pruebas_y_Test_Unitario/
+
+# Entornos y datos sensibles de VPS
+/Datos_Desarrollo/
+/Datos_Producion/
+/Datos_localhost/
+
+# Documentación específica y otros
+/docs/Theme/
+/docs/cambio_para_vps.md
+DEPLOY.md
+APP_VERSION.md
+
+# Carpeta de exámenes Pedro II (archivos binarios, no van al repositorio)
+Pedro II/
+Pedro\ II/
+
+# Workspace files de editores
+*.code-workspace

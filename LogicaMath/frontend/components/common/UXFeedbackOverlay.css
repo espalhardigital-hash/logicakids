@@ -1,0 +1,225 @@
+/* Estilos Premium para el Inspector y Modal de Feedback UX */
+
+.ux-inspector-active {
+  cursor: crosshair !important;
+}
+
+.ux-inspector-active * {
+  cursor: crosshair !important;
+}
+
+/* Resaltador de Hover en Caliente */
+.ux-hover-highlight {
+  position: absolute;
+  pointer-events: none;
+  border: 2px dashed #a855f7;
+  background-color: rgba(168, 85, 247, 0.08);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+  border-radius: 6px;
+  z-index: 99999;
+  transition: all 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Contenedor del Overlay del Formulario */
+.ux-feedback-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100000;
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* Tarjeta del Formulario (Glassmorphism) */
+.ux-feedback-card {
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  border-radius: 24px;
+  width: 90%;
+  max-width: 500px;
+  padding: 32px;
+  color: #f8fafc;
+  font-family: 'Inter', 'Outfit', sans-serif;
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ux-feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 16px;
+}
+
+.ux-feedback-icon {
+  font-size: 1.8rem;
+  background: rgba(168, 85, 247, 0.15);
+  padding: 8px;
+  border-radius: 12px;
+  color: #c084fc;
+}
+
+.ux-feedback-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #fff, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Campos de Formulario */
+.ux-feedback-field {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ux-feedback-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+}
+
+.ux-feedback-meta-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  word-break: break-all;
+}
+
+.ux-feedback-select,
+.ux-feedback-textarea {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.ux-feedback-select:focus,
+.ux-feedback-textarea:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25);
+}
+
+.ux-feedback-textarea {
+  resize: none;
+  min-height: 100px;
+}
+
+/* Botones */
+.ux-feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.ux-feedback-btn {
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.ux-feedback-btn-cancel {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+.ux-feedback-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.ux-feedback-btn-submit {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #white;
+  color: white;
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
+}
+
+.ux-feedback-btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+}
+
+.ux-feedback-btn-submit:active {
+  transform: translateY(1px);
+}
+
+.ux-feedback-btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Botón Inspector Flotante (Trigger) */
+.ux-inspector-trigger {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  z-index: 99998;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ux-inspector-trigger:hover {
+  transform: scale(1.08) rotate(5deg);
+}
+
+.ux-inspector-trigger.active {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: scale(1.08) rotate(-45deg);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
