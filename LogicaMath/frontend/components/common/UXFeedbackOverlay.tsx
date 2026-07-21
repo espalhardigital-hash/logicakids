@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import { domToBlob } from 'modern-screenshot';
 import { getStoredToken, getStoredUser } from '../../services/authService';
 import { sanitizeHtml } from '../../services/textService';
+import AuthenticatedImage from './AuthenticatedImage';
 import './UXFeedbackOverlay.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -147,14 +148,14 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
   
   // Estados del Modal
   const [showModal, setShowModal] = useState(false);
-  const [selectedSelector, setSelectedSelector] = useState('');
+  const [selectedSelector, setSelectedSelector] = useState<string>('');
+  const [selectedElementHtml, setSelectedElementHtml] = useState<string>('');
   const [comentario, setComentario] = useState('');
   const [tipo, setTipo] = useState('bug_visual');
   const [prioridad, setPrioridad] = useState('media');
+  const [imagenes, setImagenes] = useState<{url: string, rol: 'actual' | 'referencia'}[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [alertMsg, setAlertMsg] = useState<{ text: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const [selectedElementHtml, setSelectedElementHtml] = useState('');
-  const [screenshotUrl, setScreenshotUrl] = useState('');
+  const [alertMsg, setAlertMsg] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [isUploadingScreenshot, setIsUploadingScreenshot] = useState(false);
   const [isCapturingScreen, setIsCapturingScreen] = useState(false);
 
@@ -178,17 +179,41 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
     }
 
     const handleMouseMove = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target || target.closest('.ux-inspector-trigger') || target.closest('.ux-feedback-card')) {
+      const elements = document.elementsFromPoint(e.clientX, e.clientY);
+      let target: HTMLElement | null = null;
+      
+      for (const el of elements) {
+        if (!(el instanceof HTMLElement)) continue;
+        
+        if (el.closest('.ux-inspector-trigger') || el.closest('.ux-feedback-card')) {
+          setHoveredElement(null);
+          return;
+        }
+
+        const rect = el.getBoundingClientRect();
+        const coversViewport = (rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9);
+        const hasOverlayClass = Array.from(el.classList).some(c => 
+          c.includes('splash') || c.includes('overlay') || c.includes('backdrop') || 
+          c.includes('loading') || c.includes('gate') || c.includes('start-splash')
+        );
+
+        if (coversViewport && hasOverlayClass) continue;
+        
+        target = el;
+        break;
+      }
+
+      if (!target) {
         setHoveredElement(null);
         return;
       }
+
       setHoveredElement(target);
       
       const rect = target.getBoundingClientRect();
       setHighlightStyle({
-        top: `${rect.top + window.scrollY}px`,
-        left: `${rect.left + window.scrollX}px`,
+        top: `${rect.top}px`,
+        left: `${rect.left}px`,
         width: `${rect.width}px`,
         height: `${rect.height}px`,
       });
@@ -205,44 +230,74 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
     if (!isInspecting) return;
 
     const handleCaptureClick = async (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
       // No interceptar clics sobre la UI del inspector flotante
-      if (target.closest('.ux-inspector-trigger')) return;
+      const trigger = (e.target as HTMLElement).closest('.ux-inspector-trigger');
+      if (trigger) return;
 
-      e.preventDefault();
-      e.stopPropagation();
+      const elements = document.elementsFromPoint(e.clientX, e.clientY);
+      let isOverlayHit = false;
+      let finalTarget: HTMLElement | null = null;
+      
+      for (const el of elements) {
+        if (!(el instanceof HTMLElement)) continue;
+        
+        const rect = el.getBoundingClientRect();
+        const coversViewport = (rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9);
+        const hasOverlayClass = Array.from(el.classList).some(c => 
+          c.includes('splash') || c.includes('overlay') || c.includes('backdrop') || 
+          c.includes('loading') || c.includes('gate') || c.includes('start-splash')
+        );
 
-      const selector = getUniqueSelector(target);
+        if (coversViewport && hasOverlayClass) {
+          isOverlayHit = true;
+          continue;
+        }
+        
+        finalTarget = el;
+        break;
+      }
+
+      if (!finalTarget) return;
+
+      if (!isOverlayHit) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      const selector = getUniqueSelector(finalTarget);
       setSelectedSelector(selector);
-      setSelectedElementHtml(target.outerHTML);
+      setSelectedElementHtml(finalTarget.outerHTML);
       setIsInspecting(false);
       setHoveredElement(null);
       setIsCapturingScreen(true);
 
       try {
-        const canvas = await html2canvas(document.body, {
-          useCORS: true,
-          logging: false,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: document.documentElement.clientWidth,
-          windowHeight: document.documentElement.clientHeight,
-          ignoreElements: (el) => 
-            el.classList.contains('ux-inspector-trigger') || 
-            el.classList.contains('ux-hover-highlight') ||
-            el.classList.contains('ux-feedback-modal-overlay')
+        const blob = await domToBlob(document.body, {
+            filter: (el) => {
+              const element = el as Element;
+              // Si el elemento pertenece a la UI del propio inspector, lo ignoramos
+              if (
+                element.classList && (
+                  element.classList.contains('ux-feedback-card') || 
+                  element.classList.contains('ux-feedback-modal-overlay') ||
+                  element.classList.contains('ux-feedback-form-container') ||
+                  element.classList.contains('ux-feedback-toast')
+                )
+              ) {
+                return false;
+              }
+              return true;
+            }
         });
 
-        canvas.toBlob(async (blob) => {
-          if (blob) {
-            const file = new File([blob], `auto-screenshot-${Date.now()}.png`, { type: 'image/png' });
-            await handleUploadImage(file);
-          }
-          setIsCapturingScreen(false);
-          setShowModal(true);
-        }, 'image/png');
+        if (blob) {
+          const file = new File([blob], `auto-screenshot-${Date.now()}.png`, { type: 'image/png' });
+          await handleUploadImage(file);
+        }
+        setIsCapturingScreen(false);
+        setShowModal(true);
       } catch (err) {
-        console.error('Error en captura html2canvas:', err);
+        console.error('Error en captura modern-screenshot:', err);
         setIsCapturingScreen(false);
         setShowModal(true);
       }
@@ -254,8 +309,12 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
     };
   }, [isInspecting]);
 
-  const handleUploadImage = async (file: File) => {
+  const handleUploadImage = async (file: File, rol: 'actual' | 'referencia' = 'actual') => {
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("El archivo excede el límite de 5MB.");
+      return;
+    }
     setIsUploadingScreenshot(true);
     const token = getStoredToken();
     const formData = new FormData();
@@ -275,12 +334,14 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
       }
 
       const data = await response.json();
-      // Si la URL devuelta es local, asegurarnos de que use la URL absoluta del Backend API
       let finalUrl = data.url;
       if (finalUrl.startsWith('/')) {
         finalUrl = `${API_URL}${finalUrl}`;
       }
-      setScreenshotUrl(finalUrl);
+      setImagenes(prev => {
+        const newImgs = prev.filter(img => img.rol !== rol);
+        return [...newImgs, { url: finalUrl, rol }];
+      });
     } catch (err: any) {
       alert(`Error al subir imagen: ${err.message}`);
     } finally {
@@ -323,7 +384,7 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
 
     const currentUser = getStoredUser();
 
-    const payload = {
+      const payload = {
       fase,
       modulo_id: moduloId,
       nivel_id: nivelId,
@@ -334,7 +395,7 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
       comentario: comentario.trim(),
       tipo,
       prioridad,
-      screenshot_url: screenshotUrl || null,
+      imagenes: imagenes.length > 0 ? imagenes : undefined,
       app_state: {
         timestamp: new Date().toISOString(),
         url: window.location.pathname,
@@ -365,7 +426,7 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
 
       setAlertMsg({ text: '💡 ¡Feedback guardado con éxito!', type: 'success' });
       setComentario('');
-      setScreenshotUrl('');
+      setImagenes([]);
       setSelectedElementHtml('');
       setShowModal(false);
       
@@ -531,70 +592,71 @@ export const UXFeedbackOverlay: React.FC<UXFeedbackOverlayProps> = ({
               </div>
 
               <div className="ux-feedback-field">
-                <label className="ux-feedback-label">Captura de Pantalla (Opcional)</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {screenshotUrl ? (
-                    <div style={{ position: 'relative', width: 'fit-content' }}>
-                      <img 
-                        src={screenshotUrl} 
-                        alt="Screenshot" 
-                        style={{ maxWidth: '100%', maxHeight: '120px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} 
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setScreenshotUrl('')}
-                        style={{
-                          position: 'absolute',
-                          top: '-6px',
-                          right: '-6px',
-                          background: '#ef4444',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '20px',
-                          height: '20px',
-                          fontSize: '12px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 'bold',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                        }}
-                        title="Quitar imagen"
+                <label className="ux-feedback-label">Imágenes (Estado actual vs Referencia)</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  
+                  {/* Slot Actual */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Estado Actual (Max 5MB)</span>
+                    {imagenes.find(img => img.rol === 'actual') ? (
+                      <div style={{ position: 'relative', width: '100%' }}>
+                        <AuthenticatedImage 
+                          src={imagenes.find(img => img.rol === 'actual')!.url} 
+                          alt="Estado Actual" 
+                          style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setImagenes(prev => prev.filter(img => img.rol !== 'actual'))}
+                          style={{
+                            position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                          }}
+                        >×</button>
+                      </div>
+                    ) : (
+                      <div 
+                        style={{ border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center', background: 'rgba(255,255,255,0.02)', cursor: 'pointer', height: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+                        onClick={() => document.getElementById('feedback-screenshot-actual')?.click()}
                       >
-                        ×
-                      </button>
-                    </div>
-                  ) : (
-                    <div 
-                      style={{
-                        border: '1px dashed rgba(255,255,255,0.2)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        textAlign: 'center',
-                        background: 'rgba(255,255,255,0.02)',
-                        cursor: 'pointer',
-                        transition: 'border-color 0.2s',
-                      }}
-                      onClick={() => document.getElementById('feedback-screenshot-file')?.click()}
-                    >
-                      <span style={{ fontSize: '1.2rem', display: 'block', marginBottom: '4px' }}>📸</span>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                        {isUploadingScreenshot ? 'Subiendo imagen...' : 'Selecciona una imagen o pega directamente con Ctrl+V'}
-                      </span>
-                      <input 
-                        type="file" 
-                        id="feedback-screenshot-file" 
-                        accept="image/*" 
-                        style={{ display: 'none' }} 
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleUploadImage(file);
-                        }}
-                      />
-                    </div>
-                  )}
+                        <span style={{ fontSize: '1.2rem' }}>📸</span>
+                        <input type="file" id="feedback-screenshot-actual" accept="image/*" style={{ display: 'none' }} onChange={(e) => {
+                          if (e.target.files?.[0]) handleUploadImage(e.target.files[0], 'actual');
+                        }}/>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Slot Referencia */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Referencia / Deseado (Max 5MB)</span>
+                    {imagenes.find(img => img.rol === 'referencia') ? (
+                      <div style={{ position: 'relative', width: '100%' }}>
+                        <AuthenticatedImage 
+                          src={imagenes.find(img => img.rol === 'referencia')!.url} 
+                          alt="Referencia" 
+                          style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }} 
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setImagenes(prev => prev.filter(img => img.rol !== 'referencia'))}
+                          style={{
+                            position: 'absolute', top: '-6px', right: '-6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                          }}
+                        >×</button>
+                      </div>
+                    ) : (
+                      <div 
+                        style={{ border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '12px', padding: '16px', textAlign: 'center', background: 'rgba(255,255,255,0.02)', cursor: 'pointer', height: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+                        onClick={() => document.getElementById('feedback-screenshot-ref')?.click()}
+                      >
+                        <span style={{ fontSize: '1.2rem' }}>🖼️</span>
+                        <input type="file" id="feedback-screenshot-ref" accept="image/*" style={{ display: 'none' }} onChange={(e) => {
+                          if (e.target.files?.[0]) handleUploadImage(e.target.files[0], 'referencia');
+                        }}/>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               </div>
 

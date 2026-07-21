@@ -53,13 +53,15 @@ const Fase2GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
 
   return (
     <UXFeedbackOverlay fase={2} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
-      <Fase2GameScreen
-        moduloId={parseInt(moduloId as string, 10)}
-        nivelId={parseInt(nivelId as string, 10)}
-        isEvaluatorMode={isEvaluatorMode}
-        onComplete={() => navigate('/welcome-fase2')}
-        onBack={() => navigate('/welcome-fase2')}
-      />
+      <div data-component="Fase2GameScreen" style={{ display: 'contents' }}>
+        <Fase2GameScreen
+          moduloId={parseInt(moduloId as string, 10)}
+          nivelId={parseInt(nivelId as string, 10)}
+          isEvaluatorMode={isEvaluatorMode}
+          onComplete={() => navigate('/welcome-fase2')}
+          onBack={() => navigate('/welcome-fase2')}
+        />
+      </div>
     </UXFeedbackOverlay>
   );
 };
@@ -71,7 +73,9 @@ const Fase3GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
 
   return (
     <UXFeedbackOverlay fase={3} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
-      <Fase3GameScreen isEvaluatorMode={isEvaluatorMode} />
+      <div data-component="Fase3GameScreen" style={{ display: 'contents' }}>
+        <Fase3GameScreen isEvaluatorMode={isEvaluatorMode} />
+      </div>
     </UXFeedbackOverlay>
   );
 };
@@ -90,7 +94,9 @@ const Fase4GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
 
   return (
     <UXFeedbackOverlay fase={4} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
-      <Fase4GameScreen isEvaluatorMode={isEvaluatorMode} />
+      <div data-component="Fase4GameScreen" style={{ display: 'contents' }}>
+        <Fase4GameScreen isEvaluatorMode={isEvaluatorMode} />
+      </div>
     </UXFeedbackOverlay>
   );
 };
@@ -109,13 +115,15 @@ const Fase5GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
 
   return (
     <UXFeedbackOverlay fase={5} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
-      <Fase5GameScreen
-        moduloId={parseInt(moduloId as string, 10)}
-        nivelId={parseInt(nivelId as string, 10)}
-        isEvaluatorMode={isEvaluatorMode}
-        onComplete={() => navigate('/welcome-fase5')}
-        onBack={() => navigate('/welcome-fase5')}
-      />
+      <div data-component="Fase5GameScreen" style={{ display: 'contents' }}>
+        <Fase5GameScreen
+          moduloId={parseInt(moduloId as string, 10)}
+          nivelId={parseInt(nivelId as string, 10)}
+          isEvaluatorMode={isEvaluatorMode}
+          onComplete={() => navigate('/welcome-fase5')}
+          onBack={() => navigate('/welcome-fase5')}
+        />
+      </div>
     </UXFeedbackOverlay>
   );
 };
@@ -134,13 +142,15 @@ const Fase6GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
 
   return (
     <UXFeedbackOverlay fase={6} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
-      <Fase6GameScreen
-        moduloId={parseInt(moduloId as string, 10)}
-        nivelId={parseInt(nivelId as string, 10)}
-        isEvaluatorMode={isEvaluatorMode}
-        onComplete={() => navigate('/welcome-fase6')}
-        onBack={() => navigate('/welcome-fase6')}
-      />
+      <div data-component="Fase6GameScreen" style={{ display: 'contents' }}>
+        <Fase6GameScreen
+          moduloId={parseInt(moduloId as string, 10)}
+          nivelId={parseInt(nivelId as string, 10)}
+          isEvaluatorMode={isEvaluatorMode}
+          onComplete={() => navigate('/welcome-fase6')}
+          onBack={() => navigate('/welcome-fase6')}
+        />
+      </div>
     </UXFeedbackOverlay>
   );
 };
@@ -159,13 +169,15 @@ const Fase7GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
 
   return (
     <UXFeedbackOverlay fase={7} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
-      <Fase7GameScreen
-        moduloId={parseInt(moduloId as string, 10)}
-        nivelId={parseInt(nivelId as string, 10)}
-        isEvaluatorMode={isEvaluatorMode}
-        onComplete={() => navigate('/welcome-fase7')}
-        onBack={() => navigate('/welcome-fase7')}
-      />
+      <div data-component="Fase7GameScreen" style={{ display: 'contents' }}>
+        <Fase7GameScreen
+          moduloId={parseInt(moduloId as string, 10)}
+          nivelId={parseInt(nivelId as string, 10)}
+          isEvaluatorMode={isEvaluatorMode}
+          onComplete={() => navigate('/welcome-fase7')}
+          onBack={() => navigate('/welcome-fase7')}
+        />
+      </div>
     </UXFeedbackOverlay>
   );
 };
@@ -184,13 +196,15 @@ const Fase8GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
 
   return (
     <UXFeedbackOverlay fase={8} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
-      <Fase8GameScreen
-        moduloId={parseInt(moduloId as string, 10)}
-        nivelId={parseInt(nivelId as string, 10)}
-        isEvaluatorMode={isEvaluatorMode}
-        onComplete={() => navigate('/welcome-fase8')}
-        onBack={() => navigate('/welcome-fase8')}
-      />
+      <div data-component="Fase8GameScreen" style={{ display: 'contents' }}>
+        <Fase8GameScreen
+          moduloId={parseInt(moduloId as string, 10)}
+          nivelId={parseInt(nivelId as string, 10)}
+          isEvaluatorMode={isEvaluatorMode}
+          onComplete={() => navigate('/welcome-fase8')}
+          onBack={() => navigate('/welcome-fase8')}
+        />
+      </div>
     </UXFeedbackOverlay>
   );
 };
@@ -204,7 +218,9 @@ const Fase9GameScreenWrapper: React.FC<{ isAdmin?: boolean }> = ({ isAdmin }) =>
       nivelId={parseInt(nivelId || '1', 10)}
       isAdmin={isAdmin}
     >
-      <Fase9GameScreen />
+      <div data-component="Fase9GameScreen" style={{ display: 'contents' }}>
+        <Fase9GameScreen />
+      </div>
     </UXFeedbackOverlay>
   );
 };
@@ -221,7 +237,9 @@ const FaseGenericGameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin
       nivelId={parseInt(nivelId as string, 10)}
       isAdmin={isAdmin}
     >
-      <FaseGenericGameScreen isEvaluatorMode={isEvaluatorMode} />
+      <div data-component="FaseGenericGameScreen" style={{ display: 'contents' }}>
+        <FaseGenericGameScreen isEvaluatorMode={isEvaluatorMode} />
+      </div>
     </UXFeedbackOverlay>
   );
 };

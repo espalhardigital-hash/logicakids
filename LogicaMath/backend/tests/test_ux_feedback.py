@@ -152,3 +152,53 @@ async def test_get_feedback_screenshot_local():
         
         assert res == "FileResponseObject"
         mock_fileresponse.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_create_ux_feedback_multiple_images():
+    """Prueba que el registro de feedback con múltiples imágenes se realiza exitosamente."""
+    from app.schemas import UXFeedbackImagen
+    
+    payload = UXFeedbackCreate(
+        fase=4,
+        modulo_id=1,
+        nivel_id=1,
+        dom_selector="div",
+        comentario="Prueba con dos imágenes",
+        tipo=FeedbackTypeEnum.BUG_VISUAL,
+        imagenes=[
+            UXFeedbackImagen(url="http://url/actual.png", rol="actual"),
+            UXFeedbackImagen(url="http://url/referencia.png", rol="referencia")
+        ]
+    )
+    
+    db_mock = AsyncMock()
+    user_mock = {"id": "1", "username": "revisor_test", "role": "ADMIN"}
+    
+    res = await create_ux_feedback(payload=payload, db=db_mock, current_user=user_mock)
+    
+    assert res.comentario == "Prueba con dos imágenes"
+    assert len(res.imagenes) == 2
+    assert res.imagenes[0].rol == "actual"
+    assert res.imagenes[1].rol == "referencia"
+    db_mock.add.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_create_ux_feedback_reporter_id():
+    """Prueba que el reporter_id se establece a partir del current_user del token."""
+    payload = UXFeedbackCreate(
+        fase=4,
+        modulo_id=1,
+        nivel_id=1,
+        dom_selector="div",
+        comentario="Prueba reporter_id",
+        tipo=FeedbackTypeEnum.BUG_VISUAL,
+        app_state={"user": {"username": "fake_user", "role": "USER"}} # Intentional fake user in state
+    )
+    
+    db_mock = AsyncMock()
+    user_mock = {"id": "revisor_uuid_123", "username": "revisor_real", "role": "ADMIN"}
+    
+    res = await create_ux_feedback(payload=payload, db=db_mock, current_user=user_mock)
+    
+    assert res.reporter_id == "revisor_uuid_123"
+    db_mock.add.assert_called_once()

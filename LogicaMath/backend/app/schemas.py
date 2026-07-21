@@ -503,6 +503,12 @@ class IniciarFaseResponse(BaseModel):
 # UX FEEDBACK
 # ============================================================
 
+from typing import Optional, List, Dict, Any, Literal
+
+class UXFeedbackImagen(BaseModel):
+    url: str
+    rol: Literal["actual", "referencia"]
+
 class UXFeedbackBase(BaseModel):
     fase: int
     modulo_id: int
@@ -516,6 +522,7 @@ class UXFeedbackBase(BaseModel):
     prioridad: str = "media"
     app_state: Optional[Dict[str, Any]] = None
     screenshot_url: Optional[str] = None
+    imagenes: Optional[List[UXFeedbackImagen]] = None
 
 
 class UXFeedbackCreate(UXFeedbackBase):

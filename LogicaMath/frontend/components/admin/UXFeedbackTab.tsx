@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getStoredToken } from '../../services/authService';
 import { ShieldAlert, CheckCircle, Clock, Trash2, Filter, Code } from 'lucide-react';
+import { sanitizeHtml } from '../../services/textService';
+import AuthenticatedImage from '../common/AuthenticatedImage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -82,6 +84,7 @@ interface UXFeedback {
   desarrollador_notes?: string;
   screenshot_url?: string;
   app_state?: any;
+  imagenes?: {url: string; rol: 'actual' | 'referencia'}[];
   fecha_creacion: string;
 }
 
@@ -362,11 +365,29 @@ export const UXFeedbackTab: React.FC = () => {
                 </div>
               </div>
 
-              {selectedFeedback.screenshot_url && (
+              {(selectedFeedback.imagenes && selectedFeedback.imagenes.length > 0) ? (
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase font-bold mb-2">Imágenes Adjuntas</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedFeedback.imagenes.map((img, idx) => (
+                      <div key={idx} className="bg-white/5 border border-white/5 p-2 rounded-xl flex flex-col items-center">
+                        <span className="text-[10px] text-slate-400 uppercase font-bold mb-2">{img.rol === 'actual' ? 'Estado Actual' : 'Referencia / Deseado'}</span>
+                        <AuthenticatedImage 
+                          src={img.url} 
+                          alt={img.rol} 
+                          className="max-h-64 object-contain rounded-lg border border-white/10 cursor-zoom-in w-full"
+                          onClick={() => window.open(img.url, '_blank')}
+                          title="Ver en pantalla completa"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : selectedFeedback.screenshot_url ? (
                 <div>
                   <div className="text-[10px] text-slate-400 uppercase font-bold mb-1">Captura de Pantalla</div>
                   <div className="bg-white/5 border border-white/5 p-2 rounded-xl flex justify-center">
-                    <img 
+                    <AuthenticatedImage 
                       src={selectedFeedback.screenshot_url} 
                       alt="Captura de reporte" 
                       className="max-h-64 object-contain rounded-lg border border-white/10 cursor-zoom-in"
@@ -375,7 +396,7 @@ export const UXFeedbackTab: React.FC = () => {
                     />
                   </div>
                 </div>
-              )}
+              ) : null}
 
               {selectedFeedback.app_state?.element_html && (
                 <div>
@@ -411,7 +432,7 @@ export const UXFeedbackTab: React.FC = () => {
                 <div className="text-[10px] text-blue-400 uppercase font-bold mb-1">Comando Automático Antigravity</div>
                 <div 
                   onClick={() => {
-                    const cmd = `antigravity --resolve-ux ${selectedFeedback.id}`;
+                    const cmd = `/opsx-apply resolver feedback UX #${selectedFeedback.id} usando docs/ux_feedback/${selectedFeedback.id}/instruccion.md`;
                     navigator.clipboard.writeText(cmd);
                     setCopiedCmd(true);
                     setTimeout(() => setCopiedCmd(false), 2000);
@@ -419,7 +440,7 @@ export const UXFeedbackTab: React.FC = () => {
                   className="bg-blue-950/40 border border-blue-900/30 p-3 rounded-xl font-mono text-[11px] text-blue-300 break-all select-all flex items-center justify-between cursor-pointer hover:bg-blue-900/40 transition-colors"
                   title="Clic para copiar comando"
                 >
-                  <span>antigravity --resolve-ux {selectedFeedback.id}</span>
+                  <span>/opsx-apply resolver feedback UX #{selectedFeedback.id} usando docs/ux_feedback/{selectedFeedback.id}/instruccion.md</span>
                   <span className="text-[9px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-sans uppercase font-extrabold flex-shrink-0 ml-2">
                     {copiedCmd ? '✓ Copiado' : 'Copiar'}
                   </span>

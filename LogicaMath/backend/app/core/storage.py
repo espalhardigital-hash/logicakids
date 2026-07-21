@@ -122,10 +122,8 @@ class StorageService:
                     Body=file_contents,
                     ContentType=f"image/{ext}"
                 )
-                base_url = getattr(settings, 'MINIO_EXTERNAL_ENDPOINT', None) or getattr(settings, 'S3_PUBLIC_URL', None) or settings.S3_ENDPOINT_URL
-                if base_url:
-                    base_url = base_url.rstrip('/')
-                url = f"{base_url}/{self.bucket_name}/{unique_filename}"
+                # We successfully uploaded to S3. Return the proxy URL instead of the public S3 URL
+                url = f"/evaluador/feedback/screenshots/{unique_name}"
                 return url
             except (ClientError, EndpointConnectionError) as e:
                 logger.warning(f"S3 Upload failed for screenshot, falling back to local storage. Error: {e}")

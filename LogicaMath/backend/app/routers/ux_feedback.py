@@ -26,6 +26,7 @@ async def create_ux_feedback(
     Crea una nueva anotación de feedback UX y persistencia contextual en el modo evaluador.
     """
     db_feedback = UXFeedback(**payload.model_dump())
+    db_feedback.reporter_id = current_user.get('id') if isinstance(current_user, dict) else getattr(current_user, 'id', None)
     db.add(db_feedback)
     try:
         await db.commit()
@@ -101,7 +102,10 @@ async def update_ux_feedback(
     return db_feedback
 
 @router.get("/feedback/screenshots/{filename}")
-async def get_feedback_screenshot(filename: str):
+async def get_feedback_screenshot(
+    filename: str,
+    current_user: dict = Depends(get_current_user)
+):
     safe_filename = os.path.basename(filename)
     local_path = os.path.join("app", "static", "screenshots", safe_filename)
     if os.path.exists(local_path):
@@ -143,7 +147,12 @@ async def upload_feedback_screenshot_endpoint(
     """
     Sube una captura de pantalla para un reporte UX Feedback.
     """
+    if file.content_type and not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
+        
     contents = await file.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="El archivo excede el límite de 5MB")
     try:
         url = await storage_service.upload_feedback_screenshot(contents, file.filename)
         return {"url": url}

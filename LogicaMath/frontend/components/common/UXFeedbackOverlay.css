@@ -10,7 +10,7 @@
 
 /* Resaltador de Hover en Caliente */
 .ux-hover-highlight {
-  position: absolute;
+  position: fixed;
   pointer-events: none;
   border: 2px dashed #a855f7;
   background-color: rgba(168, 85, 247, 0.08);

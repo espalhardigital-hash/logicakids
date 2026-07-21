@@ -17,6 +17,7 @@ class UXFeedback(Base):
     nivel_id = Column(Integer, nullable=False, index=True)
     pregunta_id = Column(String(100), nullable=True, index=True)
     paso_actual = Column(Integer, nullable=True)
+    reporter_id = Column(String(50), nullable=True, index=True)
 
     dom_selector = Column(Text, nullable=False)
     viewport = Column(String(50), nullable=True)
@@ -32,6 +33,7 @@ class UXFeedback(Base):
     
     app_state = Column(JSON, nullable=True)
     screenshot_url = Column(String(255), nullable=True)
+    imagenes = Column(JSON, nullable=True)
     
     estado = Column(
         Enum(FeedbackStatusEnum, name="ux_feedback_estado", native_enum=False),

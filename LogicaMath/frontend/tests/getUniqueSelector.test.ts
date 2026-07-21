@@ -60,4 +60,24 @@ describe('getUniqueSelector', () => {
 
     document.body.removeChild(modal);
   });
+
+  it('debe anclar el selector a un padre con data-component en lugar de la raíz absoluta', () => {
+    const screen = document.createElement('div');
+    screen.setAttribute('data-component', 'Fase4GameScreen');
+    
+    const container = document.createElement('div');
+    container.className = 'flex flex-col';
+    
+    const button = document.createElement('button');
+    button.className = 'btn-primary';
+    
+    container.appendChild(button);
+    screen.appendChild(container);
+    document.body.appendChild(screen);
+
+    const selector = getUniqueSelector(button);
+    expect(selector).toBe('[data-component="Fase4GameScreen"] > div.flex.flex-col > button.btn-primary');
+
+    document.body.removeChild(screen);
+  });
 });
