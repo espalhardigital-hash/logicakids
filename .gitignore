@@ -25,3 +25,7 @@ Pedro\ II/
 
 # Workspace files de editores
 *.code-workspace
+
+# OpenSpec directory
+openspec/
+
