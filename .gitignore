@@ -30,3 +30,7 @@ Pedro\ II/
 # OpenSpec directory
 openspec/
 
+# Agent configuration directory
+.agent/
+
+

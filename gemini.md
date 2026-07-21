@@ -80,7 +80,7 @@ Cualquier otro comando propuesto en PowerShell (ej: `git`, `docker`, `docker com
 * **Archivos e Historial Excluidos de Git**: Queda prohibido subir o rastrear en Git:
   * Archivos de configuración `.env` de cualquier entorno.
   * Carpetas de entorno VPS (`Datos_Desarrollo/`, `Datos_Producion/`, `Datos_localhost/`).
-  * Carpeta de especificaciones de desarrollo agéntico (`openspec/`).
+  * Carpeta de especificaciones de desarrollo agéntico (`openspec/`) y configuraciones (`.agent/`).
   * Manuales internos de migración sensible (`INSTRUCCIONES_MIGRACION_VPS.md`).
 
 

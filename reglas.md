@@ -629,7 +629,7 @@ Se activa al configurar variables de entorno, cadenas de conexión a bases de da
   - La rama `main` queda reservada exclusivamente para despliegues estables de producción.
 - **Protección de Archivos Sensibles e Ignores (.gitignore)**:
   - Archivos `.env*`, carpetas `/Datos_Desarrollo/` y `/Datos_Producion/` son estrictamente de solo lectura y excluidos de Git.
-  - La carpeta de especificaciones agénticas `openspec/` y manuales internos como `INSTRUCCIONES_MIGRACION_VPS.md` están ignorados por seguridad.
+  - La carpeta de especificaciones agénticas `openspec/`, la carpeta del agente `.agent/` y manuales internos como `INSTRUCCIONES_MIGRACION_VPS.md` están ignorados por seguridad.
 - **Bloqueo de Datos de Producción Localmente**: Queda prohibido conectar la base de datos de producción a la ejecución local del agente o del entorno de desarrollo.
 - **Entorno de Pruebas Locales (100% Local)**: Se utiliza la infraestructura autocontenida definida en `docs/Pruebas_y_Test_Unitario/docker-compose.local.yml` (`.env.local`).
 
