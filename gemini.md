@@ -76,7 +76,7 @@ Cualquier otro comando propuesto en PowerShell (ej: `git`, `docker`, `docker com
 * **Repositorio Oficial**: `https://github.com/espalhardigital-hash/logicakids.git`
 * El agente **NUNCA** ejecutará de forma automática comandos que alteren el historial remoto o local como `git commit` o `git push`, a menos que el usuario lo autorice o solicite de forma expresa y explícita en su prompt.
 * **Principio 1**: El agente **NUNCA** realizará operaciones que actualicen el repositorio de GitHub (como `git commit` o `git push`) sin que el usuario lo haya solicitado de manera expresa y explícita en el prompt de la conversación actual.
-* **Principio 2**: Cuando el usuario solicite de manera expresa actualizar el repositorio de GitHub, el agente operará **exclusivamente sobre la rama de desarrollo** (`desarrollo`). Bajo ninguna circunstancia se actualizará la rama o el repositorio de producción a menos que el prompt de la conversación lo requiera de forma explícita y expresa.
+* **Principio 2**: Cuando el usuario solicite de manera expresa actualizar el repositorio de GitHub, el agente operará **exclusivamente sobre la rama de producción** (`producion`), dado que el desarrollo es 100% local. Bajo ninguna circunstancia se subirá información sensible o archivos excluidos.
 * **Archivos e Historial Excluidos de Git**: Queda prohibido subir o rastrear en Git:
   * Archivos de configuración `.env` de cualquier entorno.
   * Carpetas de entorno VPS (`Datos_Desarrollo/`, `Datos_Producion/`, `Datos_localhost/`).

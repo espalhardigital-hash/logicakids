@@ -625,8 +625,7 @@ Se activa al configurar variables de entorno, cadenas de conexión a bases de da
 - **Bases de Datos Segregadas**: Cada entorno (Desarrollo, Producción y Local) DEBE tener su propia base de datos totalmente independiente. Está estrictamente prohibido compartir bases de datos entre entornos.
 - **Flujo de Git y Repositorio Oficial**:
   - Repositorio: `https://github.com/espalhardigital-hash/logicakids.git`
-  - Toda modificación agéntica autorizada opera sobre la rama `desarrollo`.
-  - La rama `main` queda reservada exclusivamente para despliegues estables de producción.
+  - Toda modificación agéntica autorizada opera sobre la rama `producion` (rama única remota, desarrollo es 100% local).
 - **Protección de Archivos Sensibles e Ignores (.gitignore)**:
   - Archivos `.env*`, carpetas `/Datos_Desarrollo/` y `/Datos_Producion/` son estrictamente de solo lectura y excluidos de Git.
   - La carpeta de especificaciones agénticas `openspec/`, la carpeta del agente `.agent/` y manuales internos como `INSTRUCCIONES_MIGRACION_VPS.md` o `docs/checklist_despliegue_portainer.md` están ignorados por seguridad.
