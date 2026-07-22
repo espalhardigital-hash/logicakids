@@ -1403,34 +1403,45 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                        />
                      )}
 
-                     <div className="grid gap-3 mt-6">
-                       {pregunta.alternativas?.map(alt => (
-                         <button key={alt.id} disabled={feedback.visible} onClick={() => setSelectedAltId(alt.id)}
-                           className={`f6-mc-option-btn ${selectedAltId === alt.id ? 'selected' : ''}`}
-                           style={{ padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', background: selectedAltId === alt.id ? `${moduleColor}20` : 'rgba(255,255,255,0.02)', textAlign: 'left', color: '#fff' }}
+                     {pregunta.alternativas && pregunta.alternativas.length > 0 ? (
+                       <>
+                         <div className="grid gap-3 mt-6">
+                           {pregunta.alternativas.map(alt => (
+                             <button key={alt.id} disabled={feedback.visible} onClick={() => setSelectedAltId(alt.id)}
+                               className={`f6-mc-option-btn ${selectedAltId === alt.id ? 'selected' : ''}`}
+                               style={{ padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', background: selectedAltId === alt.id ? `${moduleColor}20` : 'rgba(255,255,255,0.02)', textAlign: 'left', color: '#fff' }}
+                             >
+                               {alt.texto}
+                             </button>
+                           ))}
+                         </div>
+                         <button
+                           className="f6-submit-btn mt-6 w-full"
+                           onClick={handleSubmit}
+                           disabled={!feedback.visible && selectedAltId === null}
+                           style={{
+                             background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+                             padding: '16px',
+                             borderRadius: '16px',
+                             color: '#fff',
+                             fontWeight: 800,
+                             display: 'flex',
+                             alignItems: 'center',
+                             justifyContent: 'center',
+                             gap: '8px'
+                           }}
                          >
-                           {alt.texto}
+                            {feedback.visible ? (feedback.esCorrecta || isChallenge ? 'Continuar →' : 'Intentar de nuevo') : 'Confirmar'}
                          </button>
-                       ))}
-                     </div>
-                     <button 
-                       className="f6-submit-btn mt-6 w-full" 
-                       onClick={handleSubmit} 
-                       disabled={!feedback.visible && selectedAltId === null} 
-                       style={{ 
-                         background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`, 
-                         padding: '16px', 
-                         borderRadius: '16px', 
-                         color: '#fff', 
-                         fontWeight: 800,
-                         display: 'flex',
-                         alignItems: 'center',
-                         justifyContent: 'center',
-                         gap: '8px'
-                       }}
-                     >
-                        {feedback.visible ? (feedback.esCorrecta || isChallenge ? 'Continuar →' : 'Intentar de nuevo') : 'Confirmar'}
-                     </button>
+                       </>
+                     ) : (
+                       // Red de seguridad: si la pregunta llegó sin opciones (dato corrupto/desactualizado)
+                       // evitamos dejar al alumno frente a un botón "Confirmar" deshabilitado sin salida.
+                       <div className="mt-6 text-center">
+                         <p className="opacity-70 mb-4">No se pudieron cargar las opciones de esta pregunta.</p>
+                         <button className="px-6 py-3 bg-white/10 rounded-xl" onClick={() => loadPregunta()}>Cargar otra pregunta</button>
+                       </div>
+                     )}
                   </div>
                 )}
                 {pregunta.tipo_pregunta === 'constructor_soluciones_chained' && (

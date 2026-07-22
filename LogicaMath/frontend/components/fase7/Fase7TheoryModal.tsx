@@ -17,11 +17,10 @@ interface Fase7TheoryModalProps {
 }
 
 const MODULE_NAMES: Record<number, string> = {
-  1: 'Gimnasio Mental',
-  2: 'Tablas en Acción',
-  3: 'Tienda Matemática',
-  4: 'Constructor de Soluciones',
-  5: 'Desafío Lógico',
+  1: 'Orientación Cardinal',
+  2: 'Plano Cartesiano',
+  3: 'La Mecánica del Tiempo',
+  4: 'Horarios y Apps',
 };
 
 export const Fase7TheoryModal: React.FC<Fase7TheoryModalProps> = ({

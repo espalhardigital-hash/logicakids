@@ -845,7 +845,11 @@ async def responder_fase8(
 
     # 1. VALIDAR LA RESPUESTA
     tipo_pregunta = pregunta.tipo_pregunta.value
-    is_money = (modulo_id == 3)
+    # Fase 8 no maneja dinero (módulo 3 = "Probabilidad", copiado de Fase 2/3 donde
+    # módulo 3 sí era la Tienda). Todas las preguntas de Fase 8 son multiple_opcion
+    # hoy, así que esto es defensivo, pero corregimos el copy-paste para que no rompa si
+    # se agrega algún tipo de respuesta numérica/texto libre en el futuro.
+    is_money = False
 
     tipo_error = None
     feedback_mostrado = None

@@ -842,7 +842,9 @@ async def responder_fase5(
 
     # 1. VALIDAR LA RESPUESTA
     tipo_pregunta = pregunta.tipo_pregunta.value
-    is_money = (modulo_id == 3)
+    # Fase 5 no maneja dinero (módulo 3 = "Figuras Compuestas", copiado de Fase 2/3
+    # donde módulo 3 era la Tienda). Las respuestas son enteros de área/perímetro/etc.
+    is_money = False
 
     tipo_error = None
     feedback_mostrado = None

@@ -26,11 +26,35 @@ from app.core.storage import storage_service
 FASE6_ID = 6
 
 # --- DICCIONARIOS DE CONTEXTO FASE 6 ---
-NOMBRES = ["Lucas", "Sofía", "Mateo", "Valeria", "Diego", "Camila"]
-CONTENEDORES = ["caja de juguetes", "caja de cartón", "cofre del tesoro", "baúl"]
-LIQUIDOS = ["piscina inflable", "tanque de reserva", "recipiente de cristal"]
-MASAS = ["bolsa de manzanas", "saco de papas", "paquete de arroz", "caja de herramientas"]
-TEMPERATURAS = ["laboratorio", "clima de la ciudad", "experimento de química", "refrigerador"]
+NOMBRES = ["Lucas", "Sofía", "Mateo", "Valeria", "Diego", "Camila",
+           "Emilia", "Bruno", "Renata", "Tomás", "Isabela", "Joaquín", "Antonella", "Facundo"]
+CONTENEDORES = ["caja de juguetes", "caja de cartón", "cofre del tesoro", "baúl",
+                "acuario vacío", "caja de mudanza", "estuche de herramientas", "nevera portátil"]
+LIQUIDOS = ["piscina inflable", "tanque de reserva", "recipiente de cristal",
+            "bidón de agua", "pecera gigante", "cisterna del jardín", "termo industrial"]
+MASAS = ["bolsa de manzanas", "saco de papas", "paquete de arroz", "caja de herramientas",
+         "costal de harina", "mochila cargada", "bulto de naranjas", "caja de libros"]
+TEMPERATURAS = ["laboratorio", "clima de la ciudad", "experimento de química", "refrigerador",
+                "invernadero", "horno de la cocina", "cámara frigorífica", "termómetro del jardín"]
+
+# Objetos reales de la vida cotidiana que tienen la forma de cada poliedro (M1L1).
+# Conectan el cuerpo geométrico abstracto de la figura con algo que el niño conoce,
+# generando variedad REAL de situaciones (no solo cambio de nombre).
+_POLIEDRO_OBJETOS = {
+    "cubo": ["un dado", "un cubo de hielo", "una caja de regalo cúbica", "un cubo de Rubik",
+             "un dado de espuma gigante", "un cubo mágico", "una caja de dados"],
+    "prisma rectangular": ["una caja de zapatos", "un ladrillo", "una caja de cereal", "un libro grueso",
+                           "un acuario", "una barra de jabón", "un contenedor de plástico", "un borrador de pizarra"],
+    "pirámide cuadrangular": ["una pirámide de Egipto", "el techo de una torre", "una carpa piramidal",
+                              "un pisapapeles de cristal", "una campana de circo"],
+    "prisma triangular": ["una tienda de campaña", "un prisma de vidrio que forma un arcoíris",
+                          "una barra de chocolate triangular", "una rampa de skate", "un atril de madera"],
+}
+
+# Escenarios/objetos para el conteo de cubos unitarios (M3L1). El detalle del
+# material o del tipo de construcción cambia la SITUACIÓN presentada al alumno.
+CONSTRUCCIONES_CUBOS = ["torre", "muro", "pila", "castillo de bloques", "escultura", "pirámide escalonada", "plataforma"]
+MATERIALES_CUBOS = ["de madera", "de plástico", "de colores", "magnéticos", "de goma espuma", "de cristal"]
 
 # Cache en memoria para reutilizar URLs de gráficos generados
 _graphic_url_cache: Dict[str, str] = {}
@@ -154,7 +178,7 @@ async def seed_teoria_niveles(session: AsyncSession):
             "interactivos": [
                 {"pregunta": "Si apilo 4 cubos en el suelo y luego pongo 4 cubos encima. Volumen total:", "respuesta": "8", "feedback_acierto": "¡Correcto!", "feedback_error": "Suma 4+4."},
                 {"pregunta": "Una línea de 5 cubos, repetida 2 veces. Volumen:", "respuesta": "10", "feedback_acierto": "¡Excelente!", "feedback_error": "Multiplica 5x2."},
-                {"pregunta": "Tres columnas de 3 cubos. Volumen:", "call": "9", "respuesta": "9", "feedback_acierto": "¡Brillante!", "feedback_error": "Multiplica 3x3."}
+                {"pregunta": "Tres columnas de 3 cubos. Volumen:", "respuesta": "9", "feedback_acierto": "¡Brillante!", "feedback_error": "Multiplica 3x3."}
             ]
         },
         {
@@ -229,202 +253,291 @@ async def seed_teoria_niveles(session: AsyncSession):
         nt = NivelTeoria(fase_id=FASE6_ID, **data)
         session.add(nt)
 
+def _finalize_alts(correct, preferred: list, rng: random.Random, lo: int = None) -> list:
+    """Devuelve exactamente 4 alternativas string DISTINTAS incluyendo `correct`.
+
+    Prioriza los distractores de `preferred` (que suelen llevar feedback
+    pedagógico en errores_previstos) y, si hacen falta más, rellena con valores
+    enteros cercanos. Evita el bug de opciones repetidas (p.ej. [8, 6, 6, 10])
+    cuando dos fórmulas de distractor colisionan.
+    """
+    correct = str(correct)
+    out = [correct]
+    seen = {correct}
+    for d in preferred:
+        ds = str(d)
+        if ds not in seen:
+            seen.add(ds)
+            out.append(ds)
+        if len(out) >= 4:
+            return out
+    # Relleno numérico cercano (respuestas enteras)
+    try:
+        base = int(float(correct))
+        step = 1
+        while len(out) < 4 and step < 80:
+            for off in (step, -step, step + 1, -(step + 1)):
+                cand = base + off
+                if lo is not None and cand < lo:
+                    continue
+                cs = str(cand)
+                if cs not in seen:
+                    seen.add(cs)
+                    out.append(cs)
+                    break
+            step += 1
+    except (ValueError, TypeError):
+        pass
+    # Último recurso (respuestas de texto): sufijo para no quedar cortos
+    i = 0
+    while len(out) < 4:
+        cs = f"{correct} ({i})"
+        if cs not in seen:
+            seen.add(cs)
+            out.append(cs)
+        i += 1
+    return out
+
+
+# --- Poliedros para M1L1: propiedades, artículo, desglose y figura SVG ---
+_POLIEDROS_PROPS = {
+    "cubo":                  {"caras": 6, "vertices": 8, "aristas": 12},
+    "prisma rectangular":    {"caras": 6, "vertices": 8, "aristas": 12},
+    "pirámide cuadrangular": {"caras": 5, "vertices": 5, "aristas": 8},
+    "prisma triangular":     {"caras": 5, "vertices": 6, "aristas": 9},
+}
+
+_POLIEDRO_ARTICULO = {
+    "cubo": "un cubo regular",
+    "prisma rectangular": "un prisma rectangular (como una caja de zapatos)",
+    "pirámide cuadrangular": "una pirámide con base cuadrada (pirámide cuadrangular)",
+    "prisma triangular": "un prisma triangular",
+}
+
+_POLIEDRO_DESGLOSE = {
+    ("cubo", "caras"): "6 caras cuadradas (tapa, base y 4 caras laterales)",
+    ("cubo", "vertices"): "8 vértices (4 esquinas arriba y 4 abajo)",
+    ("cubo", "aristas"): "12 aristas (4 arriba, 4 abajo y 4 columnas verticales)",
+    ("prisma rectangular", "caras"): "6 caras rectangulares en total",
+    ("prisma rectangular", "vertices"): "8 vértices (4 arriba y 4 abajo)",
+    ("prisma rectangular", "aristas"): "12 aristas en total",
+    ("pirámide cuadrangular", "caras"): "5 caras (1 base cuadrada y 4 caras triangulares)",
+    ("pirámide cuadrangular", "vertices"): "5 vértices (4 en la base y la cúspide)",
+    ("pirámide cuadrangular", "aristas"): "8 aristas (4 en la base y 4 que suben a la punta)",
+    ("prisma triangular", "caras"): "5 caras (2 bases triangulares y 3 caras rectangulares)",
+    ("prisma triangular", "vertices"): "6 vértices (3 abajo y 3 arriba)",
+    ("prisma triangular", "aristas"): "9 aristas (3 arriba, 3 abajo y 3 verticales)",
+}
+
+# Etiquetas para pregunta (respeta el género: los vértices / las caras / las aristas)
+_POLIEDRO_INTERROG = {"caras": "¿Cuántas caras", "vertices": "¿Cuántos vértices", "aristas": "¿Cuántas aristas"}
+_POLIEDRO_PARAM_ES = {
+    "caras": "las caras (paredes planas)",
+    "vertices": "los vértices (esquinas)",
+    "aristas": "las aristas (líneas/bordes)",
+}
+
+_POLIEDRO_SVG = {
+    "cubo": (
+        "<svg width='160' height='160' viewBox='0 0 120 120' style='margin:10px auto; display:block; background:#111827; border:2px solid #3B82F6; border-radius:12px;'>"
+        "  <line x1='60' y1='20' x2='60' y2='60' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='60' y1='60' x2='90' y2='75' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='30' y1='75' x2='60' y2='60' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <polygon points='60,20 90,35 60,50 30,35' fill='#3B82F6' fill-opacity='0.25' stroke='#3B82F6' stroke-width='2'/>"
+        "  <polygon points='30,35 60,50 60,90 30,75' fill='#3B82F6' fill-opacity='0.15' stroke='#3B82F6' stroke-width='2'/>"
+        "  <polygon points='60,50 90,35 90,75 60,90' fill='#3B82F6' fill-opacity='0.2' stroke='#3B82F6' stroke-width='2'/>"
+        "</svg>"
+    ),
+    "prisma rectangular": (
+        "<svg width='160' height='160' viewBox='0 0 120 120' style='margin:10px auto; display:block; background:#111827; border:2px solid #3B82F6; border-radius:12px;'>"
+        "  <line x1='60' y1='25' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='60' y1='65' x2='100' y2='80' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='20' y1='80' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <polygon points='60,25 100,40 60,55 20,40' fill='#3B82F6' fill-opacity='0.25' stroke='#3B82F6' stroke-width='2'/>"
+        "  <polygon points='20,40 60,55 60,95 20,80' fill='#3B82F6' fill-opacity='0.15' stroke='#3B82F6' stroke-width='2'/>"
+        "  <polygon points='60,55 100,40 100,80 60,95' fill='#3B82F6' fill-opacity='0.2' stroke='#3B82F6' stroke-width='2'/>"
+        "</svg>"
+    ),
+    "pirámide cuadrangular": (
+        "<svg width='160' height='160' viewBox='0 0 120 120' style='margin:10px auto; display:block; background:#111827; border:2px solid #3B82F6; border-radius:12px;'>"
+        "  <line x1='30' y1='80' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='90' y1='80' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='60' y1='65' x2='60' y2='25' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <polygon points='60,25 30,80 60,95' fill='#3B82F6' fill-opacity='0.2' stroke='#3B82F6' stroke-width='2'/>"
+        "  <polygon points='60,25 60,95 90,80' fill='#3B82F6' fill-opacity='0.25' stroke='#3B82F6' stroke-width='2'/>"
+        "</svg>"
+    ),
+    "prisma triangular": (
+        "<svg width='160' height='160' viewBox='0 0 120 120' style='margin:10px auto; display:block; background:#111827; border:2px solid #3B82F6; border-radius:12px;'>"
+        "  <line x1='30' y1='45' x2='60' y2='25' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='90' y1='45' x2='60' y2='25' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='30' y1='85' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='90' y1='85' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <line x1='60' y1='25' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
+        "  <polygon points='30,45 90,45 60,25' fill='#3B82F6' fill-opacity='0.15' stroke='none'/>"
+        "  <polygon points='30,45 90,45 90,85 30,85' fill='#3B82F6' fill-opacity='0.2' stroke='#3B82F6' stroke-width='2'/>"
+        "</svg>"
+    ),
+}
+
+
 async def _gen_fase6_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
     nombre = rng.choice(NOMBRES)
     errores_previstos = {}
-    
+
     if mod_id == 1:
         if lvl_id == 1:
-            # Poliedros: caras, vértices, aristas
-            solid_type = rng.choice(["cubo", "prisma rectangular", "pirámide cuadrangular", "prisma triangular"])
-            if solid_type == "cubo":
-                param = rng.choice(["caras", "vértices", "aristas"])
-                if param == "caras":
-                    ans, expl = 6, "Un cubo tiene 6 caras cuadradas idénticas (tapa, base y 4 caras laterales)."
-                    errores_previstos["8"] = "Contaste los vértices (esquinas) en lugar de las caras (paredes planas)."
-                    errores_previstos["12"] = "Contaste las aristas (bordes) en lugar de las caras (paredes planas)."
-                elif param == "vértices":
-                    ans, expl = 8, "Un cubo tiene 8 vértices (4 esquinas arriba y 4 abajo)."
-                    errores_previstos["6"] = "Contaste las caras en lugar de los vértices (esquinas)."
-                    errores_previstos["12"] = "Contaste las aristas (bordes) en lugar de los vértices."
-                else:
-                    ans, expl = 12, "Un cubo tiene 12 aristas (4 bordes arriba, 4 abajo y 4 bordes verticales)."
-                    errores_previstos["6"] = "Contaste las caras en lugar de las aristas (líneas)."
-                    errores_previstos["8"] = "Contaste los vértices (esquinas) en lugar de las aristas (líneas)."
-                enunciado = (
-                    f"¿Cuántas {param} tiene un cubo regular?<br/>"
-                    "<svg width='160' height='160' viewBox='0 0 120 120' style='margin:10px auto; display:block; background:#111827; border:2px solid #3B82F6; border-radius:12px;'>"
-                    "  <!-- Estructura interna trasera (3 aristas ocultas) -->"
-                    "  <line x1='60' y1='20' x2='60' y2='60' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='60' y1='60' x2='90' y2='75' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='30' y1='75' x2='60' y2='60' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <!-- Cara superior -->"
-                    "  <polygon points='60,20 90,35 60,50 30,35' fill='#3B82F6' fill-opacity='0.25' stroke='#3B82F6' stroke-width='2'/>"
-                    "  <!-- Cara frontal izquierda -->"
-                    "  <polygon points='30,35 60,50 60,90 30,75' fill='#3B82F6' fill-opacity='0.15' stroke='#3B82F6' stroke-width='2'/>"
-                    "  <!-- Cara frontal derecha -->"
-                    "  <polygon points='60,50 90,35 90,75 60,90' fill='#3B82F6' fill-opacity='0.2' stroke='#3B82F6' stroke-width='2'/>"
-                    "</svg>"
-                )
-            elif solid_type == "prisma rectangular":
-                param = rng.choice(["caras", "vértices", "aristas"])
-                if param == "caras":
-                    ans, expl = 6, "Un prisma rectangular (como una caja de zapatos) tiene 6 caras rectangulares en total."
-                elif param == "vértices":
-                    ans, expl = 8, "Un prisma rectangular tiene 8 vértices (4 arriba y 4 abajo)."
-                else:
-                    ans, expl = 12, "Un prisma rectangular tiene 12 aristas en total."
-                enunciado = (
-                    f"¿Cuántas {param} tiene un prisma rectangular?<br/>"
-                    "<svg width='160' height='160' viewBox='0 0 120 120' style='margin:10px auto; display:block; background:#111827; border:2px solid #3B82F6; border-radius:12px;'>"
-                    "  <!-- Estructura interna trasera (3 aristas ocultas) -->"
-                    "  <line x1='60' y1='25' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='60' y1='65' x2='100' y2='80' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='20' y1='80' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <!-- Cara superior -->"
-                    "  <polygon points='60,25 100,40 60,55 20,40' fill='#3B82F6' fill-opacity='0.25' stroke='#3B82F6' stroke-width='2'/>"
-                    "  <!-- Cara frontal izquierda -->"
-                    "  <polygon points='20,40 60,55 60,95 20,80' fill='#3B82F6' fill-opacity='0.15' stroke='#3B82F6' stroke-width='2'/>"
-                    "  <!-- Cara frontal derecha -->"
-                    "  <polygon points='60,55 100,40 100,80 60,95' fill='#3B82F6' fill-opacity='0.2' stroke='#3B82F6' stroke-width='2'/>"
-                    "</svg>"
-                )
-            elif solid_type == "pirámide cuadrangular":
-                param = rng.choice(["caras", "vértices", "aristas"])
-                if param == "caras":
-                    ans, expl = 5, "Una pirámide cuadrangular tiene 5 caras (1 base cuadrada y 4 caras triangulares)."
-                elif param == "vértices":
-                    ans, expl = 5, "Una pirámide cuadrangular tiene 5 vértices (4 esquinas en la base y la cúspide)."
-                else:
-                    ans, expl = 8, "Una pirámide cuadrangular tiene 8 aristas (4 en la base cuadrada y 4 que suben a la punta)."
-                enunciado = (
-                    f"¿Cuántas {param} tiene una pirámide con base cuadrada (pirámide cuadrangular)?<br/>"
-                    "<svg width='160' height='160' viewBox='0 0 120 120' style='margin:10px auto; display:block; background:#111827; border:2px solid #3B82F6; border-radius:12px;'>"
-                    "  <!-- Estructura interna trasera (3 aristas ocultas) -->"
-                    "  <line x1='30' y1='80' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='90' y1='80' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='60' y1='65' x2='60' y2='25' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <!-- Cara frontal izquierda -->"
-                    "  <polygon points='60,25 30,80 60,95' fill='#3B82F6' fill-opacity='0.2' stroke='#3B82F6' stroke-width='2'/>"
-                    "  <!-- Cara frontal derecha -->"
-                    "  <polygon points='60,25 60,95 90,80' fill='#3B82F6' fill-opacity='0.25' stroke='#3B82F6' stroke-width='2'/>"
-                    "</svg>"
-                )
-            else: # prisma triangular
-                param = rng.choice(["caras", "vértices", "aristas"])
-                if param == "caras":
-                    ans, expl = 5, "Un prisma triangular tiene 5 caras en total (2 bases triangulares y 3 caras laterales rectangulares)."
-                elif param == "vértices":
-                    ans, expl = 6, "Un prisma triangular tiene 6 vértices (3 esquinas en la base inferior y 3 en la superior)."
-                else:
-                    ans, expl = 9, "Un prisma triangular tiene 9 aristas (3 en la base de arriba, 3 abajo y 3 uniendo ambas bases)."
-                enunciado = (
-                    f"¿Cuántas {param} tiene un prisma triangular?<br/>"
-                    "<svg width='160' height='160' viewBox='0 0 120 120' style='margin:10px auto; display:block; background:#111827; border:2px solid #3B82F6; border-radius:12px;'>"
-                    "  <!-- Estructura interna trasera (5 aristas ocultas) -->"
-                    "  <line x1='30' y1='45' x2='60' y2='25' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='90' y1='45' x2='60' y2='25' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='30' y1='85' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='90' y1='85' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <line x1='60' y1='25' x2='60' y2='65' stroke='#94A3B8' stroke-width='1.5' stroke-dasharray='3,3'/>"
-                    "  <!-- Base superior -->"
-                    "  <polygon points='30,45 90,45 60,25' fill='#3B82F6' fill-opacity='0.15' stroke='none'/>"
-                    "  <!-- Cara frontal -->"
-                    "  <polygon points='30,45 90,45 90,85 30,85' fill='#3B82F6' fill-opacity='0.2' stroke='#3B82F6' stroke-width='2'/>"
-                    "</svg>"
-                )
-            
+            # Poliedros: caras, vértices, aristas (tabla de propiedades)
+            solid_type = rng.choice(list(_POLIEDROS_PROPS.keys()))
+            props = _POLIEDROS_PROPS[solid_type]
+            param_key = rng.choice(["caras", "vertices", "aristas"])
+            ans = props[param_key]
             ans_str = str(ans)
+
+            # Distractores CONCEPTUALES: los otros dos atributos del mismo sólido,
+            # cada uno con su feedback (así el error "contaste vértices" es alcanzable).
+            preferred = []
+            for other_key in ("caras", "vertices", "aristas"):
+                if other_key == param_key:
+                    continue
+                other_val = props[other_key]
+                if other_val == ans:
+                    continue  # p.ej. pirámide: caras=vértices=5 → no sirve de distractor
+                preferred.append(str(other_val))
+                errores_previstos[str(other_val)] = (
+                    f"Contaste {_POLIEDRO_PARAM_ES[other_key]} en lugar de {_POLIEDRO_PARAM_ES[param_key]}."
+                )
+
+            expl = f"{_POLIEDRO_ARTICULO[solid_type].capitalize()} tiene {_POLIEDRO_DESGLOSE[(solid_type, param_key)]}."
+            # Variedad de SITUACIÓN: la mitad de las veces enmarcamos la pregunta con
+            # un objeto real que tiene esa forma (un dado, una tienda de campaña, etc.),
+            # conectando el cuerpo geométrico con la vida cotidiana del niño.
+            interrog_min = _POLIEDRO_INTERROG[param_key].replace("¿", "").lower()  # "cuántas caras"
+            if rng.random() < 0.7:
+                objeto = rng.choice(_POLIEDRO_OBJETOS[solid_type])
+                plantillas = [
+                    f"Observa {objeto}: tiene la forma de {_POLIEDRO_ARTICULO[solid_type]}. ¿{interrog_min.capitalize()} tiene?",
+                    f"{objeto.capitalize()} es {_POLIEDRO_ARTICULO[solid_type]}. ¿{interrog_min.capitalize()} tiene en total?",
+                    f"{nombre} encontró {objeto}, que es {_POLIEDRO_ARTICULO[solid_type]}. ¿{interrog_min.capitalize()} tiene?",
+                ]
+                enunciado = rng.choice(plantillas) + "<br/>" + _POLIEDRO_SVG[solid_type]
+            else:
+                enunciado = (
+                    f"{_POLIEDRO_INTERROG[param_key]} tiene {_POLIEDRO_ARTICULO[solid_type]}?<br/>"
+                    + _POLIEDRO_SVG[solid_type]
+                )
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
                 "errores_previstos": errores_previstos,
                 "expl": expl,
-                "alts": [ans_str, str(ans+2), str(max(1, ans-3)), str(ans+4)]
+                "alts": _finalize_alts(ans_str, preferred, rng, lo=1),
             }
         elif lvl_id == 2:
-            # Bloques ocultos (cubos isométricos)
-            shape_idx = rng.randint(0, 3)
-            if shape_idx == 0:
-                cubes = [(0,0,0), (1,0,0), (0,1,0), (0,0,1)]
-                total_cubes = 4
-                ocultos = 0
-            elif shape_idx == 1:
-                cubes = [(0,0,0), (1,0,0), (0,1,0), (1,1,0), (0,0,1), (1,0,1), (0,1,1)]
-                total_cubes = 7
-                ocultos = 1
-            elif shape_idx == 2:
-                cubes = [(0,0,0), (1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1)]
-                total_cubes = 6
-                ocultos = 1
-            else:
-                cubes = [
-                    (0,0,0), (1,0,0), (2,0,0),
-                    (0,1,0), (1,1,0),
-                    (0,2,0),
-                    (0,0,1), (1,0,1),
-                    (0,1,1),
-                    (0,0,2)
-                ]
-                total_cubes = 10
-                ocultos = 3
+            # Bloques ocultos (cubos isométricos). Cada figura tiene total y ocultos
+            # verificados a mano (los "ocultos" son los cubos que sostienen a otros y
+            # no se ven en la vista isométrica).
+            _SHAPES_OCULTOS = [
+                ([(0,0,0), (1,0,0), (0,1,0), (0,0,1)], 4, 0),
+                ([(0,0,0), (1,0,0), (0,1,0), (1,1,0), (0,0,1), (1,0,1), (0,1,1)], 7, 1),
+                ([(0,0,0), (1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1)], 6, 1),
+                ([(0,0,0), (1,0,0), (2,0,0), (0,1,0), (1,1,0), (0,2,0),
+                  (0,0,1), (1,0,1), (0,1,1), (0,0,2)], 10, 3),
+                # Cubo macizo 2×2×2: en vista isométrica se ven 7, 1 queda oculto detrás-abajo.
+                ([(x,y,z) for x in range(2) for y in range(2) for z in range(2)], 8, 1),
+                # Base 3×3 (9) con un cubo central encima: el cubo central de abajo (1,1,0)
+                # queda tapado por sus 8 vecinos y por el de arriba → 1 oculto.
+                ([(x,y,0) for x in range(3) for y in range(3)] + [(1,1,1)], 10, 1),
+                # Escalera de 3 peldaños: 6 + 3 + 1.
+                ([(0,0,0),(1,0,0),(2,0,0),(0,1,0),(1,1,0),(2,1,0),
+                  (0,0,1),(1,0,1),(0,0,2)], 9, 2),
+            ]
+            shape_idx = rng.randint(0, len(_SHAPES_OCULTOS) - 1)
+            cubes, total_cubes, ocultos = _SHAPES_OCULTOS[shape_idx]
 
-            cache_key = f"iso_cubes_{shape_idx}"
+            cache_key = f"iso_cubes_v2_{shape_idx}"
             if cache_key in _graphic_url_cache:
                 url = _graphic_url_cache[cache_key]
             else:
                 img_bytes = generate_isometric_cubes_image(cubes)
-                url = await storage_service.upload_question_graphic(img_bytes, f"iso_cubes_{shape_idx}.png")
+                url = await storage_service.upload_question_graphic(img_bytes, f"iso_cubes_v2_{shape_idx}.png")
                 _graphic_url_cache[cache_key] = url
-                
+
+            construccion = rng.choice(CONSTRUCCIONES_CUBOS)
+            material = rng.choice(MATERIALES_CUBOS)
             q_type = rng.choice(["total", "ocultos"])
             if q_type == "total":
                 ans = total_cubes
                 ans_str = str(ans)
-                enunciado = f"{nombre} construyó esta estructura tridimensional. Sabiendo que todos los bloques son cubos iguales de 1 cm³, ¿cuál es el volumen total (cantidad de cubos) de la figura?"
-                datos_numericos = {"cubes": cubes, "tipo_visual": "imagen", "url": url}
-                expl = f"Contamos los cubos piso por piso. Hay {total_cubes} cubos en total constituyendo el volumen de {total_cubes} cm³."
-                errores_previstos[str(total_cubes - ocultos)] = "Solo contaste los bloques visibles. Recuerda que los que están arriba necesitan estar apoyados sobre otros ocultos abajo."
+                plantillas = [
+                    f"{nombre} armó esta {construccion} con cubos {material} de 1 cm³. ¿Cuál es el volumen total (cantidad de cubos) de la figura?",
+                    f"Observa la {construccion} de bloques {material}. Contando también los cubos escondidos que sirven de apoyo, ¿cuántos cubos de 1 cm³ hay en total?",
+                    f"Esta {construccion} está hecha con bloques {material} idénticos. Cuenta capa por capa: ¿cuál es el volumen total en cubos?",
+                ]
+                enunciado = rng.choice(plantillas)
+                expl = f"Contamos los cubos piso por piso, incluyendo los ocultos: hay {total_cubes} cubos en total ({total_cubes} cm³)."
+                if ocultos > 0:
+                    errores_previstos[str(total_cubes - ocultos)] = "Solo contaste los bloques visibles. Los de arriba se apoyan en otros ocultos abajo."
             else:
                 ans = ocultos
                 ans_str = str(ans)
-                enunciado = f"Observa la estructura de bloques de {nombre}. Algunos cubos están ocultos sirviendo de base para sostener los bloques que se ven arriba. ¿Cuántos cubos están completamente ocultos a la vista?"
-                datos_numericos = {"cubes": cubes, "tipo_visual": "imagen", "url": url}
-                expl = f"Los cubos en pisos superiores deben sostenerse sobre cubos de abajo. Hay exactamente {ocultos} cubo(s) oculto(s) en la base."
+                plantillas = [
+                    f"En la {construccion} de bloques {material} de {nombre}, algunos cubos están escondidos sosteniendo a los de arriba. ¿Cuántos cubos están completamente ocultos a la vista?",
+                    f"Observa esta {construccion}. Para que los cubos de arriba no floten, debe haber cubos ocultos debajo. ¿Cuántos cubos no se ven en la imagen?",
+                ]
+                enunciado = rng.choice(plantillas)
+                expl = f"Los cubos de pisos superiores se apoyan en otros de abajo. Hay exactamente {ocultos} cubo(s) oculto(s)."
                 errores_previstos[str(total_cubes - ocultos)] = "Ese es el número de bloques que SÍ se ven. La pregunta pide cuántos NO se ven."
 
+            datos_numericos = {"cubes": cubes, "tipo_visual": "imagen", "url": url}
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
                 "errores_previstos": errores_previstos,
                 "expl": expl,
                 "datos_numericos": datos_numericos,
-                "alts": [ans_str, str(ans+1), str(max(0, ans-1)), str(ans+2)]
+                "alts": _finalize_alts(ans_str, [str(ans+1), str(ans-1), str(ans+2), str(ans+3)], rng, lo=0)
             }
         else:
-            # Moldes desplegados
-            faces = rng.choice([6, 5, 4])
-            if faces == 6:
-                ans_str = "cubo"
-                enunciado = f"Si {nombre} tiene un molde desplegado que consiste en 6 cuadrados iguales conectados en forma de cruz, ¿qué cuerpo tridimensional se forma al doblarlo?"
-                expl = "Un cubo regular tiene exactamente 6 caras cuadradas idénticas."
-                alts = ["cubo", "pirámide", "cilindro", "prisma triangular"]
-            elif faces == 5:
-                ans_str = "pirámide cuadrangular"
-                enunciado = f"Un molde desplegado de {nombre} tiene 1 cuadrado en el centro y 4 triángulos iguales pegados a sus lados. ¿Qué cuerpo 3D se forma al plegarlo?"
-                expl = "El cuadrado forma la base y los 4 triángulos se unen en la punta, formando una pirámide cuadrangular."
-                alts = ["pirámide cuadrangular", "cubo", "prisma rectangular", "cono"]
-            else:
-                ans_str = "tetraedro"
-                enunciado = f"Un molde desplegado de {nombre} está formado por 4 triángulos equiláteros iguales. ¿Qué poliedro regular de 4 caras se forma al armarlo?"
-                expl = "Un tetraedro regular (pirámide triangular) tiene 4 caras que son triángulos equiláteros."
-                alts = ["tetraedro", "cubo", "prisma triangular", "octaedro"]
+            # Moldes desplegados (7 cuerpos distintos, no solo 3)
+            _MOLDES = [
+                {"ans": "cubo", "desc": "6 cuadrados iguales conectados en forma de cruz",
+                 "expl": "Un cubo regular tiene exactamente 6 caras cuadradas idénticas.",
+                 "dist": ["prisma rectangular", "pirámide cuadrangular", "cilindro", "prisma triangular"]},
+                {"ans": "prisma rectangular", "desc": "6 rectángulos (no todos cuadrados) formando una caja alargada",
+                 "expl": "6 caras rectangulares forman un prisma rectangular, como una caja de zapatos.",
+                 "dist": ["cubo", "pirámide cuadrangular", "cilindro", "prisma triangular"]},
+                {"ans": "pirámide cuadrangular", "desc": "1 cuadrado en el centro y 4 triángulos iguales pegados a sus lados",
+                 "expl": "El cuadrado es la base y los 4 triángulos se unen en la punta: una pirámide cuadrangular.",
+                 "dist": ["cubo", "prisma rectangular", "cono", "tetraedro"]},
+                {"ans": "tetraedro", "desc": "4 triángulos equiláteros iguales",
+                 "expl": "4 triángulos equiláteros forman un tetraedro (pirámide triangular de 4 caras).",
+                 "dist": ["cubo", "prisma triangular", "octaedro", "pirámide cuadrangular"]},
+                {"ans": "prisma triangular", "desc": "2 triángulos iguales y 3 rectángulos",
+                 "expl": "2 bases triangulares y 3 caras rectangulares forman un prisma triangular (como una tienda de campaña).",
+                 "dist": ["pirámide cuadrangular", "cubo", "cilindro", "tetraedro"]},
+                {"ans": "cilindro", "desc": "2 círculos iguales y 1 rectángulo que los une",
+                 "expl": "Los 2 círculos son las tapas y el rectángulo se enrolla como pared curva: un cilindro.",
+                 "dist": ["cono", "esfera", "prisma rectangular", "cubo"]},
+                {"ans": "cono", "desc": "1 círculo y 1 sector (abanico) curvo pegado a su borde",
+                 "expl": "El círculo es la base y el sector curvo se enrolla hasta una punta: un cono.",
+                 "dist": ["cilindro", "pirámide cuadrangular", "esfera", "tetraedro"]},
+            ]
+            m = rng.choice(_MOLDES)
+            ans_str = m["ans"]
+            plantillas = [
+                f"El molde desplegado de {nombre} está formado por {m['desc']}. ¿Qué cuerpo tridimensional se forma al plegarlo?",
+                f"Si doblas un molde plano de cartón que tiene {m['desc']}, ¿qué figura 3D obtienes?",
+                f"{nombre} recortó un molde con {m['desc']}. Al armarlo y cerrarlo, ¿qué cuerpo geométrico forma?",
+            ]
+            enunciado = rng.choice(plantillas)
+            expl = m["expl"]
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
                 "errores_previstos": errores_previstos,
                 "expl": expl,
-                "alts": alts
+                "alts": _finalize_alts(ans_str, m["dist"], rng)
             }
     elif mod_id == 2:
         if lvl_id == 1:
@@ -449,53 +562,56 @@ async def _gen_fase6_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
                 "alts": [ans_str, str(ans + growth), str(ans - growth), str(ans + 1)]
             }
         elif lvl_id == 2:
-            p3 = rng.choice([1, 2])
-            p2 = rng.choice([4, 3])
-            p1 = rng.choice([9, 8, 6])
+            # Rangos ampliados (antes 12 combos) — base 3×3, medio 2×2, tope 1×2.
+            p1 = rng.randint(6, 9)   # piso inferior (grilla 3×3)
+            p2 = rng.randint(2, 4)   # piso medio (grilla 2×2)
+            p3 = rng.randint(1, 2)   # piso superior (grilla 1×2)
             ans = p1 + p2 + p3
             ans_str = str(ans)
-            
+
             cubes = []
             count1 = 0
             for x in range(3):
                 for y in range(3):
                     if count1 < p1:
-                        cubes.append((x, y, 0))
-                        count1 += 1
+                        cubes.append((x, y, 0)); count1 += 1
             count2 = 0
             for x in range(2):
                 for y in range(2):
                     if count2 < p2:
-                        cubes.append((x, y, 1))
-                        count2 += 1
+                        cubes.append((x, y, 1)); count2 += 1
             count3 = 0
-            for x in range(1):
-                for y in range(1):
-                    if count3 < p3:
-                        cubes.append((x, y, 2))
-                        count3 += 1
+            for x in range(2):
+                if count3 < p3:
+                    cubes.append((x, 0, 2)); count3 += 1
 
-            cache_key = f"iso_strat_{p1}_{p2}_{p3}"
+            cache_key = f"iso_strat_v2_{p1}_{p2}_{p3}"
             if cache_key in _graphic_url_cache:
                 url = _graphic_url_cache[cache_key]
             else:
                 img_bytes = generate_isometric_cubes_image(cubes)
-                url = await storage_service.upload_question_graphic(img_bytes, f"iso_strat_{p1}_{p2}_{p3}.png")
+                url = await storage_service.upload_question_graphic(img_bytes, f"iso_strat_v2_{p1}_{p2}_{p3}.png")
                 _graphic_url_cache[cache_key] = url
 
-            enunciado = f"Para calcular el volumen de la estructura de {nombre}, contamos capa por capa (estratos). El piso inferior tiene {p1} bloques, el piso medio tiene {p2} bloques, y el superior {p3} bloque(s). ¿Cuál es el volumen total de la estructura en u³?"
+            construccion = rng.choice(CONSTRUCCIONES_CUBOS)
+            plantillas = [
+                f"Para hallar el volumen de la {construccion} de {nombre}, contamos capa por capa: el piso inferior tiene {p1} bloques, el medio {p2} y el superior {p3}. ¿Cuál es el volumen total en u³?",
+                f"Una {construccion} tiene 3 estratos: {p1} bloques abajo, {p2} en el medio y {p3} arriba. Sumando las capas, ¿cuántos cubos de 1 u³ tiene en total?",
+                f"{nombre} apila bloques en 3 pisos: {p1} + {p2} + {p3}. ¿Cuál es el volumen total (u³) de la {construccion}?",
+            ]
+            enunciado = rng.choice(plantillas)
             datos_numericos = {"cubes": cubes, "tipo_visual": "imagen", "url": url}
-            expl = f"Sumamos las capas ordenadamente de abajo hacia arriba: {p1} (base) + {p2} (medio) + {p3} (superior) = {ans} unidades cúbicas (u³)."
-            
-            errores_previstos[str(p1*p2)] = "Multiplicaste las capas. Debes sumar los bloques de todas las capas para el volumen total."
-            
+            expl = f"Sumamos las capas de abajo hacia arriba: {p1} + {p2} + {p3} = {ans} u³."
+
+            errores_previstos[str(p1*p2)] = "Multiplicaste las capas. Debes SUMAR los bloques de todas las capas para el volumen total."
+
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
                 "errores_previstos": errores_previstos,
                 "expl": expl,
                 "datos_numericos": datos_numericos,
-                "alts": [ans_str, str(ans+2), str(ans-2), str(p1*p2)]
+                "alts": _finalize_alts(ans_str, [str(ans+2), str(ans-2), str(p1*p2), str(ans+1)], rng, lo=1)
             }
         else:
             mult = rng.choice([2, 3, 5])
@@ -518,14 +634,16 @@ async def _gen_fase6_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             }
     elif mod_id == 3:
         if lvl_id == 1:
-            largo = rng.randint(2, 4)
-            ancho = rng.randint(2, 3)
-            alto = rng.randint(2, 3)
+            # Rangos ampliados (antes 2-4 × 2-3 × 2-3 = 12 combos) para más variedad de
+            # figuras; se mantiene contable por capas para el nivel de "modelar volumen".
+            largo = rng.randint(2, 5)
+            ancho = rng.randint(2, 4)
+            alto = rng.randint(2, 4)
             ans = largo * ancho * alto
             ans_str = str(ans)
-            
+
             cubes = [(x, y, z) for x in range(largo) for y in range(ancho) for z in range(alto)]
-            
+
             cache_key = f"iso_vol_{largo}_{ancho}_{alto}"
             if cache_key in _graphic_url_cache:
                 url = _graphic_url_cache[cache_key]
@@ -533,20 +651,36 @@ async def _gen_fase6_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
                 img_bytes = generate_isometric_cubes_image(cubes)
                 url = await storage_service.upload_question_graphic(img_bytes, f"iso_vol_{largo}_{ancho}_{alto}.png")
                 _graphic_url_cache[cache_key] = url
-                
-            enunciado = f"¿Cuántos cubitos de 1 u³ componen el prisma que construyó {nombre} y se muestra en la imagen? (Volumen en u³)"
+
+            # Variedad de SITUACIÓN: distintas construcciones y materiales, y a veces
+            # se indican las dimensiones en el texto (medir) y otras se pide contar la
+            # imagen (contar) — dos formas distintas de demostrar el mismo concepto.
+            construccion = rng.choice(CONSTRUCCIONES_CUBOS)
+            material = rng.choice(MATERIALES_CUBOS)
+            if rng.random() < 0.5:
+                plantillas = [
+                    f"{nombre} armó una {construccion} con cubitos {material} de 1 u³. Contando capa por capa en la imagen, ¿cuál es su volumen total (en u³)?",
+                    f"Observa la {construccion} de cubitos {material} de 1 u³. ¿Cuántos cubitos la componen en total (volumen en u³)?",
+                    f"Cuenta los cubitos de 1 u³ de esta {construccion} {material} que se muestra en la imagen. ¿Cuál es su volumen?",
+                ]
+            else:
+                plantillas = [
+                    f"La {construccion} {material} de {nombre} mide {largo} cubos de largo, {ancho} de ancho y {alto} de alto (mira la imagen). ¿Cuántos cubitos de 1 u³ tiene en total?",
+                    f"Un bloque {material} tiene {largo} × {ancho} × {alto} cubitos de 1 u³. ¿Cuál es su volumen total?",
+                ]
+            enunciado = rng.choice(plantillas)
             datos_numericos = {"cubes": cubes, "tipo_visual": "imagen", "url": url}
-            expl = f"Multiplicamos las dimensiones: {largo} de largo × {ancho} de ancho × {alto} de alto = {ans} cubos en total."
-            
+            expl = f"Contamos por capas o multiplicamos las dimensiones: {largo} × {ancho} × {alto} = {ans} cubitos (u³)."
+
             errores_previstos[str(largo+ancho+alto)] = "Sumaste las dimensiones (L+A+H) en lugar de multiplicarlas (L×A×H) para hallar el volumen."
-            
+
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
                 "errores_previstos": errores_previstos,
                 "expl": expl,
                 "datos_numericos": datos_numericos,
-                "alts": [ans_str, str(largo+ancho+alto), str(ans-2), str(ans+2)]
+                "alts": _finalize_alts(ans_str, [str(largo+ancho+alto), str(ans-2), str(ans+2), str(ans+largo)], rng, lo=1)
             }
         elif lvl_id == 2:
             largo = rng.randint(3, 8)
@@ -601,18 +735,36 @@ async def _gen_fase6_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             }
     else: # mod_id == 4
         if lvl_id == 1:
-            q_type = rng.choice(["weight", "temp_read"])
+            q_type = rng.choice(["weight", "weight", "g_to_kg", "temp_read"])
             if q_type == "weight":
-                kg = rng.choice([1.5, 2.0, 3.5, 5.0])
+                # Rango ampliado de pesos (antes solo 4 valores fijos).
+                kg = rng.choice([0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 7.5, 10.0])
                 ans = int(kg * 1000)
                 ans_str = str(ans)
                 masa = rng.choice(MASAS)
-                enunciado = f"En una balanza electrónica, un(a) {masa} pesa {kg} kg. ¿Cuál es su masa equivalente en gramos (g)?"
-                expl = f"Como 1 kilogramo (kg) equivale a 1000 gramos (g), multiplicamos {kg} × 1000 = {ans} g."
+                plantillas = [
+                    f"En una balanza electrónica, un(a) {masa} de {nombre} pesa {kg} kg. ¿Cuál es su masa en gramos (g)?",
+                    f"{nombre} pesa un(a) {masa} y la balanza marca {kg} kg. ¿A cuántos gramos (g) equivale?",
+                    f"Un(a) {masa} tiene una masa de {kg} kg. Conviértela a gramos (g).",
+                ]
+                enunciado = rng.choice(plantillas)
+                expl = f"Como 1 kg = 1000 g, multiplicamos {kg} × 1000 = {ans} g."
                 errores_previstos[str(int(kg*100))] = "Multiplicaste por 100. Recuerda que kilo significa MIL (1000 gramos)."
                 alts = [ans_str, str(ans+500), str(int(kg*100)), str(int(kg*10))]
-            else:
-                temp = rng.randint(15, 38)
+                datos_numericos = {}
+            elif q_type == "g_to_kg":
+                # Sentido inverso g → kg: nueva SITUACIÓN, mismo concepto.
+                kg = rng.choice([1.0, 2.0, 3.0, 4.0, 1.5, 2.5, 0.5])
+                grams = int(kg * 1000)
+                ans_str = str(kg) if kg != int(kg) else str(int(kg))
+                masa = rng.choice(MASAS)
+                enunciado = f"La balanza de {nombre} muestra que un(a) {masa} pesa {grams} gramos. ¿A cuántos kilogramos (kg) equivale?"
+                expl = f"Como 1000 g = 1 kg, dividimos {grams} ÷ 1000 = {ans_str} kg."
+                errores_previstos[str(grams*1000)] = "Multiplicaste por 1000 en vez de dividir. Para pasar de gramos a kilos se divide."
+                alts = [ans_str, str(grams), str(grams//100), str(int(kg)+1 if kg==int(kg) else round(kg+1,1))]
+                datos_numericos = {}
+            else:  # temp_read
+                temp = rng.randint(8, 42)
                 ans_str = f"{temp}"
                 cache_key = f"therm_{temp}"
                 if cache_key in _graphic_url_cache:
@@ -622,24 +774,23 @@ async def _gen_fase6_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
                     url = await storage_service.upload_question_graphic(img_bytes, f"therm_{temp}.png")
                     _graphic_url_cache[cache_key] = url
                 escenario_t = rng.choice(TEMPERATURAS)
-                enunciado = f"Observa la escala del termómetro del {escenario_t} en la imagen. ¿Qué temperatura marca en grados Celsius (°C)?"
-                datos_numericos = {
-                    "url": url,
-                    "tipo_visual": "termometro",
-                    "valor": temp,
-                    "min": 10,
-                    "max": 45,
-                    "unidad": "°C"
-                }
-                expl = f"El nivel del líquido rojo en la escala del termómetro coincide exactamente con la marca de {temp}°C."
-                alts = [ans_str, str(temp + 5), str(temp - 5), str(temp + 10)]
+                plantillas = [
+                    f"Observa la escala del termómetro del {escenario_t} en la imagen. ¿Qué temperatura marca en grados Celsius (°C)?",
+                    f"{nombre} revisa el termómetro del {escenario_t}. Según la imagen, ¿cuántos grados Celsius (°C) marca?",
+                    f"Lee la temperatura que señala el líquido rojo en el termómetro del {escenario_t} (mira la imagen). ¿Cuántos °C son?",
+                ]
+                enunciado = rng.choice(plantillas)
+                # Imagen PNG del termómetro (escala sin número exacto) para no revelar la respuesta.
+                datos_numericos = {"url": url, "tipo_visual": "imagen", "valor": temp, "min": 10, "max": 45, "unidad": "°C"}
+                expl = f"El nivel del líquido rojo coincide con la marca de {temp}°C en la escala."
+                alts = [ans_str, str(temp + 5), str(temp - 5), str(temp + 3)]
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
                 "errores_previstos": errores_previstos,
                 "expl": expl,
-                "datos_numericos": datos_numericos if q_type == "temp_read" else {},
-                "alts": alts
+                "datos_numericos": datos_numericos,
+                "alts": _finalize_alts(ans_str, alts[1:], rng)
             }
         elif lvl_id == 2:
             init_temp = rng.randint(1, 15)
@@ -657,10 +808,11 @@ async def _gen_fase6_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
 
             escenario_t = rng.choice(TEMPERATURAS)
             enunciado = f"En la mañana la temperatura en el {escenario_t} era de {init_temp}°C. Por la tarde, la temperatura bajó {drop}°C, llegando al nivel bajo cero mostrado en la imagen. ¿Cuál es la nueva temperatura en grados Celsius (°C)?"
+            # Imagen PNG (escala sin número exacto) para no revelar la respuesta.
             datos_numericos = {
                 "url": url,
                 "init": init_temp, "drop": drop, "final": ans,
-                "tipo_visual": "termometro",
+                "tipo_visual": "imagen",
                 "valor": ans,
                 "min": -20,
                 "max": 20,
@@ -698,34 +850,53 @@ async def _gen_fase6_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             }
 
 async def seed_practica_pool(session: AsyncSession):
-    print("Sembrando pool de práctica Fase 6...")
+    print("Sembrando pool de práctica Fase 6 (familias con variantes espejo)...")
     sections = [
         (1, 1), (1, 2), (1, 3),
         (2, 1), (2, 2), (2, 3),
         (3, 1), (3, 2), (3, 3),
         (4, 1), (4, 2), (4, 3)
     ]
-    
+
+    # 30 familias × 4 variantes (1 original + 3 espejo) = 120 preguntas por nivel.
+    # `estructura_padre_id` agrupa la familia: es lo que cuenta el progreso de
+    # práctica libre (COUNT DISTINCT en router.py) y lo que habilita el Bucle
+    # Espejo + el modal de Rescate. Sin esto el nivel es imposible de aprobar.
+    FAMILIAS_POR_NIVEL = 30
+
     for mod_id, lvl_id in sections:
         seccion_id = mod_id * 100 + lvl_id
-        for i in range(120):
-            rng = random.Random(FASE6_ID * 100000 + seccion_id * 1000 + i)
-            q_data = await _gen_fase6_pool(rng, mod_id, lvl_id)
-            
-            p = Pregunta(
-                fase_id=FASE6_ID, seccion=seccion_id, operacion=OperacionEnum.MIXTA,
-                tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=q_data["enunciado"],
-                respuesta_correcta=q_data["respuesta_correcta"], datos_numericos={"fase6": True},
-                errores_previstos=q_data.get("errores_previstos", {}),
-                explicacion_paso_a_paso={"titulo": "Resolución", "pasos": [{"orden": 1, "texto": q_data["expl"]}]},
-                estado=StatusEnum.ACTIVO
-            )
-            for idx, alt in enumerate(q_data["alts"]):
-                is_correct = (alt == q_data["respuesta_correcta"])
-                error_msg = q_data.get("errores_previstos", {}).get(alt, "Esa alternativa es incorrecta.") if not is_correct else None
-                p.alternativas.append(Alternativa(texto=alt, es_correcta=is_correct, orden=idx+1, tipo_error=TipoErrorEnum.CALCULO if not is_correct else None, feedback_error=error_msg))
-            session.add(p)
-    await session.commit()
+        for fam in range(1, FAMILIAS_POR_NIVEL + 1):
+            padre_id = f"f6_m{mod_id}_l{lvl_id}_fam_{fam:03d}"
+            for var in range(4):
+                es_espejo = var > 0
+                rng = random.Random(FASE6_ID * 100000 + seccion_id * 1000 + fam * 10 + var)
+                q_data = await _gen_fase6_pool(rng, mod_id, lvl_id)
+
+                # 4 alternativas garantizadas distintas (evita opciones repetidas).
+                alts = _finalize_alts(q_data["respuesta_correcta"], q_data.get("alts", []), rng)
+
+                # PRESERVAR los datos visuales (url de cubos/termómetro, tipo_visual)
+                # generados por _gen_fase6_pool en lugar de descartarlos.
+                datos = dict(q_data.get("datos_numericos") or {})
+                datos["fase6"] = True
+                datos["es_espejo"] = es_espejo
+
+                p = Pregunta(
+                    fase_id=FASE6_ID, seccion=seccion_id, estructura_padre_id=padre_id,
+                    operacion=OperacionEnum.MIXTA,
+                    tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=q_data["enunciado"],
+                    respuesta_correcta=q_data["respuesta_correcta"], datos_numericos=datos,
+                    errores_previstos=q_data.get("errores_previstos", {}),
+                    explicacion_paso_a_paso={"titulo": "Resolución", "pasos": [{"orden": 1, "texto": q_data["expl"]}]},
+                    estado=StatusEnum.ACTIVO
+                )
+                for idx, alt in enumerate(alts):
+                    is_correct = (alt == q_data["respuesta_correcta"])
+                    error_msg = q_data.get("errores_previstos", {}).get(alt, "Esa alternativa es incorrecta.") if not is_correct else None
+                    p.alternativas.append(Alternativa(texto=alt, es_correcta=is_correct, orden=idx+1, tipo_error=TipoErrorEnum.CALCULO if not is_correct else None, feedback_error=error_msg))
+                session.add(p)
+        await session.commit()
 
 async def seed_preguntas_desafios(session: AsyncSession):
     print("Sembrando pool de Desafíos de Fase 6 (30 preguntas por desafío)...")
@@ -741,18 +912,23 @@ async def seed_preguntas_desafios(session: AsyncSession):
                 tipo_pregunta = TipoPreguntaEnum.MULTIPLE_OPCION if desafio_id in (11, 12) else TipoPreguntaEnum.RESPUESTA_NUMERICA
                 if not q_data["respuesta_correcta"].lstrip('-').isdigit():
                     tipo_pregunta = TipoPreguntaEnum.MULTIPLE_OPCION
-                
+
+                # PRESERVAR los datos visuales (cubos/termómetro) también en desafíos.
+                datos = dict(q_data.get("datos_numericos") or {})
+                datos["es_desafio"] = True
+
                 p = Pregunta(
                     fase_id=FASE6_ID, seccion=seccion_id, operacion=OperacionEnum.MIXTA,
                     tipo_pregunta=tipo_pregunta, enunciado=q_data["enunciado"],
-                    respuesta_correcta=q_data["respuesta_correcta"], datos_numericos={"es_desafio": True},
+                    respuesta_correcta=q_data["respuesta_correcta"], datos_numericos=datos,
                     errores_previstos=q_data.get("errores_previstos", {}),
                     explicacion_paso_a_paso={"titulo": "Desafío", "pasos": [{"orden": 1, "texto": q_data["expl"]}]},
                     estado=StatusEnum.ACTIVO
                 )
-                
+
                 if tipo_pregunta == TipoPreguntaEnum.MULTIPLE_OPCION:
-                    for idx_alt, alt in enumerate(q_data["alts"]):
+                    alts = _finalize_alts(q_data["respuesta_correcta"], q_data.get("alts", []), rng)
+                    for idx_alt, alt in enumerate(alts):
                         is_correct = (alt == q_data["respuesta_correcta"])
                         error_msg = q_data.get("errores_previstos", {}).get(alt, "Esa alternativa es incorrecta.") if not is_correct else None
                         p.alternativas.append(Alternativa(texto=alt, es_correcta=is_correct, orden=idx_alt+1, tipo_error=TipoErrorEnum.CALCULO if not is_correct else None, feedback_error=error_msg))

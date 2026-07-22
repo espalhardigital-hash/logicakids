@@ -1,7 +1,7 @@
 /**
  * Fase8GameScreen.tsx
  * ─────────────────────────────────────────────────────────────
- * Pantalla de juego adaptativa para los 5 módulos de Fase 6.
+ * Pantalla de juego adaptativa para los 3 módulos de Fase 8.
  *   - Módulos 1-3: Entrada numérica
  *   - Módulo  4  : Selección de tokens (subrayador)
  *   - Módulo  5  : Pasos encadenados (paso 1 → congelado → paso 2)
@@ -269,9 +269,9 @@ const Fase8CompletionModal: React.FC<{
   const rec = useMemo(() => {
     if (moduloId === 99) {
       return {
-        titulo: '¡Héroe de la Fase 6! 🎉',
-        mensaje: '¡Has dominado por completo todos los desafíos de la Fase 6! Tu agilidad de cálculo y razonamiento numérico son extraordinarios. ¡Prepárate para la Fase 3!',
-        accion: 'Avanzar a Fase 3 🚀'
+        titulo: '¡Héroe de la Fase 8! 🎉',
+        mensaje: '¡Has dominado por completo todos los desafíos de la Fase 8! Tu agilidad en secuencias, combinatoria y probabilidad son extraordinarios. ¡Prepárate para los Simulados!',
+        accion: 'Ir a los Simulados (Fase 9) 🚀'
       };
     }
     
@@ -516,10 +516,10 @@ const Fase8PhaseGraduationModal: React.FC<{
           variants={itemVariants}
           style={{ fontSize: '1.15rem', color: 'rgba(255, 255, 255, 0.75)', marginBottom: '35px', maxWidth: '500px', margin: '0 auto 35px' }}
         >
-          ¡Has completado y dominado con éxito toda la **Fase 6: Desarrollo Numérico y Razonamiento**! Eres oficialmente un héroe matemático de LogicaKids Pro. 🛡️✨
+          ¡Has completado y dominado con éxito toda la **Fase 8: Secuencias, Combinatoria y Probabilidad**! Eres oficialmente un maestro del razonamiento lógico superior en LogicaKids Pro. 🧠✨
         </motion.p>
 
-        {/* Infografía: El Gran Viaje de Fase 6 */}
+        {/* Infografía: El Gran Viaje de Fase 8 */}
         <motion.div 
           variants={itemVariants}
           style={{ 
@@ -536,44 +536,35 @@ const Fase8PhaseGraduationModal: React.FC<{
             Tu Mapa de Ruta Conquistado
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', padding: '0 10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', position: 'relative', padding: '0 10px' }}>
             {/* Línea Conectora */}
-            <div style={{ position: 'absolute', top: '24px', left: '40px', right: '40px', height: '4px', background: 'linear-gradient(90deg, #10B981, #8B5CF6, #F59E0B, #EC4899)', zIndex: 0, opacity: 0.6, borderRadius: '2px' }} />
+            <div style={{ position: 'absolute', top: '24px', left: '60px', right: '60px', height: '4px', background: 'linear-gradient(90deg, #10B981, #8B5CF6, #F59E0B)', zIndex: 0, opacity: 0.6, borderRadius: '2px' }} />
 
             {/* Nodo 1: Mód 1 */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '30%' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(16, 185, 129, 0.5)', border: '3px solid #fff' }}>
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 1</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Gimnasio Mental</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Secuencias</span>
             </div>
 
             {/* Nodo 2: Mód 2 */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '30%' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(139, 92, 246, 0.5)', border: '3px solid #fff' }}>
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 2</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Tablas en Acción</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Combinatoria</span>
             </div>
 
             {/* Nodo 3: Mód 3 */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '30%' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(245, 158, 11, 0.5)', border: '3px solid #fff' }}>
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 3</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Tienda</span>
-            </div>
-
-            {/* Nodo 4: Mód 4 */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#EC4899', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(236, 72, 153, 0.5)', border: '3px solid #fff' }}>
-                ✓
-              </div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 4</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Constructor</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Probabilidad</span>
             </div>
           </div>
         </motion.div>
@@ -592,7 +583,7 @@ const Fase8PhaseGraduationModal: React.FC<{
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
             <Award size={36} style={{ color: '#10B981' }} />
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>26 / 26</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>18 / 18</div>
               <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Niveles Superados</div>
             </div>
           </div>
@@ -601,7 +592,7 @@ const Fase8PhaseGraduationModal: React.FC<{
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
             <Trophy size={36} style={{ color: '#F59E0B' }} />
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>4 / 4</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>3 / 3</div>
               <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Módulos Dominados</div>
             </div>
           </div>
@@ -610,7 +601,7 @@ const Fase8PhaseGraduationModal: React.FC<{
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
             <Star size={36} style={{ color: '#8B5CF6' }} />
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fbbf24' }}>300+</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fbbf24' }}>250+</div>
               <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Ejercicios Logrados</div>
             </div>
           </div>
@@ -619,13 +610,13 @@ const Fase8PhaseGraduationModal: React.FC<{
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
             <Target size={36} style={{ color: '#EC4899' }} />
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>12+</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>9+</div>
               <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Conceptos Clave</div>
             </div>
           </div>
         </motion.div>
 
-        {/* Botón de Lanzamiento de Fase 3 */}
+        {/* Botón de Lanzamiento a Fase 9 (Simulados) */}
         <motion.button
           variants={itemVariants}
           className="f8-submit-btn"
@@ -647,7 +638,7 @@ const Fase8PhaseGraduationModal: React.FC<{
             gap: '10px'
           }}
         >
-          ¡Avanzar al Siguiente Nivel / Fase 3! 🚀
+          ¡Avanzar a los Simulados (Fase 9)! 🎯
         </motion.button>
       </motion.div>
     </motion.div>
@@ -1285,7 +1276,7 @@ const Fase8GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
               <div className="f8-header-badge-pill">
                 <span className="f8-badge-module" style={{ color: moduleColor }}>{moduleName.toUpperCase()}</span>
                 <span className="f8-badge-divider">|</span>
-                <span className="f8-badge-level">FASE 6</span>
+                <span className="f8-badge-level">FASE 8</span>
                 <span className="f8-badge-divider">|</span>
                 <span className="f8-badge-level">MÓDULO {moduloId === 99 ? 'MAESTRÍA' : moduloId}</span>
                 <span className="f8-badge-divider">|</span>
@@ -1317,14 +1308,22 @@ const Fase8GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
 
           <main className="f8-game-body">
             <div className="f8-game-layout-wrap">
-              {pregunta.datos_numericos?.labels && (
+              {pregunta.datos_numericos?.labels ? (
                 <div className="flex-1 min-w-[300px]">
                   <Fase8FabricHistogram
                     datos_numericos={pregunta.datos_numericos as any}
                     onStateChange={setHistogramValues}
                   />
                 </div>
-              )}
+              ) : pregunta.datos_numericos?.svg_base64 ? (
+                <div className="flex-1 min-w-[300px] flex justify-center items-center my-4 p-4 bg-slate-800/30 rounded-3xl border border-white/5">
+                  <img
+                    src={pregunta.datos_numericos.svg_base64}
+                    alt="Visualización Fase 8"
+                    className="max-h-[320px] w-auto object-contain select-none filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                  />
+                </div>
+              ) : null}
               <motion.div animate={shaking ? { x: [-8, 8, -6, 6, -4, 4, 0] } : {}} transition={{ duration: 0.4 }}
                 className={`f8-question-card ${shaking ? 'shake-error' : ''}`}
                 style={{ boxShadow: feedback.visible ? (feedback.esCorrecta ? '0 0 0 4px rgba(16, 185, 129, 0.5)' : '0 0 0 4px rgba(239, 68, 68, 0.5)') : 'none' }}

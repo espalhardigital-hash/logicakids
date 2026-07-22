@@ -38,10 +38,14 @@ from app.core.storage import storage_service
 FASE5_ID = 5
 
 # --- DICCIONARIOS DE CONTEXTO FASE 5 ---
-NOMBRES = ["Leo", "Emma", "Thiago", "Mia", "Hugo", "Alba"]
-ESCENARIOS_P = ["patio", "jardín", "cuadro de pintura", "campo de fútbol"]
-ESCENARIOS_A = ["alfombra", "piscina", "mosaico", "pista de baile"]
-ESCENARIOS_E = ["mapa del tesoro", "plano de la ciudad", "maqueta escolar"]
+NOMBRES = ["Leo", "Emma", "Thiago", "Mia", "Hugo", "Alba",
+           "Nina", "Bruno", "Salma", "Iker", "Zoe", "Dante", "Lía", "Owen"]
+ESCENARIOS_P = ["patio", "jardín", "cuadro de pintura", "campo de fútbol",
+                "corral", "huerta", "cancha de tenis", "terraza"]
+ESCENARIOS_A = ["alfombra", "piscina", "mosaico", "pista de baile",
+                "césped artificial", "manta de picnic", "tablero de ajedrez", "toldo"]
+ESCENARIOS_E = ["mapa del tesoro", "plano de la ciudad", "maqueta escolar",
+                "plano de un parque", "croquis de la casa"]
 
 # Cache en memoria para reutilizar URLs de gráficos generados
 _graphic_url_cache: Dict[str, str] = {}
@@ -451,7 +455,12 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                     _graphic_url_cache[cache_key] = url
                 
                 errores_previstos[str(ans - int(segments[0][4].split()[0]))] = "Olvidaste sumar uno de los lados exteriores."
-                enunciado = f"Suma todas las medidas del borde de la siguiente figura para hallar el perímetro total en {unidad}."
+                _reg = rng.choice(["terreno", "jardín", "corral", "piscina", "sello de goma", "galleta", "parcela", "letrero"])
+                enunciado = rng.choice([
+                    f"{nombre} quiere poner una cerca alrededor de un {_reg} con esta forma (mira la imagen). Suma todos los lados del borde: ¿cuál es el perímetro total en {unidad}?",
+                    f"Suma todas las medidas del borde de este {_reg} para hallar el perímetro total en {unidad}.",
+                    f"Una hormiga recorre todo el contorno de este {_reg} (ver figura). ¿Cuántos {unidad} caminó en total?",
+                ])
                 expl = f"Sumamos todos los lados exteriores que muestran las cotas: el total es {ans} {unidad}."
                 
                 return {
@@ -734,8 +743,13 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 errores_previstos[str(w1*h1)] = "Solo calculaste el área de la parte vertical de la L."
                 errores_previstos[str(w2*h2)] = "Solo calculaste el área de la base horizontal de la L."
                 
-                enunciado = f"Observa esta figura compuesta en forma de L. Divide mentalmente la figura en dos rectángulos para hallar su área total en {unidad}²."
-                expl = f"Podemos dividir la figura en dos rectángulos: ({w1} × {h1}) y ({w2} × {h2}). Sumamos: {w1*h1} + {w2*h2} = {ans} {unidad}²."
+                _reg = rng.choice(["terreno", "cartel", "recorte de cartón", "sticker", "parche de tela", "adorno", "mosaico especial", "plano"])
+                enunciado = rng.choice([
+                    f"{nombre} tiene un {_reg} con forma de L (mira la imagen). Divídelo en dos rectángulos y suma sus áreas: ¿cuál es el área total en {unidad}²?",
+                    f"Observa este {_reg} en forma de L. Divide la figura en dos rectángulos para hallar su área total en {unidad}².",
+                    f"El {_reg} de {nombre} tiene forma de L. Sepáralo mentalmente en dos rectángulos y calcula el área total en {unidad}².",
+                ])
+                expl = f"Dividimos la figura en dos rectángulos: ({w1} × {h1}) y ({w2} × {h2}). Sumamos: {w1*h1} + {w2*h2} = {ans} {unidad}²."
                 
                 return {
                     "enunciado": enunciado,
@@ -769,8 +783,13 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 
                 errores_previstos[str(perim)] = "Calculaste el perímetro (sumar los bordes) en lugar del área."
                 
-                enunciado = f"Divide esta figura compuesta en dos rectángulos simples para calcular el área total en {unidad}²."
-                expl = f"Podemos separarla en un rectángulo de {w1}×{h_total} y otro de {w2}×{h2}. Sumamos: {w1*h_total} + {w2*h2} = {ans} {unidad}²."
+                _reg = rng.choice(["terreno", "cartel", "recorte de cartón", "sticker", "parche de tela", "adorno", "azulejo", "plano"])
+                enunciado = rng.choice([
+                    f"{nombre} tiene un {_reg} con esta forma escalonada (mira la imagen). Divídelo en dos rectángulos simples y calcula su área total en {unidad}².",
+                    f"Divide este {_reg} escalonado en dos rectángulos para calcular el área total en {unidad}².",
+                    f"El {_reg} de {nombre} tiene forma escalonada. Sepáralo en rectángulos, suma las áreas y da el área total en {unidad}².",
+                ])
+                expl = f"La separamos en un rectángulo de {w1}×{h_total} y otro de {w2}×{h2}. Sumamos: {w1*h_total} + {w2*h2} = {ans} {unidad}²."
                 
                 return {
                     "enunciado": enunciado,
@@ -826,27 +845,32 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
         # Figuras compuestas
         if lvl_id == 4: # Simetría
             # Expandimos a más figuras con SVGs ilustrativos
+            # SVGs LIMPIOS (sin dibujar los ejes): antes algunas figuras (cuadrado, rombo,
+            # rectángulo) mostraban TODOS sus ejes como líneas punteadas → la respuesta era
+            # solo "contar las líneas". Ahora se muestra la figura sola y el alumno razona.
             figs_data = [
-                ("rectángulo", 2, "<rect x='40' y='50' width='120' height='70' fill='#BAE6FD' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/><line x1='100' y1='40' x2='100' y2='130' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/><line x1='30' y1='85' x2='170' y2='85' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/>"),
-                ("cuadrado", 4, "<rect x='50' y='30' width='100' height='100' fill='#BBF7D0' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/><line x1='100' y1='20' x2='100' y2='140' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/><line x1='40' y1='80' x2='160' y2='80' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/><line x1='50' y1='30' x2='150' y2='130' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/><line x1='150' y1='30' x2='50' y2='130' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/>"),
-                ("triángulo equilátero", 3, "<polygon points='100,20 170,140 30,140' fill='#FCA5A5' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/><line x1='100' y1='20' x2='100' y2='140' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/>"),
-                ("triángulo isósceles", 1, "<polygon points='100,20 160,140 40,140' fill='#FDE68A' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/><line x1='100' y1='20' x2='100' y2='140' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/>"),
-                ("rombo", 2, "<polygon points='100,20 170,80 100,140 30,80' fill='#C4B5FD' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/><line x1='100' y1='10' x2='100' y2='150' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/><line x1='20' y1='80' x2='180' y2='80' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/>"),
-                ("pentágono regular", 5, "<polygon points='100,20 168,70 142,148 58,148 32,70' fill='#BAE6FD' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/><line x1='100' y1='10' x2='100' y2='155' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/>"),
-                ("hexágono regular", 6, "<polygon points='100,20 162,55 162,125 100,160 38,125 38,55' fill='#BBF7D0' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/><line x1='100' y1='10' x2='100' y2='170' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/>"),
-                ("trapecio isósceles", 1, "<polygon points='60,40 140,40 170,130 30,130' fill='#FCA5A5' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/><line x1='100' y1='25' x2='100' y2='145' stroke='#F59E0B' stroke-width='2' stroke-dasharray='5,3'/>"),
-                ("letra L", 0, "<polygon points='30,20 70,20 70,90 130,90 130,140 30,140' fill='#E5E7EB' fill-opacity='0.9' stroke='#1E293B' stroke-width='2'/><text x='100' y='175' fill='#64748B' font-size='16' text-anchor='middle'>0 ejes</text>")
+                ("rectángulo", 2, "<rect x='40' y='50' width='120' height='70' fill='#BAE6FD' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("cuadrado", 4, "<rect x='50' y='40' width='100' height='100' fill='#BBF7D0' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("triángulo equilátero", 3, "<polygon points='100,25 170,145 30,145' fill='#FCA5A5' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("triángulo isósceles", 1, "<polygon points='100,25 160,145 40,145' fill='#FDE68A' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("rombo", 2, "<polygon points='100,25 170,85 100,145 30,85' fill='#C4B5FD' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("pentágono regular", 5, "<polygon points='100,25 168,73 142,150 58,150 32,73' fill='#BAE6FD' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("hexágono regular", 6, "<polygon points='100,25 160,58 160,122 100,155 40,122 40,58' fill='#BBF7D0' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("trapecio isósceles", 1, "<polygon points='60,45 140,45 170,135 30,135' fill='#FCA5A5' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("letra L", 0, "<polygon points='40,30 78,30 78,98 140,98 140,140 40,140' fill='#93C5FD' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("círculo", -1, "<circle cx='100' cy='90' r='62' fill='#FBCFE8' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
+                ("estrella de 5 puntas", 5, "<polygon points='100,25 116,72 166,72 126,102 141,150 100,120 59,150 74,102 34,72 84,72' fill='#FDE68A' fill-opacity='0.85' stroke='#1E293B' stroke-width='2.5'/>"),
             ]
             fig_choice = rng.choice(figs_data)
             fig, ejes, svg_shape = fig_choice
-            ans_str = str(ejes)
-            
+            # El círculo tiene infinitos ejes de simetría → respuesta de texto.
+            ans_str = "infinitos" if ejes == -1 else str(ejes)
+
             errores_previstos["0"] = "Esa figura sí tiene ejes de simetría (excepto la letra L). Imagina doblarla por la mitad."
-            
+
             svg_sym = (
                 f"<svg width='200' height='180' viewBox='0 0 200 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 f"{svg_shape}"
-                f"<text x='100' y='175' fill='#F59E0B' font-size='15' font-weight='bold' text-anchor='middle'>— eje de simetría</text>"
                 f"</svg>"
             )
             
@@ -857,12 +881,19 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             ]
             enunciado = rng.choice(templates)
             
+            # Distractores distintos garantizados (antes ["ans","0","1","6"] repetía
+            # cuando la respuesta era 0, 1 o 6).
+            _pool = ["0", "1", "2", "3", "4", "5", "6", "infinitos"]
+            _distract = [x for x in _pool if x != ans_str]
+            rng.shuffle(_distract)
+            expl_txt = (f"El círculo tiene infinitos ejes de simetría: cualquier diámetro lo parte en dos mitades iguales."
+                        if ans_str == "infinitos" else f"Un {fig} tiene exactamente {ejes} ejes de simetría.")
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
                 "errores_previstos": errores_previstos,
-                "expl": f"Un {fig} tiene exactamente {ejes} ejes de simetría.",
-                "alts": [ans_str, "0", "1", "6"]
+                "expl": expl_txt,
+                "alts": [ans_str] + _distract[:3]
             }
         elif lvl_id == 1:
             variant = rng.choice(["text", "rectilinear"])
@@ -889,8 +920,13 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 
                 errores_previstos[str(perim)] = "Calculaste el perímetro (sumar los bordes) en lugar del área."
                 
-                enunciado = f"Divide esta figura compuesta en dos rectángulos simples para calcular el área total en {unidad}²."
-                expl = f"Podemos separarla en un rectángulo de {w1}×{h_total} y otro de {w2}×{h2}. Sumamos: {w1*h_total} + {w2*h2} = {ans} {unidad}²."
+                _reg = rng.choice(["terreno", "cartel", "recorte de cartón", "sticker", "parche de tela", "adorno", "azulejo", "plano"])
+                enunciado = rng.choice([
+                    f"{nombre} tiene un {_reg} con esta forma escalonada (mira la imagen). Divídelo en dos rectángulos simples y calcula su área total en {unidad}².",
+                    f"Divide este {_reg} escalonado en dos rectángulos para calcular el área total en {unidad}².",
+                    f"El {_reg} de {nombre} tiene forma escalonada. Sepáralo en rectángulos, suma las áreas y da el área total en {unidad}².",
+                ])
+                expl = f"La separamos en un rectángulo de {w1}×{h_total} y otro de {w2}×{h2}. Sumamos: {w1*h_total} + {w2*h2} = {ans} {unidad}²."
                 
                 return {
                     "enunciado": enunciado,
@@ -1003,7 +1039,12 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 
                 errores_previstos[str(w*h)] = "Calculaste el área del rectángulo exterior completo sin restarle el hueco blanco."
                 
-                enunciado = f"Calcula el área sombreada de esta figura en forma de U en {unidad}². (Pista: Área grande - Área del hueco blanco)."
+                _obj = rng.choice(["una herradura", "un portarretratos", "un molde de galleta", "una pieza de rompecabezas", "un imán de nevera", "una placa metálica"])
+                enunciado = rng.choice([
+                    f"{nombre} recortó {_obj} con forma de U (en color) y un hueco blanco en el medio. Calcula el área sombreada en {unidad}². (Pista: área grande − hueco).",
+                    f"Calcula el área sombreada (de color) de esta figura en forma de U en {unidad}². Pista: área del rectángulo grande menos el hueco blanco.",
+                    f"La figura en U de {nombre} tiene una parte de color y un hueco blanco. ¿Cuál es el área sombreada en {unidad}²? (Resta el hueco al total).",
+                ])
                 expl = f"El rectángulo exterior es de {w}×{h} = {w*h} {unidad}². El hueco blanco es de ({w-2*t})×({h-t}) = {(w-2*t)*(h-t)} {unidad}². Restamos: {w*h} - {(w-2*t)*(h-t)} = {ans} {unidad}²."
                 
                 return {
@@ -1093,7 +1134,10 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             }
         elif lvl_id == 2:
             # Modelado de diagonal / TV (con opción de Pitágoras)
-            case = rng.choice([1, 2, 3, 4])
+            # Antes: 3/4 de las preguntas eran la MISMA idea conceptual ("se mide en
+            # diagonal") y Pitágoras solo tenía 3 ternas. Ahora: 40% conceptual con
+            # objetos y tamaños variados, 60% cálculo de Pitágoras con 10 ternas.
+            case = rng.choice([1, 2, 3, 4, 5])
             # SVG TV/pantalla con diagonal destacada
             svg_tv = (
                 "<svg width='240' height='170' viewBox='-10 -10 260 190' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
@@ -1104,27 +1148,36 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 "  <text x='120' y='158' fill='#475569' font-size='16' text-anchor='middle'>← base →</text>"
                 "</svg>"
             )
-            if case in (1, 2, 3):
+            if case in (1, 2):
+                objeto = rng.choice(["un televisor", "un celular", "una tableta", "un monitor de PC",
+                                     "una laptop", "una consola portátil", "un marco de foto digital"])
+                pulg = rng.choice([6, 8, 10, 13, 15, 24, 27, 32, 42, 50, 55, 65])
                 ans_str = "la diagonal"
                 templates = [
-                    f"Cuando {nombre} va a comprar un televisor, ¿qué línea de medida se usa para anunciar su tamaño en pulgadas?<br/>{svg_tv}",
-                    f"Un celular se anuncia con pantalla de 6 pulgadas. ¿Qué parte de la pantalla mide exactamente esas 6 pulgadas?<br/>{svg_tv}",
-                    f"Si una tableta mide 8 pulgadas de tamaño, {nombre} sabe que este valor corresponde a la medida de:<br/>{svg_tv}"
+                    f"Cuando {nombre} compra {objeto} de {pulg} pulgadas, ¿qué línea de la pantalla mide exactamente esas {pulg} pulgadas?<br/>{svg_tv}",
+                    f"{objeto.capitalize()} se anuncia con pantalla de {pulg} pulgadas. ¿Qué parte de la pantalla corresponde a esa medida?<br/>{svg_tv}",
+                    f"El tamaño de {objeto} es {pulg} pulgadas. {nombre} sabe que ese valor es la medida de:<br/>{svg_tv}",
                 ]
                 enunciado = rng.choice(templates)
                 return {
                     "enunciado": enunciado,
                     "respuesta_correcta": ans_str,
-                    "errores_previstos": {},
-                    "expl": "El tamaño de las pantallas de TV y celulares se mide en pulgadas a lo largo de su diagonal.",
-                    "alts": [ans_str, "la base", "la altura", "el perímetro"]
+                    "errores_previstos": {"la base": "El tamaño en pulgadas NO es la base, es la línea que cruza en diagonal.",
+                                          "la altura": "El tamaño en pulgadas NO es la altura, es la diagonal."},
+                    "expl": "El tamaño de las pantallas se mide en pulgadas a lo largo de su diagonal (esquina a esquina).",
+                    "alts": ["la diagonal", "la base", "la altura", "el perímetro"]
                 }
             else:
-                # Caso Pitágoras simple
-                triplet = rng.choice([(3, 4, 5), (6, 8, 10), (5, 12, 13)])
+                # Caso Pitágoras: 10 ternas pitagóricas, base/altura intercambiables.
+                triplet = rng.choice([
+                    (3, 4, 5), (6, 8, 10), (9, 12, 15), (12, 16, 20), (15, 20, 25),
+                    (5, 12, 13), (8, 15, 17), (7, 24, 25), (10, 24, 26), (18, 24, 30),
+                ])
                 a, b, ans = triplet
+                if rng.random() < 0.5:
+                    a, b = b, a  # intercambia base y altura para más variedad visual
                 ans_str = str(ans)
-                unidad = rng.choice(["cm", "m"])
+                unidad = rng.choice(["cm", "m", "pulg"])
                 # SVG rectángulo con catetos y diagonal etiquetados
                 scale_svg = min(100 // max(a, b), 16)
                 rw, rh = a * scale_svg, b * scale_svg
@@ -1137,19 +1190,22 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                     f"  <text x='{10+rw//2+8}' y='{10+rh//2-8}' fill='#F59E0B' font-size='16' font-weight='bold' text-anchor='middle' transform='rotate({int(45)} {10+rw//2+8} {10+rh//2-8})'>d=?</text>"
                     f"</svg>"
                 )
+                objeto = rng.choice(["una pantalla rectangular", "una tableta", "un monitor", "un televisor",
+                                     "una ventana rectangular", "un cuadro", "una pancarta", "un tablero"])
                 templates = [
-                    f"{nombre} mide la base ({a} {unidad}) y la altura ({b} {unidad}) de una pantalla rectangular. ¿Cuál es la diagonal en {unidad}?<br/>{svg_pyt}",
-                    f"Una tableta rectangular tiene base de {a} {unidad} y altura de {b} {unidad}. ¿Cuánto mide su diagonal en {unidad}?<br/>{svg_pyt}",
-                    f"Para un monitor con base {a} y altura {b} {unidad}, {nombre} calcula su medida diagonal. ¿Cuál es?<br/>{svg_pyt}"
+                    f"{nombre} mide la base ({a} {unidad}) y la altura ({b} {unidad}) de {objeto}. ¿Cuál es su diagonal en {unidad}?<br/>{svg_pyt}",
+                    f"{objeto.capitalize()} tiene base de {a} {unidad} y altura de {b} {unidad}. ¿Cuánto mide su diagonal en {unidad}?<br/>{svg_pyt}",
+                    f"Para {objeto} con base {a} {unidad} y altura {b} {unidad}, {nombre} calcula la medida diagonal. ¿Cuál es?<br/>{svg_pyt}",
                 ]
                 enunciado = rng.choice(templates)
-                errores_previstos[str(a+b)] = "Sumaste la base y la altura. Recuerda calcular la diagonal usando el teorema de Pitágoras (a² + b² = c²)."
+                errores_previstos[str(a+b)] = "Sumaste la base y la altura. La diagonal se calcula con Pitágoras (a² + b² = c²), no sumando."
+                dedup_alts = list(dict.fromkeys([ans_str, str(a+b), str(ans+2), str(max(a,b)+1), str(ans-1)]))
                 return {
                     "enunciado": enunciado,
                     "respuesta_correcta": ans_str,
                     "errores_previstos": errores_previstos,
-                    "expl": f"Usamos el teorema de Pitágoras: {a}² + {b}² = {a*a} + {b*b} = {a*a+b*b}. La raíz cuadrada de {a*a+b*b} es {ans} pulgadas.",
-                    "alts": [ans_str, str(a+b), str(a*b), str(ans + 2)]
+                    "expl": f"Usamos Pitágoras: {a}² + {b}² = {a*a} + {b*b} = {a*a+b*b}. La raíz cuadrada de {a*a+b*b} es {ans} {unidad}.",
+                    "alts": dedup_alts[:4]
                 }
         else:
             # Conversión de unidades de superficie
@@ -1166,7 +1222,6 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 f"  <text x='200' y='55' fill='#0EA5E9' font-size='18' font-weight='bold' text-anchor='middle'>10,000</text>"
                 f"  <text x='200' y='72' fill='#0EA5E9' font-size='16' text-anchor='middle'>cm²</text>"
                 f"  <text x='200' y='90' fill='#94A3B8' font-size='15' text-anchor='middle'>(100cm × 100cm)</text>"
-                f"  <text x='120' y='138' fill='#FFFFFF' font-size='16' text-anchor='middle'>{m2} m² = {m2} × 10,000 cm²</text>"
                 f"</svg>"
             )
             if case == 1:
@@ -1190,7 +1245,6 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                     f"  <text x='200' y='55' fill='#4ADE80' font-size='18' font-weight='bold' text-anchor='middle'>100</text>"
                     f"  <text x='200' y='72' fill='#4ADE80' font-size='16' text-anchor='middle'>cm²</text>"
                     f"  <text x='200' y='90' fill='#94A3B8' font-size='15' text-anchor='middle'>(10cm × 10cm)</text>"
-                    f"  <text x='120' y='138' fill='#FFFFFF' font-size='16' text-anchor='middle'>{m2} dm² = {m2} × 100 cm²</text>"
                     f"</svg>"
                 )
                 ans = m2 * 100
@@ -1213,7 +1267,6 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                     f"  <text x='200' y='55' fill='#FBBF24' font-size='18' font-weight='bold' text-anchor='middle'>100</text>"
                     f"  <text x='200' y='72' fill='#FBBF24' font-size='16' text-anchor='middle'>dm²</text>"
                     f"  <text x='200' y='90' fill='#94A3B8' font-size='15' text-anchor='middle'>(10dm × 10dm)</text>"
-                    f"  <text x='120' y='138' fill='#FFFFFF' font-size='16' text-anchor='middle'>{m2} m² = {m2} × 100 dm²</text>"
                     f"</svg>"
                 )
                 ans = m2 * 100
@@ -1256,10 +1309,27 @@ async def seed_practica_pool(session: AsyncSession):
             datos_finales = {"fase5": True}
             if "datos_numericos" in q_data:
                 datos_finales.update(q_data["datos_numericos"])
-            
+
+            # BUG CRÍTICO (mismo patrón que Fase 6/7/8): el progreso de práctica libre
+            # cuenta familias vía COUNT(DISTINCT estructura_padre_id), pero antes esta
+            # columna quedaba NULL en las 1560 preguntas de práctica → COUNT(DISTINCT NULL)=0
+            # → el nivel NUNCA llegaba a 100% (BD: 0 aprobados históricos en toda la Fase 5;
+            # el "PROGRESO 0/10" de la captura del usuario era justamente esto). Cada pregunta
+            # ya es única (seed determinístico por índice) → familia propia de 1 miembro.
+            estructura_padre_id = f"f5_m{mod_id}_l{lvl_id}_q{i:03d}"
+
+            # Si la respuesta es de TEXTO (p.ej. "la diagonal", "infinitos"), debe ser
+            # opción múltiple: el teclado numérico del frontend no permite escribir texto
+            # (bug preexistente: la sección 402 tenía 56 preguntas "la diagonal" imposibles
+            # de responder). El desafío ya hacía esta distinción; la práctica no.
+            _resp = q_data["respuesta_correcta"]
+            _es_numerica = _resp.lstrip('-').replace('.', '', 1).replace(',', '', 1).isdigit()
+            _tipo = TipoPreguntaEnum.RESPUESTA_NUMERICA if _es_numerica else TipoPreguntaEnum.MULTIPLE_OPCION
+
             p = Pregunta(
-                fase_id=FASE5_ID, seccion=seccion_id, operacion=OperacionEnum.MIXTA,
-                tipo_pregunta=TipoPreguntaEnum.RESPUESTA_NUMERICA, enunciado=q_data["enunciado"],
+                fase_id=FASE5_ID, seccion=seccion_id, estructura_padre_id=estructura_padre_id,
+                operacion=OperacionEnum.MIXTA,
+                tipo_pregunta=_tipo, enunciado=q_data["enunciado"],
                 respuesta_correcta=q_data["respuesta_correcta"], datos_numericos=datos_finales,
                 errores_previstos=q_data.get("errores_previstos", {}),
                 explicacion_paso_a_paso={"titulo": "Resolución", "pasos": [{"orden": 1, "texto": q_data["expl"]}]},
@@ -1284,8 +1354,12 @@ async def seed_preguntas_desafios(session: AsyncSession):
                 q_data = await _gen_fase5_pool(rng, modulo_id, lvl_id_desafio)
                 
                 tipo_pregunta = TipoPreguntaEnum.MULTIPLE_OPCION if desafio_id in (11, 12) else TipoPreguntaEnum.RESPUESTA_NUMERICA
-                if q_data["respuesta_correcta"] == "la diagonal":
-                    tipo_pregunta = TipoPreguntaEnum.RESPUESTA_NUMERICA
+                # Bug: antes forzaba "la diagonal" (respuesta de TEXTO) a RESPUESTA_NUMERICA,
+                # imposible de escribir en el teclado numérico. Cualquier respuesta no numérica
+                # debe ser opción múltiple.
+                _resp_d = q_data["respuesta_correcta"]
+                if not _resp_d.lstrip('-').replace('.', '', 1).replace(',', '', 1).isdigit():
+                    tipo_pregunta = TipoPreguntaEnum.MULTIPLE_OPCION
                 
                 datos_finales = {"es_desafio": True}
                 if "datos_numericos" in q_data:

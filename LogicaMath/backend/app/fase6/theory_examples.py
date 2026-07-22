@@ -292,7 +292,7 @@ def obtener_ejemplos_expandidos_fase6(modulo_id: int, nivel_id: int) -> list:
                 ]
             }
         ],
-        (1, 4): [
+        (2, 2): [
             {
                 "enunciado": "Calcula el volumen sumando los bloques de una pirámide capa por capa (estratos):<br/>"
                              "<svg width='260' height='220' viewBox='0 0 180 100' style='margin:10px auto; display:block; background:#111827; border:2px solid #10B981; border-radius:12px;'>"

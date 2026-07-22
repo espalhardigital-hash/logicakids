@@ -1,7 +1,7 @@
 /**
  * Fase7GameScreen.tsx
  * ─────────────────────────────────────────────────────────────
- * Pantalla de juego adaptativa para los 5 módulos de Fase 6.
+ * Pantalla de juego adaptativa para los 4 módulos de Fase 7.
  *   - Módulos 1-3: Entrada numérica
  *   - Módulo  4  : Selección de tokens (subrayador)
  *   - Módulo  5  : Pasos encadenados (paso 1 → congelado → paso 2)
@@ -274,9 +274,9 @@ const Fase7CompletionModal: React.FC<{
   const rec = useMemo(() => {
     if (moduloId === 99) {
       return {
-        titulo: '¡Héroe de la Fase 6! 🎉',
-        mensaje: '¡Has dominado por completo todos los desafíos de la Fase 6! Tu agilidad de cálculo y razonamiento numérico son extraordinarios. ¡Prepárate para la Fase 3!',
-        accion: 'Avanzar a Fase 3 🚀'
+        titulo: '¡Héroe de la Fase 7! 🎉',
+        mensaje: '¡Has dominado por completo todos los desafíos de la Fase 7! Tu agilidad de razonamiento cartográfico y cálculo temporal son extraordinarios. ¡Prepárate para la Fase 8!',
+        accion: 'Avanzar a Fase 8 🚀'
       };
     }
     
@@ -521,10 +521,10 @@ const Fase7PhaseGraduationModal: React.FC<{
           variants={itemVariants}
           style={{ fontSize: '1.15rem', color: 'rgba(255, 255, 255, 0.75)', marginBottom: '35px', maxWidth: '500px', margin: '0 auto 35px' }}
         >
-          ¡Has completado y dominado con éxito toda la **Fase 6: Desarrollo Numérico y Razonamiento**! Eres oficialmente un héroe matemático de LogicaKids Pro. 🛡️✨
+          ¡Has completado y dominado con éxito toda la **Fase 7: Coordenadas, Rutas y Tiempo**! Eres oficialmente un maestro del espacio y el tiempo en LogicaKids Pro. 🧭✨
         </motion.p>
 
-        {/* Infografía: El Gran Viaje de Fase 6 */}
+        {/* Infografía: El Gran Viaje de Fase 7 */}
         <motion.div 
           variants={itemVariants}
           style={{ 
@@ -537,48 +537,48 @@ const Fase7PhaseGraduationModal: React.FC<{
           }}
         >
           <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.1rem', marginBottom: '24px', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Compass size={20} style={{ color: '#10B981' }} />
+            <Compass size={20} style={{ color: '#14B8A6' }} />
             Tu Mapa de Ruta Conquistado
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', padding: '0 10px' }}>
             {/* Línea Conectora */}
-            <div style={{ position: 'absolute', top: '24px', left: '40px', right: '40px', height: '4px', background: 'linear-gradient(90deg, #10B981, #8B5CF6, #F59E0B, #EC4899)', zIndex: 0, opacity: 0.6, borderRadius: '2px' }} />
+            <div style={{ position: 'absolute', top: '24px', left: '40px', right: '40px', height: '4px', background: 'linear-gradient(90deg, #14B8A6, #0D9488, #0F766E, #115E59)', zIndex: 0, opacity: 0.6, borderRadius: '2px' }} />
 
             {/* Nodo 1: Mód 1 */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(16, 185, 129, 0.5)', border: '3px solid #fff' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#14B8A6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(20, 184, 166, 0.5)', border: '3px solid #fff' }}>
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 1</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Gimnasio Mental</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Orientación</span>
             </div>
 
             {/* Nodo 2: Mód 2 */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(139, 92, 246, 0.5)', border: '3px solid #fff' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#0D9488', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(13, 148, 136, 0.5)', border: '3px solid #fff' }}>
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 2</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Tablas en Acción</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Cartesiano</span>
             </div>
 
             {/* Nodo 3: Mód 3 */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(245, 158, 11, 0.5)', border: '3px solid #fff' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#0F766E', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(15, 118, 110, 0.5)', border: '3px solid #fff' }}>
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 3</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Tienda</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>El Tiempo</span>
             </div>
 
             {/* Nodo 4: Mód 4 */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, width: '22%' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#EC4899', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(236, 72, 153, 0.5)', border: '3px solid #fff' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#115E59', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, boxShadow: '0 0 15px rgba(17, 94, 89, 0.5)', border: '3px solid #fff' }}>
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 4</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Constructor</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Horarios & Apps</span>
             </div>
           </div>
         </motion.div>
@@ -597,7 +597,7 @@ const Fase7PhaseGraduationModal: React.FC<{
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '20px' }}>
             <Award size={36} style={{ color: '#10B981' }} />
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>26 / 26</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>24 / 24</div>
               <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', fontWeight: 600 }}>Niveles Superados</div>
             </div>
           </div>
@@ -630,7 +630,7 @@ const Fase7PhaseGraduationModal: React.FC<{
           </div>
         </motion.div>
 
-        {/* Botón de Lanzamiento de Fase 3 */}
+        {/* Botón de Lanzamiento de Fase 8 */}
         <motion.button
           variants={itemVariants}
           className="f7-submit-btn"
@@ -652,7 +652,7 @@ const Fase7PhaseGraduationModal: React.FC<{
             gap: '10px'
           }}
         >
-          ¡Avanzar al Siguiente Nivel / Fase 3! 🚀
+          ¡Avanzar a la Fase 8! 🚀
         </motion.button>
       </motion.div>
     </motion.div>
@@ -779,7 +779,7 @@ const Fase7GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   }, [moduloId, nivelId]);
 
   const displayModuleName = useMemo(() => {
-    if (moduloId === 99) return "Desafío Mixto de la Fase 6";
+    if (moduloId === 99) return "Desafío Mixto de la Fase 7";
     return MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`;
   }, [moduloId]);
 
@@ -1348,7 +1348,7 @@ const Fase7GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
               <div className="f7-header-badge-pill">
                 <span className="f7-badge-module" style={{ color: moduleColor }}>{moduleName.toUpperCase()}</span>
                 <span className="f7-badge-divider">|</span>
-                <span className="f7-badge-level">FASE 6</span>
+                <span className="f7-badge-level">FASE 7</span>
                 <span className="f7-badge-divider">|</span>
                 <span className="f7-badge-level">MÓDULO {moduloId === 99 ? 'MAESTRÍA' : moduloId}</span>
                 <span className="f7-badge-divider">|</span>

@@ -15,9 +15,9 @@ from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 FASE7_ID = 7
 
 # --- DICCIONARIOS DE CONTEXTO FASE 7 ---
-NOMBRES = ["Andrés", "Lucía", "Martín", "Elena", "Tomás", "Julia"]
-LUGARES = ["parque", "zoológico", "museo", "colegio", "cine", "estadio"]
-OBJETOS = ["brújula", "rosa de los vientos", "carta", "pista"]
+NOMBRES = ["Andrés", "Lucía", "Martín", "Elena", "Tomás", "Julia", "Mateo", "Sofía", "Diego", "Valentina"]
+LUGARES = ["parque", "zoológico", "museo", "colegio", "cine", "estadio", "biblioteca", "hospital", "supermercado"]
+OBJETOS = ["brújula", "rosa de los vientos", "carta", "pista", "mapa del tesoro", "llave de oro"]
 
 async def clear_fase7_data(session: AsyncSession):
     print("Purging existing Fase 7 data...")
@@ -76,6 +76,33 @@ def _generate_svg_compass(direction: str) -> str:
 </svg>"""
     return _svg_to_base64(svg)
 
+def _generate_svg_vector_route(x: int, y: int) -> str:
+    """SVG representativo para desplazamientos por calles/vectores (Mod 1 Nivel 2)."""
+    svg = f"""<svg viewBox="0 0 220 180" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="220" height="180" rx="10" fill="#0f172a" stroke="#14B8A6" stroke-width="2"/>
+  <line x1="30" y1="150" x2="190" y2="150" stroke="#334155" stroke-width="2"/>
+  <line x1="30" y1="100" x2="190" y2="100" stroke="#334155" stroke-width="2"/>
+  <line x1="30" y1="50" x2="190" y2="50" stroke="#334155" stroke-width="2"/>
+  
+  <line x1="30" y1="30" x2="30" y2="150" stroke="#334155" stroke-width="2"/>
+  <line x1="85" y1="30" x2="85" y2="150" stroke="#334155" stroke-width="2"/>
+  <line x1="140" y1="30" x2="140" y2="150" stroke="#334155" stroke-width="2"/>
+  <line x1="190" y1="30" x2="190" y2="150" stroke="#334155" stroke-width="2"/>
+
+  <circle cx="30" cy="150" r="6" fill="#38bdf8"/>
+  <text x="30" y="170" font-family="Arial" font-size="11" font-weight="bold" fill="#38bdf8" text-anchor="middle">Inicio (0,0)</text>
+
+  <line x1="30" y1="150" x2="140" y2="150" stroke="#14B8A6" stroke-width="3" stroke-dasharray="4 2"/>
+  <text x="85" y="142" font-family="Arial" font-size="11" font-weight="bold" fill="#14B8A6" text-anchor="middle">{x} Este</text>
+
+  <line x1="140" y1="150" x2="140" y2="50" stroke="#f59e0b" stroke-width="3" stroke-dasharray="4 2"/>
+  <text x="155" y="100" font-family="Arial" font-size="11" font-weight="bold" fill="#f59e0b" text-anchor="start">{y} Norte</text>
+
+  <circle cx="140" cy="50" r="7" fill="#ef4444"/>
+  <text x="140" y="38" font-family="Arial" font-size="11" font-weight="bold" fill="#ef4444" text-anchor="middle">Destino</text>
+</svg>"""
+    return _svg_to_base64(svg)
+
 def _generate_svg_cartesian(x1: int, y1: int, x2: int = None, y2: int = None) -> str:
     grid_lines = []
     for i in range(7):
@@ -131,20 +158,32 @@ def _generate_svg_clock(hours: int, minutes: int) -> str:
   <text x="100" y="182" font-family="Arial" font-size="14" font-weight="bold" fill="#94a3b8" text-anchor="middle">6</text>
   <text x="175" y="105" font-family="Arial" font-size="14" font-weight="bold" fill="#94a3b8" text-anchor="middle">3</text>
   <text x="25" y="105" font-family="Arial" font-size="14" font-weight="bold" fill="#94a3b8" text-anchor="middle">9</text>
-  
-  <line x1="150" y1="13.4" x2="145" y2="22" stroke="#475569" stroke-width="2" transform="rotate(30 100 100)"/>
-  <line x1="150" y1="13.4" x2="145" y2="22" stroke="#475569" stroke-width="2" transform="rotate(60 100 100)"/>
-  <line x1="150" y1="13.4" x2="145" y2="22" stroke="#475569" stroke-width="2" transform="rotate(120 100 100)"/>
-  <line x1="150" y1="13.4" x2="145" y2="22" stroke="#475569" stroke-width="2" transform="rotate(150 100 100)"/>
-  <line x1="150" y1="13.4" x2="145" y2="22" stroke="#475569" stroke-width="2" transform="rotate(210 100 100)"/>
-  <line x1="150" y1="13.4" x2="145" y2="22" stroke="#475569" stroke-width="2" transform="rotate(240 100 100)"/>
-  <line x1="150" y1="13.4" x2="145" y2="22" stroke="#475569" stroke-width="2" transform="rotate(300 100 100)"/>
-  <line x1="150" y1="13.4" x2="145" y2="22" stroke="#475569" stroke-width="2" transform="rotate(330 100 100)"/>
 
   <line x1="100" y1="100" x2="100" y2="60" stroke="#f8fafc" stroke-width="4" stroke-linecap="round" transform="rotate({hour_angle} 100 100)"/>
   <line x1="100" y1="100" x2="100" y2="42" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" transform="rotate({minute_angle} 100 100)"/>
   
   <circle cx="100" cy="100" r="5" fill="#f8fafc"/>
+</svg>"""
+    return _svg_to_base64(svg)
+
+def _generate_svg_time_addition(h1: int, m1: int, h2: int, m2: int, total_h: int, total_m: int) -> str:
+    """SVG representativo de la suma de dos intervalos de tiempo (Mod 3 Nivel 3)."""
+    svg = f"""<svg viewBox="0 0 280 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <rect x="5" y="5" width="270" height="130" rx="10" fill="#0f172a" stroke="#0F766E" stroke-width="2"/>
+  
+  <text x="140" y="30" font-family="Arial" font-size="13" font-weight="bold" fill="#38bdf8" text-anchor="middle">Aritmética de Tiempo (Suma)</text>
+  
+  <rect x="20" y="45" width="110" height="35" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="75" y="67" font-family="Arial" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">Tramo 1: {h1}h {m1}m</text>
+
+  <text x="140" y="68" font-family="Arial" font-size="16" font-weight="bold" fill="#f59e0b" text-anchor="middle">+</text>
+
+  <rect x="150" y="45" width="110" height="35" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="205" y="67" font-family="Arial" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">Tramo 2: {h2}h {m2}m</text>
+
+  <line x1="20" y1="95" x2="260" y2="95" stroke="#334155" stroke-width="1"/>
+
+  <text x="140" y="118" font-family="Arial" font-size="12" font-weight="bold" fill="#10b981" text-anchor="middle">Total = {total_h}h {total_m}m</text>
 </svg>"""
     return _svg_to_base64(svg)
 
@@ -173,30 +212,69 @@ def _generate_svg_schedule(line1_name: str, line1_t1: str, line1_t2: str, line2_
 </svg>"""
     return _svg_to_base64(svg)
 
-def _generate_svg_fase7(mod_id: int, rng: random.Random, params: dict = None) -> str:
-    if not params:
-        params = {}
-    if mod_id == 1:
-        direction = params.get("direction", "N")
-        return _generate_svg_compass(direction)
-    elif mod_id == 2:
-        x1 = params.get("x1", 2)
-        y1 = params.get("y1", 2)
-        x2 = params.get("x2", None)
-        y2 = params.get("y2", None)
-        return _generate_svg_cartesian(x1, y1, x2, y2)
-    elif mod_id == 3:
-        hours = params.get("hours", 10)
-        minutes = params.get("minutes", 10)
-        return _generate_svg_clock(hours, minutes)
-    else:
-        l1 = params.get("line1_name", "A")
-        t1_1 = params.get("line1_t1", "08:00")
-        t1_2 = params.get("line1_t2", "08:30")
-        l2 = params.get("line2_name", "B")
-        t2_1 = params.get("line2_t1", "09:00")
-        t2_2 = params.get("line2_t2", "09:20")
-        return _generate_svg_schedule(l1, t1_1, t1_2, l2, t2_1, t2_2)
+def _generate_svg_transit_route(trip1: int, wait: int, trip2: int, total: int) -> str:
+    """Diagrama de transbordo (Mod 4 Nivel 2)."""
+    svg = f"""<svg viewBox="0 0 300 130" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <rect x="5" y="5" width="290" height="120" rx="10" fill="#0f172a" stroke="#115E59" stroke-width="2"/>
+  <text x="150" y="25" font-family="Arial" font-size="12" font-weight="bold" fill="#14B8A6" text-anchor="middle">Calculadora de Transbordo</text>
+  
+  <circle cx="45" cy="65" r="16" fill="#3b82f6"/>
+  <text x="45" y="69" font-family="Arial" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Bus A</text>
+  <text x="45" y="95" font-family="Arial" font-size="10" fill="#94a3b8" text-anchor="middle">{trip1} min</text>
+
+  <line x1="61" y1="65" x2="114" y2="65" stroke="#64748b" stroke-width="2" stroke-dasharray="3 3"/>
+
+  <circle cx="130" cy="65" r="16" fill="#f59e0b"/>
+  <text x="130" y="69" font-family="Arial" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Espera</text>
+  <text x="130" y="95" font-family="Arial" font-size="10" fill="#94a3b8" text-anchor="middle">{wait} min</text>
+
+  <line x1="146" y1="65" x2="199" y2="65" stroke="#64748b" stroke-width="2" stroke-dasharray="3 3"/>
+
+  <circle cx="215" cy="65" r="16" fill="#10b981"/>
+  <text x="215" y="69" font-family="Arial" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Bus B</text>
+  <text x="215" y="95" font-family="Arial" font-size="10" fill="#94a3b8" text-anchor="middle">{trip2} min</text>
+
+  <text x="150" y="115" font-family="Arial" font-size="11" font-weight="bold" fill="#10b981" text-anchor="middle">Total: {total} min</text>
+</svg>"""
+    return _svg_to_base64(svg)
+
+def _generate_svg_route_options(tA: int, tB: int, tC: int) -> str:
+    """Diagrama de comparativa de opciones de GPS (Mod 4 Nivel 3)."""
+    svg = f"""<svg viewBox="0 0 300 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <rect x="5" y="5" width="290" height="130" rx="10" fill="#0f172a" stroke="#115E59" stroke-width="2"/>
+  <text x="150" y="25" font-family="Arial" font-size="12" font-weight="bold" fill="#14B8A6" text-anchor="middle">Optimizador de Ruta GPS</text>
+  
+  <rect x="25" y="40" width="70" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1"/>
+  <text x="60" y="58" font-family="Arial" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">Ruta A</text>
+  <text x="60" y="73" font-family="Arial" font-size="10" fill="#94a3b8" text-anchor="middle">{tA} min</text>
+
+  <rect x="115" y="40" width="70" height="40" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+  <text x="150" y="58" font-family="Arial" font-size="11" font-weight="bold" fill="#10b981" text-anchor="middle">Ruta B</text>
+  <text x="150" y="73" font-family="Arial" font-size="10" fill="#10b981" text-anchor="middle">{tB} min ⭐</text>
+
+  <rect x="205" y="40" width="70" height="40" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="1"/>
+  <text x="240" y="58" font-family="Arial" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">Ruta C</text>
+  <text x="240" y="73" font-family="Arial" font-size="10" fill="#94a3b8" text-anchor="middle">{tC} min</text>
+
+  <text x="150" y="105" font-family="Arial" font-size="10" font-style="italic" fill="#cbd5e1" text-anchor="middle">Selecciona la opción con menor tiempo total</text>
+</svg>"""
+    return _svg_to_base64(svg)
+
+def _dedupe_and_pad(alts: list, rng: random.Random, pad_fn) -> list:
+    """Devuelve exactamente 4 alternativas string DISTINTAS. `pad_fn` genera un
+    candidato nuevo en el mismo formato temático (coordenada, hora, número)
+    cuando faltan opciones tras deduplicar — evita el bug de opciones repetidas
+    (p.ej. un distractor "swap XY" que coincide con la respuesta cuando X==Y).
+    """
+    out = list(dict.fromkeys(alts))  # dedupe preservando orden
+    attempts = 0
+    while len(out) < 4 and attempts < 50:
+        candidate = pad_fn()
+        if candidate not in out:
+            out.append(candidate)
+        attempts += 1
+    return out
+
 
 async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
     nombre = rng.choice(NOMBRES)
@@ -219,8 +297,17 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             end_dir = directions[end_idx]
             
             direction_word = "derecha" if turn_right else "izquierda"
-            enunciado = f"Si estás mirando al {start_dir} y haces un giro de {turn_deg} grados hacia la {direction_word}, ¿hacia qué dirección terminas mirando?"
-            
+            # Variedad de SITUACIÓN: exploradores, marineros, robots... girando con la brújula.
+            personaje = rng.choice([nombre, "el explorador", "la capitana del barco", "el robot",
+                                    "la excursionista", "el piloto del dron", "la scout"])
+            objeto = rng.choice(OBJETOS)
+            plantillas = [
+                f"{personaje.capitalize()} mira su {objeto} apuntando al {start_dir} y gira {turn_deg}° hacia la {direction_word}. ¿Hacia qué dirección termina mirando?",
+                f"Estás mirando al {start_dir} en el mapa. Si haces un giro de {turn_deg}° hacia la {direction_word}, ¿a qué punto cardinal quedas mirando?",
+                f"{personaje.capitalize()} apunta al {start_dir} y rota {turn_deg}° a la {direction_word}. ¿Cuál es su nueva orientación?",
+            ]
+            enunciado = rng.choice(plantillas)
+
             ans_str = end_dir
             alts = list(directions)
             
@@ -230,8 +317,7 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             if opposite_dir != ans_str:
                 errores_previstos[opposite_dir] = f"Esa es la dirección opuesta al {start_dir}."
             
-            svg_params = {"direction": dir_abbrev[start_dir]}
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_compass(dir_abbrev[start_dir])
             
             return {
                 "enunciado": enunciado,
@@ -250,16 +336,13 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             ans_str = str(x + y)
             
             alts = [ans_str, str(abs(x - y)), str(x * y), str(x + y + 2)]
-            alts = list(set(alts))
-            while len(alts) < 4:
-                alts.append(str(rng.randint(2, 15)))
+            alts = _dedupe_and_pad(alts, rng, lambda: str(rng.randint(2, 15)))
             rng.shuffle(alts)
             
             errores_previstos[str(abs(x - y))] = "Restaste los pasos en lugar de sumarlos para obtener la distancia total."
             errores_previstos[str(x * y)] = "Multiplicaste los pasos en lugar de sumarlos."
             
-            svg_params = {"x1": 0, "y1": 0, "x2": x, "y2": y}
-            svg_data = _generate_svg_fase7(2, rng, svg_params)
+            svg_data = _generate_svg_vector_route(x, y)
             
             return {
                 "enunciado": enunciado,
@@ -275,27 +358,37 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             dir_abbrev = {"Norte": "N", "Este": "E", "Sur": "S", "Oeste": "O"}
             start_dir_idx = rng.randint(0, 3)
             start_dir = directions[start_dir_idx]
-            
-            deg = rng.choice([180, 270])
-            end_dir_idx = (start_dir_idx + (deg // 90)) % 4
+
+            # Nivel avanzado: ambos sentidos de giro y los 3 ángulos, con vocabulario
+            # "sentido horario/antihorario" (antes solo 180/270 a la derecha → 8 combos).
+            deg = rng.choice([90, 180, 270])
+            horario = rng.choice([True, False])
+            steps = (deg // 90) if horario else -(deg // 90)
+            end_dir_idx = (start_dir_idx + steps) % 4
             end_dir = directions[end_dir_idx]
-            
-            enunciado = f"Si estás mirando hacia el {start_dir} y giras {deg} grados a la derecha (sentido horario), ¿hacia dónde terminas mirando?"
+            sentido = "sentido horario (a la derecha)" if horario else "sentido antihorario (a la izquierda)"
+
+            personaje = rng.choice([nombre, "el capitán", "la exploradora", "el timonel", "la astronauta"])
+            plantillas = [
+                f"{personaje.capitalize()} mira hacia el {start_dir} y gira {deg}° en {sentido}. ¿Hacia dónde termina mirando?",
+                f"Partiendo del {start_dir}, si giras {deg}° en {sentido}, ¿a qué punto cardinal llegas?",
+                f"La brújula de {personaje} apunta al {start_dir}. Tras rotar {deg}° en {sentido}, ¿cuál es la nueva dirección?",
+            ]
+            enunciado = rng.choice(plantillas)
             ans_str = end_dir
             alts = list(directions)
             
-            svg_params = {"direction": dir_abbrev[start_dir]}
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_compass(dir_abbrev[start_dir])
             
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
-                "expl": f"Al girar {deg} grados en sentido horario desde el {start_dir}, terminas apuntando al {end_dir}.",
+                "expl": f"Al girar {deg}° en {sentido} desde el {start_dir}, terminas apuntando al {end_dir}.",
                 "alts": alts,
                 "metadata_visual": {"requiere_imagen": True, "svg_base64": svg_data},
                 "errores_previstos": errores_previstos
             }
-            
+
     elif mod_id == 2:
         if lvl_id in (1, 11):
             x = rng.randint(1, 5)
@@ -303,12 +396,16 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             objeto = rng.choice(OBJETOS)
             enunciado = f"Un cofre con una {objeto} está en el punto A. Si está en la columna X={x} y fila Y={y}, ¿cuál es su coordenada (X,Y)?"
             ans_str = f"({x},{y})"
-            alts = [f"({x},{y})", f"({y},{x})", f"({x + 1},{y})", f"({x},{y + 1})"]
+            # Distractor "orden invertido" (y,x): si x==y coincide con la respuesta
+            # correcta (swap de un punto simétrico no cambia nada) — se rellena con
+            # coordenadas cercanas distintas en su lugar.
+            alts = [f"({x},{y})", f"({x + 1},{y})", f"({x},{y + 1})"]
+            if x != y:
+                alts.append(f"({y},{x})")
+                errores_previstos[f"({y},{x})"] = "Confundiste el orden. Recuerda que el eje horizontal X va primero y el vertical Y va después: (X, Y)."
+            alts = _dedupe_and_pad(alts, rng, lambda: f"({rng.randint(0, 8)},{rng.randint(0, 8)})")
             
-            errores_previstos[f"({y},{x})"] = "Confundiste el orden. Recuerda que el eje horizontal X va primero y el vertical Y va después: (X, Y)."
-            
-            svg_params = {"x1": x, "y1": y}
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_cartesian(x, y)
             
             return {
                 "enunciado": enunciado,
@@ -328,12 +425,15 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             new_x = x + dx
             new_y = y + dy
             ans_str = f"({new_x},{new_y})"
-            alts = [f"({new_x},{new_y})", f"({x - dx},{y - dy})", f"({new_y},{new_x})", f"({x + dx},{y})"]
-            
+            # Distractor "orden invertido" (new_y,new_x): si new_x==new_y coincide
+            # con la respuesta correcta — se omite y se rellena con otra coordenada.
+            alts = [f"({new_x},{new_y})", f"({x - dx},{y - dy})", f"({x + dx},{y})"]
+            if new_x != new_y:
+                alts.append(f"({new_y},{new_x})")
             errores_previstos[f"({x - dx},{y - dy})"] = "Restaste en lugar de sumar. Ir a la derecha y arriba aumenta los valores X e Y."
+            alts = _dedupe_and_pad(alts, rng, lambda: f"({rng.randint(0, 8)},{rng.randint(0, 8)})")
             
-            svg_params = {"x1": x, "y1": y, "x2": new_x, "y2": new_y}
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_cartesian(x, y, new_x, new_y)
             
             return {
                 "enunciado": enunciado,
@@ -358,13 +458,10 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             enunciado = f"Calcula la distancia Manhattan (suma de pasos horizontales y verticales) entre A({x1},{y1}) y el {lugar} en B({x2},{y2})."
             
             alts = [ans_str, str(ans - 1), str(ans + 1), str(dist_x * dist_y)]
-            alts = list(set(alts))
-            while len(alts) < 4:
-                alts.append(str(rng.randint(2, 12)))
+            alts = _dedupe_and_pad(alts, rng, lambda: str(rng.randint(2, 12)))
             rng.shuffle(alts)
             
-            svg_params = {"x1": x1, "y1": y1, "x2": x2, "y2": y2}
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_cartesian(x1, y1, x2, y2)
             
             return {
                 "enunciado": enunciado,
@@ -392,13 +489,10 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             
             alt_hours = (hours + 1) if hours < 12 else 1
             alts = [ans_str, f"{hours}:{(minutes+15)%60:02d}", f"{alt_hours}:{minutes_str}", f"{hours}:05"]
-            alts = list(set(alts))
-            while len(alts) < 4:
-                alts.append(f"{rng.randint(1, 12)}:{rng.choice([10, 20, 40])}")
+            alts = _dedupe_and_pad(alts, rng, lambda: f"{rng.randint(1, 12)}:{rng.choice([10, 20, 40]):02d}")
             rng.shuffle(alts)
             
-            svg_params = {"hours": hours, "minutes": minutes}
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_clock(hours, minutes)
             
             return {
                 "enunciado": enunciado,
@@ -409,22 +503,40 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
                 "errores_previstos": errores_previstos
             }
         elif lvl_id in (2, 12):
-            hours_12 = rng.randint(1, 11)
-            hours_24 = hours_12 + 12
-            
-            enunciado = f"Si un reloj de 12 horas marca las {hours_12}:00 PM, ¿cuál es su equivalente exacto en formato de 24 horas?"
-            ans_str = f"{hours_24}:00"
-            alts = [ans_str, f"{hours_12}:00", f"{hours_12 + 10}:00", f"{hours_24 + 1}:00"]
-            
-            errores_previstos[f"{hours_12}:00"] = "En formato de 24 horas, para el tiempo PM se le suma 12."
-            
-            svg_params = {"hours": hours_12, "minutes": 0}
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
-            
+            # Antes: solo 12h PM → 24h, en punto (:00), 11 combos. Ahora: dos sentidos
+            # de conversión, con minutos y contextos reales (tren, película, vuelo...).
+            minutes = rng.choice([0, 0, 15, 30, 45])
+            mm = f"{minutes:02d}"
+            contexto = rng.choice(["el tren sale", "la película empieza", "la alarma suena", "el partido comienza",
+                                   "la tienda cierra", "el vuelo despega", "la clase termina", "el concierto arranca"])
+            if rng.random() < 0.55:
+                # 12h PM → 24h
+                hours_12 = rng.randint(1, 11)
+                hours_24 = hours_12 + 12
+                ans_str = f"{hours_24}:{mm}"
+                enunciado = f"En el reloj de 12 horas, {contexto} a las {hours_12}:{mm} PM. ¿Cuál es esa hora en formato de 24 horas?"
+                expl = f"A una hora PM se le suman 12: {hours_12} + 12 = {hours_24}. Queda {hours_24}:{mm}."
+                alts = [ans_str, f"{hours_12}:{mm}", f"{(hours_12 + 10) % 24}:{mm}", f"{hours_24 + 1}:{mm}"]
+                errores_previstos[f"{hours_12}:{mm}"] = "Olvidaste sumar 12 a la hora PM para pasar a 24 horas."
+                svg_hour = hours_12
+            else:
+                # 24h → 12h PM
+                hours_24 = rng.randint(13, 23)
+                hours_12 = hours_24 - 12
+                ans_str = f"{hours_12}:{mm} PM"
+                enunciado = f"El horario de 24 horas indica que {contexto} a las {hours_24}:{mm}. ¿Cuál es esa hora en formato de 12 horas (con AM/PM)?"
+                expl = f"Como pasa del mediodía, restamos 12: {hours_24} - 12 = {hours_12}. Queda {hours_12}:{mm} PM."
+                alts = [ans_str, f"{hours_24}:{mm} PM", f"{hours_12}:{mm} AM", f"{hours_12 + 1}:{mm} PM"]
+                errores_previstos[f"{hours_12}:{mm} AM"] = "Después del mediodía es PM, no AM."
+                svg_hour = hours_12
+            alts = _dedupe_and_pad(alts, rng, lambda: f"{rng.randint(1, 12)}:{rng.choice(['00','15','30','45'])}")
+
+            svg_data = _generate_svg_clock(svg_hour, minutes)
+
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
-                "expl": f"Sumamos 12 a la hora PM: {hours_12} + 12 = {hours_24}:00.",
+                "expl": expl,
                 "alts": alts,
                 "metadata_visual": {"requiere_imagen": True, "svg_base64": svg_data},
                 "errores_previstos": errores_previstos
@@ -445,15 +557,12 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             wrong_hours = hours1 + hours2
             wrong_mins = mins1 + mins2
             alts = [ans_str, f"{wrong_hours}h {wrong_mins}m", f"{total_hours + 1}h {rem_mins}m", f"{total_hours}h {(rem_mins + 10) % 60}m"]
-            alts = list(set(alts))
-            while len(alts) < 4:
-                alts.append(f"{rng.randint(2, 5)}h {rng.choice([10, 15, 25])}m")
+            alts = _dedupe_and_pad(alts, rng, lambda: f"{rng.randint(2, 5)}h {rng.choice([10, 15, 25])}m")
             rng.shuffle(alts)
             
             errores_previstos[f"{wrong_hours}h {wrong_mins}m"] = "Sumaste minutos directo, pero cada 60m se convierten en 1 hora."
             
-            svg_params = {"hours": total_hours, "minutes": rem_mins}
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_time_addition(hours1, mins1, hours2, mins2, total_hours, rem_mins)
             
             return {
                 "enunciado": enunciado,
@@ -467,49 +576,59 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
     else:
         line1_name = "Línea A"
         line2_name = "Línea B"
-        t1_1 = "08:15"
-        t1_2 = "08:45"
-        t2_1 = "08:30"
-        t2_2 = "09:10"
-        
+
         if lvl_id in (1, 11):
+            # Antes esta pregunta era 100% estática (horarios fijos "08:15"/"08:45"),
+            # repitiéndose idéntica en las 45 filas de práctica+desafío. Se aleatoriza
+            # la hora de salida y la frecuencia para dar variedad real.
+            start_h = rng.randint(6, 11)
+            start_m = rng.choice([0, 5, 10, 15, 20, 30, 40, 45])
+            freq = rng.choice([15, 20, 25, 30, 40])
+            end_total = start_h * 60 + start_m + freq
+            end_h, end_m = divmod(end_total, 60)
+            t1_1 = f"{start_h:02d}:{start_m:02d}"
+            t1_2 = f"{end_h:02d}:{end_m:02d}"
+            t2_1 = f"{start_h:02d}:{(start_m + 5) % 60:02d}"
+            t2_2_total = start_h * 60 + (start_m + 5) % 60 + rng.choice([20, 25, 35])
+            t2_2_h, t2_2_m = divmod(t2_2_total, 60)
+            t2_2 = f"{t2_2_h:02d}:{t2_2_m:02d}"
+
             enunciado = f"Según el horario, la Línea A sale a las {t1_1} y luego a las {t1_2}. ¿Cuál es la frecuencia (diferencia en minutos) de la Línea A?"
-            ans_str = "30"
-            alts = ["30", "15", "45", "60"]
-            
-            errores_previstos["15"] = "De las 08:15 a las 08:45 transcurren 30 minutos."
-            
-            svg_params = {
-                "line1_name": line1_name, "line1_t1": t1_1, "line1_t2": t1_2,
-                "line2_name": line2_name, "line2_t1": t2_1, "line2_t2": t2_2
-            }
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
-            
+            ans_str = str(freq)
+            alts = [ans_str, str(freq + 15), str(max(5, freq - 15)), str(freq + 30)]
+            alts = _dedupe_and_pad(alts, rng, lambda: str(rng.choice([10, 15, 20, 25, 30, 35, 40, 45, 50, 60])))
+
+            errores_previstos[str(max(5, freq - 15))] = f"De las {t1_1} a las {t1_2} transcurren {freq} minutos, no menos."
+
+            svg_data = _generate_svg_schedule(line1_name, t1_1, t1_2, line2_name, t2_1, t2_2)
+
             return {
                 "enunciado": enunciado,
                 "respuesta_correcta": ans_str,
-                "expl": f"Restamos las horas de salida: 8:45 - 8:15 = 30 minutos.",
+                "expl": f"Restamos las horas de salida: {t1_2} - {t1_1} = {freq} minutos.",
                 "alts": alts,
                 "metadata_visual": {"requiere_imagen": True, "svg_base64": svg_data},
                 "errores_previstos": errores_previstos
             }
         elif lvl_id in (2, 12):
-            trip1 = rng.choice([10, 15, 20])
-            wait = rng.choice([5, 10])
-            trip2 = rng.choice([15, 20, 25])
+            # Rangos ampliados y medios de transporte variados (antes 18 combos fijos).
+            trip1 = rng.randint(8, 25)
+            wait = rng.choice([5, 8, 10, 12, 15])
+            trip2 = rng.randint(10, 30)
             total = trip1 + wait + trip2
-            
-            enunciado = f"Viajas {trip1} minutos en el bus A, esperas {wait} minutos en la parada y viajas {trip2} minutos en el bus B. ¿Cuánto tardó tu trayecto total en minutos?"
+            v1, parada, v2 = rng.choice([
+                ("bus", "la parada", "metro"), ("metro", "la estación", "tranvía"),
+                ("tren", "el andén", "autobús"), ("bus A", "la parada", "bus B"),
+                ("colectivo", "la esquina", "subte"), ("ferry", "el muelle", "bus"),
+            ])
+            enunciado = f"{nombre} viaja {trip1} minutos en {v1}, espera {wait} minutos en {parada} y viaja {trip2} minutos en {v2}. ¿Cuánto tardó su trayecto total en minutos?"
             ans_str = str(total)
             alts = [ans_str, str(trip1 + trip2), str(total + 5), str(total - 5)]
-            
+            alts = _dedupe_and_pad(alts, rng, lambda: str(rng.randint(max(1, total - 20), total + 20)))
+
             errores_previstos[str(trip1 + trip2)] = "No sumaste el tiempo muerto de espera en la parada."
             
-            svg_params = {
-                "line1_name": line1_name, "line1_t1": f"A: {trip1}m", "line1_t2": f"espera: {wait}m",
-                "line2_name": line2_name, "line2_t1": f"B: {trip2}m", "line2_t2": "meta"
-            }
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_transit_route(trip1, wait, trip2, total)
             
             return {
                 "enunciado": enunciado,
@@ -529,12 +648,9 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             alts = ["A", "B", "C"]
             
             errores_previstos["A"] = f"La opción A ({tA}m) es más lenta que la opción B ({tB}m)."
+            errores_previstos["C"] = f"La opción C ({tC}m) es la más lenta de todas."
             
-            svg_params = {
-                "line1_name": "Velocidades", "line1_t1": f"A: {tA}m", "line1_t2": f"B: {tB}m",
-                "line2_name": "Opción C", "line2_t1": f"C: {tC}m", "line2_t2": "GPS"
-            }
-            svg_data = _generate_svg_fase7(mod_id, rng, svg_params)
+            svg_data = _generate_svg_route_options(tA, tB, tC)
             
             return {
                 "enunciado": enunciado,
@@ -579,7 +695,7 @@ async def seed_configuracion_progreso_fase7(session: AsyncSession):
     await session.commit()
 
 async def seed_practica_pool_fase7(session: AsyncSession):
-    print("Sembrando pool de práctica Fase 7...")
+    print("Sembrando pool de práctica Fase 7 con alta variedad...")
     sections = [(m, l) for m in range(1, 5) for l in [1, 2, 3, 11, 12, 13]]
     
     for mod_id, lvl_id in sections:
@@ -588,19 +704,28 @@ async def seed_practica_pool_fase7(session: AsyncSession):
             num_questions = 25 if lvl_id < 13 else 10
         else:
             seccion_id = mod_id * 100 + lvl_id
-            num_questions = 15
+            num_questions = 20
             
         for i in range(num_questions):
-            rng = random.Random(FASE7_ID * 100000 + seccion_id * 1000 + i)
+            rng = random.Random(FASE7_ID * 100000 + seccion_id * 1000 + i * 37 + 13)
             q_data = await _gen_fase7_pool(rng, mod_id, lvl_id)
             
             payload = q_data.get("metadata_visual", {})
             payload["fase7"] = True
-            
+
+            # El progreso de práctica libre (router.py) cuenta familias distintas vía
+            # COUNT(DISTINCT estructura_padre_id). Sin esto, la columna queda NULL para
+            # las 480 preguntas y COUNT(DISTINCT NULL)=0 -> el nivel nunca llega a 100%
+            # (bug confirmado: 0 intentos/progresos/aprobados en toda la Fase 7 histórica).
+            # Cada pregunta de práctica ya es única (seed determinístico por índice), así
+            # que basta con darle su propia familia de 1 miembro para que cuente.
+            estructura_padre_id = f"f7_m{mod_id}_l{lvl_id}_q{i:03d}" if lvl_id <= 3 else None
+
             p = Pregunta(
-                fase_id=FASE7_ID, seccion=seccion_id, operacion=OperacionEnum.MIXTA,
+                fase_id=FASE7_ID, seccion=seccion_id, estructura_padre_id=estructura_padre_id,
+                operacion=OperacionEnum.MIXTA,
                 tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=q_data["enunciado"],
-                respuesta_correcta=q_data["respuesta_correcta"], 
+                respuesta_correcta=q_data["respuesta_correcta"],
                 datos_numericos=payload,
                 errores_previstos=q_data.get("errores_previstos", {}),
                 explicacion_paso_a_paso={"titulo": "Resolución", "pasos": [{"orden": 1, "texto": q_data["expl"]}]},
@@ -627,7 +752,7 @@ async def run_fase7_seed():
         await seed_teoria_niveles_fase7(session)
         await seed_configuracion_progreso_fase7(session)
         await seed_practica_pool_fase7(session)
-    print("FASE 7 COMPLETADA.")
+    print("FASE 7 COMPLETADA EXITOSAMENTE.")
     print("=" * 60)
 
 if __name__ == "__main__":

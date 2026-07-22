@@ -17,11 +17,9 @@ interface Fase8TheoryModalProps {
 }
 
 const MODULE_NAMES: Record<number, string> = {
-  1: 'Gimnasio Mental',
-  2: 'Tablas en Acción',
-  3: 'Tienda Matemática',
-  4: 'Constructor de Soluciones',
-  5: 'Desafío Lógico',
+  1: 'Secuencias Lógicas',
+  2: 'Combinatoria Visual',
+  3: 'Probabilidad',
 };
 
 export const Fase8TheoryModal: React.FC<Fase8TheoryModalProps> = ({
