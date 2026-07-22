@@ -4,7 +4,7 @@ services:
   # ===== BACKEND API (FastAPI) =====
   backend:
     build:
-      context: ../LogicaMath/backend
+      context: ./LogicaMath/backend
       dockerfile: Dockerfile
     restart: always
     environment:
@@ -30,7 +30,7 @@ services:
   # ===== FRONTEND (React + Nginx) =====
   frontend:
     build:
-      context: ../LogicaMath/frontend
+      context: ./LogicaMath/frontend
       dockerfile: Dockerfile
       args:
         - VITE_API_URL=${VITE_API_URL:-https://logica.espalhar.shop/api}
