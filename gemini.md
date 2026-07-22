@@ -141,8 +141,8 @@ En modo de pruebas locales, el agente tiene **control total** sobre:
 * Los archivos `.env` siguen siendo de solo lectura para el agente (pero puede crear archivos `.env.local`).
 
 ### Infraestructura Local
-* **Docker Compose**: `docs/Pruebas_y_Test_Unitario/docker-compose.local.yml`
-* **Env local**: `docs/Pruebas_y_Test_Unitario/.env.local`
+* **Docker Compose**: `Datos_localhost/docker-compose.local.yml`
+* **Env local**: `Datos_localhost/.env.local`
 * **PostgreSQL**: Contenedor `logicakids_local_db` — puerto `5433` (host) / `5432` (interno)
   * DB: `logicakids_local` | User: `logicakids_local_user` | Pass: `LogicaKids2026#Local`
 * **Redis**: Contenedor `logicakids_local_redis` — puerto `6380` (host) / `6379` (interno)
@@ -154,17 +154,17 @@ En modo de pruebas locales, el agente tiene **control total** sobre:
 ### Comandos Frecuentes
 ```bash
 # Levantar todo
-docker compose -f docs/Pruebas_y_Test_Unitario/docker-compose.local.yml up -d --build
+docker compose -f Datos_localhost/docker-compose.local.yml up -d --build
 
 # Ver estado
-docker compose -f docs/Pruebas_y_Test_Unitario/docker-compose.local.yml ps
+docker compose -f Datos_localhost/docker-compose.local.yml ps
 
 # Ver logs del backend
-docker compose -f docs/Pruebas_y_Test_Unitario/docker-compose.local.yml logs -f backend
+docker compose -f Datos_localhost/docker-compose.local.yml logs -f backend
 
 # Resetear BD completa
-docker compose -f docs/Pruebas_y_Test_Unitario/docker-compose.local.yml down -v
-docker compose -f docs/Pruebas_y_Test_Unitario/docker-compose.local.yml up -d --build
+docker compose -f Datos_localhost/docker-compose.local.yml down -v
+docker compose -f Datos_localhost/docker-compose.local.yml up -d --build
 
 # Conectarse a psql
 docker exec -it logicakids_local_db psql -U logicakids_local_user -d logicakids_local

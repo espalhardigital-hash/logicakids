@@ -2,7 +2,7 @@
 
 > **Estado:** Bloque 1 (Fase 4) ya fue implementado y verificado (ver commits/working tree y memoria `known_bugs_fase2_a_4.md`). Este documento cubre **lo que falta**: Bloque 2 (Fase 2) y Bloque 3 (Fase 3), completo con instrucciones exactas para ejecutarlo sin necesidad de re-diagnosticar nada.
 >
-> **Contexto general:** diagnóstico hecho el 2026-07-21 sobre `D:\Antigravity\APP_Logica_Matematicas_kids\LogicaMath`. Entorno de trabajo: Docker local (`docs/Pruebas_y_Test_Unitario/docker-compose.local.yml`), contenedores `logicakids_local_*`. El backend **no monta el código como volumen** — cualquier cambio en `backend/` o `frontend/` requiere `docker compose build <servicio>` + recrear el contenedor antes de que se vea reflejado (ver sección "Cómo aplicar y verificar" al final).
+> **Contexto general:** diagnóstico hecho el 2026-07-21 sobre `D:\Antigravity\APP_Logica_Matematicas_kids\LogicaMath`. Entorno de trabajo: Docker local (`Datos_localhost/docker-compose.local.yml`), contenedores `logicakids_local_*`. El backend **no monta el código como volumen** — cualquier cambio en `backend/` o `frontend/` requiere `docker compose build <servicio>` + recrear el contenedor antes de que se vea reflejado (ver sección "Cómo aplicar y verificar" al final).
 >
 > Decisiones ya tomadas con el usuario (no volver a preguntar):
 > - El código muerto de Fase 3 (`OperationBuilder`/`DetectiveNotebook`, tipo `constructor_operaciones`) se **elimina**, no se completa.
@@ -296,8 +296,8 @@ export async function submitFase3Answer(
 2. **Rebuild obligatorio** (el contenedor backend NO tiene volumen montado — un cambio en disco no se refleja solo con `docker restart`):
    ```bash
    cd D:\Antigravity\APP_Logica_Matematicas_kids
-   docker compose -f docs/Pruebas_y_Test_Unitario/docker-compose.local.yml build backend
-   docker compose -f docs/Pruebas_y_Test_Unitario/docker-compose.local.yml up -d --no-deps backend
+    docker compose -f Datos_localhost/docker-compose.local.yml build backend
+    docker compose -f Datos_localhost/docker-compose.local.yml up -d --no-deps backend
    ```
    Si se tocó también el frontend (2.4, 3.2, 3.3, 3.4), agregar `frontend` al build/up.
 3. **Backend no trae pytest instalado en la imagen** — para correr los tests localmente:

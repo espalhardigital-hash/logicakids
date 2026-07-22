@@ -98,8 +98,8 @@ async def seed_teoria_niveles(session: AsyncSession):
                                  "<svg width='260' height='220' viewBox='-15 -15 150 145' style='margin:10px auto; display:block; background:#111827; border:2px solid #E5E7EB; border-radius:12px;'>"
                                  "  <path d='M20,0 V120 M40,0 V120 M60,0 V120 M80,0 V120 M100,0 V120 M0,20 H120 M0,40 H120 M0,60 H120 M0,80 H120 M0,100 H120' stroke='#E5E7EB' stroke-width='1'/>"
                                  "  <rect x='30' y='20' width='60' height='80' fill='#E0F2FE' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
-                                 "  <text x='60' y='14' fill='#1E293B' font-size='16' font-weight='bold' text-anchor='middle'>3 cm</text>"
-                                 "  <text x='18' y='64' fill='#1E293B' font-size='16' font-weight='bold' text-anchor='middle'>4 cm</text>"
+                                 "  <text x='60' y='14' fill='#FFFFFF' font-size='16' font-weight='bold' text-anchor='middle'>3 cm</text>"
+                                 "  <text x='18' y='64' fill='#FFFFFF' font-size='16' font-weight='bold' text-anchor='middle'>4 cm</text>"
                                  "</svg>",
                     "respuesta": "14",
                     "feedback_acierto": "¡Correcto! Sumamos 3 + 4 + 3 + 4 = 14.",
@@ -120,7 +120,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                     "pregunta": "El perímetro de un triángulo equilátero con lado de 6 m es:<br/>"
                                  "<svg width='260' height='220' viewBox='-15 -10 150 135' style='margin:10px auto; display:block; background:#111827; border:2px solid #E5E7EB; border-radius:12px;'>"
                                  "  <polygon points='60,20 100,100 20,100' fill='#E0F2FE' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
-                                 "  <text x='60' y='122' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>6 m</text>"
+                                 "  <text x='60' y='122' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='middle'>6 m</text>"
                                  "  <text x='30' y='65' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>6 m</text>"
                                  "  <text x='90' y='65' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>6 m</text>"
                                  "</svg>",
@@ -477,10 +477,10 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 svg_quad = (
                     f"<svg width='240' height='200' viewBox='-10 -10 260 220' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <polygon points='30,160 210,160 190,40 50,40' fill='#E0F2FE' fill-opacity='0.7' stroke='#1E293B' stroke-width='2.5'/>"
-                    f"  <text x='120' y='178' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} {unidad}</text>"
-                    f"  <text x='215' y='110' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} {unidad}</text>"
-                    f"  <text x='120' y='26' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{c} {unidad}</text>"
-                    f"  <text x='15' y='110' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='end'>{d} {unidad}</text>"
+                    f"  <text x='120' y='178' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='middle'>{a} {unidad}</text>"
+                    f"  <text x='215' y='110' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='start'>{b} {unidad}</text>"
+                    f"  <text x='120' y='26' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='middle'>{c} {unidad}</text>"
+                    f"  <text x='15' y='110' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='end'>{d} {unidad}</text>"
                     f"</svg>"
                 )
                 
@@ -509,11 +509,11 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 ans_str = str(ans)
                 # SVG rectángulo con etiquetas de unidades mixtas
                 svg_conv = (
-                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='160' viewBox='-10 -10 280 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='30' y='30' width='180' height='100' fill='#FEF9C3' fill-opacity='0.8' stroke='#1E293B' stroke-width='2.5'/>"
-                    f"  <text x='120' y='18' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} m</text>"
-                    f"  <text x='225' y='84' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} cm</text>"
-                    f"  <text x='120' y='152' fill='#1E293B' font-size='16' text-anchor='middle' fill-opacity='0.7'>(Convertir a cm)</text>"
+                    f"  <text x='120' y='18' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='middle'>{a} m</text>"
+                    f"  <text x='220' y='84' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='start'>{b} cm</text>"
+                    f"  <text x='120' y='152' fill='#FFFFFF' font-size='16' text-anchor='middle' fill-opacity='0.7'>(Convertir a cm)</text>"
                     f"</svg>"
                 )
                 templates = [
@@ -528,11 +528,11 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 ans = 2 * (a * 10 + b)
                 ans_str = str(ans)
                 svg_conv = (
-                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='160' viewBox='-10 -10 280 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='30' y='30' width='180' height='100' fill='#FEF9C3' fill-opacity='0.8' stroke='#1E293B' stroke-width='2.5'/>"
-                    f"  <text x='120' y='18' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} m</text>"
-                    f"  <text x='225' y='84' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} dm</text>"
-                    f"  <text x='120' y='152' fill='#1E293B' font-size='16' text-anchor='middle' fill-opacity='0.7'>(Convertir a dm)</text>"
+                    f"  <text x='120' y='18' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='middle'>{a} m</text>"
+                    f"  <text x='220' y='84' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='start'>{b} dm</text>"
+                    f"  <text x='120' y='152' fill='#FFFFFF' font-size='16' text-anchor='middle' fill-opacity='0.7'>(Convertir a dm)</text>"
                     f"</svg>"
                 )
                 templates = [
@@ -547,11 +547,11 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 ans = 2 * (a * 1000 + b)
                 ans_str = str(ans)
                 svg_conv = (
-                    f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
+                    f"<svg width='240' height='160' viewBox='-10 -10 280 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='30' y='30' width='180' height='100' fill='#FEF9C3' fill-opacity='0.8' stroke='#1E293B' stroke-width='2.5'/>"
-                    f"  <text x='120' y='18' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} km</text>"
-                    f"  <text x='225' y='84' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} m</text>"
-                    f"  <text x='120' y='152' fill='#1E293B' font-size='16' text-anchor='middle' fill-opacity='0.7'>(Convertir a m)</text>"
+                    f"  <text x='120' y='18' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='middle'>{a} km</text>"
+                    f"  <text x='220' y='84' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='start'>{b} m</text>"
+                    f"  <text x='120' y='152' fill='#FFFFFF' font-size='16' text-anchor='middle' fill-opacity='0.7'>(Convertir a m)</text>"
                     f"</svg>"
                 )
                 templates = [
@@ -689,7 +689,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 f"<svg width='240' height='{min(180, grid_h+30)}' viewBox='-5 -5 {grid_w+10} {grid_h+20}' "
                 f"style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 f"{svg_cells}"
-                f"<text x='{grid_w//2}' y='{grid_h+12}' fill='#1E293B' font-size='15' text-anchor='middle'>"
+                f"<text x='{grid_w//2}' y='{grid_h+12}' fill='#FFFFFF' font-size='15' text-anchor='middle'>"
                 f"🔵={enteros} enteros  🔴={mitades} mitades</text>"
                 f"</svg>"
             )
@@ -916,7 +916,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                     f"  <text x='100' y='50' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle' dominant-baseline='middle'>Área = {a} {unidad}²</text>"
                     f"  <rect x='20' y='80' width='160' height='70' fill='#BBF7D0' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
                     f"  <text x='100' y='120' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle' dominant-baseline='middle'>Área = {b} {unidad}²</text>"
-                    f"  <text x='100' y='168' fill='#475569' font-size='16' text-anchor='middle'>Área total = {a} + {b}</text>"
+                    f"  <text x='100' y='168' fill='#FFFFFF' font-size='16' text-anchor='middle'>Área total = {a} + {b}</text>"
                     f"</svg>"
                 )
                 
@@ -950,11 +950,11 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 f"  <rect x='10' y='10' width='60' height='60' fill='#BAE6FD' fill-opacity='0.8' stroke='#1E293B' stroke-width='1.5'/>"
                 f"  <polygon points='70,10 130,10 130,70' fill='#BBF7D0' fill-opacity='0.8' stroke='#1E293B' stroke-width='1.5'/>"
                 f"  <polygon points='70,10 70,70 130,70' fill='#FCA5A5' fill-opacity='0.8' stroke='#1E293B' stroke-width='1.5'/>"
-                f"  <text x='70' y='85' fill='#475569' font-size='16' text-anchor='middle'>Área = {total} {unidad}²</text>"
-                f"  <text x='155' y='45' fill='#1E293B' font-size='18' text-anchor='middle'>→</text>"
+                f"  <text x='70' y='85' fill='#FFFFFF' font-size='16' text-anchor='middle'>Área = {total} {unidad}²</text>"
+                f"  <text x='155' y='45' fill='#FFFFFF' font-size='18' text-anchor='middle'>→</text>"
                 f"  <polygon points='175,70 205,10 235,70' fill='#FDE68A' fill-opacity='0.8' stroke='#1E293B' stroke-width='1.5'/>"
                 f"  <rect x='175' y='70' width='60' height='30' fill='#C4B5FD' fill-opacity='0.8' stroke='#1E293B' stroke-width='1.5'/>"
-                f"  <text x='205' y='118' fill='#475569' font-size='16' text-anchor='middle'>¿Área?</text>"
+                f"  <text x='205' y='118' fill='#FFFFFF' font-size='16' text-anchor='middle'>¿Área?</text>"
                 f"</svg>"
             )
             
@@ -1031,7 +1031,7 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                     f"  <text x='100' y='28' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>Ext = {ext} {unidad}²</text>"
                     f"  <text x='100' y='83' fill='#64748B' font-size='16' font-weight='bold' text-anchor='middle'>hueco</text>"
                     f"  <text x='100' y='97' fill='#64748B' font-size='16' text-anchor='middle'>{int_h} {unidad}²</text>"
-                    f"  <text x='100' y='165' fill='#475569' font-size='16' text-anchor='middle'>Sombreado = {ext} - {int_h}</text>"
+                    f"  <text x='100' y='165' fill='#FFFFFF' font-size='16' text-anchor='middle'>Sombreado = {ext} - {int_h}</text>"
                     f"</svg>"
                 )
                 
@@ -1069,11 +1069,11 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 f"  <line x1='20' y1='70' x2='{20+bar_w}' y2='70' stroke='#1E293B' stroke-width='3' stroke-linecap='round'/>"
                 f"  <line x1='20' y1='60' x2='20' y2='80' stroke='#1E293B' stroke-width='2'/>"
                 f"  <line x1='{20+bar_w}' y1='60' x2='{20+bar_w}' y2='80' stroke='#1E293B' stroke-width='2'/>"
-                f"  <text x='{20+bar_w//2}' y='58' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{u} {unidad}</text>"
+                f"  <text x='{20+bar_w//2}' y='58' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='middle'>{u} {unidad}</text>"
                 f"  <rect x='20' y='90' width='80' height='20' fill='#FDE68A' rx='3' stroke='#92400E' stroke-width='1'/>"
                 f"  <text x='60' y='104' fill='#92400E' font-size='15' font-weight='bold' text-anchor='middle'>1 {unidad} = {scale}</text>"
-                f"  <text x='130' y='104' fill='#475569' font-size='16' text-anchor='start'>→ × {scale}</text>"
-                f"  <text x='120' y='130' fill='#1E293B' font-size='16' text-anchor='middle'>Real = {u} × {scale} = ?</text>"
+                f"  <text x='130' y='104' fill='#FFFFFF' font-size='16' text-anchor='start'>→ × {scale}</text>"
+                f"  <text x='120' y='130' fill='#FFFFFF' font-size='16' text-anchor='middle'>Real = {u} × {scale} = ?</text>"
                 f"</svg>"
             )
             
@@ -1132,8 +1132,8 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                     f"<svg width='220' height='160' viewBox='-10 -10 {rw+80} {rh+80}' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='10' y='10' width='{rw}' height='{rh}' fill='#E0F2FE' fill-opacity='0.8' stroke='#1E293B' stroke-width='2'/>"
                     f"  <line x1='10' y1='10' x2='{10+rw}' y2='{10+rh}' stroke='#F59E0B' stroke-width='2.5' stroke-dasharray='5,3'/>"
-                    f"  <text x='{10+rw//2}' y='{10+rh+18}' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='middle'>{a} {unidad}</text>"
-                    f"  <text x='{10+rw+12}' y='{10+rh//2}' fill='#1E293B' font-size='18' font-weight='bold' text-anchor='start'>{b} {unidad}</text>"
+                    f"  <text x='{10+rw//2}' y='{10+rh+18}' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='middle'>{a} {unidad}</text>"
+                    f"  <text x='{10+rw+12}' y='{10+rh//2}' fill='#FFFFFF' font-size='18' font-weight='bold' text-anchor='start'>{b} {unidad}</text>"
                     f"  <text x='{10+rw//2+8}' y='{10+rh//2-8}' fill='#F59E0B' font-size='16' font-weight='bold' text-anchor='middle' transform='rotate({int(45)} {10+rw//2+8} {10+rh//2-8})'>d=?</text>"
                     f"</svg>"
                 )
@@ -1159,14 +1159,14 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
             svg_m2 = (
                 f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                 f"  <rect x='20' y='15' width='100' height='100' fill='#BAE6FD' fill-opacity='0.7' stroke='#1E293B' stroke-width='2'/>"
-                f"  <text x='70' y='15' fill='#1E293B' font-size='16' text-anchor='middle'>1 m</text>"
-                f"  <text x='15' y='68' fill='#1E293B' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 m</text>"
+                f"  <text x='70' y='15' fill='#FFFFFF' font-size='16' text-anchor='middle'>1 m</text>"
+                f"  <text x='15' y='68' fill='#FFFFFF' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 m</text>"
                 f"  <text x='70' y='72' fill='#1E293B' font-size='14' font-weight='bold' text-anchor='middle'>1 m²</text>"
-                f"  <text x='145' y='68' fill='#1E293B' font-size='22' text-anchor='middle'>=</text>"
-                f"  <text x='200' y='55' fill='#0369A1' font-size='18' font-weight='bold' text-anchor='middle'>10,000</text>"
-                f"  <text x='200' y='72' fill='#0369A1' font-size='16' text-anchor='middle'>cm²</text>"
-                f"  <text x='200' y='90' fill='#475569' font-size='15' text-anchor='middle'>(100cm × 100cm)</text>"
-                f"  <text x='120' y='138' fill='#475569' font-size='16' text-anchor='middle'>{m2} m² = {m2} × 10,000 cm²</text>"
+                f"  <text x='145' y='68' fill='#FFFFFF' font-size='22' text-anchor='middle'>=</text>"
+                f"  <text x='200' y='55' fill='#0EA5E9' font-size='18' font-weight='bold' text-anchor='middle'>10,000</text>"
+                f"  <text x='200' y='72' fill='#0EA5E9' font-size='16' text-anchor='middle'>cm²</text>"
+                f"  <text x='200' y='90' fill='#94A3B8' font-size='15' text-anchor='middle'>(100cm × 100cm)</text>"
+                f"  <text x='120' y='138' fill='#FFFFFF' font-size='16' text-anchor='middle'>{m2} m² = {m2} × 10,000 cm²</text>"
                 f"</svg>"
             )
             if case == 1:
@@ -1183,14 +1183,14 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 svg_dm2 = (
                     f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='20' y='15' width='100' height='100' fill='#BBF7D0' fill-opacity='0.7' stroke='#1E293B' stroke-width='2'/>"
-                    f"  <text x='70' y='13' fill='#1E293B' font-size='16' text-anchor='middle'>1 dm</text>"
-                    f"  <text x='15' y='68' fill='#1E293B' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 dm</text>"
+                    f"  <text x='70' y='13' fill='#FFFFFF' font-size='16' text-anchor='middle'>1 dm</text>"
+                    f"  <text x='15' y='68' fill='#FFFFFF' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 dm</text>"
                     f"  <text x='70' y='72' fill='#1E293B' font-size='14' font-weight='bold' text-anchor='middle'>1 dm²</text>"
-                    f"  <text x='145' y='68' fill='#1E293B' font-size='22' text-anchor='middle'>=</text>"
-                    f"  <text x='200' y='55' fill='#065F46' font-size='18' font-weight='bold' text-anchor='middle'>100</text>"
-                    f"  <text x='200' y='72' fill='#065F46' font-size='16' text-anchor='middle'>cm²</text>"
-                    f"  <text x='200' y='90' fill='#475569' font-size='15' text-anchor='middle'>(10cm × 10cm)</text>"
-                    f"  <text x='120' y='138' fill='#475569' font-size='16' text-anchor='middle'>{m2} dm² = {m2} × 100 cm²</text>"
+                    f"  <text x='145' y='68' fill='#FFFFFF' font-size='22' text-anchor='middle'>=</text>"
+                    f"  <text x='200' y='55' fill='#4ADE80' font-size='18' font-weight='bold' text-anchor='middle'>100</text>"
+                    f"  <text x='200' y='72' fill='#4ADE80' font-size='16' text-anchor='middle'>cm²</text>"
+                    f"  <text x='200' y='90' fill='#94A3B8' font-size='15' text-anchor='middle'>(10cm × 10cm)</text>"
+                    f"  <text x='120' y='138' fill='#FFFFFF' font-size='16' text-anchor='middle'>{m2} dm² = {m2} × 100 cm²</text>"
                     f"</svg>"
                 )
                 ans = m2 * 100
@@ -1206,14 +1206,14 @@ async def _gen_fase5_pool_raw(rng: random.Random, mod_id: int, lvl_id: int) -> d
                 svg_m2dm2 = (
                     f"<svg width='240' height='160' viewBox='-10 -10 260 180' style='margin:8px auto;display:block;background:#111827;border:1.5px solid #E5E7EB;border-radius:10px;'>"
                     f"  <rect x='20' y='15' width='100' height='100' fill='#FEF9C3' fill-opacity='0.7' stroke='#1E293B' stroke-width='2'/>"
-                    f"  <text x='70' y='13' fill='#1E293B' font-size='16' text-anchor='middle'>1 m</text>"
-                    f"  <text x='15' y='68' fill='#1E293B' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 m</text>"
+                    f"  <text x='70' y='13' fill='#FFFFFF' font-size='16' text-anchor='middle'>1 m</text>"
+                    f"  <text x='15' y='68' fill='#FFFFFF' font-size='16' text-anchor='middle' transform='rotate(-90 15 68)'>1 m</text>"
                     f"  <text x='70' y='72' fill='#1E293B' font-size='14' font-weight='bold' text-anchor='middle'>1 m²</text>"
-                    f"  <text x='145' y='68' fill='#1E293B' font-size='22' text-anchor='middle'>=</text>"
-                    f"  <text x='200' y='55' fill='#92400E' font-size='18' font-weight='bold' text-anchor='middle'>100</text>"
-                    f"  <text x='200' y='72' fill='#92400E' font-size='16' text-anchor='middle'>dm²</text>"
-                    f"  <text x='200' y='90' fill='#475569' font-size='15' text-anchor='middle'>(10dm × 10dm)</text>"
-                    f"  <text x='120' y='138' fill='#475569' font-size='16' text-anchor='middle'>{m2} m² = {m2} × 100 dm²</text>"
+                    f"  <text x='145' y='68' fill='#FFFFFF' font-size='22' text-anchor='middle'>=</text>"
+                    f"  <text x='200' y='55' fill='#FBBF24' font-size='18' font-weight='bold' text-anchor='middle'>100</text>"
+                    f"  <text x='200' y='72' fill='#FBBF24' font-size='16' text-anchor='middle'>dm²</text>"
+                    f"  <text x='200' y='90' fill='#94A3B8' font-size='15' text-anchor='middle'>(10dm × 10dm)</text>"
+                    f"  <text x='120' y='138' fill='#FFFFFF' font-size='16' text-anchor='middle'>{m2} m² = {m2} × 100 dm²</text>"
                     f"</svg>"
                 )
                 ans = m2 * 100

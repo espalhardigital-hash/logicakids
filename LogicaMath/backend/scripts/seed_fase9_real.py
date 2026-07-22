@@ -17,7 +17,7 @@ INSTRUCCIONES DE EJECUCIÓN:
     python -m scripts.seed_fase9_real
 
   O con docker compose:
-    docker compose -f docs/Pruebas_y_Test_Unitario/docker-compose.local.yml \
+    docker compose -f Datos_localhost/docker-compose.local.yml \
       exec backend python -m scripts.seed_fase9_real
 """
 
