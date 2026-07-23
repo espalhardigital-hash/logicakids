@@ -830,6 +830,12 @@ async def responder_pregunta(
                 # Llegó al límite del bucle espejo (espejo 3). Habilitamos bypass fluido y mostramos explicación
                 explicacion_profunda = pregunta.explicacion_paso_a_paso.get("html") if pregunta.explicacion_paso_a_paso else None
                 soporte_avanzado = True
+
+            if config and config.tipo_feedback == "detallado":
+                # Tutoría IA: mostrar la explicación ya desde el primer error, sin esperar el Bucle Espejo
+                soporte_avanzado = True
+                if explicacion_profunda is None:
+                    explicacion_profunda = pregunta.explicacion_paso_a_paso.get("html") if pregunta.explicacion_paso_a_paso else None
         else:
             # MODO DESAFÍO: Salida Temprana (Early Exit)
             # Recuperamos los intentos de error en esta sesión de desafío

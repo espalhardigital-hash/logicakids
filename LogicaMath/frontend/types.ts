@@ -59,6 +59,17 @@ export interface PreguntaParaAlumno {
   alternativas: AlternativaParaAlumno[];
 }
 
+export interface PasoExplicacion {
+  orden?: number;
+  texto: string;
+  calculo?: string;
+}
+
+export interface ExplicacionPasoAPaso {
+  titulo?: string;
+  pasos?: PasoExplicacion[];
+}
+
 export interface ResultadoRespuesta {
   es_correcta: boolean;
   respuesta_correcta: string;
@@ -68,7 +79,7 @@ export interface ResultadoRespuesta {
   porcentaje_actual: number;
   bloque_completado: boolean;
   fase_completada: boolean;
-  explicacion_paso_a_paso?: string;
+  explicacion_paso_a_paso?: ExplicacionPasoAPaso;
   tipo_error?: string;
   feedback_error?: string;
 }

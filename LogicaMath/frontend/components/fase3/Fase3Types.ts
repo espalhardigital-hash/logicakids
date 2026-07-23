@@ -36,9 +36,15 @@ export interface Fase3AnswerPayload {
   tiempo_respuesta_segundos?: number;
 }
 
+export interface Fase3ExplicacionPasoAPaso {
+  titulo?: string;
+  pasos?: Array<{ orden?: number; texto: string; calculo?: string }>;
+}
+
 export interface Fase3AnswerResult {
   es_correcta: boolean;
   respuesta_correcta?: string;
+  explicacion?: Fase3ExplicacionPasoAPaso | null;
   feedback_error?: string;
   aciertos_acumulados: number;
   intentos_totales: number;

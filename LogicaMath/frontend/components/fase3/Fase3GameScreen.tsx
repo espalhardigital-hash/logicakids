@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getFase3Question, submitFase3Answer, getFase3Reading, graduateFase3 } from './Fase3Service';
+import { getFase3Question, submitFase3Answer, getFase3Reading, graduateFase3, closeFase3Rescate } from './Fase3Service';
 import { Fase3Pregunta, Fase3AnswerResult, Fase3Lectura } from './Fase3Types';
 import { CustomKeyboard } from '../common/CustomKeyboard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -126,6 +126,77 @@ const Fase3EarlyExitModal: React.FC<{
 };
 
 
+
+const Fase3RescateModal: React.FC<{
+  explicacion: any;
+  moduleColor: string;
+  onClose: () => void;
+}> = ({ explicacion, moduleColor, onClose }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="f3-feedback-overlay"
+      style={{ zIndex: 1100 }}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="f3-feedback-card rescate glass-card"
+        style={{
+          maxWidth: '550px',
+          width: '90%',
+          padding: '40px',
+          borderTop: `6px solid ${moduleColor}`
+        }}
+      >
+        <div className="f3-feedback-emoji" style={{ fontSize: '3rem', marginBottom: '20px' }}>💡</div>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '10px' }}>
+          {explicacion?.titulo || '¡Vamos a repasar!'}
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '30px', fontSize: '1.1rem' }}>
+          No te preocupes, aquí tienes una explicación paso a paso para entender el concepto.
+        </p>
+
+        <div style={{ textAlign: 'left', marginBottom: '40px' }}>
+          {[...(explicacion?.pasos || [])]
+            .sort((a: any, b: any) => (a.orden ?? 0) - (b.orden ?? 0))
+            .map((p: any, idx: number) => (
+              <div key={idx} style={{
+                display: 'flex',
+                gap: '15px',
+                marginBottom: '15px',
+                background: 'rgba(255,255,255,0.03)',
+                padding: '15px',
+                borderRadius: '12px',
+                borderLeft: `4px solid ${moduleColor}80`
+              }}>
+                <span style={{ fontWeight: 900, color: moduleColor }}>{p.orden ?? (idx + 1)}.</span>
+                <div>
+                  <span style={{ color: '#fff', lineHeight: 1.4, display: 'block' }}>{p.texto}</span>
+                  {p.calculo && (
+                    <span style={{ color: 'rgba(255,255,255,0.6)', fontFamily: 'monospace', fontSize: '0.9rem' }}>{p.calculo}</span>
+                  )}
+                </div>
+              </div>
+          ))}
+        </div>
+
+        <button
+          className="f3-mixed-challenge-btn w-full"
+          onClick={onClose}
+          style={{
+            background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+            boxShadow: `0 8px 24px ${moduleColor}30`,
+          }}
+        >
+          ¡Entendido, continuar! →
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 const Fase3CompletionModal: React.FC<{
   moduloId: number;
@@ -532,6 +603,7 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
   const [showEarlyExit, setShowEarlyExit] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [showGraduation, setShowGraduation] = useState(false);
+  const [showRescate, setShowRescate] = useState(false);
 
   // Memos de metadatos para la pantalla Splash Premium
   const challengeName = useMemo(() => {
@@ -757,15 +829,17 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
       return;
     }
 
-    if (feedback.esCorrecta || isChallenge) {
+    if (feedback.esCorrecta) {
       loadNextQuestion();
+    } else if (feedback.resultado?.soporte_avanzado) {
+      setShowRescate(true);
+    } else if (isChallenge) {
+      loadNextQuestion();
+    } else if (feedback.resultado?.es_espejo) {
+      setTimeout(() => loadNextQuestion(), 1500);
     } else {
-      if (feedback.resultado?.es_espejo) {
-        setTimeout(() => loadNextQuestion(), 1500);
-      } else {
-        setRespuesta('');
-        setSelectedAltId(null);
-      }
+      setRespuesta('');
+      setSelectedAltId(null);
     }
   }, [feedback, navigate]);
 
@@ -1176,6 +1250,24 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
               }
               setShowGraduation(false);
               navigate('/map');
+            }}
+          />
+        )}
+        {showRescate && feedback.resultado?.explicacion && (
+          <Fase3RescateModal
+            explicacion={feedback.resultado.explicacion}
+            moduleColor={moduleColor}
+            onClose={async () => {
+              if (pregunta?.id) {
+                try {
+                  await closeFase3Rescate(moduloId, nivelId, pregunta.id);
+                } catch (e) {
+                  console.error(e);
+                }
+              }
+              setShowRescate(false);
+              setFeedback({ visible: false, esCorrecta: false });
+              loadNextQuestion();
             }}
           />
         )}

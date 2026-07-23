@@ -1,8 +1,67 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GameStats, Question, GameCategory, Difficulty, UserSettings } from '../../types';
+import { GameStats, Question, GameCategory, Difficulty, UserSettings, ExplicacionPasoAPaso } from '../../types';
 import { generateQuestion, calculateTimeLimit } from '../../services/mathService';
 import { Clock, CheckCircle2, XCircle, LogOut, Delete, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+interface DetailedFeedbackData {
+  explicacion?: ExplicacionPasoAPaso | null;
+  tipoError?: string | null;
+  feedbackError?: string | null;
+  bloqueCompletado?: boolean;
+  faseCompletada?: boolean;
+}
+
+const DetailedFeedbackModal: React.FC<{ data: DetailedFeedbackData; onClose: () => void }> = ({ data, onClose }) => {
+  const pasos = [...(data.explicacion?.pasos || [])].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="glass-card rounded-[2rem] max-w-lg w-full p-8 shadow-2xl border-t-4 border-blue-500 max-h-[85vh] overflow-y-auto"
+      >
+        <div className="text-4xl mb-3">💡</div>
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 font-display">
+          {data.explicacion?.titulo || '¡Vamos a repasar!'}
+        </h2>
+        {data.feedbackError && (
+          <p className="text-sm text-red-500 dark:text-red-400 font-semibold mb-4">{data.feedbackError}</p>
+        )}
+        {pasos.length > 0 && (
+          <div className="space-y-3 mb-6 text-left">
+            {pasos.map((p, idx) => (
+              <div
+                key={idx}
+                className="flex gap-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-3"
+              >
+                <span className="font-black text-blue-600 dark:text-blue-400">{p.orden ?? idx + 1}.</span>
+                <div>
+                  <p className="text-slate-800 dark:text-slate-200">{p.texto}</p>
+                  {p.calculo && (
+                    <p className="text-slate-500 dark:text-slate-400 font-mono text-sm mt-1">{p.calculo}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <button
+          onClick={onClose}
+          className="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-lg shadow-lg transition-colors cursor-pointer"
+        >
+          ¡Entendido, continuar! →
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 interface Props {
   category: GameCategory;
@@ -146,6 +205,7 @@ const GameScreen: React.FC<Props> = ({
   const statsRef = useRef<GameStats>({ correct: 0, incorrect: 0, totalTime: 0 });
   const [feedback, setFeedback] = useState<FeedbackState>('none');
   const [maxTimeForQuestion, setMaxTimeForQuestion] = useState(10);
+  const [detailedFeedback, setDetailedFeedback] = useState<DetailedFeedbackData | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -268,6 +328,16 @@ const GameScreen: React.FC<Props> = ({
     }, 100);
   };
 
+  const handleDetailedFeedbackClose = () => {
+    const df = detailedFeedback;
+    setDetailedFeedback(null);
+    if (df?.bloqueCompletado || df?.faseCompletada) {
+      onEndGame(statsRef.current);
+      return;
+    }
+    loadNextQuestion(attempt + 1);
+  };
+
   const handleTimeOut = async () => {
     clearTimer();
     setFeedback('incorrect');
@@ -286,6 +356,18 @@ const GameScreen: React.FC<Props> = ({
 
         // Revelar respuesta correcta enviada por el servidor
         setQuestion(prev => prev ? { ...prev, answer: parseInt(res.respuesta_correcta) || 0 } : null);
+
+        const tieneTutoria = res.tipo_feedback === 'detallado' && (res.explicacion_paso_a_paso || res.feedback_error);
+        if (tieneTutoria) {
+          setDetailedFeedback({
+            explicacion: res.explicacion_paso_a_paso,
+            tipoError: res.tipo_error,
+            feedbackError: res.feedback_error,
+            bloqueCompletado: res.bloque_completado,
+            faseCompletada: res.fase_completada,
+          });
+          return;
+        }
 
         if (res.bloque_completado || res.fase_completada) {
           transitionTimeoutRef.current = setTimeout(() => {
@@ -337,11 +419,23 @@ const GameScreen: React.FC<Props> = ({
           }, 1000);
         } else {
           setFeedback('incorrect');
-          
+
           // Revelar respuesta correcta enviada por el servidor
           setQuestion(prev => prev ? { ...prev, answer: parseInt(res.respuesta_correcta) || 0 } : null);
 
           updateStats(false, timeSpent);
+
+          const tieneTutoria = res.tipo_feedback === 'detallado' && (res.explicacion_paso_a_paso || res.feedback_error);
+          if (tieneTutoria) {
+            setDetailedFeedback({
+              explicacion: res.explicacion_paso_a_paso,
+              tipoError: res.tipo_error,
+              feedbackError: res.feedback_error,
+              bloqueCompletado: res.bloque_completado,
+              faseCompletada: res.fase_completada,
+            });
+            return;
+          }
 
           if (res.bloque_completado || res.fase_completada) {
             transitionTimeoutRef.current = setTimeout(() => {
@@ -651,6 +745,12 @@ const GameScreen: React.FC<Props> = ({
         </motion.div>
 
       </div>
+
+      <AnimatePresence>
+        {detailedFeedback && (
+          <DetailedFeedbackModal data={detailedFeedback} onClose={handleDetailedFeedbackClose} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -1240,7 +1240,7 @@ async def responder_fase5(
             intentos_espejo = len(family_attempts)
             
             espejo = intentos_espejo > 0
-            soporte_avanzado = intentos_espejo >= (MAX_ESPEJO + 1)
+            soporte_avanzado = (config and config.tipo_feedback == "detallado") or intentos_espejo >= (MAX_ESPEJO + 1)
 
         await db.commit()
 

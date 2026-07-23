@@ -1205,13 +1205,12 @@ async def responder_fase6(
             progreso.fecha_aprobacion = datetime.utcnow()
         bloque_completado = True
         
-        await db.flush()
-        res_aprob = await db.execute(
-            select(func.count(ProgresoMaestria.id)).where(and_(
-                ProgresoMaestria.alumno_id == alumno.id,
-                ProgresoMaestria.fase_id == FASE6_ID,
-                ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
-            ))
+            intentos_espejo_actuales=intentos_espejo,
+            intentos_espejo_max=MAX_ESPEJO,
+            soporte_avanzado=soporte_avanzado,
+            paso_aprobado=paso_aprobado,
+            valor_paso1_congelado=valor_paso1_congelado,
+>>>>>>> claude/gallant-goldwasser-aaa529
         )
         if res_aprob.scalar() >= 24:
             fase_completada = True
