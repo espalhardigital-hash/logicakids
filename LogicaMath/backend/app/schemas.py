@@ -283,12 +283,15 @@ class ConfiguracionProgresoBase(BaseModel):
     fase_id: int
     seccion: int
     operacion: str
-    cantidad_requerida: int
-    porcentaje_aprobacion: int
+    # Límites server-authoritative: previenen valores que rompen el modelo pedagógico
+    # (0/negativos/absurdos). Bordes amplios para no rechazar datos ya sembrados (cant 10-50,
+    # pct 80-90, tiempo 0-90) ni lo que los sliders del frontend pueden producir (cant 5-120).
+    cantidad_requerida: int = Field(..., ge=5, le=120)
+    porcentaje_aprobacion: int = Field(..., ge=1, le=100)
     orden_desbloqueo: int
     tipo_feedback: str = "simple"
     usa_cronometro: bool = False
-    tiempo_default_segundos: Optional[int] = None
+    tiempo_default_segundos: Optional[int] = Field(None, ge=0, le=300)
 
 
 class ConfiguracionProgresoCreate(ConfiguracionProgresoBase):
@@ -296,12 +299,12 @@ class ConfiguracionProgresoCreate(ConfiguracionProgresoBase):
 
 
 class ConfiguracionProgresoUpdate(BaseModel):
-    cantidad_requerida: Optional[int] = None
-    porcentaje_aprobacion: Optional[int] = None
+    cantidad_requerida: Optional[int] = Field(None, ge=5, le=120)
+    porcentaje_aprobacion: Optional[int] = Field(None, ge=1, le=100)
     orden_desbloqueo: Optional[int] = None
     tipo_feedback: Optional[str] = None
     usa_cronometro: Optional[bool] = None
-    tiempo_default_segundos: Optional[int] = None
+    tiempo_default_segundos: Optional[int] = Field(None, ge=0, le=300)
     activo: Optional[bool] = None
 
 

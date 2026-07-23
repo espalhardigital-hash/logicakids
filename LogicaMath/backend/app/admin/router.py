@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, delete
 from sqlalchemy.orm import selectinload
@@ -255,9 +255,14 @@ async def get_preguntas(
     fase_id: Optional[int] = None,
     seccion: Optional[int] = None,
     operacion: Optional[str] = None,
+    limit: int = Query(1000, ge=1, le=5000),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     admin_user: dict = Depends(get_admin_user)
 ):
+    # Paginación acotada: sin filtros la tabla tiene decenas de miles de filas + alternativas.
+    # El grupo (fase,seccion,operacion) más grande es ~480, así que el default de 1000 nunca
+    # trunca las consultas por-nivel del frontend, pero corta el fetch catastrófico de todo el banco.
     query = select(Pregunta).options(selectinload(Pregunta.alternativas))
     if fase_id is not None:
         query = query.where(Pregunta.fase_id == fase_id)
@@ -265,6 +270,7 @@ async def get_preguntas(
         query = query.where(Pregunta.seccion == seccion)
     if operacion is not None:
         query = query.where(Pregunta.operacion == operacion)
+    query = query.order_by(Pregunta.id).limit(limit).offset(offset)
     result = await db.execute(query)
     return result.scalars().all()
 
