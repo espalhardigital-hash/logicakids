@@ -193,6 +193,7 @@ const ContentTab: React.FC<ContentTabProps> = ({ showAlert, showConfirm: showCon
       requiere_subrayado: false,
       tokens_correctos_indices: [],
       tokens_correctos: [],
+      explicacion_paso_a_paso: null,
       alternativas: [
         { texto: "", es_correcta: true, orden: 1 },
         { texto: "", es_correcta: false, orden: 2 },
@@ -220,6 +221,7 @@ const ContentTab: React.FC<ContentTabProps> = ({ showAlert, showConfirm: showCon
       requiere_subrayado: q.requiere_subrayado || false,
       tokens_correctos_indices: q.tokens_correctos_indices || [],
       tokens_correctos: q.tokens_correctos || [],
+      explicacion_paso_a_paso: q.explicacion_paso_a_paso ? JSON.parse(JSON.stringify(q.explicacion_paso_a_paso)) : null,
       alternativas: alts
     });
     setShowQuestionModal(true);

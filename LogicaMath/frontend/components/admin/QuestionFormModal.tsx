@@ -1,8 +1,119 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, Shield, ToggleRight, ToggleLeft, HelpCircle
+import {
+  X, Shield, ToggleRight, ToggleLeft, HelpCircle, Plus, Trash2, Lightbulb
 } from 'lucide-react';
+
+interface PasoExplicacionForm {
+  orden?: number;
+  texto: string;
+  calculo?: string;
+}
+
+interface ExplicacionPasoAPasoForm {
+  titulo?: string;
+  pasos?: PasoExplicacionForm[];
+}
+
+const ExplicacionPasoAPasoEditor: React.FC<{
+  explicacion: ExplicacionPasoAPasoForm | null | undefined;
+  onChange: (explicacion: ExplicacionPasoAPasoForm | null) => void;
+}> = ({ explicacion, onChange }) => {
+  const enabled = !!explicacion;
+  const pasos = explicacion?.pasos || [];
+
+  const renumber = (list: PasoExplicacionForm[]) => list.map((p, i) => ({ ...p, orden: i + 1 }));
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-slate-200 dark:border-white/5 pt-3">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase flex items-center gap-1.5">
+          <Lightbulb size={14} className="text-amber-400" />
+          Tutoría Detallada (Explicación Paso a Paso)
+        </label>
+        <button
+          type="button"
+          onClick={() => {
+            if (enabled) {
+              onChange(null);
+            } else {
+              onChange({ titulo: '', pasos: [{ orden: 1, texto: '' }] });
+            }
+          }}
+          className="hover:scale-105 transition-transform cursor-pointer"
+        >
+          {enabled ? (
+            <ToggleRight size={32} className="text-blue-400" />
+          ) : (
+            <ToggleLeft size={32} className="text-slate-600" />
+          )}
+        </button>
+      </div>
+
+      {enabled && (
+        <div className="flex flex-col gap-3 bg-white/80 dark:bg-slate-950/20 border border-slate-200 dark:border-white/5 p-3 rounded-xl">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Título de la explicación</label>
+            <input
+              type="text"
+              placeholder="Ej: ¡Vamos a repasar!"
+              value={explicacion?.titulo || ''}
+              onChange={(e) => onChange({ ...explicacion, titulo: e.target.value, pasos })}
+              className="bg-white/80 dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-lg p-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500/50"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {pasos.map((paso, idx) => (
+              <div key={idx} className="flex gap-2 items-start bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 p-2.5 rounded-lg">
+                <span className="text-xs font-black text-slate-500 w-5 text-center pt-2.5">{paso.orden ?? idx + 1}.</span>
+                <div className="flex-1 flex flex-col gap-1.5">
+                  <input
+                    type="text"
+                    required
+                    placeholder={`Texto del paso ${idx + 1}`}
+                    value={paso.texto}
+                    onChange={(e) => {
+                      const newPasos = pasos.map((p, i) => i === idx ? { ...p, texto: e.target.value } : p);
+                      onChange({ ...explicacion, pasos: newPasos });
+                    }}
+                    className="bg-white/80 dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-lg p-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500/50"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Cálculo o dato opcional (Ej: 8 + 5 = 13)"
+                    value={paso.calculo || ''}
+                    onChange={(e) => {
+                      const newPasos = pasos.map((p, i) => i === idx ? { ...p, calculo: e.target.value } : p);
+                      onChange({ ...explicacion, pasos: newPasos });
+                    }}
+                    className="bg-white/80 dark:bg-slate-950 border border-slate-200 dark:border-white/5 rounded-lg p-2 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-blue-500/50"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onChange({ ...explicacion, pasos: renumber(pasos.filter((_, i) => i !== idx)) })}
+                  disabled={pasos.length <= 1}
+                  className="p-1.5 text-red-400 hover:text-red-300 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onChange({ ...explicacion, pasos: [...pasos, { orden: pasos.length + 1, texto: '' }] })}
+            className="flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-slate-300 dark:border-white/15 text-xs font-black text-slate-500 dark:text-slate-400 hover:text-blue-500 hover:border-blue-400 transition-all cursor-pointer"
+          >
+            <Plus size={14} /> Agregar paso
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const TokenHighlighter: React.FC<{
   text: string;
@@ -271,6 +382,12 @@ export const QuestionFormModal: React.FC<QuestionFormModalProps> = ({
                 ))}
               </div>
             )}
+
+            {/* Tutoría Detallada / Explicación paso a paso */}
+            <ExplicacionPasoAPasoEditor
+              explicacion={editingQuestion.explicacion_paso_a_paso}
+              onChange={(explicacion) => setEditingQuestion((prev: any) => ({ ...prev, explicacion_paso_a_paso: explicacion }))}
+            />
 
             {/* Submit / Cancel Buttons */}
             <div className="flex justify-end gap-3 mt-4 border-t border-slate-200 dark:border-white/5 pt-4">

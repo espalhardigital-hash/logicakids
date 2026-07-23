@@ -98,6 +98,20 @@ export async function submitFase3Answer(
 }
 
 /**
+ * Cierra la explicación del bloque de rescate (soporte avanzado) y avanza a la siguiente pregunta.
+ */
+export async function closeFase3Rescate(
+  moduloId: number, nivelId: number, preguntaId: number
+): Promise<Fase3AnswerResult> {
+  const res = await fetchWithTimeout(`${API_URL}/fase3/cerrar-rescate`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ modulo_id: moduloId, nivel_id: nivelId, pregunta_id: preguntaId }),
+  });
+  return handleResponse<Fase3AnswerResult>(res);
+}
+
+/**
  * Obtiene el contenido de lectura/teoría de un nivel.
  */
 export async function getFase3Reading(
