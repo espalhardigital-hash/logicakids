@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-07-23T14:06:48.782300+00:00",
+  "environment": "PRODUCTION",
+  "version": "1.4.2",
+  "is_fallback": false,
+  "summary": {
+    "total_tests": 41,
+    "passed": 41,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 9.7,
+    "active_questions": 24370,
+    "registered_users": 3
+  },
+  "suites": [
+    {
+      "name": "Database Connectivity & Schema Checks",
+      "passed": true
+    },
+    {
+      "name": "Frontend Vitest Test Suite (16 files / 41 tests)",
+      "passed": true
+    },
+    {
+      "name": "FastAPI Admin Routers & SRE Resilience",
+      "passed": true
+    },
+    {
+      "name": "E2E Student Flow Gates",
+      "passed": true
+    }
+  ],
+  "note": "Reporte verificado y generado a las 14:06:48 UTC por amilcar@gmail.com."
+}

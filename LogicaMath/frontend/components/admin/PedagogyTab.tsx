@@ -1,51 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Layers, Loader2, Cpu, Minimize2, Maximize2 } from 'lucide-react';
-import { 
-  getAdminSettings, saveAdminSettings, 
-  getModularConfigs, saveModularConfig, createModularConfig 
+import { Cpu, Lock, Loader2, Save } from 'lucide-react';
+import {
+  getAdminSettings, saveAdminSettings,
+  getModularConfigs, saveModularConfig, createModularConfig
 } from '../../services/storageService';
-import { useAutoSave } from './useAutoSave';
 import { PedagogyConfig, ConfiguracionProgreso } from '../../types';
-import { PhaseFlowDesigner } from './PhaseFlowDesigner';
-import { ProgressConfigTable } from './ProgressConfigTable';
-import { ConfigForm } from './ConfigForm';
-
-// ==========================================
-// INTERFACES
-// ==========================================
-interface StaticSubLevel {
-  id: number;
-  name: string;
-}
-
-interface StaticChallenge {
-  id: number;
-  name: string;
-  defaultTime: number;
-  defaultQty: number;
-}
-
-interface StaticModule {
-  seccion: number;
-  modulo_id?: number;
-  operacion: string;
-  name: string;
-  levels?: StaticSubLevel[];
-  challenges?: StaticChallenge[];
-  isFinalExam?: boolean;
-}
-
-interface StaticPhase {
-  id: number;
-  name: string;
-  description: string;
-  modules: StaticModule[];
-}
+import { StaticModule, StaticPhase, getModuleRows, findRowBySeccion, CHALLENGE_ORDER_SECCIONES } from './pedagogyHelpers';
+import { PedagogyNavTree } from './PedagogyNavTree';
+import { GlobalConfigPanel } from './GlobalConfigPanel';
+import { PhaseDefaultPanel } from './PhaseDefaultPanel';
+import { ModuleGridPanel } from './ModuleGridPanel';
+import { OverridesSummaryPanel } from './OverridesSummaryPanel';
 
 // ==========================================
 // STATIC MAP OF PHASES
+// Fases 1 a 8 tienen su estructura pedagógica definitiva.
+// La Fase 9 (Simulador Pedro II) todavía está en diseño y usa otra
+// lógica de configuración: se muestra bloqueada en el panel (ver LOCKED_PHASE_ID).
 // ==========================================
+const LOCKED_PHASE_ID = 9;
+
 const fase1Levels = [
   { id: 1, name: "Nivel 1: Fácil" },
   { id: 2, name: "Nivel 2: Medio-Fácil" },
@@ -551,42 +526,21 @@ const itemVariants = {
 } as const;
 
 const PedagogyTab: React.FC = () => {
-  // Navigation
+  // Navigation: selectedPhaseId 0 = Plataforma Global
   const [selectedPhaseId, setSelectedPhaseId] = useState<number>(1);
   const [selectedModule, setSelectedModule] = useState<StaticModule | null>(null);
-  const [selectedSubLevelId, setSelectedSubLevelId] = useState<number | null>(null);
-  const [isSelectedChallenge, setIsSelectedChallenge] = useState<boolean>(false);
-
-  // Accordion state for operation categories
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>(() => {
-    const saved = localStorage.getItem('pedagogyExpandedCategories');
-    return saved ? JSON.parse(saved) : { basicas: true, avanzadas: true, desafios: true, final_exam: true };
-  });
-
-  const toggleCategory = (cat: string) => {
-    setExpandedCategories(prev => {
-      const next = { ...prev, [cat]: !prev[cat] };
-      localStorage.setItem('pedagogyExpandedCategories', JSON.stringify(next));
-      return next;
-    });
-  };
-
-  // Collapse/Expand all config sections
-  const [sectionsCollapsed, setSectionsCollapsed] = useState(false);
 
   // Main config states
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [saveError, setSaveError] = useState(false);
 
   const [globalConfig, setGlobalConfig] = useState<PedagogyConfig>(DEFAULT_GLOBAL_CONFIG);
   const [dbModularConfigs, setDbModularConfigs] = useState<ConfiguracionProgreso[]>([]);
 
-  // Draft editing states (local modifications tracking)
   const [draftGlobalConfig, setDraftGlobalConfig] = useState<PedagogyConfig>(DEFAULT_GLOBAL_CONFIG);
   const [draftModularConfigs, setDraftModularConfigs] = useState<ConfiguracionProgreso[]>([]);
 
-  // Load configs on mount
   useEffect(() => {
     loadAllConfigs();
   }, []);
@@ -618,363 +572,251 @@ const PedagogyTab: React.FC = () => {
     }
   };
 
-  // Selectors
+  // ==========================================
+  // Navigation handlers
+  // ==========================================
+  const selectGlobal = () => {
+    setSelectedPhaseId(0);
+    setSelectedModule(null);
+  };
+
   const selectPhase = (phaseId: number) => {
     setSelectedPhaseId(phaseId);
     setSelectedModule(null);
-    setSelectedSubLevelId(null);
-    setIsSelectedChallenge(false);
   };
 
   const selectModule = (phaseId: number, mod: StaticModule) => {
+    if (phaseId === LOCKED_PHASE_ID) return;
     setSelectedPhaseId(phaseId);
     setSelectedModule(mod);
-    if (mod.isFinalExam) {
-      setSelectedSubLevelId(99);
-      setIsSelectedChallenge(true);
-    } else if (mod.levels && mod.levels.length > 0) {
-      setSelectedSubLevelId(mod.levels[0].id);
-      setIsSelectedChallenge(false);
-    } else {
-      setSelectedSubLevelId(null);
-      setIsSelectedChallenge(false);
-    }
   };
 
-  // Resolve custom records (active draft)
-  const activePhase = STATIC_PHASES.find(p => p.id === selectedPhaseId) || STATIC_PHASES[0];
-
-  // Search if a custom override exists for the active selected Phase & Module
-  const activePhaseDefaultRecord = draftModularConfigs.find(
-    c => c.fase_id === selectedPhaseId && c.seccion === 0 && c.operacion === 'mixta' && c.activo !== false
-  );
-
-  // Mapped DB keys for selected sub-item
-  const getSelectedSubItemKeys = () => {
-    if (!selectedModule) return { seccion: 0, operacion: '' };
-    const modId = selectedModule.modulo_id || 1;
-    if (modId === 99) {
-      return { seccion: 99099, operacion: 'mixta' };
-    }
-    if (selectedSubLevelId === null) {
-      return { seccion: selectedModule.seccion, operacion: selectedModule.operacion };
-    }
-    let oper = selectedModule.operacion;
-    
-    // CRITICAL FIX: Fase 5-9 use a different ID structure for their sections
-    if (selectedPhaseId >= 5) {
-      if (isSelectedChallenge) {
-        return { seccion: selectedPhaseId * 10000 + modId * 100 + selectedSubLevelId, operacion: 'mixta' };
-      } else {
-        return { seccion: selectedPhaseId * 1000 + modId * 10 + selectedSubLevelId, operacion: oper };
-      }
-    }
-
-    if (isSelectedChallenge) {
-      return { seccion: modId * 1000 + selectedSubLevelId, operacion: 'mixta' };
-    } else {
-      return { seccion: modId * 100 + selectedSubLevelId, operacion: oper };
-    }
+  // ==========================================
+  // Inheritance resolution (Global -> Fase -> Módulo/Nivel/Desafío)
+  //
+  // La fase tiene DOS familias de defaults independientes:
+  // - "Niveles" (seccion 0): cascada a todo nivel de práctica libre de la fase.
+  // - "Desafíos" (secciones sentinela negativas, una por orden 11/12/13): cada una
+  //   cascada de forma independiente al Desafío 1/2/Final de TODOS los módulos de
+  //   la fase. El Examen Final de Fase tiene su propia fila directa (seccion 99099),
+  //   no es un sentinel: solo hay un examen final por fase.
+  // ==========================================
+  const getPhaseDefaultRecord = (faseId: number): ConfiguracionProgreso | null => {
+    const rec = draftModularConfigs.find(c => c.fase_id === faseId && c.seccion === 0 && c.operacion === 'mixta');
+    return rec && rec.activo !== false ? rec : null;
   };
 
-  const { seccion: activeSeccion, operacion: activeOperacion } = getSelectedSubItemKeys();
-
-  const activeModuleRecord = selectedModule ? draftModularConfigs.find(
-    c => c.fase_id === selectedPhaseId && 
-         c.seccion === activeSeccion && 
-         c.operacion === activeOperacion && 
-         c.activo !== false
-  ) : null;
-
-  // Resolve current active parameters applying inheritance
-  const getInheritedQuestionsCount = (): number => {
-    if (activePhaseDefaultRecord) return activePhaseDefaultRecord.cantidad_requerida;
-    return isSelectedChallenge 
-      ? draftGlobalConfig.desafios.cantidad_requerida
-      : draftGlobalConfig.practica_libre.cantidad_requerida;
+  const getPhaseChallengeRecord = (faseId: number, order: number): ConfiguracionProgreso | null => {
+    const seccion = CHALLENGE_ORDER_SECCIONES[order];
+    if (seccion === undefined) return null;
+    const rec = draftModularConfigs.find(c => c.fase_id === faseId && c.seccion === seccion && c.operacion === 'mixta');
+    return rec && rec.activo !== false ? rec : null;
   };
 
-  const getInheritedPassingScore = (): number => {
-    if (activePhaseDefaultRecord) return activePhaseDefaultRecord.porcentaje_aprobacion;
-    return isSelectedChallenge 
-      ? draftGlobalConfig.desafios.porcentaje_aprobacion
-      : draftGlobalConfig.practica_libre.porcentaje_aprobacion;
-  };
-
-  const getInheritedUseTimer = (): boolean => {
-    if (activePhaseDefaultRecord) return activePhaseDefaultRecord.usa_cronometro;
-    return isSelectedChallenge 
-      ? draftGlobalConfig.desafios.usa_cronometro
-      : draftGlobalConfig.practica_libre.usa_cronometro;
-  };
-
-  const getInheritedFeedbackType = (): string => {
-    if (activePhaseDefaultRecord) return activePhaseDefaultRecord.tipo_feedback;
-    return isSelectedChallenge 
-      ? draftGlobalConfig.desafios.tipo_feedback
-      : draftGlobalConfig.practica_libre.tipo_feedback;
-  };
-
-  const getInheritedTimerForLevel = (): number => {
-    if (activePhaseDefaultRecord && activePhaseDefaultRecord.tiempo_default_segundos !== null) {
-      return activePhaseDefaultRecord.tiempo_default_segundos;
+  const getInheritedQuestionsCount = (faseId: number, isChallenge: boolean, subId: number = 0): number => {
+    if (isChallenge) {
+      const challengeDefault = getPhaseChallengeRecord(faseId, subId);
+      if (challengeDefault) return challengeDefault.cantidad_requerida;
+      return draftGlobalConfig.desafios.cantidad_requerida;
     }
-    if (isSelectedChallenge) {
-      if (selectedSubLevelId === 11) return draftGlobalConfig.desafios.tiempo_default_segundos_11;
-      if (selectedSubLevelId === 12) return draftGlobalConfig.desafios.tiempo_default_segundos_12;
-      if (selectedSubLevelId === 13) return draftGlobalConfig.desafios.tiempo_default_segundos_13;
-      return 25;
-    }
-    return draftGlobalConfig.practica_libre.tiempo_default_segundos;
+    const phaseDefault = getPhaseDefaultRecord(faseId);
+    if (phaseDefault) return phaseDefault.cantidad_requerida;
+    return draftGlobalConfig.practica_libre.cantidad_requerida;
   };
 
-  // Handle Updates
+  const getInheritedPassingScore = (faseId: number, isChallenge: boolean, subId: number = 0): number => {
+    if (isChallenge) {
+      const challengeDefault = getPhaseChallengeRecord(faseId, subId);
+      if (challengeDefault) return challengeDefault.porcentaje_aprobacion;
+      return draftGlobalConfig.desafios.porcentaje_aprobacion;
+    }
+    const phaseDefault = getPhaseDefaultRecord(faseId);
+    if (phaseDefault) return phaseDefault.porcentaje_aprobacion;
+    return draftGlobalConfig.practica_libre.porcentaje_aprobacion;
+  };
+
+  const getInheritedUseTimer = (faseId: number, isChallenge: boolean, subId: number = 0): boolean => {
+    if (isChallenge) {
+      const challengeDefault = getPhaseChallengeRecord(faseId, subId);
+      if (challengeDefault) return challengeDefault.usa_cronometro;
+      return draftGlobalConfig.desafios.usa_cronometro;
+    }
+    const phaseDefault = getPhaseDefaultRecord(faseId);
+    if (phaseDefault) return phaseDefault.usa_cronometro;
+    return draftGlobalConfig.practica_libre.usa_cronometro;
+  };
+
+  const getInheritedFeedbackType = (faseId: number, isChallenge: boolean, subId: number = 0): string => {
+    if (isChallenge) {
+      const challengeDefault = getPhaseChallengeRecord(faseId, subId);
+      if (challengeDefault) return challengeDefault.tipo_feedback;
+      return draftGlobalConfig.desafios.tipo_feedback;
+    }
+    const phaseDefault = getPhaseDefaultRecord(faseId);
+    if (phaseDefault) return phaseDefault.tipo_feedback;
+    return draftGlobalConfig.practica_libre.tipo_feedback;
+  };
+
+  const getInheritedTimer = (faseId: number, isChallenge: boolean, subId: number): number => {
+    if (!isChallenge) {
+      const phaseDefault = getPhaseDefaultRecord(faseId);
+      if (phaseDefault && phaseDefault.tiempo_default_segundos !== null) return phaseDefault.tiempo_default_segundos;
+      return draftGlobalConfig.practica_libre.tiempo_default_segundos;
+    }
+    const challengeDefault = getPhaseChallengeRecord(faseId, subId);
+    if (challengeDefault && challengeDefault.tiempo_default_segundos !== null) return challengeDefault.tiempo_default_segundos;
+    if (subId === 11) return draftGlobalConfig.desafios.tiempo_default_segundos_11;
+    if (subId === 12) return draftGlobalConfig.desafios.tiempo_default_segundos_12;
+    if (subId === 13) return draftGlobalConfig.desafios.tiempo_default_segundos_13;
+    return 25;
+  };
+
+  // ==========================================
+  // Mutations
+  // ==========================================
   const updateGlobalField = (section: 'practica_libre' | 'desafios', field: string, val: any) => {
     setDraftGlobalConfig(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: val
-      }
+      [section]: { ...prev[section], [field]: val }
     }));
   };
 
-  const handleUpdatePhaseDefault = (field: keyof ConfiguracionProgreso, val: any) => {
+  // Auto-override: editar cualquier campo crea/activa la regla propia de ese nodo.
+  const upsertModularField = (
+    faseId: number, seccion: number, operacion: string,
+    field: keyof ConfiguracionProgreso, val: any,
+    ctx: { isChallenge: boolean; subId: number }
+  ) => {
     setDraftModularConfigs(prev => {
-      const idx = prev.findIndex(c => c.fase_id === selectedPhaseId && c.seccion === 0 && c.operacion === 'mixta');
+      const idx = prev.findIndex(c => c.fase_id === faseId && c.seccion === seccion && c.operacion === operacion);
       if (idx !== -1) {
         const updated = [...prev];
         updated[idx] = { ...updated[idx], [field]: val, activo: true };
         return updated;
-      } else {
-        const newRecord: ConfiguracionProgreso = {
-          fase_id: selectedPhaseId,
-          seccion: 0,
-          operacion: 'mixta',
-          cantidad_requerida: field === 'cantidad_requerida' ? val : draftGlobalConfig.practica_libre.cantidad_requerida,
-          porcentaje_aprobacion: field === 'porcentaje_aprobacion' ? val : draftGlobalConfig.practica_libre.porcentaje_aprobacion,
-          orden_desbloqueo: 0,
-          tipo_feedback: field === 'tipo_feedback' ? val : draftGlobalConfig.practica_libre.tipo_feedback,
-          usa_cronometro: field === 'usa_cronometro' ? val : draftGlobalConfig.practica_libre.usa_cronometro,
-          tiempo_default_segundos: field === 'tiempo_default_segundos' ? val : draftGlobalConfig.practica_libre.tiempo_default_segundos,
-          activo: true
-        };
-        return [...prev, newRecord];
       }
+      const newRecord: ConfiguracionProgreso = {
+        fase_id: faseId,
+        seccion,
+        operacion,
+        cantidad_requerida: field === 'cantidad_requerida' ? val : getInheritedQuestionsCount(faseId, ctx.isChallenge, ctx.subId),
+        porcentaje_aprobacion: field === 'porcentaje_aprobacion' ? val : getInheritedPassingScore(faseId, ctx.isChallenge, ctx.subId),
+        orden_desbloqueo: ctx.subId,
+        tipo_feedback: field === 'tipo_feedback' ? val : getInheritedFeedbackType(faseId, ctx.isChallenge, ctx.subId),
+        usa_cronometro: field === 'usa_cronometro' ? val : getInheritedUseTimer(faseId, ctx.isChallenge, ctx.subId),
+        tiempo_default_segundos: field === 'tiempo_default_segundos' ? val : getInheritedTimer(faseId, ctx.isChallenge, ctx.subId),
+        activo: true
+      };
+      return [...prev, newRecord];
     });
   };
 
-  const handleUpdateModuleField = (field: keyof ConfiguracionProgreso, val: any) => {
+  const removeModularOverride = (faseId: number, seccion: number, operacion: string) => {
+    setDraftModularConfigs(prev => prev.map(c => (
+      c.fase_id === faseId && c.seccion === seccion && c.operacion === operacion ? { ...c, activo: false } : c
+    )));
+  };
+
+  const applyValuesToRow = (
+    faseId: number, seccion: number, operacion: string, subId: number, isChallenge: boolean,
+    values: { cantidad_requerida: number; porcentaje_aprobacion: number; usa_cronometro: boolean; tiempo_default_segundos: number }
+  ) => {
+    setDraftModularConfigs(prev => {
+      const idx = prev.findIndex(c => c.fase_id === faseId && c.seccion === seccion && c.operacion === operacion);
+      if (idx !== -1) {
+        const updated = [...prev];
+        updated[idx] = { ...updated[idx], ...values, activo: true };
+        return updated;
+      }
+      const newRecord: ConfiguracionProgreso = {
+        fase_id: faseId,
+        seccion,
+        operacion,
+        cantidad_requerida: values.cantidad_requerida,
+        porcentaje_aprobacion: values.porcentaje_aprobacion,
+        orden_desbloqueo: subId,
+        tipo_feedback: getInheritedFeedbackType(faseId, isChallenge, subId),
+        usa_cronometro: values.usa_cronometro,
+        tiempo_default_segundos: values.tiempo_default_segundos,
+        activo: true
+      };
+      return [...prev, newRecord];
+    });
+  };
+
+  const handleApplyToAllRows = (values: { cantidad_requerida: number; porcentaje_aprobacion: number; usa_cronometro: boolean; tiempo_default_segundos: number }) => {
     if (!selectedModule) return;
-    setDraftModularConfigs(prev => {
-      const idx = prev.findIndex(
-        c => c.fase_id === selectedPhaseId && 
-             c.seccion === activeSeccion && 
-             c.operacion === activeOperacion
-      );
-      if (idx !== -1) {
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], [field]: val, activo: true };
-        return updated;
-      } else {
-        const newRecord: ConfiguracionProgreso = {
-          fase_id: selectedPhaseId,
-          seccion: activeSeccion,
-          operacion: activeOperacion,
-          cantidad_requerida: field === 'cantidad_requerida' ? val : getInheritedQuestionsCount(),
-          porcentaje_aprobacion: field === 'porcentaje_aprobacion' ? val : getInheritedPassingScore(),
-          orden_desbloqueo: isSelectedChallenge ? (selectedSubLevelId || 11) : (selectedSubLevelId || 1),
-          tipo_feedback: field === 'tipo_feedback' ? val : getInheritedFeedbackType(),
-          usa_cronometro: field === 'usa_cronometro' ? val : getInheritedUseTimer(),
-          tiempo_default_segundos: field === 'tiempo_default_segundos' ? val : getInheritedTimerForLevel(),
-          activo: true
-        };
-        return [...prev, newRecord];
-      }
-    });
+    const rows = getModuleRows(selectedPhaseId, selectedModule);
+    rows.forEach(row => applyValuesToRow(selectedPhaseId, row.seccion, row.operacion, row.subId, row.isChallenge, values));
   };
 
-  const togglePhaseOverride = (enable: boolean) => {
-    setDraftModularConfigs(prev => {
-      const idx = prev.findIndex(c => c.fase_id === selectedPhaseId && c.seccion === 0 && c.operacion === 'mixta');
-      if (idx !== -1) {
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], activo: enable };
-        return updated;
-      } else if (enable) {
-        const newRecord: ConfiguracionProgreso = {
-          fase_id: selectedPhaseId,
-          seccion: 0,
-          operacion: 'mixta',
-          cantidad_requerida: draftGlobalConfig.practica_libre.cantidad_requerida,
-          porcentaje_aprobacion: draftGlobalConfig.practica_libre.porcentaje_aprobacion,
-          orden_desbloqueo: 0,
-          tipo_feedback: draftGlobalConfig.practica_libre.tipo_feedback,
-          usa_cronometro: draftGlobalConfig.practica_libre.usa_cronometro,
-          tiempo_default_segundos: draftGlobalConfig.practica_libre.tiempo_default_segundos,
-          activo: true
-        };
-        return [...prev, newRecord];
-      }
-      return prev;
-    });
+  // ==========================================
+  // Change tracking (badges + save)
+  // ==========================================
+  const isRowChanged = (faseId: number, seccion: number, operacion: string): boolean => {
+    const orig = dbModularConfigs.find(c => c.fase_id === faseId && c.seccion === seccion && c.operacion === operacion);
+    const draft = draftModularConfigs.find(c => c.fase_id === faseId && c.seccion === seccion && c.operacion === operacion);
+    return JSON.stringify(orig) !== JSON.stringify(draft);
   };
 
-  const toggleModuleOverride = (enable: boolean) => {
-    if (!selectedModule) return;
-    setDraftModularConfigs(prev => {
-      const idx = prev.findIndex(
-        c => c.fase_id === selectedPhaseId && 
-             c.seccion === activeSeccion && 
-             c.operacion === activeOperacion
-      );
-      if (idx !== -1) {
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], activo: enable };
-        return updated;
-      } else if (enable) {
-        let defaultTime = getInheritedTimerForLevel();
-        let defaultQty = getInheritedQuestionsCount();
-        if (isSelectedChallenge && selectedSubLevelId) {
-          const chDef = selectedModule.challenges?.find(c => c.id === selectedSubLevelId);
-          if (chDef) {
-            defaultTime = chDef.defaultTime;
-            defaultQty = chDef.defaultQty;
-          }
-        }
-        
-        const newRecord: ConfiguracionProgreso = {
-          fase_id: selectedPhaseId,
-          seccion: activeSeccion,
-          operacion: activeOperacion,
-          cantidad_requerida: defaultQty,
-          porcentaje_aprobacion: isSelectedChallenge ? 90 : getInheritedPassingScore(),
-          orden_desbloqueo: isSelectedChallenge ? (selectedSubLevelId || 11) : (selectedSubLevelId || 1),
-          tipo_feedback: isSelectedChallenge ? 'simple' : getInheritedFeedbackType(),
-          usa_cronometro: isSelectedChallenge ? true : getInheritedUseTimer(),
-          tiempo_default_segundos: defaultTime,
-          activo: true
-        };
-        return [...prev, newRecord];
-      }
-      return prev;
-    });
+  const isModuleChanged = (faseId: number, mod: StaticModule): boolean => {
+    return getModuleRows(faseId, mod).some(row => isRowChanged(faseId, row.seccion, row.operacion));
   };
 
-  const onRemoveOverride = (faseId: number, seccion: number, operacion: string) => {
-    setDraftModularConfigs(prev => {
-      return prev.map(c => {
-        if (c.fase_id === faseId && c.seccion === seccion && c.operacion === operacion) {
-          return { ...c, activo: false };
-        }
-        return c;
-      });
-    });
+  const isPhaseModified = (faseId: number): boolean => {
+    if (isRowChanged(faseId, 0, 'mixta')) return true;
+    if (Object.values(CHALLENGE_ORDER_SECCIONES).some(seccion => isRowChanged(faseId, seccion, 'mixta'))) return true;
+    const phase = STATIC_PHASES.find(p => p.id === faseId);
+    if (!phase) return false;
+    return phase.modules.some(mod => isModuleChanged(faseId, mod));
+  };
+
+  const moduleHasOverride = (faseId: number, mod: StaticModule): boolean => {
+    return getModuleRows(faseId, mod).some(row =>
+      draftModularConfigs.some(c => c.fase_id === faseId && c.seccion === row.seccion && c.operacion === row.operacion && c.activo !== false)
+    );
   };
 
   const onSelectNode = (faseId: number, seccion: number, operacion: string) => {
+    if (faseId === LOCKED_PHASE_ID) {
+      setSelectedPhaseId(LOCKED_PHASE_ID);
+      setSelectedModule(null);
+      return;
+    }
     setSelectedPhaseId(faseId);
     if (seccion === 0) {
       setSelectedModule(null);
-      setSelectedSubLevelId(null);
-      setIsSelectedChallenge(false);
       return;
     }
-    
     const phase = STATIC_PHASES.find(p => p.id === faseId);
     if (!phase) return;
-    
-    for (const mod of phase.modules) {
-      const modId = mod.modulo_id || 1;
-      
-      if (mod.isFinalExam && seccion === 99099) {
-        setSelectedModule(mod);
-        setSelectedSubLevelId(99);
-        setIsSelectedChallenge(true);
-        return;
-      }
-      
-      const level = mod.levels?.find(l => {
-        const levelSeccion = faseId >= 5 
-          ? faseId * 1000 + modId * 10 + l.id
-          : modId * 100 + l.id;
-        return levelSeccion === seccion;
-      });
-      if (level) {
-        setSelectedModule(mod);
-        setSelectedSubLevelId(level.id);
-        setIsSelectedChallenge(false);
-        return;
-      }
-
-      const challenge = mod.challenges?.find(c => {
-        const challengeSeccion = faseId >= 5
-          ? faseId * 10000 + modId * 100 + c.id
-          : modId * 1000 + c.id;
-        return challengeSeccion === seccion;
-      });
-      if (challenge) {
-        setSelectedModule(mod);
-        setSelectedSubLevelId(challenge.id);
-        setIsSelectedChallenge(true);
-        return;
-      }
-    }
+    const found = findRowBySeccion(phase, seccion);
+    if (found) setSelectedModule(found.mod);
   };
 
-  // Compare draft vs database to check for changes
   const hasChanges = () => {
     const globalChanged = JSON.stringify(globalConfig) !== JSON.stringify(draftGlobalConfig);
     const modularChanged = JSON.stringify(dbModularConfigs) !== JSON.stringify(draftModularConfigs);
     return globalChanged || modularChanged;
   };
 
-  const isPhaseModified = (phaseId: number): boolean => {
-    const originalPhaseRecord = dbModularConfigs.find(c => c.fase_id === phaseId && c.seccion === 0 && c.operacion === 'mixta');
-    const draftPhaseRecord = draftModularConfigs.find(c => c.fase_id === phaseId && c.seccion === 0 && c.operacion === 'mixta');
-    if (JSON.stringify(originalPhaseRecord) !== JSON.stringify(draftPhaseRecord)) return true;
-
-    const phaseModules = STATIC_PHASES.find(p => p.id === phaseId)?.modules || [];
-    for (const mod of phaseModules) {
-      const modId = mod.modulo_id || 1;
-      const levelIds = mod.levels?.map(l => l.id) || [];
-      const challengeIds = mod.challenges?.map(c => c.id) || [];
-      for (const lid of levelIds) {
-        const levelSeccion = phaseId >= 5 ? phaseId * 1000 + modId * 10 + lid : modId * 100 + lid;
-        if (isModuleModified(phaseId, levelSeccion, mod.operacion)) return true;
-      }
-      for (const cid of challengeIds) {
-        const challengeSeccion = phaseId >= 5 ? phaseId * 10000 + modId * 100 + cid : modId * 1000 + cid;
-        if (isModuleModified(phaseId, challengeSeccion, 'mixta')) return true;
-      }
-    }
-    return false;
-  };
-
-  const isModuleModified = (phaseId: number, seccion: number, operacion: string): boolean => {
-    const orig = dbModularConfigs.find(c => c.fase_id === phaseId && c.seccion === seccion && c.operacion === operacion);
-    const draft = draftModularConfigs.find(c => c.fase_id === phaseId && c.seccion === seccion && c.operacion === operacion);
-    return JSON.stringify(orig) !== JSON.stringify(draft);
-  };
-
+  // ==========================================
   // Save All Changes (Pushing to backend)
+  // ==========================================
   const handleSaveAll = async () => {
     setSaving(true);
-    setSaveStatus('idle');
+    setSaveError(false);
 
     try {
-      // 1. Save Global Settings
       const globalChanged = JSON.stringify(globalConfig) !== JSON.stringify(draftGlobalConfig);
       if (globalChanged) {
         await saveAdminSettings(draftGlobalConfig);
         setGlobalConfig({ ...draftGlobalConfig });
       }
 
-      // 2. Save Modular configurations
       for (const draft of draftModularConfigs) {
         const original = dbModularConfigs.find(
-          c => c.fase_id === draft.fase_id && 
-               c.seccion === draft.seccion && 
+          c => c.fase_id === draft.fase_id &&
+               c.seccion === draft.seccion &&
                c.operacion === draft.operacion
         );
 
@@ -992,20 +834,27 @@ const PedagogyTab: React.FC = () => {
         setDbModularConfigs(reloadedData);
         setDraftModularConfigs(JSON.parse(JSON.stringify(reloadedData)));
       }
-
-      setSaveStatus('success');
-      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
       console.error("Failed to save advanced settings:", error);
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      setSaveError(true);
     } finally {
       setSaving(false);
     }
   };
 
   const changesExist = hasChanges();
-  const { status: autoSaveStatus } = useAutoSave(changesExist, handleSaveAll, 1500);
+
+  // Advierte antes de cerrar/recargar si hay cambios sin guardar (no hay autoguardado).
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (changesExist) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [changesExist]);
 
   if (loading) {
     return (
@@ -1018,144 +867,137 @@ const PedagogyTab: React.FC = () => {
     );
   }
 
+  const activePhase = STATIC_PHASES.find(p => p.id === selectedPhaseId) || null;
+  const scope: 'global' | 'locked' | 'fase' | 'module' =
+    selectedPhaseId === 0 ? 'global' : selectedPhaseId === LOCKED_PHASE_ID ? 'locked' : selectedModule ? 'module' : 'fase';
+
   return (
-    <motion.div variants={itemVariants} className="w-full flex flex-col gap-6 lg:gap-10 select-none">
-      
-      {/* Auto-Save Status Bar */}
-      <div className="flex items-center justify-between px-6 py-3 bg-white/5 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+    <motion.div variants={itemVariants} className="w-full flex flex-col gap-4 select-none">
+
+      {/* Slim header */}
+      <div className="flex items-center justify-between gap-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-3.5">
         <div className="flex items-center gap-3">
-          {(autoSaveStatus === 'saving' || saving) && (
+          <div className="p-2 bg-blue-500/10 rounded-xl">
+            <Cpu className="text-blue-500" size={20} />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-white">Configuración Pedagógica</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Herencia: Plataforma Global → Fase → Módulo → Nivel/Desafío</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {saving ? (
             <>
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
-              <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Guardando...</span>
+              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Guardando...</span>
+            </>
+          ) : saveError ? (
+            <>
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-xs font-bold text-red-500">Error al guardar</span>
+            </>
+          ) : changesExist ? (
+            <>
+              <div className="w-2 h-2 rounded-full bg-amber-500" />
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Cambios sin guardar</span>
+            </>
+          ) : (
+            <>
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Sincronizado</span>
             </>
           )}
-          {autoSaveStatus === 'success' && !saving && (
-            <>
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
-              <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Sincronizado</span>
-            </>
-          )}
-          {autoSaveStatus === 'error' && !saving && (
-            <>
-              <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
-              <span className="text-sm font-bold text-red-500">Error al guardar</span>
-            </>
-          )}
-          {autoSaveStatus === 'idle' && !saving && (
-            <>
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
-              <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Sincronizado</span>
-            </>
-          )}
+
+          <button
+            type="button"
+            onClick={handleSaveAll}
+            disabled={!changesExist || saving}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+          >
+            <Save size={14} /> Guardar cambios
+          </button>
         </div>
       </div>
 
-      {/* Top Header Card */}
-      <div className="flex items-center justify-between bg-white dark:bg-white/5 backdrop-blur-2xl border border-slate-200 dark:border-white/10 p-6 lg:p-10 rounded-[2.2rem] lg:rounded-[3rem] shadow-2xl">
-        <div>
-          <h2 className="text-3xl lg:text-4xl xl:text-5xl font-black text-slate-900 dark:text-white flex items-center gap-3 lg:gap-5">
-            <div className="p-2.5 bg-blue-500/20 rounded-2xl border border-blue-500/30">
-              <Cpu className="text-blue-400" size={24} />
+      <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-4 items-start">
+        <PedagogyNavTree
+          staticPhases={STATIC_PHASES}
+          selectedPhaseId={selectedPhaseId}
+          selectedModule={selectedModule}
+          onSelectGlobal={selectGlobal}
+          onSelectPhase={selectPhase}
+          onSelectModule={selectModule}
+          phaseHasChanges={isPhaseModified}
+          moduleHasChanges={isModuleChanged}
+          moduleHasOverride={moduleHasOverride}
+          lockedPhaseId={LOCKED_PHASE_ID}
+        />
+
+        <div className="flex flex-col gap-4 min-w-0">
+          {scope === 'global' && (
+            <GlobalConfigPanel draftGlobalConfig={draftGlobalConfig} updateGlobalField={updateGlobalField} />
+          )}
+
+          {scope === 'locked' && (
+            <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-3xl p-10 flex flex-col items-center text-center gap-3">
+              <Lock size={32} className="text-slate-400" />
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">Fase 9 en diseño</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
+                El Simulador Pedro II todavía no tiene su estructura pedagógica definitiva y usará una lógica de configuración distinta. Esta sección se habilitará cuando esté lista.
+              </p>
             </div>
-            Gestión Pedagógica Avanzada
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm lg:text-base xl:text-lg mt-2 lg:mt-3 leading-relaxed">Configuración jerárquica con sistema de herencia para las fases del Viaje Matemático.</p>
+          )}
+
+          {scope === 'fase' && activePhase && (
+            <PhaseDefaultPanel
+              faseId={selectedPhaseId}
+              faseName={activePhase.name}
+              faseDescription={activePhase.description}
+              record={getPhaseDefaultRecord(selectedPhaseId)}
+              inheritedQuestionsCount={getInheritedQuestionsCount(selectedPhaseId, false)}
+              inheritedPassingScore={getInheritedPassingScore(selectedPhaseId, false)}
+              inheritedUseTimer={getInheritedUseTimer(selectedPhaseId, false)}
+              inheritedTimer={getInheritedTimer(selectedPhaseId, false, 0)}
+              inheritedFeedbackType={getInheritedFeedbackType(selectedPhaseId, false)}
+              onUpdateField={(field, val) => upsertModularField(selectedPhaseId, 0, 'mixta', field, val, { isChallenge: false, subId: 0 })}
+              onRevert={() => removeModularOverride(selectedPhaseId, 0, 'mixta')}
+              draftModularConfigs={draftModularConfigs}
+              getInheritedQuestionsCount={(isChallenge, subId) => getInheritedQuestionsCount(selectedPhaseId, isChallenge, subId)}
+              getInheritedPassingScore={(isChallenge, subId) => getInheritedPassingScore(selectedPhaseId, isChallenge, subId)}
+              getInheritedUseTimer={(isChallenge, subId) => getInheritedUseTimer(selectedPhaseId, isChallenge, subId)}
+              getInheritedTimer={(isChallenge, subId) => getInheritedTimer(selectedPhaseId, isChallenge, subId)}
+              onUpdateChallengeRowField={(seccion, operacion, isChallenge, subId, field, val) =>
+                upsertModularField(selectedPhaseId, seccion, operacion, field, val, { isChallenge, subId })}
+              onRevertChallengeRow={(seccion, operacion) => removeModularOverride(selectedPhaseId, seccion, operacion)}
+            />
+          )}
+
+          {scope === 'module' && selectedModule && (
+            <ModuleGridPanel
+              faseId={selectedPhaseId}
+              mod={selectedModule}
+              draftModularConfigs={draftModularConfigs}
+              getInheritedQuestionsCount={(isChallenge, subId) => getInheritedQuestionsCount(selectedPhaseId, isChallenge, subId)}
+              getInheritedPassingScore={(isChallenge, subId) => getInheritedPassingScore(selectedPhaseId, isChallenge, subId)}
+              getInheritedUseTimer={(isChallenge, subId) => getInheritedUseTimer(selectedPhaseId, isChallenge, subId)}
+              getInheritedFeedbackType={(isChallenge, subId) => getInheritedFeedbackType(selectedPhaseId, isChallenge, subId)}
+              getInheritedTimer={(isChallenge, subId) => getInheritedTimer(selectedPhaseId, isChallenge, subId)}
+              onUpdateRowField={(seccion, operacion, isChallenge, subId, field, val) =>
+                upsertModularField(selectedPhaseId, seccion, operacion, field, val, { isChallenge, subId })}
+              onRevertRow={(seccion, operacion) => removeModularOverride(selectedPhaseId, seccion, operacion)}
+              onApplyToAll={handleApplyToAllRows}
+            />
+          )}
+
+          {scope !== 'locked' && (
+            <OverridesSummaryPanel
+              draftModularConfigs={draftModularConfigs}
+              staticPhases={STATIC_PHASES}
+              onRemoveOverride={removeModularOverride}
+              onSelectNode={onSelectNode}
+            />
+          )}
         </div>
-
-        <button
-          type="button"
-          onClick={() => setSectionsCollapsed(!sectionsCollapsed)}
-          className="px-4 py-3.5 lg:px-5 lg:py-4 rounded-2xl flex items-center gap-2 font-bold text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10 transition-all"
-          title={sectionsCollapsed ? 'Expandir todas las secciones' : 'Colapsar todas las secciones'}
-        >
-          {sectionsCollapsed ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
-          {sectionsCollapsed ? 'Expandir todo' : 'Colapsar todo'}
-        </button>
-      </div>
-
-      {/* ========================================================= */}
-      {/* LEVEL 1 NAVIGATION (Global vs Fases vs Resumen) */}
-      {/* ========================================================= */}
-      <div className="flex bg-white/50 dark:bg-slate-900/40 p-2 rounded-3xl mb-4 shadow-sm border border-slate-200 dark:border-white/10">
-        <button 
-          type="button"
-          onClick={() => { setSelectedPhaseId(0); setSelectedModule(null); }}
-          className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-sm lg:text-base transition-all ${
-            selectedPhaseId === 0 
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' 
-              : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-white/5'
-          }`}
-        >
-          <Settings size={20} className={selectedPhaseId === 0 ? "animate-[spin_3s_linear_infinite]" : ""} /> 
-          Plataforma Global
-        </button>
-        <button 
-          type="button"
-          onClick={() => { setSelectedPhaseId(1); setSelectedModule(null); }}
-          className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-sm lg:text-base transition-all ${
-            selectedPhaseId > 0 
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' 
-              : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-white dark:hover:bg-white/5'
-          }`}
-        >
-          <Layers size={20} /> 
-          Configuración por Fases
-        </button>
-      </div>
-
-      <div className="flex flex-col gap-6">
-        
-        {/* Phase / Module selector */}
-        {selectedPhaseId > 0 && (
-          <PhaseFlowDesigner
-            selectedPhaseId={selectedPhaseId}
-            selectedModule={selectedModule}
-            selectPhase={selectPhase}
-            selectModule={selectModule}
-            expandedCategories={expandedCategories}
-            toggleCategory={toggleCategory}
-            draftModularConfigs={draftModularConfigs}
-            isPhaseModified={isPhaseModified}
-            isModuleModified={isModuleModified}
-            selectedSubLevelId={selectedSubLevelId}
-            setSelectedSubLevelId={setSelectedSubLevelId}
-            isSelectedChallenge={isSelectedChallenge}
-            setIsSelectedChallenge={setIsSelectedChallenge}
-            staticPhases={STATIC_PHASES}
-          />
-        )}
-
-        {/* Content Panels */}
-        {!sectionsCollapsed && (
-          <ConfigForm
-            type={selectedPhaseId === 0 ? 'global' : !selectedModule ? 'phase' : 'module'}
-            title={selectedPhaseId === 0 ? 'Configuración de Fallbacks Generales' : !selectedModule ? activePhase.name : `${selectedModule.name.split(':')[0]} (${isSelectedChallenge ? 'Desafío' : 'Nivel'} ${selectedSubLevelId})`}
-            description={selectedPhaseId === 0 ? 'Estos valores actúan como fallback unificado para todo el sistema educativo.' : !selectedModule ? activePhase.description : 'Reglas de evaluación y parámetros exclusivos para este contenido.'}
-            draftGlobalConfig={draftGlobalConfig}
-            updateGlobalField={updateGlobalField}
-            activeOverrideRecord={selectedPhaseId === 0 ? null : !selectedModule ? activePhaseDefaultRecord : activeModuleRecord}
-            toggleOverride={selectedPhaseId === 0 ? () => {} : !selectedModule ? togglePhaseOverride : toggleModuleOverride}
-            updateOverrideField={selectedPhaseId === 0 ? () => {} : !selectedModule ? handleUpdatePhaseDefault : handleUpdateModuleField}
-            isSelectedChallenge={isSelectedChallenge}
-            selectedSubLevelId={selectedSubLevelId}
-            getInheritedQuestionsCount={getInheritedQuestionsCount}
-            getInheritedPassingScore={getInheritedPassingScore}
-            getInheritedUseTimer={getInheritedUseTimer}
-            getInheritedFeedbackType={getInheritedFeedbackType}
-            getInheritedTimerForLevel={getInheritedTimerForLevel}
-          />
-        )}
-
-        {/* Resumen de Sobrescrituras (ProgressConfigTable) */}
-        {selectedPhaseId > 0 && (
-          <ProgressConfigTable
-            draftModularConfigs={draftModularConfigs}
-            staticPhases={STATIC_PHASES}
-            onRemoveOverride={onRemoveOverride}
-            onSelectNode={onSelectNode}
-          />
-        )}
       </div>
 
     </motion.div>

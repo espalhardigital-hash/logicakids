@@ -5,6 +5,8 @@
 > **Complemento obligatorio:** [`LECCIONES_verificacion_agentes.md`](LECCIONES_verificacion_agentes.md) cubre el caso específico de *verificación visual* (generar la imagen y mirarla). Este documento generaliza esa lección a **todo tipo de bug**.
 >
 > **Cómo usar este documento:** no lo leas como teoría. Cada técnica trae una *receta concreta* y un *ejemplo real* de esta sesión. Cuando enfrentes una tarea, entra por la sección 10 (protocolo de arranque), y usa las secciones 3–5 como referencia mientras trabajas.
+>
+> **Dos modos de trabajo.** Las secciones 0–11 son para *cazar y verificar bugs que ya existen*. La sección **12** es el complemento *preventivo*: cómo **ejecutar un cambio grande** (rediseño de UI, refactor, feature nueva) sin introducir bugs y alineando el alcance con el usuario antes de escribir. Si tu tarea es "mejorá/rediseñá X" en vez de "algo está roto", entra por §12.
 
 ---
 
@@ -472,6 +474,78 @@ Las secciones 0–10 enseñan a no confiar en lo que el **código** dice que hac
 5. **Una sola sonda puede engañarte.** En esta sesión creí por un momento que un fix real *no* estaba aplicado porque miré `git show :archivo` (el **índice**, sin cambios stageados) en vez de `git diff HEAD` (working vs commit). La hipótesis se refutó con la sonda correcta. **Cuando una observación te sorprenda, preguntate si estás mirando la capa correcta antes de concluir** (corolario del §1 paso 5).
 
 **Y aplicátelo a vos mismo.** Antes de escribir "corregí / arreglé / verifiqué", pasá tu propio informe por esta receta. El reporte honesto dice tres cosas **por separado** y no las confunde: (a) qué **ya estaba** bien, (b) qué **cambiaste vos** —con el diff que lo prueba—, (c) qué **queda sin verificar** por falta de terreno (p. ej. "no levanté el backend, el E2E del DELETE está pendiente"). Inflar el conteo o firmar en verde lo no observado no es un descuido de redacción: es el mismo pecado que este documento combate — **declarar sin terreno**.
+
+---
+
+## 12. Aterrizar un cambio grande sin introducir bugs (diseño / refactor / feature)
+
+Las secciones 0–11 asumen que **algo ya está roto** y hay que encontrarlo. Esta cubre el caso inverso: el usuario pide **mejorar** algo que funciona (rediseñar una pantalla, hacer un refactor, agregar una capacidad), y el riesgo no es *no encontrar* un bug — es *crear uno* al meter mano en un subsistema grande, o construir la cosa equivocada porque no alineaste el alcance. Las técnicas de acá salieron de una sesión real: rediseñar el panel de "Configuración Pedagógica" del admin (reescribir 4 componentes, cambiar el modelo de herencia, tocar CSS compartido) sin romper nada y con el usuario aprobando la dirección en cada bifurcación.
+
+> **El mismo eje que el resto del documento.** No cambia la tesis: *toda afirmación necesita terreno* y *el reporte honesto separa lo que cambiaste de lo que no*. Lo que cambia es *cuándo* verificás — acá gran parte del trabajo es **antes** de escribir (alinear el QUÉ, validar el CÓMO en barato) para que no haya bug que cazar después.
+
+### 12.1 Diagnóstico antes de proponer (traducí la queja difusa a causa-raíz con `archivo:línea`)
+Ante "mejorá/rediseñá X", **no propongas nada hasta leer todo el subsistema**. Leé los N archivos que componen X, mapeá el flujo de datos y el modelo real, y convertí la queja difusa del usuario ("está muy poluido", "es engorroso") en causas concretas ancladas al código.
+- **Receta:** por cada palabra vaga del pedido, exigite una causa con referencia. "Poluido" → *qué* elemento y *por qué* (`archivo:línea`). "Engorroso" → *cuántos* pasos y *dónde* está el cuello.
+- **Ejemplo:** ante "el panel está poluido y cambiar parámetros es engorroso", leí los 4 archivos, mapeé el modelo de herencia de 3 niveles (Global→Fase→Módulo) y traduje "engorroso" a **"no existe edición masiva a nivel módulo: 6 navegaciones para tocar un módulo"** y "poluido" a **"3 tarjetas siempre montadas + efectos redundantes"** ([`PedagogyTab.tsx`](LogicaMath/frontend/components/admin/PedagogyTab.tsx)), cada uno con su referencia. Recién con eso sobre la mesa propuse los 3 pilares.
+- **Tie:** es §10 (protocolo de arranque) aplicado a "mejorar" en vez de "auditar" — mapeás el terreno antes de tocar.
+
+### 12.2 Mockup antes de implementar (validá la dirección con un artefacto barato y descartable)
+Para un cambio de diseño grande, construí un **mockup interactivo** del layout y las interacciones clave, y hacé que el usuario lo apruebe o ajuste **antes** de escribir una línea de código de producción. Un mockup es minutos de trabajo y se tira sin culpa; un refactor mal dirigido son horas y ya está enredado con el resto.
+- **Receta:** mockup con las interacciones *que definen la propuesta* funcionando de verdad (no un dibujo estático) → aprobación explícita → recién ahí, código.
+- **Ejemplo:** antes de reescribir los componentes hice un mockup interactivo del layout maestro-detalle con el árbol de navegación y el botón **"aplicar a todas"** operativos. El usuario lo validó (y ahí decidió el alcance A+B+C); recién entonces escribí producción. Re-hacer el mockup habría costado minutos; re-hacer el refactor, la sesión entera.
+- **Tie:** es el primo *preventivo* de §4.3 ("renderizá el artefacto y miralo"): mismo principio de "no discutas en abstracto, mirá el artefacto", pero **antes** de construir, para alinear la intención — no después, para verificar el efecto.
+
+### 12.3 Decisiones de alcance explícitas, no adivinadas
+Cuando una decisión **cambia lo que vas a construir** y no se deduce del código ni de un default sensato (alcance A/B/C, comportamiento de guardado, qué hacer con una parte no terminada), **preguntá con opciones concretas y una recomendación** — no adivines, y no construyas las tres variantes "por las dudas".
+- **Ejemplo:** locké con preguntas estructuradas el alcance (A+B+C), el comportamiento del override (auto al editar vs toggle previo), el destino de una fase no lista (ocultar / bloquear / incluir) y el guardado (botón manual vs autoguardado). Cada respuesta cambiaba el código; adivinar cualquiera era re-trabajo garantizado.
+- **⚠️ Trampa simétrica:** *no* uses esto para lo que sí tiene default obvio o podés verificar en el código — eso es ruido que traslada tu trabajo al usuario. La regla es la del propio harness: *cuando tenés suficiente para actuar, actuá*; preguntá solo lo que **únicamente el usuario** puede decidir.
+
+### 12.4 Refactor a fuente única de verdad *antes* de construir encima
+Si una lógica no trivial está **copiada en N lugares**, extraela a un módulo único **antes** de apoyar código nuevo sobre ella. La duplicación es el arquetipo H (§3.H, desajuste por copy-paste) en estado latente: hoy las N copias coinciden, mañana una diverge y tenés un bug que solo aparece por un camino.
+- **Ejemplo:** el cálculo de `seccion` que codifica fase/módulo/nivel/desafío estaba duplicado en 3 componentes. Lo extraje a [`pedagogyHelpers.ts`](LogicaMath/frontend/components/admin/pedagogyHelpers.ts) (`getModuleRows`/`findRowBySeccion`) y los 3 componentes nuevos consumen el mismo cálculo. Cuando después agregué las secciones centinela de desafío (`-11/-12/-13`), toqué **un solo lugar** — imposible que las copias divergieran, porque no hay copias.
+- **Tie:** es la contramedida *estructural* de §4.11 ("un bug encontrado es plantilla de búsqueda en los hermanos"): en vez de cazar el patrón en todos los hermanos *después*, eliminás los hermanos.
+
+### 12.5 Trabajá dentro del modelo existente antes de cambiar el esquema
+Antes de proponer una migración de BD o un cambio de API, preguntate: **"¿puedo lograr esto con el modelo que ya existe?"** Cada cambio de esquema es una frontera nueva (§2) donde puede meterse un bug, y en producción es riesgo real.
+- **Ejemplo:** los nuevos defaults *por desafío* de una fase (Desafío 1/2/Final aplicados a todos los módulos) se guardan como **filas normales de `ConfiguracionProgreso`** con secciones centinela negativas (`-11/-12/-13`), distinguidas por `fase_id` igual que cualquier otra regla. Cero cambios de esquema, cero migración, cero riesgo de despliegue.
+- **Tie:** menos superficie de cambio = menos fronteras nuevas (§2) = menos lugares donde nace un bug.
+
+### 12.6 Cuando el terreno real no es alcanzable, montá un harness aislado (y limpialo)
+Si no podés ejercitar el componente en la app real (falta login, el backend no levanta, la pestaña del navegador dejó de compositar), armá un **harness mínimo** que lo renderice aislado, con `fetch` mockeado y **datos realistas que incluyan los casos que importan**. Verificá visualmente. **Y borrá el harness al terminar.**
+- **Ejemplo:** para ver el panel sin backend levanté un `dev-preview.tsx/html` con `fetch` mockeado y config modular que **ya traía overrides activos** — así comprobé que se vieran las estrellas ⭐ y el botón de revertir, no solo el estado vacío. Al cerrar, borré ambos archivos (confirmado: ya no están en el árbol con `git status`).
+- **Tie:** es §4.3/§4.7 ("jugá el flujo real") para cuando el flujo real no está a mano — el harness es el sustituto mínimo, **no una excusa para no mirar**. Y limpiar el andamiaje es §11 aplicado a vos: no dejes en el diff artefactos que no son parte del cambio.
+
+### 12.7 Distinguí un artefacto de la herramienta de un bug real con una prueba determinística
+Cuando una observación te hace sospechar un bug **pero vino de una herramienta ruidosa** (un screenshot que dejó de refrescarse, un throttle del navegador, un preview cacheado), **no concluyas nada desde esa herramienta** — ni "hay bug" ni "no hay bug". Reemplazá el terreno ruidoso por un terreno **determinístico y reproducible**: un test que ejercite exactamente la lógica sospechada.
+- **Ejemplo:** los screenshots del navegador dejaron de actualizarse justo mientras probaba "aplicar a todas"; parecía roto. En vez de creerle a la imagen congelada, escribí un test jsdom que aplicaba el bulk y verificaba que las 7 filas pasaran de "heredado" a regla propia con el valor aplicado — **pasó**. El fallo estaba en la pestaña que no compositaba, no en el código.
+- **Tie:** §1 pasos 2 y 5 en un caso nuevo, y corolario directo de §11.5 ("una sola sonda puede engañarte: preguntate si estás mirando la capa correcta"). La sonda equivocada era el screenshot; la correcta, el test.
+
+### 12.8 Blindá el invariante de TU propio código mientras lo escribís
+El escrutinio que §3/§4 le exigen al código heredado aplicátelo a tu propio diff **en el momento de escribirlo**. Cuando introducís una clave/identificador nuevo, chequeá su invariante de unicidad/alcance en el acto.
+- **Ejemplo:** `findChallengeRecord` en [`PhaseDefaultPanel.tsx`](LogicaMath/frontend/components/admin/PhaseDefaultPanel.tsx) al principio no filtraba por `fase_id`. Como las secciones centinela (`-11/-12/-13`, `99099`) **se reusan entre fases** y solo `fase_id` las distingue, sin ese filtro los defaults de una fase se habrían mezclado con los de otra. Lo cacé antes de correr nada, preguntándome el invariante: *"¿esta clave es única globalmente o por fase?"*.
+- **Tie:** arquetipos B (agregado sobre clave ambigua) y H (suposición heredada) aplicados a tu propio código recién escrito, no al ajeno.
+
+### 12.9 Compile-gate + suite completa tras cada cambio, y un test que capture la intención central
+Después de **cada** cambio corré `tsc --noEmit` **y la suite completa** — no solo el archivo tocado: varios cambios correctos por separado pueden romperse juntos (§11.4). Y por cada comportamiento central nuevo, escribí un test determinístico que lo capture, para que quede *probado* que se rompería si alguien lo rompe.
+- **Ejemplo:** al cierre, 42 tests en verde, incluyendo dos que capturan la intención del rediseño: (a) "aplicar a todas" propaga a las 7 filas del módulo; (b) el default de "Desafío 1" de la fase **cascadea** a un módulo que no tiene regla propia. El segundo es la prueba de terreno de que la nueva herencia realmente funciona, no solo que compila.
+- **Tie:** es el DoD "el código nuevo compila" (§9) subido un nivel: *compila* **y** *tengo un test que probaría la regresión*.
+
+### 12.10 Reportá el cambio de comportamiento, no solo el cambio de código
+Si tu refactor cambia una **semántica observable** — aunque "mejore" algo — decilo explícito y **separado** del resto del reporte. Un cambio que para vos es "lo arreglé" puede, para un usuario con estado existente, ser "algo dejó de funcionar como antes".
+- **Ejemplo:** al independizar los defaults de desafío de los de nivel, un override de "Niveles" **preexistente en producción** dejaría de aplicarse a los desafíos de esa fase (antes se colaba como fallback). Lo marqué como **"cambio de comportamiento a tener en cuenta"** en vez de shipearlo en silencio, describiendo qué pasaría con datos ya guardados.
+- **Tie:** §11 — el reporte honesto separa "lo que ya estaba" / "lo que cambié" / "lo que queda sin verificar"; acá se agrega una cuarta categoría: **"lo que cambia de forma observable para un usuario/estado existente"**.
+
+### 12.11 Verificá la afirmación de OTRA sesión/agente contra su terreno, no contra su resumen
+Si un proceso en paralelo (o cualquier reporte externo) dice "terminé X", **no lo creas por el resumen**. Leé su terreno real: el transcript y el estado de esa sesión, su `git diff`, su resultado.
+- **Ejemplo:** cuando el usuario preguntó por una tarea lanzada en segundo plano ("Tutoría IA"), **no adiviné** si había terminado. Leí la sesión hermana con las herramientas de gestión de sesiones y confirmé estado `done (success)`, 137 turnos, y su lista real de archivos tocados — recién entonces reporté qué había hecho.
+- **Tie:** §11 al pie de la letra ("no confíes en lo que un reporte dice que hizo"), extendido a reportes de *otras sesiones corriendo en paralelo*.
+
+### 12.12 Sacá lo out-of-scope a una tarea con contexto autocontenido, no lo mezcles ni lo tires
+Cuando encontrás un problema **real pero ortogonal** a lo pedido, no lo metas en el diff actual (infla y desenfoca el cambio) ni lo ignores (se pierde). Dejá una tarea con **prompt autocontenido**: paths, contexto y tareas sugeridas suficientes para actuar **sin** esta conversación.
+- **Ejemplo:** mientras rediseñaba el panel detecté que el modo "Tutoría IA" no tenía efecto visible en ninguna fase (el backend mandaba la explicación, el frontend la descartaba) y que el formulario de preguntas no permitía cargarla. Era otro alcance; lo derivé a una tarea de fondo con los archivos y el diagnóstico, y seguí con el rediseño. (Esa tarea, corriendo aparte, terminó implementando justamente ese gap.)
+- **Tie:** primo de §6.1 ("arreglá la raíz, no el síntoma"): **no mezcles dos raíces distintas en un mismo diff** — cada una merece su cambio enfocado y su verificación propia.
+
+> **La idea de una frase (modo mejora):** *antes de tocar un subsistema grande, entendelo entero y traducí la queja a causa-raíz; validá la dirección con un mockup barato y las decisiones de alcance con preguntas, no con adivinanzas; construí sobre una fuente única de verdad dentro del modelo que ya existe; y cuando la herramienta que usás para mirar te falle, no le creas — reemplazala por una prueba determinística. Terreno antes de escribir es tan válido como terreno antes de declarar.*
 
 ---
 
