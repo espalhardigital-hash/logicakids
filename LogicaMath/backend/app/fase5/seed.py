@@ -22,7 +22,8 @@ from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
 from app.fase5.svg_helpers import (
     svg_rect, svg_square, svg_triangle_equilateral,
     svg_rect_all_labels, svg_l_shape, svg_polygon_labeled,
-    svg_shaded_rect, svg_grid_halves, svg_scale_bar, svg_rect_diagonal
+    svg_shaded_rect, svg_grid_halves, svg_scale_bar, svg_rect_diagonal,
+    svg_length_conversion
 )
 
 from app.utils.graphics_generator import (
@@ -155,9 +156,9 @@ async def seed_teoria_niveles(session: AsyncSession):
             "advertencia": "Si vas a un paso más pequeño, multiplicas. Si vas a un paso más grande, divides. ¡Fíjate bien si subes o bajas en la escalera!",
             "ejemplos": obtener_ejemplos_expandidos_fase5(1, 3),
             "interactivos": [
-                {"pregunta": "¿Cuántos centímetros hay en 3 metros?<br/>" + svg_rect(3, 1, unit="m"), "respuesta": "300", "feedback_acierto": "¡Correcto! 3 x 100 = 300 cm.", "feedback_error": "Multiplica los metros por 100."},
-                {"pregunta": "¿Cuántos metros hay en 5 kilómetros?<br/>" + svg_rect(5, 1, unit="km"), "respuesta": "5000", "feedback_acierto": "¡Excelente! 5 x 1000 = 5000 m.", "feedback_error": "Multiplica los kilómetros por 1000."},
-                {"pregunta": "¿Cuántos milímetros hay en 2 centímetros?<br/>" + svg_rect(2, 1, unit="cm"), "respuesta": "20", "feedback_acierto": "¡Brillante! 2 x 10 = 20 mm.", "feedback_error": "Multiplica los centímetros por 10."}
+                {"pregunta": "¿Cuántos centímetros hay en 3 metros?<br/>" + svg_length_conversion(3, "m", "cm", 100), "respuesta": "300", "feedback_acierto": "¡Correcto! 3 x 100 = 300 cm.", "feedback_error": "Multiplica los metros por 100."},
+                {"pregunta": "¿Cuántos metros hay en 5 kilómetros?<br/>" + svg_length_conversion(5, "km", "m", 1000), "respuesta": "5000", "feedback_acierto": "¡Excelente! 5 x 1000 = 5000 m.", "feedback_error": "Multiplica los kilómetros por 1000."},
+                {"pregunta": "¿Cuántos milímetros hay en 2 centímetros?<br/>" + svg_length_conversion(2, "cm", "mm", 10), "respuesta": "20", "feedback_acierto": "¡Brillante! 2 x 10 = 20 mm.", "feedback_error": "Multiplica los centímetros por 10."}
             ]
         },
         # --- MÓDULO 2: Área en Malha ---

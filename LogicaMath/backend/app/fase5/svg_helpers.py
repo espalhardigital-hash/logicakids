@@ -1,4 +1,4 @@
-﻿"""
+"""
 Helper para generar SVGs premium de teoría con diseño oscuro, cuadrícula y etiquetas externas.
 Fondo: #111827, cuadrícula sutil #374151, figura con borde blanco sin relleno,
 etiquetas FUERA con fuente grande, leyenda "1 cm" en esquina inferior derecha.
@@ -318,4 +318,25 @@ def svg_rect_diagonal(w_u: int, h_u: int, diag_label: str = "?", unit="cm", bord
     diag_lbl   = _lbl_rot(cx + 8, cy - 8, diag_label, angle=angle, fs=16)
 
     return _svg_container(shape + bottom_lbl + left_lbl + diag_lbl, border_color=border)
+
+
+def svg_length_conversion(val: int, unit_from: str, unit_to: str, factor: int = 1000, border: str = "#10B981") -> str:
+    """
+    Genera un SVG lineal de conversión de unidades de longitud (1D).
+    Evita renderizar cuadrículas rectangulares 2D erróneas para preguntas de distancia lineal.
+    """
+    ref_text = f"1 {unit_from} = {factor} {unit_to}"
+    return (
+        f"<svg width='280' height='120' viewBox='0 0 200 90' "
+        f"style='margin:10px auto; display:block; background:#111827; "
+        f"border:2px solid {border}; border-radius:14px;'>"
+        f"  <line x1='25' y1='32' x2='175' y2='32' stroke='#FFFFFF' stroke-width='3.5' stroke-linecap='round'/>"
+        f"  <line x1='25' y1='24' x2='25' y2='40' stroke='#FFFFFF' stroke-width='3.5'/>"
+        f"  <line x1='175' y1='24' x2='175' y2='40' stroke='#FFFFFF' stroke-width='3.5'/>"
+        f"  <text x='100' y='22' fill='#FFFFFF' font-size='15' font-weight='bold' text-anchor='middle'>{val} {unit_from}</text>"
+        f"  <rect x='15' y='50' width='170' height='28' fill='{border}' fill-opacity='0.25' stroke='{border}' stroke-width='1.5' rx='6'/>"
+        f"  <text x='100' y='68' fill='#A7F3D0' font-size='13' font-weight='bold' text-anchor='middle'>{ref_text}</text>"
+        f"</svg>"
+    )
+
 

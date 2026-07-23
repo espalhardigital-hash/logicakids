@@ -216,6 +216,10 @@ export const deleteUser = async (userId: string): Promise<void> => {
   await apiRequest(`/users/${userId}`, 'DELETE');
 };
 
+export const deleteUsersBulk = async (userIds: string[]): Promise<{ status: string; message: string }> => {
+  return await apiRequest<{ status: string; message: string }>('/admin/users/bulk', 'DELETE', { user_ids: userIds });
+};
+
 export const anonymizeUser = async (userId: string): Promise<void> => {
   await apiRequest(`/admin/users/${userId}/forget`, 'POST');
 };
@@ -529,6 +533,7 @@ export const overrideAlumnoProgress = async (alumnoId: number, data: {
   seccion: number;
   operacion: string;
   action: 'approve' | 'unlock' | 'lock';
+  motivo: string;
 }): Promise<ProgresoOverrideResponse> => {
   return await apiRequest<ProgresoOverrideResponse>(`/admin/alumnos/${alumnoId}/progress/override`, 'POST', data);
 };
@@ -538,6 +543,8 @@ export const overrideAlumnoProgressBulk = async (
   data: {
     items: Array<{ fase_id: number; seccion: number; operacion: string }>;
     action: 'approve' | 'unlock' | 'lock';
+    motivo: string;
+    expand_phase?: boolean;
   }
 ): Promise<ProgresoOverrideResponse> => {
   return await apiRequest<ProgresoOverrideResponse>(

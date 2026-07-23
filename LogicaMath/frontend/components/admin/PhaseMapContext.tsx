@@ -10,6 +10,8 @@ interface PhaseMapContextType {
 
 const PhaseMapContext = createContext<PhaseMapContextType | undefined>(undefined);
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 export const PhaseMapProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [phaseMaps, setPhaseMaps] = useState<PhaseMap[]>(STATIC_PHASE_MAPS);
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,7 +28,7 @@ export const PhaseMapProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         } catch (_) { /* malformed token */ }
       }
 
-      const response = await fetch('/api/admin/phase-maps', {
+      const response = await fetch(`${API_URL}/admin/phase-maps`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -65,7 +67,7 @@ export const PhaseMapProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const savePhaseMaps = async (newMaps: PhaseMap[]) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/admin/phase-maps', {
+      const res = await fetch(`${API_URL}/admin/phase-maps`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

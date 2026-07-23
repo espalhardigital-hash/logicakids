@@ -15,6 +15,16 @@ import { usePhaseMapContext } from './PhaseMapContext';
 // ─── Helper: compute aggregate status from a list of level records ─────────────
 type ProgressState = 'APROBADO' | 'EN_PROGRESO' | 'BLOQUEADO';
 
+type OverrideItem = { fase_id: number; seccion: number; operacion: string };
+type OverrideAction = 'approve' | 'unlock' | 'lock';
+interface PendingOverride {
+  title: string;
+  warning: string;
+  action: OverrideAction;
+  actionKey: string;
+  execute: (motivo: string) => Promise<void>;
+}
+
 const normalizeState = (raw: string | undefined | null): ProgressState => {
   if (!raw) return 'BLOQUEADO';
   const upper = raw.toUpperCase().replace(' ', '_');
@@ -22,19 +32,6 @@ const normalizeState = (raw: string | undefined | null): ProgressState => {
   if (upper === 'EN_PROGRESO') return 'EN_PROGRESO';
   return 'BLOQUEADO';
 };
-
-function computeAggregateStatus(levels: LevelMap[], alumnoProgress: any[]): ProgressState {
-  if (levels.length === 0) return 'BLOQUEADO';
-  const states = levels.map((lvl) => {
-    const prog = alumnoProgress.find(
-      (p) => p.fase_id === 0 && p.seccion === lvl.seccion && p.operacion === lvl.operacion
-    );
-    return prog ? normalizeState(prog.estado) : 'BLOQUEADO';
-  });
-  if (states.every((s) => s === 'APROBADO')) return 'APROBADO';
-  if (states.every((s) => s === 'BLOQUEADO')) return 'BLOQUEADO';
-  return 'EN_PROGRESO';
-}
 
 function computeAggregateStatusForPhase(faseId: number, levels: LevelMap[], alumnoProgress: any[]): ProgressState {
   if (levels.length === 0) return 'BLOQUEADO';
@@ -137,6 +134,26 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ showConfirm, showAlert 
   // Action tracking: "level-{faseId}-{seccion}-{op}" | "module-{faseId}-{modId}" | "fase-{faseId}"
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
 
+  // Override confirmation modal (Protocolo de Auditoría §6.3): motivo obligatorio + advertencia de cascada
+  const [pendingOverride, setPendingOverride] = useState<PendingOverride | null>(null);
+  const [overrideMotivo, setOverrideMotivo] = useState('');
+  const [overrideSubmitting, setOverrideSubmitting] = useState(false);
+
+  // Conjunto retrógado: todos los niveles de la fase en orden hasta (e incluyendo) el objetivo.
+  // El orden canónico solo vive en el phase-map del frontend; el backend ejecuta lo que se le envía.
+  const computeRetroSet = (faseId: number, seccion: number, operacion: string): OverrideItem[] => {
+    const phase = PHASE_MAPS.find((p) => p.id === faseId);
+    if (!phase) return [{ fase_id: faseId, seccion, operacion }];
+    const flat: OverrideItem[] = [];
+    for (const mod of phase.modules) {
+      for (const lvl of mod.levels) {
+        flat.push({ fase_id: faseId, seccion: lvl.seccion, operacion: lvl.operacion });
+        if (lvl.seccion === seccion && lvl.operacion === operacion) return flat;
+      }
+    }
+    return flat.length ? flat : [{ fase_id: faseId, seccion, operacion }];
+  };
+
   // Load all students on mount (UX-4)
   useEffect(() => {
     const loadAllAlumnos = async () => {
@@ -201,79 +218,88 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ showConfirm, showAlert 
     setActiveModuleId(defaultModules);
   };
 
-  // ── Single-level override ──────────────────────────────────────────────────
-  const handleApplyOverride = async (
-    faseId: number, seccion: number, operacion: string,
-    action: 'approve' | 'unlock' | 'lock'
-  ) => {
-    if (!selectedAlumno) return;
-    const actionKey = `level-${faseId}-${seccion}-${operacion}`;
+  const ACTION_VERB: Record<OverrideAction, string> = {
+    approve: 'Aprobar', unlock: 'Liberar', lock: 'Restablecer / Bloquear',
+  };
+
+  const runOverride = async (actionKey: string, fn: () => Promise<void>) => {
     setActionInProgress(actionKey);
     try {
-      await overrideAlumnoProgress(selectedAlumno.alumno_id, { fase_id: faseId, seccion, operacion, action });
-      await fetchProgress(selectedAlumno.alumno_id);
+      await fn();
+      if (selectedAlumno) await fetchProgress(selectedAlumno.alumno_id);
     } catch (e) {
       console.error(e);
-      if (showAlert) {
-        showAlert('Error', 'Error al aplicar la acción sobre el nivel.', 'error');
-      } else {
-        alert('Error al aplicar la acción.');
-      }
+      if (showAlert) showAlert('Error', 'Error al aplicar la acción de override.', 'error');
+      else alert('Error al aplicar la acción.');
     } finally {
       setActionInProgress(null);
+    }
+  };
+
+  // ── Single-level override ──────────────────────────────────────────────────
+  const handleApplyOverride = (
+    faseId: number, seccion: number, operacion: string, action: OverrideAction
+  ) => {
+    if (!selectedAlumno) return;
+    const alumnoId = selectedAlumno.alumno_id;
+    const actionKey = `level-${faseId}-${seccion}-${operacion}`;
+    if (action === 'approve') {
+      const retro = computeRetroSet(faseId, seccion, operacion);
+      const anteriores = Math.max(retro.length - 1, 0);
+      setPendingOverride({
+        title: `${ACTION_VERB[action]} nivel`,
+        warning: `Aprobación Retrógada: se declararán APROBADOS este nivel y los ${anteriores} nivel(es) anterior(es) de la Fase ${faseId}, para mantener la consistencia lineal del progreso.`,
+        action, actionKey,
+        execute: (motivo) => runOverride(actionKey, () =>
+          overrideAlumnoProgressBulk(alumnoId, { items: retro, action: 'approve', motivo, expand_phase: false }).then(() => {})),
+      });
+    } else {
+      setPendingOverride({
+        title: `${ACTION_VERB[action]} nivel`,
+        warning: action === 'lock'
+          ? 'Esta acción regresará el nivel a BLOQUEADO y reiniciará su progreso a cero.'
+          : 'Esta acción liberará el nivel (EN_PROGRESO) sin exigir completar los niveles previos.',
+        action, actionKey,
+        execute: (motivo) => runOverride(actionKey, () =>
+          overrideAlumnoProgress(alumnoId, { fase_id: faseId, seccion, operacion, action, motivo }).then(() => {})),
+      });
     }
   };
 
   // ── Module-level bulk override ─────────────────────────────────────────────
-  const handleModuleBulk = async (
-    faseId: number, modId: number, levels: LevelMap[],
-    action: 'approve' | 'unlock' | 'lock'
+  const handleModuleBulk = (
+    faseId: number, modId: number, levels: LevelMap[], action: OverrideAction
   ) => {
     if (!selectedAlumno) return;
+    const alumnoId = selectedAlumno.alumno_id;
     const actionKey = `module-${faseId}-${modId}`;
-    setActionInProgress(actionKey);
-    try {
-      await overrideAlumnoProgressBulk(selectedAlumno.alumno_id, {
-        items: levels.map((lvl) => ({ fase_id: faseId, seccion: lvl.seccion, operacion: lvl.operacion })),
-        action
-      });
-      await fetchProgress(selectedAlumno.alumno_id);
-    } catch (e) {
-      console.error(e);
-      if (showAlert) {
-        showAlert('Error', 'Error al aplicar la acción en bloque sobre el módulo.', 'error');
-      } else {
-        alert('Error al aplicar la acción en bloque.');
-      }
-    } finally {
-      setActionInProgress(null);
-    }
+    const items = levels.map((lvl) => ({ fase_id: faseId, seccion: lvl.seccion, operacion: lvl.operacion }));
+    setPendingOverride({
+      title: `${ACTION_VERB[action]} módulo completo`,
+      warning: `Se aplicará '${ACTION_VERB[action]}' a los ${items.length} nivel(es) del módulo.` +
+        (action === 'approve' ? ' Los niveles quedarán APROBADOS.' : ''),
+      action, actionKey,
+      execute: (motivo) => runOverride(actionKey, () =>
+        overrideAlumnoProgressBulk(alumnoId, { items, action, motivo, expand_phase: false }).then(() => {})),
+    });
   };
 
   // ── Phase-level bulk override ──────────────────────────────────────────────
-  const handleFaseBulk = async (
-    faseId: number, allLevels: LevelMap[],
-    action: 'approve' | 'unlock' | 'lock'
+  const handleFaseBulk = (
+    faseId: number, allLevels: LevelMap[], action: OverrideAction
   ) => {
     if (!selectedAlumno) return;
+    const alumnoId = selectedAlumno.alumno_id;
     const actionKey = `fase-${faseId}`;
-    setActionInProgress(actionKey);
-    try {
-      await overrideAlumnoProgressBulk(selectedAlumno.alumno_id, {
-        items: allLevels.map((lvl) => ({ fase_id: faseId, seccion: lvl.seccion, operacion: lvl.operacion })),
-        action
-      });
-      await fetchProgress(selectedAlumno.alumno_id);
-    } catch (e) {
-      console.error(e);
-      if (showAlert) {
-        showAlert('Error', 'Error al aplicar la acción masiva sobre la fase.', 'error');
-      } else {
-        alert('Error al aplicar la acción de fase.');
-      }
-    } finally {
-      setActionInProgress(null);
-    }
+    const items = allLevels.map((lvl) => ({ fase_id: faseId, seccion: lvl.seccion, operacion: lvl.operacion }));
+    setPendingOverride({
+      title: `${ACTION_VERB[action]} Fase ${faseId} completa`,
+      warning: `Se aplicará '${ACTION_VERB[action]}' a TODA la Fase ${faseId} (${items.length} niveles del mapa` +
+        (action === 'approve' ? ', más cualquier bloque activo adicional no mapeado).' : ').'),
+      action, actionKey,
+      execute: (motivo) => runOverride(actionKey, () =>
+        overrideAlumnoProgressBulk(alumnoId, { items, action, motivo, expand_phase: action === 'approve' }).then(() => {})),
+    });
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -605,6 +631,76 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ showConfirm, showAlert 
         </div>
 
       </div>
+
+      {/* Modal de Confirmación de Override (Protocolo de Auditoría §6.3) */}
+      {pendingOverride && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/60"
+          onClick={() => { if (!overrideSubmitting) { setPendingOverride(null); setOverrideMotivo(''); } }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-3xl shadow-2xl p-6 flex flex-col gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-amber-500/20 rounded-2xl border border-amber-500/30">
+                <AlertTriangle className="text-amber-400" size={22} />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">{pendingOverride.title}</h3>
+            </div>
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-300 text-sm leading-relaxed">
+              {pendingOverride.warning}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase">
+                Motivo pedagógico (obligatorio, mín. 10 caracteres)
+              </label>
+              <textarea
+                value={overrideMotivo}
+                onChange={(e) => setOverrideMotivo(e.target.value)}
+                rows={3}
+                autoFocus
+                placeholder="Ej: Estudiante avanzado de 5º grado, demuestra dominio inicial."
+                className="w-full bg-white/80 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-blue-500/50 resize-none"
+              />
+              <span className={`text-[11px] font-bold ${overrideMotivo.trim().length >= 10 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                {overrideMotivo.trim().length}/10
+              </span>
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-1">
+              <button
+                type="button"
+                disabled={overrideSubmitting}
+                onClick={() => { setPendingOverride(null); setOverrideMotivo(''); }}
+                className="px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors disabled:opacity-40"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={overrideMotivo.trim().length < 10 || overrideSubmitting}
+                onClick={async () => {
+                  const p = pendingOverride;
+                  setOverrideSubmitting(true);
+                  try {
+                    await p.execute(overrideMotivo.trim());
+                  } finally {
+                    setOverrideSubmitting(false);
+                    setPendingOverride(null);
+                    setOverrideMotivo('');
+                  }
+                }}
+                className="px-5 py-2 rounded-xl text-sm font-black text-white bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              >
+                {overrideSubmitting ? <Loader2 size={16} className="animate-spin" /> : null}
+                Confirmar Intervención
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
     </div>
   );

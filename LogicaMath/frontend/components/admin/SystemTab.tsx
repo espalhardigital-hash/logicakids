@@ -72,8 +72,16 @@ const SystemTab: React.FC<Props> = ({ showAlert }) => {
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Servidor y BD</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Configura las credenciales de la base de datos de producción (PostgreSQL) y la VPS.</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 font-medium">Configuración del servidor y parámetros de base de datos PostgreSQL.</p>
             </div>
+          </div>
+
+          {/* Banner de Entorno Local */}
+          <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-3">
+            <span className="font-bold uppercase tracking-wider bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">Modo Local</span>
+            <p className="leading-relaxed">
+              El entorno activo de pruebas opera 100% localmente sobre contenedores Docker (<code className="font-mono font-bold">logicakids_local_db</code>). Los cambios en esta sección preservan los parámetros locales del sistema.
+            </p>
           </div>
           
           <form onSubmit={handleSaveSystemConfig} className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -101,6 +101,36 @@ async def update_ux_feedback(
         
     return db_feedback
 
+@router.delete("/feedback/{feedback_id}", status_code=status.HTTP_200_OK)
+async def delete_ux_feedback(
+    feedback_id: int,
+    db: AsyncSession = Depends(get_db),
+    admin_user: dict = Depends(get_admin_user)
+):
+    """
+    Elimina una anotación de feedback UX por su ID. Requiere permisos de administrador.
+    """
+    result = await db.execute(select(UXFeedback).where(UXFeedback.id == feedback_id))
+    db_feedback = result.scalar_one_or_none()
+    
+    if not db_feedback:
+        raise HTTPException(
+            status_code=404,
+            detail="Anotación de UX no encontrada"
+        )
+        
+    try:
+        await db.delete(db_feedback)
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al eliminar la anotación en la base de datos: {str(e)}"
+        )
+        
+    return {"status": "ok", "message": "Anotación eliminada exitosamente"}
+
 @router.get("/feedback/screenshots/{filename}")
 async def get_feedback_screenshot(
     filename: str,

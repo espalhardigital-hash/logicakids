@@ -308,16 +308,22 @@ async def update_pregunta(pregunta_id: int, pregunta_data: PreguntaUpdate, db: A
         
     update_data = pregunta_data.model_dump(exclude_unset=True)
     
-    # Manejar alternativas si vienen en la petición
+    # Manejar alternativas si vienen en la petición.
+    # Diff por posición en lugar de borrar-y-recrear: las alternativas ya referenciadas por
+    # `intentos.alternativa_id` (FK NO ACTION) conservan su id, evitando una IntegrityError 500
+    # al editar una pregunta que algún alumno ya respondió.
     if "alternativas" in update_data:
-        alts_data = update_data.pop("alternativas")
-        # Eliminar las alternativas existentes
-        await db.execute(delete(Alternativa).where(Alternativa.pregunta_id == pregunta_id))
-        # Insertar las nuevas alternativas
-        if alts_data:
-            for alt in alts_data:
-                nueva_alt = Alternativa(**alt, pregunta_id=pregunta_id)
-                db.add(nueva_alt)
+        alts_data = update_data.pop("alternativas") or []
+        existing = sorted(pregunta.alternativas, key=lambda a: a.id)
+        for i, alt in enumerate(alts_data):
+            if i < len(existing):
+                for k, v in alt.items():
+                    setattr(existing[i], k, v)
+            else:
+                db.add(Alternativa(**alt, pregunta_id=pregunta_id))
+        # Sobrantes (solo si la nueva lista es más corta): eliminar las alternativas restantes
+        for surplus in existing[len(alts_data):]:
+            await db.delete(surplus)
                 
     for key, value in update_data.items():
         setattr(pregunta, key, value)
@@ -627,9 +633,21 @@ async def override_alumno_progress(alumno_id: int, payload: ProgressOverridePayl
             progreso.aciertos_acumulados = 0
             progreso.aprobado_por_admin = False
             progreso.fecha_aprobacion = None
-            
+
+    # Registrar el motivo pedagógico obligatorio de la intervención en el bloque afectado
+    if progreso is not None:
+        progreso.override_motivo = payload.motivo
+
+    await registrar_auditoria(
+        db=db,
+        admin_id=admin_user["id"],
+        action=f"OVERRIDE_PROGRESS_{payload.action.upper()}",
+        endpoint=f"/admin/alumnos/{alumno_id}/progress/override",
+        method="POST",
+        payload_summary=f"Override '{payload.action}' en fase {payload.fase_id}, sección {payload.seccion}, {payload.operacion}. Motivo: {payload.motivo}"
+    )
     await db.commit()
-    
+
     # Sync with user.settings para todas las fases ya que algunos frontends dependen de unlockedLevels
     from sqlalchemy.orm.attributes import flag_modified
     result_alumno = await db.execute(select(Alumno).where(Alumno.id == alumno_id))
@@ -761,56 +779,61 @@ async def override_alumno_progress_bulk(
                 progreso.aprobado_por_admin = False
                 progreso.fecha_aprobacion = None
 
+        # Registrar el motivo pedagógico obligatorio en el bloque afectado
+        if progreso is not None:
+            progreso.override_motivo = payload.motivo
+
     # Single commit for all items in the batch
     await db.commit()
 
-    # Detect if we should auto-approve unmapped active levels (e.g. Módulo 5 in Phase 3 or 99099)
-    if payload.action == "approve":
-        items_by_fase = {}
-        for item in payload.items:
-            items_by_fase[item.fase_id] = items_by_fase.get(item.fase_id, 0) + 1
-            
-        for fase_id, count in items_by_fase.items():
-            # If count of levels is >= 4, the admin approved the entire phase (since individual modules have max 3 levels)
-            if count >= 4:
-                result_all_configs = await db.execute(
-                    select(ConfiguracionProgreso).where(and_(
-                        ConfiguracionProgreso.fase_id == fase_id,
-                        ConfiguracionProgreso.seccion > 0,
-                        ConfiguracionProgreso.activo == True
+    # Expansión de fase completa: SOLO cuando el frontend lo solicita explícitamente
+    # (botón "Aprobar Fase completa"). Cubre secciones activas de la fase que puedan no
+    # estar en el phase-map del frontend (ej. Módulo 5 en Fase 3 o el Desafío Mixto 99099).
+    # Antes esto se disparaba con una heurística frágil (count>=4) que sobre-aprobaba fases
+    # al seleccionar 4 secciones sueltas.
+    if payload.action == "approve" and payload.expand_phase:
+        fase_ids = {item.fase_id for item in payload.items}
+        for fase_id in fase_ids:
+            result_all_configs = await db.execute(
+                select(ConfiguracionProgreso).where(and_(
+                    ConfiguracionProgreso.fase_id == fase_id,
+                    ConfiguracionProgreso.seccion > 0,
+                    ConfiguracionProgreso.activo == True
+                ))
+            )
+            all_configs = result_all_configs.scalars().all()
+            for config in all_configs:
+                result_prog = await db.execute(
+                    select(ProgresoMaestria).where(and_(
+                        ProgresoMaestria.alumno_id == alumno_id,
+                        ProgresoMaestria.fase_id == fase_id,
+                        ProgresoMaestria.seccion == config.seccion,
+                        ProgresoMaestria.operacion == config.operacion
                     ))
                 )
-                all_configs = result_all_configs.scalars().all()
-                for config in all_configs:
-                    result_prog = await db.execute(
-                        select(ProgresoMaestria).where(and_(
-                            ProgresoMaestria.alumno_id == alumno_id,
-                            ProgresoMaestria.fase_id == fase_id,
-                            ProgresoMaestria.seccion == config.seccion,
-                            ProgresoMaestria.operacion == config.operacion
-                        ))
+                prog = result_prog.scalar_one_or_none()
+                if not prog:
+                    prog = ProgresoMaestria(
+                        alumno_id=alumno_id,
+                        fase_id=fase_id,
+                        seccion=config.seccion,
+                        operacion=config.operacion,
+                        estado=EstadoProgresoEnum.APROBADO,
+                        aciertos_acumulados=config.cantidad_requerida,
+                        intentos_totales=config.cantidad_requerida,
+                        porcentaje_actual=90,
+                        aprobado_por_admin=True,
+                        fecha_aprobacion=datetime.utcnow(),
+                        override_motivo=payload.motivo
                     )
-                    prog = result_prog.scalar_one_or_none()
-                    if not prog:
-                        prog = ProgresoMaestria(
-                            alumno_id=alumno_id,
-                            fase_id=fase_id,
-                            seccion=config.seccion,
-                            operacion=config.operacion,
-                            estado=EstadoProgresoEnum.APROBADO,
-                            aciertos_acumulados=config.cantidad_requerida,
-                            intentos_totales=config.cantidad_requerida,
-                            porcentaje_actual=90,
-                            aprobado_por_admin=True,
-                            fecha_aprobacion=datetime.utcnow()
-                        )
-                        db.add(prog)
-                    else:
-                        prog.estado = EstadoProgresoEnum.APROBADO
-                        prog.aciertos_acumulados = config.cantidad_requerida
-                        prog.porcentaje_actual = 90
-                        prog.aprobado_por_admin = True
-                        prog.fecha_aprobacion = datetime.utcnow()
+                    db.add(prog)
+                else:
+                    prog.estado = EstadoProgresoEnum.APROBADO
+                    prog.aciertos_acumulados = config.cantidad_requerida
+                    prog.porcentaje_actual = 90
+                    prog.aprobado_por_admin = True
+                    prog.fecha_aprobacion = datetime.utcnow()
+                    prog.override_motivo = payload.motivo
         await db.commit()
 
     # Sync user.settings["unlockedLevels"] aggregated across all unique categories in the batch
@@ -855,6 +878,17 @@ async def override_alumno_progress_bulk(
         await recalcular_y_sincronizar_fase_actual(alumno_id, db)
 
     processed = len(payload.items)
+    fases_afectadas = sorted({item.fase_id for item in payload.items})
+    await registrar_auditoria(
+        db=db,
+        admin_id=admin_user["id"],
+        action=f"OVERRIDE_BULK_{payload.action.upper()}",
+        endpoint=f"/admin/alumnos/{alumno_id}/progress/override-bulk",
+        method="POST",
+        payload_summary=f"Override en lote '{payload.action}' a {processed} sección(es), fases {fases_afectadas}, expand_phase={payload.expand_phase}. Motivo: {payload.motivo}"
+    )
+    await db.commit()
+
     return {
         "status": "ok",
         "message": f"Se aplicó '{payload.action}' a {processed} sección(es) exitosamente.",

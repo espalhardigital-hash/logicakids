@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { User, UserRole } from '../../types';
-import { getAllUsers, saveUser, deleteUser, getStorageUsage, getAllScores, getUserDetailedAnalytics, adminCreateUser, adminChangePassword, getAvatarUrl, deleteScoreById, getEngagementAnalytics, getChurnAnalytics, anonymizeUser } from '../../services/storageService';
+import { getAllUsers, saveUser, deleteUser, deleteUsersBulk, getStorageUsage, getAllScores, getUserDetailedAnalytics, adminCreateUser, adminChangePassword, getAvatarUrl, deleteScoreById, getEngagementAnalytics, getChurnAnalytics, anonymizeUser } from '../../services/storageService';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import {
   ArrowLeft, Users, Shield, Activity, Database, Search,
-  Edit, Trash2, UserX, UserCheck, Plus, X, Key, Check, BarChart2, Eye, EyeOff
+  Edit, Trash2, UserX, UserCheck, Plus, X, Key, Check, BarChart2, Eye, EyeOff, CheckSquare, Square
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -48,6 +48,7 @@ const itemVariants = {
 
 const GeneralTab: React.FC<Props> = ({ onBack, showConfirm, showAlert }) => {
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [filter, setFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -157,6 +158,7 @@ const GeneralTab: React.FC<Props> = ({ onBack, showConfirm, showAlert }) => {
   const handleDelete = async (id: string) => {
     const performDelete = async () => {
       await deleteUser(id);
+      setSelectedUserIds(prev => prev.filter(uId => uId !== id));
       loadData();
     };
     if (showConfirm) {
@@ -167,6 +169,44 @@ const GeneralTab: React.FC<Props> = ({ onBack, showConfirm, showAlert }) => {
       );
     } else if (window.confirm('¿Estás seguro de eliminar este usuario permanentemente?')) {
       performDelete();
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedUserIds.length === 0) return;
+    const performBulkDelete = async () => {
+      try {
+        const res = await deleteUsersBulk(selectedUserIds);
+        if (showAlert) showAlert('Usuarios Eliminados', res.message, 'success');
+        setSelectedUserIds([]);
+        loadData();
+      } catch (e: any) {
+        if (showAlert) showAlert('Error de Eliminación Masiva', e.message || 'Error al eliminar usuarios en lote', 'error');
+      }
+    };
+
+    if (showConfirm) {
+      showConfirm(
+        'Confirmar Eliminación Masiva',
+        `¿Estás seguro de eliminar ${selectedUserIds.length} usuario(s) seleccionado(s)? Esta acción eliminará sus historiales y avances permanentemente.`,
+        performBulkDelete
+      );
+    } else if (window.confirm(`¿Estás seguro de eliminar ${selectedUserIds.length} usuario(s)?`)) {
+      performBulkDelete();
+    }
+  };
+
+  const toggleSelectUser = (id: string) => {
+    setSelectedUserIds(prev => 
+      prev.includes(id) ? prev.filter(uId => uId !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUserIds.length === users.length && users.length > 0) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(users.map(u => u.id));
     }
   };
 
@@ -392,20 +432,28 @@ const GeneralTab: React.FC<Props> = ({ onBack, showConfirm, showAlert }) => {
           <div className="flex flex-col mb-4">
             <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Gestión de Usuarios</h3>
             <div className="flex justify-between items-center w-full">
-              <div className="relative w-64">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-blue-500" size={14} />
-                <input
-                  type="text"
-                  placeholder="Buscar..."
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                  className="w-full bg-transparent border-b border-slate-300 dark:border-white/10 rounded-none py-1.5 pl-8 pr-4 text-slate-700 dark:text-slate-200 text-[13px] focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-500"
-                />
+              <div className="flex items-center gap-3">
+                <div className="relative w-64">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-blue-500" size={14} />
+                  <input
+                    type="text"
+                    placeholder="Buscar por usuario o email..."
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    className="w-full bg-transparent border-b border-slate-300 dark:border-white/10 rounded-none py-1.5 pl-8 pr-4 text-slate-700 dark:text-slate-200 text-[13px] focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-500"
+                  />
+                </div>
+                {selectedUserIds.length > 0 && (
+                  <button
+                    onClick={handleBulkDelete}
+                    className="px-3 py-1.5 bg-red-600/90 hover:bg-red-600 text-white rounded-lg font-semibold text-[12px] flex items-center gap-1.5 shadow-sm transition-all"
+                  >
+                    <Trash2 size={13} />
+                    Eliminar {selectedUserIds.length} seleccionado(s)
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-4">
-                <button className="text-[13px] text-slate-500 dark:text-slate-300 font-medium hover:text-slate-900 dark:hover:text-white transition-colors">
-                  Ordenar ↕
-                </button>
                 <button
                   onClick={handleCreate}
                   className="px-4 py-1.5 bg-[#2b4b8b] hover:bg-blue-600 rounded-lg flex items-center justify-center gap-2 text-blue-100 font-medium text-[13px] transition-all"
@@ -420,6 +468,20 @@ const GeneralTab: React.FC<Props> = ({ onBack, showConfirm, showAlert }) => {
             <table className="w-full text-left border-collapse">
               <thead className="text-slate-500 dark:text-slate-300 text-[13px] font-semibold border-b border-slate-200 dark:border-white/10">
                 <tr>
+                  <th className="py-3 px-2 w-10">
+                    <button 
+                      type="button" 
+                      onClick={toggleSelectAll} 
+                      className="text-slate-400 hover:text-blue-500 transition-colors"
+                      title="Seleccionar Todos"
+                    >
+                      {selectedUserIds.length > 0 && selectedUserIds.length === users.length ? (
+                        <CheckSquare size={16} className="text-blue-500" />
+                      ) : (
+                        <Square size={16} />
+                      )}
+                    </button>
+                  </th>
                   <th className="py-3 px-2 font-medium cursor-pointer" onClick={() => toggleUserSort('username')}>
                     Usuario {userSortConfig.key === 'username' && (userSortConfig.dir === 'asc' ? '↑' : '↓')}
                   </th>
@@ -433,14 +495,29 @@ const GeneralTab: React.FC<Props> = ({ onBack, showConfirm, showAlert }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/[0.05]">
-                {(finalUsers || []).map((user, index) => (
+                {(finalUsers || []).map((user, index) => {
+                  const isSelected = selectedUserIds.includes(user.id);
+                  return (
                   <motion.tr 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: index * 0.03 }}
                     key={user.id} 
-                    className="hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors"
+                    className={`hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors ${isSelected ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
                   >
+                    <td className="py-3 px-2">
+                      <button 
+                        type="button" 
+                        onClick={() => toggleSelectUser(user.id)} 
+                        className="text-slate-400 hover:text-blue-500 transition-colors"
+                      >
+                        {isSelected ? (
+                          <CheckSquare size={16} className="text-blue-500" />
+                        ) : (
+                          <Square size={16} />
+                        )}
+                      </button>
+                    </td>
                     <td className="py-3 px-2">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-[#1e2e4f] text-blue-600 dark:text-blue-400 text-[11px] font-bold flex items-center justify-center tracking-wider">
@@ -482,7 +559,8 @@ const GeneralTab: React.FC<Props> = ({ onBack, showConfirm, showAlert }) => {
                       </div>
                     </td>
                   </motion.tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
             {finalUsers.length === 0 && (

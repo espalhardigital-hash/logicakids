@@ -39,15 +39,15 @@ content = content.replace(
 # M1L3 interactivos
 content = content.replace(
     '{"pregunta": "¿Cuántos centímetros hay en 3 metros?",',
-    '{"pregunta": "¿Cuántos centímetros hay en 3 metros?<br/>" + svg_rect(3, 1, unit="m"),'
+    '{"pregunta": "¿Cuántos centímetros hay en 3 metros?<br/>" + svg_length_conversion(3, "m", "cm", 100),'
 )
 content = content.replace(
     '{"pregunta": "¿Cuántos metros hay en 5 kilómetros?",',
-    '{"pregunta": "¿Cuántos metros hay en 5 kilómetros?<br/>" + svg_rect(5, 1, unit="km"),'
+    '{"pregunta": "¿Cuántos metros hay en 5 kilómetros?<br/>" + svg_length_conversion(5, "km", "m", 1000),'
 )
 content = content.replace(
     '{"pregunta": "¿Cuántos milímetros hay en 2 centímetros?",',
-    '{"pregunta": "¿Cuántos milímetros hay en 2 centímetros?<br/>" + svg_rect(2, 1, unit="cm"),'
+    '{"pregunta": "¿Cuántos milímetros hay en 2 centímetros?<br/>" + svg_length_conversion(2, "cm", "mm", 10),'
 )
 
 # M2L1 dict

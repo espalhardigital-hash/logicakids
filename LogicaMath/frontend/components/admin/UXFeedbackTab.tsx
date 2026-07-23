@@ -173,6 +173,30 @@ export const UXFeedbackTab: React.FC = () => {
     }
   };
 
+  const handleDeleteFeedback = async (id: number) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este reporte de UX de la base de datos?')) return;
+    setUpdatingId(id);
+    const token = getStoredToken();
+    try {
+      const response = await fetch(`${API_URL}/evaluador/feedback/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error('Error al eliminar el reporte.');
+
+      setFeedbacks(prev => prev.filter(f => f.id !== id));
+      if (selectedFeedback && selectedFeedback.id === id) {
+        setSelectedFeedback(null);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const getPriorityColor = (p: string) => {
     switch (p) {
       case 'critica': return 'bg-red-500/10 text-red-500 border border-red-500/20';
@@ -307,15 +331,24 @@ export const UXFeedbackTab: React.FC = () => {
                     </td>
                     <td className="p-4">{getStatusBadge(f.estado)}</td>
                     <td className="p-4 pr-6 text-right">
-                      <button 
-                        onClick={() => {
-                          setSelectedFeedback(f);
-                          setDevNotes(f.desarrollador_notes || '');
-                        }}
-                        className="px-3.5 py-1.5 rounded-lg bg-purple-600/20 text-purple-400 hover:bg-purple-600 hover:text-white transition-colors font-bold text-xs"
-                      >
-                        Ver Detalle
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => {
+                            setSelectedFeedback(f);
+                            setDevNotes(f.desarrollador_notes || '');
+                          }}
+                          className="px-3.5 py-1.5 rounded-lg bg-purple-600/20 text-purple-400 hover:bg-purple-600 hover:text-white transition-colors font-bold text-xs"
+                        >
+                          Ver Detalle
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteFeedback(f.id)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          title="Eliminar Reporte"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
