@@ -6,23 +6,23 @@ import { GameScreenState, GameStats, GameCategory, ScoreRecord, Difficulty, User
 const WelcomeScreen = React.lazy(() => import('./components/fase1/WelcomeScreen'));
 const WelcomeScreenPhase2 = React.lazy(() => import('./components/fase2/WelcomeScreenPhase2'));
 const Fase2GameScreen = React.lazy(() => import('./components/fase2/Fase2GameScreen'));
+const WelcomeScreenPhase3 = React.lazy(() => import('./components/fase3/WelcomeScreenPhase3'));
+const Fase3GameScreen = React.lazy(() => import('./components/fase3/Fase3GameScreen'));
+const WelcomeScreenPhase4 = React.lazy(() => import('./components/fase4/WelcomeScreenPhase4'));
+const Fase4GameScreen = React.lazy(() => import('./components/fase4/Fase4GameScreen'));
 const WelcomeScreenPhaseGeneric = React.lazy(() => import('./components/fase_generic/WelcomeScreenPhaseGeneric'));
-const WelcomeScreenPhase7 = React.lazy(() => import('./components/fase7/WelcomeScreenPhase7'));
-const WelcomeScreenPhase8 = React.lazy(() => import('./components/fase8/WelcomeScreenPhase8'));
-const WelcomeScreenPhase9 = React.lazy(() => import('./components/fase9/WelcomeScreenPhase9'));
 const FaseGenericGameScreen = React.lazy(() => import('./components/fase_generic/FaseGenericGameScreen'));
-const WelcomeScreenPhase3 = React.lazy(() => import('./components/fase3/WelcomeScreenPhase3').then(module => ({ default: module.WelcomeScreenPhase3 })));
-const Fase3GameScreen = React.lazy(() => import('./components/fase3/Fase3GameScreen').then(module => ({ default: module.Fase3GameScreen })));
-const WelcomeScreenPhase4 = React.lazy(() => import('./components/fase4/WelcomeScreenPhase4').then(module => ({ default: module.WelcomeScreenPhase4 })));
-const Fase4GameScreen = React.lazy(() => import('./components/fase4/Fase4GameScreen').then(module => ({ default: module.Fase4GameScreen })));
 const WelcomeScreenPhase5 = React.lazy(() => import('./components/fase5/WelcomeScreenPhase5'));
 const Fase5GameScreen = React.lazy(() => import('./components/fase5/Fase5GameScreen'));
 const WelcomeScreenPhase6 = React.lazy(() => import('./components/fase6/WelcomeScreenPhase6'));
 const Fase6GameScreen = React.lazy(() => import('./components/fase6/Fase6GameScreen'));
+const WelcomeScreenPhase7 = React.lazy(() => import('./components/fase7/WelcomeScreenPhase7'));
 const Fase7GameScreen = React.lazy(() => import('./components/fase7/Fase7GameScreen'));
-const Fase8GameScreen = React.lazy(() => import('./components/fase8/Fase8GameScreen'));
-const Fase9GameScreen = React.lazy(() => import('./components/fase9/Fase9GameScreen').then(m => ({ default: m.Fase9GameScreen })));
-const Fase9ResultsScreen = React.lazy(() => import('./components/fase9/Fase9ResultsScreen').then(m => ({ default: m.Fase9ResultsScreen })));
+const WelcomeScreenPhase8 = React.lazy(() => import('./components/fase_generic/WelcomeScreenPhaseGeneric'));
+const Fase8GameScreen = React.lazy(() => import('./components/fase_generic/FaseGenericGameScreen'));
+const WelcomeScreenPhase9 = React.lazy(() => import('./components/fase11/WelcomeScreenPhase9'));
+const Fase9GameScreen = React.lazy(() => import('./components/fase11/Fase9GameScreen').then(m => ({ default: m.Fase9GameScreen })));
+const Fase9ResultsScreen = React.lazy(() => import('./components/fase11/Fase9ResultsScreen').then(m => ({ default: m.Fase9ResultsScreen })));
 const PhaseMapScreen = React.lazy(() => import('./components/map/PhaseMapScreen'));
 const GameScreen = React.lazy(() => import('./components/fase1/GameScreen'));
 const ResultsScreen = React.lazy(() => import('./components/fase1/ResultsScreen'));
@@ -197,13 +197,7 @@ const Fase8GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
   return (
     <UXFeedbackOverlay fase={8} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
       <div data-component="Fase8GameScreen" style={{ display: 'contents' }}>
-        <Fase8GameScreen
-          moduloId={parseInt(moduloId as string, 10)}
-          nivelId={parseInt(nivelId as string, 10)}
-          isEvaluatorMode={isEvaluatorMode}
-          onComplete={() => navigate('/welcome-fase8')}
-          onBack={() => navigate('/welcome-fase8')}
-        />
+        <Fase8GameScreen isEvaluatorMode={isEvaluatorMode} />
       </div>
     </UXFeedbackOverlay>
   );

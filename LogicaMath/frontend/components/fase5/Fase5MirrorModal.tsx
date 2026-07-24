@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Delete, ArrowRight, X } from 'lucide-react';
-import type { Fase5Pregunta, Fase5AnswerResult, Fase5AnswerResult as ResultType } from './Fase5Types';
+import type { Fase5Pregunta, Fase5AnswerResult } from './Fase5Types';
 import { submitFase5Answer } from './Fase5Service';
 
 interface Props {
@@ -30,7 +30,6 @@ export const Fase5MirrorModal: React.FC<Props> = ({
   const [shaking, setShaking] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Resetear estado cuando cambie la pregunta (para pasar a la siguiente variante)
   useEffect(() => {
     setRespuesta('');
     setFeedback({ visible: false, esCorrecta: false });
@@ -70,7 +69,6 @@ export const Fase5MirrorModal: React.FC<Props> = ({
         setTimeout(() => setShaking(false), 450);
         setFeedback({ visible: true, esCorrecta: false, resultado: result });
         if (result.soporte_avanzado) {
-          // Si llegamos al rescate, cerramos el espejo para que el padre muestre el rescate
           setTimeout(() => onClose(result), 1500);
         }
       }

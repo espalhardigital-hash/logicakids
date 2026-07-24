@@ -31,13 +31,13 @@ from app.models.sql_models import Alumno, ProgresoMaestria, EstadoProgresoEnum
 from app.models.simulado import SimuladoSession
 from app.models.simulado_questao import SimuladoQuestao
 
-router = APIRouter(prefix="/fases/9/simulados", tags=["simulados"])
+router = APIRouter(prefix="/fases/11/simulados", tags=["simulados"])
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN DE LOS 20 SIMULACROS
 # ─────────────────────────────────────────────────────────────────────────────
 
-FASE_ID = 9
+FASE_ID = 11
 PREGUNTAS_POR_SIMULACRO = 10
 PORCENTAJE_APROBACION = 60  # 6/10
 

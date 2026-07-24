@@ -1,13 +1,14 @@
 """
-Schemas Pydantic — Fase 9: Simulados Colegio Pedro II
+Schemas Pydantic — Fase 2: Desarrollo Numérico y Razonamiento
 =============================================================
-Schemas exclusivos de los 3 módulos de Fase 9. No modifica ni reemplaza
+Schemas exclusivos de los 4 módulos de Fase 2. No modifica ni reemplaza
 los schemas globales de app.schemas; conviven sin conflicto.
 
 Módulos:
-  1. Simulados Cortos (3 niveles + 3 desafíos)
-  2. Simulados Completos (3 niveles + 3 desafíos)
-  3. Revisión Dirigida y Tutoría IA (3 niveles + 3 desafíos)
+  1. Gimnasio Numérico Mental (3 niveles)
+  2. Tablas en Acción (4 niveles)
+  3. Tienda Matemática (4 niveles)
+  4. Constructor de Soluciones (3 niveles)
 
 Cada módulo posee 3 desafíos virtuales (nivel_id 11, 12, 13).
 """
@@ -20,7 +21,7 @@ from typing import Optional, List, Dict, Any
 # ALTERNATIVA (Opción Múltiple — Desafíos 1 y 2)
 # ============================================================
 
-class fase9AlternativaOut(BaseModel):
+class fase8AlternativaOut(BaseModel):
     """Una opción de respuesta para preguntas de opción múltiple."""
     id: int
     texto: str
@@ -32,7 +33,7 @@ class fase9AlternativaOut(BaseModel):
 # TOKENS (Legado Módulo Detective — no se usa en Fase 2 refactorizada)
 # ============================================================
 
-class fase9Token(BaseModel):
+class fase8Token(BaseModel):
     """Un segmento tokenizado del enunciado de un problema de texto."""
     id: int
     texto: str
@@ -44,7 +45,7 @@ class fase9Token(BaseModel):
 # PREGUNTA PARA EL ALUMNO (Fase 2)
 # ============================================================
 
-class fase9PreguntaParaAlumno(BaseModel):
+class fase8PreguntaParaAlumno(BaseModel):
     """Lo que recibe el frontend para mostrar una pregunta de Fase 2."""
     id: Optional[int] = None           # None para preguntas generadas dinámicamente
     modulo_id: int
@@ -57,7 +58,7 @@ class fase9PreguntaParaAlumno(BaseModel):
     tiempo_limite_segundos: Optional[int] = None
 
     # Opciones múltiples (Desafíos 1 y 2)
-    alternativas: Optional[List[fase9AlternativaOut]] = None
+    alternativas: Optional[List[fase8AlternativaOut]] = None
 
     # Constructor de Soluciones (Módulo 4)
     pasos_encadenados: Optional[List[Dict[str, Any]]] = None
@@ -67,7 +68,7 @@ class fase9PreguntaParaAlumno(BaseModel):
     explicacion_referencia: Optional[Dict[str, Any]] = None
 
     # Legado: tokens (no se usa en la Fase 2 refactorizada)
-    payload_tokenizado: Optional[List[fase9Token]] = None
+    payload_tokenizado: Optional[List[fase8Token]] = None
 
     # Estado de progreso actual (para sincronización instantánea)
     aciertos_acumulados: int = 0
@@ -81,7 +82,7 @@ class fase9PreguntaParaAlumno(BaseModel):
 # RESPUESTA DEL ALUMNO (Fase 2)
 # ============================================================
 
-class fase9ResponderPregunta(BaseModel):
+class fase8ResponderPregunta(BaseModel):
     """Payload que envía el alumno al responder en Fase 2."""
     modulo_id: int
     nivel_id: int
@@ -101,7 +102,7 @@ class fase9ResponderPregunta(BaseModel):
 # CIERRE DE RESCATE (Fase 2)
 # ============================================================
 
-class fase9CerrarRescate(BaseModel):
+class fase8CerrarRescate(BaseModel):
     """Payload que envía el alumno para omitir la explicación de rescate."""
     modulo_id: int
     nivel_id: int
@@ -113,7 +114,7 @@ class fase9CerrarRescate(BaseModel):
 # RESULTADO DE RESPUESTA (Fase 2)
 # ============================================================
 
-class fase9ResultadoRespuesta(BaseModel):
+class fase8ResultadoRespuesta(BaseModel):
     """Lo que recibe el frontend después de validar la respuesta en Fase 2."""
     es_correcta: bool
     respuesta_correcta: Optional[str] = None
@@ -152,7 +153,7 @@ class fase9ResultadoRespuesta(BaseModel):
 # NIVEL (dentro de un módulo)
 # ============================================================
 
-class fase9NivelInfo(BaseModel):
+class fase8NivelInfo(BaseModel):
     """Estado de un nivel específico dentro de un módulo."""
     nivel_id: int
     nombre: str
@@ -168,7 +169,7 @@ class fase9NivelInfo(BaseModel):
 # DESAFÍO (dentro de un módulo)
 # ============================================================
 
-class fase9DesafioInfo(BaseModel):
+class fase8DesafioInfo(BaseModel):
     """Estado de un desafío específico dentro de un módulo."""
     desafio_id: int       # 11, 12, o 13
     nombre: str
@@ -185,7 +186,7 @@ class fase9DesafioInfo(BaseModel):
 # MÓDULO (dashboard de Fase 2)
 # ============================================================
 
-class fase9ModuloInfo(BaseModel):
+class fase8ModuloInfo(BaseModel):
     """Estado de un módulo completo de Fase 2 para el dashboard."""
     modulo_id: int
     nombre: str
@@ -194,19 +195,19 @@ class fase9ModuloInfo(BaseModel):
     color: str
     estado: str              # bloqueado | en_progreso | dominado
     porcentaje_global: int = 0
-    niveles: List[fase9NivelInfo] = []
-    desafios: List[fase9DesafioInfo] = []
+    niveles: List[fase8NivelInfo] = []
+    desafios: List[fase8DesafioInfo] = []
 
 
 # ============================================================
 # DASHBOARD FASE 2
 # ============================================================
 
-class fase9Dashboard(BaseModel):
+class fase8Dashboard(BaseModel):
     """Todo lo necesario para renderizar la pantalla principal de Fase 2."""
     alumno_nombre: str
     puntos_totales: int = 0
-    modulos: List[fase9ModuloInfo]
+    modulos: List[fase8ModuloInfo]
     desafio_mixto_disponible: bool = False
     desafio_mixto_estado: str = "bloqueado"   # bloqueado | disponible | completado
 
@@ -215,7 +216,7 @@ class fase9Dashboard(BaseModel):
 # LECTURA / TEORIA (ahora desde BD)
 # ============================================================
 
-class fase9InteractivoOut(BaseModel):
+class fase8InteractivoOut(BaseModel):
     """Un ejercicio interactivo dentro del contenido de teoría."""
     pregunta: str
     respuesta: str
@@ -223,13 +224,13 @@ class fase9InteractivoOut(BaseModel):
     feedback_error: str
 
 
-class fase9EjemploOut(BaseModel):
+class fase8EjemploOut(BaseModel):
     """Un ejemplo guiado dentro del contenido de teoría."""
     enunciado: str
     respuesta: str
 
 
-class fase9ContenidoLectura(BaseModel):
+class fase8ContenidoLectura(BaseModel):
     """Contenido teórico/tutorial de un nivel, cargado desde BD."""
     modulo_id: int
     nivel_id: int

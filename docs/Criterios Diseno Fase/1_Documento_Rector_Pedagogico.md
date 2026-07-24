@@ -2,7 +2,7 @@
 
 > **Versión:** 4.0 (Consolidada) | **Última actualización:** 2026-06-08 | **Prioridad documental:** 1 (Máxima)
 
-> Nota de autoridad documental: Este documento es la fuente principal de verdad pedagógica y conceptual de LogicaKids Pro. En caso de conflicto, prevalece primero este Documento Rector Conceptual, luego el Blueprint Técnico, luego el Manual del Administrador y finalmente la Guía UX/UI.
+> Nota de autoridad documental: Este documento es la fuente principal de verdad pedagógica y conceptual de LogicaKids Pro. Para el Modelo B de evaluación en la Zona de Desafíos (Fases 4 a 11), prevalece el Tomo 4 (`4_Guia_TJS_Desafios.md`). En caso de conflicto, prevalece primero este Documento Rector Conceptual (y el Tomo 4 en su ámbito), luego el Blueprint Técnico, luego el Manual del Administrador y finalmente la Guía UX/UI.
 
 > [!IMPORTANT]
 > **GUÍA OPERATIVA PARA DESARROLLADORES E IA:**
@@ -207,7 +207,10 @@ La meta de la práctica libre no es exigir perfección rígida, sino construir d
 
 ---
 
-## 6. Zona de Evaluación: Desafíos (Evaluación Estricta sin Asistencia)
+## 6. Zona de Evaluación: Desafíos (Modelo A — Evaluación de Fluidez)
+
+> **ÁMBITO Y ESTADO:** Este capítulo define el **Modelo A — Evaluación de Fluidez**, de aplicación exclusiva en las **Fases 1, 2 y 3** (estado **CONGELADO**).
+> **CLÁUSULA DE REMISIÓN:** Desde la **Fase 4 en adelante**, rige en forma permanente el **Tomo 4** ([`4_Guia_TJS_Desafios.md`](4_Guia_TJS_Desafios.md)), el cual prevalece sobre este capítulo en caso de cualquier conflicto o discrepancia.
 
 Al terminar los niveles de práctica, el alumno transita de un entorno de **Entrenamiento** a un entorno de **Evaluación Estricta**. Aquí **se elimina por completo el Bucle Espejo y no existe el Bloque de Rescate**. 
 

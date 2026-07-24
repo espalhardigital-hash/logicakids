@@ -84,13 +84,13 @@ export const Fase7MirrorModal: React.FC<Props> = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="f7-feedback-overlay mirror-modal-overlay"
+      className="f6-feedback-overlay mirror-modal-overlay"
       style={{ zIndex: 1100 }}
     >
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="f7-mirror-modal-card glass-card"
+        className="f6-mirror-modal-card glass-card"
         style={{ 
           maxWidth: '800px', 
           width: '95%',
@@ -144,9 +144,9 @@ export const Fase7MirrorModal: React.FC<Props> = ({
                 {pregunta.enunciado}
               </h2>
 
-              <div className="f7-numeric-input-wrap mb-4">
+              <div className="f6-numeric-input-wrap mb-4">
                 <div 
-                  className={`f7-custom-input-box ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : 'focused'}`}
+                  className={`f6-custom-input-box ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : 'focused'}`}
                   onClick={() => inputRef.current?.focus()}
                 >
                   <input
@@ -155,27 +155,27 @@ export const Fase7MirrorModal: React.FC<Props> = ({
                     value={respuesta}
                     onChange={e => !feedback.visible && /^[0-9,.\-]*$/.test(e.target.value) && setRespuesta(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-                    className="f7-hidden-input"
+                    className="f6-hidden-input"
                     autoFocus
                   />
-                  <span className="f7-input-value-text text-4xl">
+                  <span className="f6-input-value-text text-4xl">
                     {feedback.visible 
                       ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) 
                       : (respuesta || '?')}
                   </span>
                   {feedback.visible && (
-                    <div className="f7-input-status-elements">
+                    <div className="f6-input-status-elements">
                       {feedback.esCorrecta ? (
-                        <div className="f7-status-badge correct">
-                          <svg className="f7-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                        <div className="f6-status-badge correct">
+                          <svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         </div>
                       ) : (
                         <>
-                          <span className="f7-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span>
-                          <div className="f7-status-badge incorrect">
-                            <svg className="f7-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <span className="f6-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span>
+                          <div className="f6-status-badge incorrect">
+                            <svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                             </svg>
                           </div>

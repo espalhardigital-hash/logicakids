@@ -1,5 +1,5 @@
 /**
- * Tipos TypeScript — Fase 5: Geometría Plana y Medidas
+ * Tipos TypeScript — Fase 5: Operatoria Decimal y Conversiones
  * Espeja exactamente los schemas Pydantic del backend (fase5/schemas.py)
  */
 
@@ -91,7 +91,7 @@ export interface Fase5AnswerResult {
   // Módulo 4
   tokens_correctos?: number[];
   // Módulo 5 (ahora Módulo 4 Constructor)
-  paso_approved?: number; // legacy
+  paso_approved?: number;
   paso_aprobado?: number;
   valor_paso1_congelado?: string;
 }
@@ -110,7 +110,7 @@ export interface Fase5NivelInfo {
 }
 
 export interface Fase5DesafioInfo {
-  desafio_id: number; // 11, 12, 13
+  desafio_id: number;
   nombre: string;
   dificultad: 'estandar' | 'avanzada' | 'maestria';
   estado: 'bloqueado' | 'en_progreso' | 'dominado';
@@ -152,11 +152,11 @@ export interface Fase5Lectura {
   ejemplos?: Array<{ 
     enunciado: string; 
     pasos?: Array<{ orden: number; texto: string }>;
-    respuesta?: string; // Legacy / Fallback
+    respuesta?: string;
   }>;
   interactivos?: Array<{
     enunciado?: string;
-    pregunta?: string; // Legacy
+    pregunta?: string;
     pasos?: Array<{ orden: number; texto: string }>;
     respuesta: string;
     feedback_acierto: string;
@@ -164,4 +164,3 @@ export interface Fase5Lectura {
   }>;
   tip_pedagogico?: string;
 }
-

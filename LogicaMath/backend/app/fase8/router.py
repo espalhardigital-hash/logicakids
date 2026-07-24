@@ -1,8 +1,8 @@
 """
 Router FastAPI — Fase 2: Desarrollo Numérico y Razonamiento (Refactorizado)
 =============================================================================
-Prefijo: /fase8
-Tags:    fase8
+Prefijo: /fase7
+Tags:    fase7
 
 Responsabilidades:
   - Dashboard con los 4 módulos (niveles de práctica y de desafíos).
@@ -35,16 +35,16 @@ from ..models.sql_models import (
 from ..utils.math_utils import normalize_response, calcular_max_errores
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from .schemas import (
-    fase8Dashboard, fase8ModuloInfo, fase8NivelInfo,
-    fase8PreguntaParaAlumno, fase8Token,
-    fase8ResponderPregunta, fase8ResultadoRespuesta,
-    fase8ContenidoLectura, fase8DesafioInfo,
-    fase8AlternativaOut, fase8CerrarRescate,
+    fase7Dashboard, fase7ModuloInfo, fase7NivelInfo,
+    fase7PreguntaParaAlumno, fase7Token,
+    fase7ResponderPregunta, fase7ResultadoRespuesta,
+    fase7ContenidoLectura, fase7DesafioInfo,
+    fase7AlternativaOut, fase7CerrarRescate,
 )
 
-router = APIRouter(prefix="/fase8", tags=["fase8"])
+router = APIRouter(prefix="/fase8", tags=["fase7"])
 
-fase8_ID = 8
+fase7_ID = 7
 MAX_ESPEJO = 3  # Intentos máximos en Bucle Espejo
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -80,21 +80,25 @@ async def _sync_unlocked_levels(db: AsyncSession, alumno_id: int, operacion: str
 # ─────────────────────────────────────────────────────────────────────────────
 
 MODULOS_META = {
-    1: {"nombre": "Secuencias Lógicas", "descripcion": "Progresiones y patrones numéricos.", "icono": "bar-chart", "color": "#10B981"},
-    2: {"nombre": "Combinatoria Visual", "descripcion": "Diagramas de árbol y multiplicativos.", "icono": "share-2", "color": "#8B5CF6"},
-    3: {"nombre": "Probabilidad", "descripcion": "Espacios muestrales y fracciones.", "icono": "help-circle", "color": "#F59E0B"},
+    1: {"nombre": "Orientación Cardinal", "descripcion": "Navega usando los puntos cardinales.", "icono": "compass", "color": "#14B8A6"},
+    2: {"nombre": "Plano Cartesiano", "descripcion": "Coordenadas ortogonales y traslación bidimensional.", "icono": "crosshair", "color": "#0D9488"},
+    3: {"nombre": "La Mecánica del Tiempo", "descripcion": "Sistema sexagesimal y cálculo de intervalos.", "icono": "clock", "color": "#0F766E"},
+    4: {"nombre": "Horarios y Apps", "descripcion": "Tablas de horarios y optimización de viajes.", "icono": "calendar", "color": "#115E59"},
 }
 
 NIVELES_META = {
-    (1, 1): {"nombre": "Progresiones Aritméticas", "descripcion": "Hallar patrón de suma/resta."},
-    (1, 2): {"nombre": "Progresiones Compuestas", "descripcion": "Multiplicación e intercaladas."},
-    (1, 3): {"nombre": "Interpolación", "descripcion": "Deducir término faltante."},
-    (2, 1): {"nombre": "Diagramas de Árbol", "descripcion": "Combinaciones filas x columnas."},
-    (2, 2): {"nombre": "Principio Multiplicativo", "descripcion": "Opciones sin repetición."},
-    (2, 3): {"nombre": "Divisores Comunes", "descripcion": "Empacar grupos exactos."},
-    (3, 1): {"nombre": "Clasificación Determinística", "descripcion": "Evento seguro, posible, imposible."},
-    (3, 2): {"nombre": "Definición de Laplace", "descripcion": "Casos Favorables / Posibles."},
-    (3, 3): {"nombre": "Análisis Probabilístico", "descripcion": "Fracciones comparativas."},
+    (1, 1): {"nombre": "Descubrimiento", "descripcion": "Identificar Norte, Sur, Este y Oeste."},
+    (1, 2): {"nombre": "Consolidación", "descripcion": "Traducción de instrucciones verbales a vectores."},
+    (1, 3): {"nombre": "Fluidez", "descripcion": "Detección de rutas imposibles y distancias óptimas."},
+    (2, 1): {"nombre": "Descubrimiento", "descripcion": "Pares ordenados (X,Y) en primer cuadrante."},
+    (2, 2): {"nombre": "Consolidación", "descripcion": "Traslación de figuras en el plano cartesiano."},
+    (2, 3): {"nombre": "Fluidez", "descripcion": "Distancia Manhattan (conteo vectorial)."},
+    (3, 1): {"nombre": "Descubrimiento", "descripcion": "Lectura de reloj y conversiones temporales."},
+    (3, 2): {"nombre": "Consolidación", "descripcion": "Duración de eventos AM/PM y formato 24h."},
+    (3, 3): {"nombre": "Fluidez", "descripcion": "Aritmética sexagesimal (suma y resta de tiempos)."},
+    (4, 1): {"nombre": "Descubrimiento", "descripcion": "Lectura de tablas de horarios de transporte."},
+    (4, 2): {"nombre": "Consolidación", "descripcion": "Tiempos compuestos (viaje, espera, transbordo)."},
+    (4, 3): {"nombre": "Fluidez", "descripcion": "Optimización y comparación de opciones de transporte."},
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -146,7 +150,7 @@ async def _get_config(db: AsyncSession, seccion: int, operacion: str) -> Optiona
     # 1. Intentar obtener configuración específica y activa del bloque/nivel
     result = await db.execute(
         select(ConfiguracionProgreso).where(and_(
-            ConfiguracionProgreso.fase_id == fase8_ID,
+            ConfiguracionProgreso.fase_id == fase7_ID,
             ConfiguracionProgreso.seccion == seccion,
             ConfiguracionProgreso.activo == True
         ))
@@ -158,7 +162,7 @@ async def _get_config(db: AsyncSession, seccion: int, operacion: str) -> Optiona
     # 2. Fallback: intentar obtener configuración por defecto de la Fase 2 (seccion = 0, operacion = 'mixta')
     result_phase = await db.execute(
         select(ConfiguracionProgreso).where(and_(
-            ConfiguracionProgreso.fase_id == fase8_ID,
+            ConfiguracionProgreso.fase_id == fase7_ID,
             ConfiguracionProgreso.seccion == 0,
             ConfiguracionProgreso.operacion == "mixta",
             ConfiguracionProgreso.activo == True
@@ -173,7 +177,7 @@ async def _get_or_create_progreso(
     result = await db.execute(
         select(ProgresoMaestria).where(and_(
             ProgresoMaestria.alumno_id == alumno_id,
-            ProgresoMaestria.fase_id == fase8_ID,
+            ProgresoMaestria.fase_id == fase7_ID,
             ProgresoMaestria.seccion == seccion,
         ))
     )
@@ -181,7 +185,7 @@ async def _get_or_create_progreso(
     if not progreso:
         progreso = ProgresoMaestria(
             alumno_id=alumno_id,
-            fase_id=fase8_ID,
+            fase_id=fase7_ID,
             seccion=seccion,
             operacion=operacion,
             estado=EstadoProgresoEnum.EN_PROGRESO,
@@ -247,8 +251,8 @@ def _is_desafio_unlocked(progresos: dict, modulo_id: int, desafio_id: int, all_p
 # ENDPOINT 1 — Dashboard de la Fase 2 (26 niveles)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/dashboard", response_model=fase8Dashboard)
-async def get_fase8_dashboard(
+@router.get("/dashboard", response_model=fase7Dashboard)
+async def get_fase7_dashboard(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -261,14 +265,14 @@ async def get_fase8_dashboard(
     result = await db.execute(
         select(ProgresoMaestria).where(and_(
             ProgresoMaestria.alumno_id == alumno.id,
-            ProgresoMaestria.fase_id == fase8_ID,
+            ProgresoMaestria.fase_id == fase7_ID,
         ))
     )
     progresos = {p.seccion: p for p in result.scalars().all()}
 
     # Cargar configuraciones
     result = await db.execute(
-        select(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == fase8_ID)
+        select(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == fase7_ID)
     )
     configs = {c.seccion: c for c in result.scalars().all()}
 
@@ -279,7 +283,7 @@ async def get_fase8_dashboard(
     modulos = []
     modulo_niveles_map = {1: 3, 2: 3, 3: 3, 4: 3}
     
-    for mod_id in range(1, 4):
+    for mod_id in range(1, 5):
         meta = MODULOS_META[mod_id]
         niveles = []
         desafios = []
@@ -314,7 +318,7 @@ async def get_fase8_dashboard(
                     estado = "en_progreso" if _is_nivel_unlocked(progresos, mod_id, niv_id) else "bloqueado"
 
             mod_porcentaje_total += porcentaje
-            niveles.append(fase8NivelInfo(
+            niveles.append(fase7NivelInfo(
                 nivel_id=niv_id,
                 nombre=niv_meta["nombre"],
                 descripcion=niv_meta["descripcion"],
@@ -377,7 +381,7 @@ async def get_fase8_dashboard(
             max_errores_dinamico = calcular_max_errores(cantidad_req, porc_aprobacion)
 
             mod_porcentaje_total += porcentaje
-            desafios.append(fase8DesafioInfo(
+            desafios.append(fase7DesafioInfo(
                 desafio_id=des_id,
                 nombre=d_conf["nombre"],
                 dificultad=d_conf["dificultad"],
@@ -397,7 +401,7 @@ async def get_fase8_dashboard(
         else:
             estado_modulo = "en_progreso"
 
-        modulos.append(fase8ModuloInfo(
+        modulos.append(fase7ModuloInfo(
             modulo_id=mod_id,
             nombre=meta["nombre"],
             descripcion=meta["descripcion"],
@@ -417,7 +421,7 @@ async def get_fase8_dashboard(
     desafio_mixto_disponible = (total_niveles_aprobados >= 9)
     desafio_mixto_estado = "completado" if desafio_mixto_disponible else "bloqueado"
 
-    return fase8Dashboard(
+    return fase7Dashboard(
         alumno_nombre=alumno.nombre,
         puntos_totales=puntos,
         modulos=modulos,
@@ -430,8 +434,8 @@ async def get_fase8_dashboard(
 # ENDPOINT 2 — Contenido de lectura / teoría dinámico
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=fase8ContenidoLectura)
-async def get_lectura_fase8(
+@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=fase7ContenidoLectura)
+async def get_lectura_fase7(
     modulo_id: int,
     nivel_id: int,
     db: AsyncSession = Depends(get_db),
@@ -440,7 +444,7 @@ async def get_lectura_fase8(
     """Devuelve el contenido de lectura/teoría de un nivel específico desde la base de datos."""
     result = await db.execute(
         select(NivelTeoria).where(and_(
-            NivelTeoria.fase_id == fase8_ID,
+            NivelTeoria.fase_id == fase7_ID,
             NivelTeoria.modulo_id == modulo_id,
             NivelTeoria.nivel_id == nivel_id,
         ))
@@ -448,7 +452,7 @@ async def get_lectura_fase8(
     theory = result.scalar_one_or_none()
     
     if not theory:
-        return fase8ContenidoLectura(
+        return fase7ContenidoLectura(
             modulo_id=modulo_id,
             nivel_id=nivel_id,
             titulo="Teoría Próximamente",
@@ -461,7 +465,7 @@ async def get_lectura_fase8(
     
     parrafos = [p.strip() for p in theory.texto_descubrimiento.split("\n") if p.strip()]
     
-    return fase8ContenidoLectura(
+    return fase7ContenidoLectura(
         modulo_id=modulo_id,
         nivel_id=nivel_id,
         titulo=theory.titulo,
@@ -477,8 +481,8 @@ async def get_lectura_fase8(
 # ENDPOINT 3 — Obtener Pregunta (Práctica con Bucle Espejo y Desafíos aleatorios)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=fase8PreguntaParaAlumno)
-async def get_pregunta_fase8(
+@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=fase7PreguntaParaAlumno)
+async def get_pregunta_fase7(
     modulo_id: int,
     nivel_id: int,
     reload: bool = False,
@@ -501,7 +505,7 @@ async def get_pregunta_fase8(
             await db.execute(
                 delete(Intento).where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase8_ID,
+                    Intento.fase_id == fase7_ID,
                     Intento.seccion == seccion
                 ))
             )
@@ -509,7 +513,7 @@ async def get_pregunta_fase8(
             # Borrar los intentos de la tabla `IntentoPregunta` si aplica
             result_q_ids = await db.execute(
                 select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == fase8_ID,
+                    Pregunta.fase_id == fase7_ID,
                     Pregunta.seccion == seccion
                 ))
             )
@@ -534,7 +538,7 @@ async def get_pregunta_fase8(
             select(Intento.pregunta_id)
             .where(and_(
                 Intento.alumno_id == alumno.id,
-                Intento.fase_id == fase8_ID,
+                Intento.fase_id == fase7_ID,
                 Intento.seccion == seccion,
                 Intento.es_correcta == True
             ))
@@ -543,7 +547,7 @@ async def get_pregunta_fase8(
 
         # Si modulo_id == 99, traer preguntas de toda la fase 2 (preferiblemente de nivel 13)
         query = select(Pregunta).options(selectinload(Pregunta.alternativas)).where(and_(
-            Pregunta.fase_id == fase8_ID,
+            Pregunta.fase_id == fase7_ID,
             Pregunta.estado == StatusEnum.ACTIVO
         ))
         
@@ -569,7 +573,7 @@ async def get_pregunta_fase8(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                fase8AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                fase7AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -597,7 +601,7 @@ async def get_pregunta_fase8(
         if not tiene_crono:
             tiempo_lim = None
 
-        return fase8PreguntaParaAlumno(
+        return fase7PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
@@ -622,7 +626,7 @@ async def get_pregunta_fase8(
             await db.execute(
                 delete(Intento).where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase8_ID,
+                    Intento.fase_id == fase7_ID,
                     Intento.seccion == seccion
                 ))
             )
@@ -630,7 +634,7 @@ async def get_pregunta_fase8(
             # 2. Borrar los intentos de la tabla `IntentoPregunta` para las preguntas de esta sección
             result_q_ids = await db.execute(
                 select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == fase8_ID,
+                    Pregunta.fase_id == fase7_ID,
                     Pregunta.seccion == seccion
                 ))
             )
@@ -657,7 +661,7 @@ async def get_pregunta_fase8(
                 select(Intento)
                 .where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase8_ID,
+                    Intento.fase_id == fase7_ID,
                     Intento.seccion == seccion,
                 ))
                 .order_by(Intento.fecha.desc(), Intento.id.desc())
@@ -716,7 +720,7 @@ async def get_pregunta_fase8(
             result_qs = await db.execute(
                 select(Pregunta).options(selectinload(Pregunta.alternativas))
                 .where(and_(
-                    Pregunta.fase_id == fase8_ID,
+                    Pregunta.fase_id == fase7_ID,
                     Pregunta.seccion == seccion,
                     Pregunta.estado == StatusEnum.ACTIVO
                 ))
@@ -735,7 +739,7 @@ async def get_pregunta_fase8(
                 .join(Intento, Intento.pregunta_id == Pregunta.id)
                 .where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase8_ID,
+                    Intento.fase_id == fase7_ID,
                     Intento.seccion == seccion,
                     or_(
                         Intento.es_correcta == True,
@@ -760,7 +764,7 @@ async def get_pregunta_fase8(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                fase8AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                fase7AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -789,7 +793,7 @@ async def get_pregunta_fase8(
         if not tiene_crono:
             tiempo_lim = None
 
-        return fase8PreguntaParaAlumno(
+        return fase7PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
@@ -809,9 +813,9 @@ async def get_pregunta_fase8(
 # ENDPOINT 4 — Responder pregunta (Valida y actualiza progreso)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.post("/responder", response_model=fase8ResultadoRespuesta)
-async def responder_fase8(
-    payload: fase8ResponderPregunta,
+@router.post("/responder", response_model=fase7ResultadoRespuesta)
+async def responder_fase7(
+    payload: fase7ResponderPregunta,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -845,8 +849,8 @@ async def responder_fase8(
 
     # 1. VALIDAR LA RESPUESTA
     tipo_pregunta = pregunta.tipo_pregunta.value
-    # Fase 8 no maneja dinero (módulo 3 = "Probabilidad", copiado de Fase 2/3 donde
-    # módulo 3 sí era la Tienda). Todas las preguntas de Fase 8 son multiple_opcion
+    # Fase 7 no maneja dinero (módulo 3 = "La Mecánica del Tiempo", copiado de Fase 2/3
+    # donde módulo 3 sí era la Tienda). Todas las preguntas de Fase 7 son multiple_opcion
     # hoy, así que esto es defensivo, pero corregimos el copy-paste para que no rompa si
     # se agrega algún tipo de respuesta numérica/texto libre en el futuro.
     is_money = False
@@ -978,7 +982,7 @@ async def responder_fase8(
         pregunta_id=payload.pregunta_id,
         respuesta_dada=payload.respuesta_dada or (str(payload.alternativa_id) if payload.alternativa_id else ""),
         es_correcta=es_correcta_intento,
-        fase_id=fase8_ID,
+        fase_id=fase7_ID,
         seccion=seccion,
         operacion=operacion,
         tipo_error=tipo_error,
@@ -1010,7 +1014,7 @@ async def responder_fase8(
             select(Intento)
             .where(and_(
                 Intento.alumno_id == alumno.id,
-                Intento.fase_id == fase8_ID,
+                Intento.fase_id == fase7_ID,
                 Intento.seccion == seccion,
             ))
             .order_by(Intento.fecha.desc(), Intento.id.desc())
@@ -1046,7 +1050,7 @@ async def responder_fase8(
             await db.execute(
                 delete(Intento).where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase8_ID,
+                    Intento.fase_id == fase7_ID,
                     Intento.seccion == seccion
                 ))
             )
@@ -1054,7 +1058,7 @@ async def responder_fase8(
             # Borrar los intentos de la tabla `IntentoPregunta` si aplica
             result_q_ids = await db.execute(
                 select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == fase8_ID,
+                    Pregunta.fase_id == fase7_ID,
                     Pregunta.seccion == seccion
                 ))
             )
@@ -1069,7 +1073,7 @@ async def responder_fase8(
             
             await db.commit()
             
-            return fase8ResultadoRespuesta(
+            return fase7ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
                 aciertos_acumulados=0,
@@ -1130,16 +1134,16 @@ async def responder_fase8(
                 res_aprob = await db.execute(
                     select(func.count(ProgresoMaestria.id)).where(and_(
                         ProgresoMaestria.alumno_id == alumno.id,
-                        ProgresoMaestria.fase_id == fase8_ID,
+                        ProgresoMaestria.fase_id == fase7_ID,
                         ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO,
                     ))
                 )
-                if res_aprob.scalar() >= 18:
+                if res_aprob.scalar() >= 24:
                     fase_completada = True
 
             await db.commit()
 
-            return fase8ResultadoRespuesta(
+            return fase7ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
                 aciertos_acumulados=progreso.aciertos_acumulados,
@@ -1192,7 +1196,7 @@ async def responder_fase8(
             .join(Intento, Intento.pregunta_id == Pregunta.id)
             .where(and_(
                 Intento.alumno_id == alumno.id,
-                Intento.fase_id == fase8_ID,
+                Intento.fase_id == fase7_ID,
                 Intento.seccion == seccion,
                 or_(
                     Intento.es_correcta == True,
@@ -1217,11 +1221,11 @@ async def responder_fase8(
             res_aprob = await db.execute(
                 select(func.count(ProgresoMaestria.id)).where(and_(
                     ProgresoMaestria.alumno_id == alumno.id,
-                    ProgresoMaestria.fase_id == fase8_ID,
+                    ProgresoMaestria.fase_id == fase7_ID,
                     ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
                 ))
             )
-            if res_aprob.scalar() >= 18:
+            if res_aprob.scalar() >= 24:
                 fase_completada = True
 
             # Sincronizar espejo visual heredado
@@ -1249,7 +1253,7 @@ async def responder_fase8(
 
         await db.commit()
 
-        return fase8ResultadoRespuesta(
+        return fase7ResultadoRespuesta(
             es_correcta=es_correcta,
             respuesta_correcta=respuesta_correcta_str,
             explicacion=pregunta.explicacion_paso_a_paso if (not es_correcta and soporte_avanzado) else None,
@@ -1272,9 +1276,9 @@ async def responder_fase8(
 # ENDPOINT 4.5 — Cerrar Rescate (Bypass sin anti-spam)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.post("/cerrar-rescate", response_model=fase8ResultadoRespuesta)
-async def cerrar_rescate_fase8(
-    payload: fase8CerrarRescate,
+@router.post("/cerrar-rescate", response_model=fase7ResultadoRespuesta)
+async def cerrar_rescate_fase7(
+    payload: fase7CerrarRescate,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -1301,7 +1305,7 @@ async def cerrar_rescate_fase8(
         pregunta_id=payload.pregunta_id,
         respuesta_dada="BYPASS_EXPLICACION",
         es_correcta=False,
-        fase_id=fase8_ID,
+        fase_id=fase7_ID,
         seccion=seccion,
         operacion=operacion,
         tipo_error=TipoErrorEnum.CALCULO,
@@ -1327,7 +1331,7 @@ async def cerrar_rescate_fase8(
         .join(Intento, Intento.pregunta_id == Pregunta.id)
         .where(and_(
             Intento.alumno_id == alumno.id,
-            Intento.fase_id == fase8_ID,
+            Intento.fase_id == fase7_ID,
             Intento.seccion == seccion,
             or_(
                 Intento.es_correcta == True,
@@ -1352,11 +1356,11 @@ async def cerrar_rescate_fase8(
         res_aprob = await db.execute(
             select(func.count(ProgresoMaestria.id)).where(and_(
                 ProgresoMaestria.alumno_id == alumno.id,
-                ProgresoMaestria.fase_id == fase8_ID,
+                ProgresoMaestria.fase_id == fase7_ID,
                 ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
             ))
         )
-        if res_aprob.scalar() >= 18:
+        if res_aprob.scalar() >= 24:
             fase_completada = True
 
         # Sincronizar espejo visual heredado
@@ -1364,7 +1368,7 @@ async def cerrar_rescate_fase8(
 
     await db.commit()
 
-    return fase8ResultadoRespuesta(
+    return fase7ResultadoRespuesta(
         es_correcta=False,
         respuesta_correcta=pregunta.respuesta_correcta,
         aciertos_acumulados=progreso.aciertos_acumulados,
@@ -1381,44 +1385,44 @@ async def cerrar_rescate_fase8(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ENDPOINT 5 — Graduación a Fase 9 (Exige 18 niveles aprobados)
+# ENDPOINT 5 — Graduación a Fase 8 (Exige 24 niveles aprobados)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.post("/graduate")
-async def graduate_fase8(
+async def graduate_fase7(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
     """
-    Gradúa al alumno de Fase 8 a Fase 9 si todos los 18 niveles (9 de práctica y 9 desafíos) están dominados.
+    Gradúa al alumno de Fase 7 a Fase 8 si todos los 24 niveles (12 práctica + 12 desafíos) están dominados.
     """
 
     result = await db.execute(
         select(func.count(ProgresoMaestria.id)).where(and_(
             ProgresoMaestria.alumno_id == alumno.id,
-            ProgresoMaestria.fase_id == fase8_ID,
+            ProgresoMaestria.fase_id == fase7_ID,
             ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO,
         ))
     )
     aprobados = result.scalar()
-    if aprobados < 18:
+    if aprobados < 24:
         raise HTTPException(
             status_code=400,
-            detail=f"Debes dominar los 18 niveles de Fase 8 (9 de práctica y 9 desafíos). Llevas {aprobados}/18.",
+            detail=f"Debes dominar los 24 niveles de Fase 7 (12 de práctica y 12 desafíos). Llevas {aprobados}/24.",
         )
 
-    result = await db.execute(select(Fase).where(Fase.orden == 9))
-    fase9 = result.scalar_one_or_none()
-    if not fase9:
-        raise HTTPException(status_code=500, detail="La Fase 9 aún no ha sido configurada.")
+    result = await db.execute(select(Fase).where(Fase.orden == 8))
+    fase8 = result.scalar_one_or_none()
+    if not fase8:
+        raise HTTPException(status_code=500, detail="La Fase 8 aún no ha sido configurada.")
 
-    alumno.fase_actual_id = fase9.id
+    alumno.fase_actual_id = fase8.id
     await db.commit()
 
     return {
-        "message": "¡Felicitaciones! ¡Has dominado la Fase 8 y avanzas a la Fase 9!",
-        "nueva_fase_id": fase9.id,
-        "nueva_fase_nombre": fase9.nombre,
+        "message": "¡Felicitaciones! ¡Has dominado la Fase 7 y avanzas a la Fase 8!",
+        "nueva_fase_id": fase8.id,
+        "nueva_fase_nombre": fase8.nombre,
     }
 
 

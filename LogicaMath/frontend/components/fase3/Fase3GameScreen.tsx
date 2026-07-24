@@ -1275,3 +1275,5 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
     </div>
   );
 };
+
+export default Fase3GameScreen;

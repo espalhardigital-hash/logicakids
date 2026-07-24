@@ -1,6 +1,6 @@
 import React, { useState, Component, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Zap, Brain, BookOpen, PieChart, Square, Box, Map, Lightbulb, GraduationCap, User as UserIcon, X, HelpCircle } from 'lucide-react';
+import { Lock, Zap, Brain, BookOpen, PieChart, Square, Box, Map, Lightbulb, GraduationCap, Calculator, Layers, User as UserIcon, X, HelpCircle } from 'lucide-react';
 import { User } from '../../types';
 import { getAvatarUrl, getCurrentUserFull } from '../../services/storageService';
 
@@ -116,7 +116,7 @@ export default function PhaseMapScreen({
     },
     {
       index: 3,
-      title: 'Problemas de Texto',
+      title: 'Problemas de Texto y Sistemas Simples',
       description: 'Aprende a leer, interpretar y estructurar datos para resolver problemas matemáticos.',
       icon: BookOpen,
       color: 'bg-orange-500',
@@ -126,8 +126,8 @@ export default function PhaseMapScreen({
     },
     {
       index: 4,
-      title: 'Fracciones, Porcentajes y Gráficos',
-      description: 'Trabaja la relación parte-todo mediante fracciones simples, porcentajes y gráficos.',
+      title: 'Fracciones, Porcentajes y Proporciones',
+      description: 'Relación parte-todo, proporciones, porcentajes e interpretación de gráficos.',
       icon: PieChart,
       color: 'bg-purple-500',
       textColor: 'text-purple-400',
@@ -136,8 +136,18 @@ export default function PhaseMapScreen({
     },
     {
       index: 5,
-      title: 'Geometría Plana',
-      description: 'Preparación para ejercicios espaciales utilizando figuras bidimensionales y Tangram.',
+      title: 'Operatoria Decimal y Conversiones',
+      description: 'Operaciones con decimales, conversión de unidades de longitud, volumen y superficie.',
+      icon: Calculator,
+      color: 'bg-cyan-500',
+      textColor: 'text-cyan-400',
+      shadow: 'shadow-cyan-500/50',
+      ringColor: 'group-hover:border-cyan-500/50'
+    },
+    {
+      index: 6,
+      title: 'Geometría Plana Multiforme y Áreas',
+      description: 'Polígonos, perímetros compuestos con lados ocultos, circunferencia y cálculo de áreas.',
       icon: Square,
       color: 'bg-rose-500',
       textColor: 'text-rose-400',
@@ -145,9 +155,9 @@ export default function PhaseMapScreen({
       ringColor: 'group-hover:border-rose-500/50'
     },
     {
-      index: 6,
-      title: 'Geometría Espacial',
-      description: 'Desarrolla visualización 3D interactuando con sólidos y calculando bloques.',
+      index: 7,
+      title: 'Geometría Espacial, Volumen y Magnitudes',
+      description: 'Visualización 3D, sólidos geométricos, conteo de bloques y volumen espacial.',
       icon: Box,
       color: 'bg-indigo-500',
       textColor: 'text-indigo-400',
@@ -155,9 +165,9 @@ export default function PhaseMapScreen({
       ringColor: 'group-hover:border-indigo-500/50'
     },
     {
-      index: 7,
-      title: 'Coordenadas y Desplazamientos',
-      description: 'Plano cartesiano, pares ordenados y nociones de lateralidad / direcciones.',
+      index: 8,
+      title: 'Coordenadas, Rutas y Tiempo',
+      description: 'Plano cartesiano, vectores de movimiento y aritmética del tiempo.',
       icon: Map,
       color: 'bg-teal-500',
       textColor: 'text-teal-400',
@@ -165,9 +175,9 @@ export default function PhaseMapScreen({
       ringColor: 'group-hover:border-teal-500/50'
     },
     {
-      index: 8,
+      index: 9,
       title: 'Probabilidad, Combinatoria y Lógica',
-      description: 'Razonamiento estructurado: identificar casos favorables, secuencias y múltiplos/divisores.',
+      description: 'Razonamiento estructurado, diagramas de árbol, principio multiplicativo y probabilidad.',
       icon: Lightbulb,
       color: 'bg-amber-500',
       textColor: 'text-amber-400',
@@ -175,8 +185,18 @@ export default function PhaseMapScreen({
       ringColor: 'group-hover:border-amber-500/50'
     },
     {
-      index: 9,
-      title: 'Simulados Pedro II',
+      index: 10,
+      title: 'Razonamiento Abstracto y Visual',
+      description: 'Tangram, figuras abstractas y razonamiento visual. (Próximamente)',
+      icon: Layers,
+      color: 'bg-slate-600',
+      textColor: 'text-slate-400',
+      shadow: 'shadow-slate-600/50',
+      ringColor: 'group-hover:border-slate-600/50'
+    },
+    {
+      index: 11,
+      title: 'Simulacros',
       description: 'Preparación decisiva para el formato real del examen con simulacros completos.',
       icon: GraduationCap,
       color: 'bg-yellow-600',

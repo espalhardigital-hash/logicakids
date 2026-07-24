@@ -22,6 +22,8 @@ from .fase6.router import router as fase6_router
 from .fase7.router import router as fase7_router
 from .fase8.router import router as fase8_router
 from .fase9.router import router as fase9_router
+from .fase10.router import router as fase10_router
+from .fase11.router import router as fase11_router
 from .api.rutas.simulados import router as simulados_router
 from .config import settings
 from .db.session import engine
@@ -144,6 +146,8 @@ app.include_router(fase6_router)
 app.include_router(fase7_router)
 app.include_router(fase8_router)
 app.include_router(fase9_router)
+app.include_router(fase10_router)
+app.include_router(fase11_router)
 app.include_router(simulados_router)
 
 # ============================================================

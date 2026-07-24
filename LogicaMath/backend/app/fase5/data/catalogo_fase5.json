@@ -1,0 +1,1286 @@
+{
+  "escenarios": [
+    {
+      "modulo_id": 1,
+      "numero": 1,
+      "nombre": "La cuenta de la panadería",
+      "registro": "concreto",
+      "magnitudes": "dinero (suma)",
+      "enunciado_muestra": "Compra tres panes de R$ 3,50, R$ 2,75 y R$ 1,20; ¿cuánto paga en total?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 2,
+      "nombre": "El vuelto del quiosco",
+      "registro": "concreto",
+      "magnitudes": "dinero (resta)",
+      "enunciado_muestra": "Paga con R$ 10,00 una golosina de R$ 6,35; ¿cuánto vuelto recibe?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 3,
+      "nombre": "La balanza de la cocina",
+      "registro": "concreto",
+      "magnitudes": "masa (suma)",
+      "enunciado_muestra": "Pesa 0,750 kg de harina y agrega 0,300 kg más; ¿cuánta harina hay?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 4,
+      "nombre": "La mochila del colegio",
+      "registro": "concreto",
+      "magnitudes": "masa (suma)",
+      "enunciado_muestra": "La mochila vacía pesa 0,850 kg y los libros 2,400 kg; ¿cuánto pesa cargada?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 5,
+      "nombre": "El pote de las monedas",
+      "registro": "concreto",
+      "magnitudes": "dinero (suma)",
+      "enunciado_muestra": "Guarda R$ 4,25 el lunes y R$ 3,80 el martes; ¿cuánto lleva juntado?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 6,
+      "nombre": "La merienda del recreo",
+      "registro": "concreto",
+      "magnitudes": "dinero (resta)",
+      "enunciado_muestra": "Un jugo de R$ 2,50 y un biscoito de R$ 1,75, paga con R$ 5,00; ¿cuánto vuelto?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 7,
+      "nombre": "La barra de chocolate compartida",
+      "registro": "concreto",
+      "magnitudes": "masa (resta)",
+      "enunciado_muestra": "Una barra de 0,200 kg; come 0,075 kg; ¿cuánto chocolate queda?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 8,
+      "nombre": "La mesada semanal",
+      "registro": "cercano",
+      "magnitudes": "dinero (resta)",
+      "enunciado_muestra": "Recibe R$ 15,00, gasta R$ 8,50 y R$ 2,25; ¿cuánto le queda?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 9,
+      "nombre": "La feria del sábado",
+      "registro": "cercano",
+      "magnitudes": "dinero (suma)",
+      "enunciado_muestra": "Mamá gasta R$ 12,40 en frutas y R$ 9,75 en verduras; ¿cuánto gastó?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 10,
+      "nombre": "La recarga del celular",
+      "registro": "cercano",
+      "magnitudes": "dinero (suma y resta)",
+      "enunciado_muestra": "Tiene R$ 7,30 de saldo, recarga R$ 20,00 y usa R$ 4,85; ¿saldo final?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 11,
+      "nombre": "La vaquinha del cumpleaños",
+      "registro": "cercano",
+      "magnitudes": "dinero (suma)",
+      "enunciado_muestra": "Tres amigos ponen R$ 5,50, R$ 4,25 y R$ 6,00; ¿cuánto reúnen?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 12,
+      "nombre": "El termómetro de la fiebre",
+      "registro": "cercano",
+      "magnitudes": "temperatura (resta)",
+      "enunciado_muestra": "La fiebre pasa de 37,4 °C a 38,9 °C; ¿cuántos grados subió?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 13,
+      "nombre": "El sobre de figurinhas",
+      "registro": "cercano",
+      "magnitudes": "dinero (resta)",
+      "enunciado_muestra": "Cada sobre cuesta R$ 3,25, compra dos y paga con R$ 10,00; ¿cuánto vuelto?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 14,
+      "nombre": "El lanche colectivo del grupo",
+      "registro": "cercano",
+      "magnitudes": "dinero (resta)",
+      "enunciado_muestra": "La cuenta da R$ 47,60 y ya juntaron R$ 30,25; ¿cuánto falta?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 15,
+      "nombre": "El carrito del supermercado",
+      "registro": "formal",
+      "magnitudes": "dinero (resta)",
+      "enunciado_muestra": "El total del carrito es R$ 138,45 y paga con R$ 150,00; ¿cuánto vuelto?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 16,
+      "nombre": "La factura de la luz",
+      "registro": "formal",
+      "magnitudes": "dinero (resta)",
+      "enunciado_muestra": "Este mes llegó R$ 96,80 y el mes pasado R$ 112,35; ¿cuánto menos pagó?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 17,
+      "nombre": "El ahorro para la bicicleta",
+      "registro": "formal",
+      "magnitudes": "dinero (suma)",
+      "enunciado_muestra": "Tiene R$ 74,50 ahorrados y suma R$ 35,90; ¿cuánto reúne?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 18,
+      "nombre": "La nota fiscal del almuerzo",
+      "registro": "formal",
+      "magnitudes": "dinero (resta)",
+      "enunciado_muestra": "El consumo fue R$ 58,70 con un descuento de R$ 6,45; ¿cuánto paga?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 19,
+      "nombre": "El peso del equipaje",
+      "registro": "formal",
+      "magnitudes": "masa (resta)",
+      "enunciado_muestra": "La maleta pesa 18,60 kg y el límite es 23,00 kg; ¿cuánto margen queda?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 20,
+      "nombre": "El control de peso mensual",
+      "registro": "formal",
+      "magnitudes": "masa (resta)",
+      "enunciado_muestra": "Antes pesaba 34,80 kg y ahora 36,25 kg; ¿cuánto aumentó?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 1,
+      "nombre": "El precio por bala del quiosco",
+      "registro": "concreto",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Cada bala cuesta R$ 0,25 y compra 6; ¿cuánto paga?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 2,
+      "nombre": "Repartir la cuenta del helado",
+      "registro": "concreto",
+      "magnitudes": "dinero (div.)",
+      "enunciado_muestra": "Tres amigos comparten una cuenta de R$ 13,50; ¿cuánto pone cada uno?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 3,
+      "nombre": "Las copias de la tarea",
+      "registro": "concreto",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Cada copia cuesta R$ 0,15 y saca 8; ¿cuánto gasta?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 4,
+      "nombre": "Los lápices de colores",
+      "registro": "concreto",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Cada lápiz cuesta R$ 1,20 y compra 5; ¿cuánto paga?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 5,
+      "nombre": "La pizza dividida entre hermanos",
+      "registro": "concreto",
+      "magnitudes": "dinero (div.)",
+      "enunciado_muestra": "La pizza costó R$ 24,00 y la pagan 4 hermanos; ¿cuánto cada uno?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 6,
+      "nombre": "El paquete de chicles",
+      "registro": "concreto",
+      "magnitudes": "dinero (div.)",
+      "enunciado_muestra": "Un paquete trae 5 chicles por R$ 3,75; ¿cuánto vale cada chicle?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 7,
+      "nombre": "Las manzanas por peso",
+      "registro": "concreto",
+      "magnitudes": "masa × precio (mult.)",
+      "enunciado_muestra": "Las manzanas están a R$ 4,80 el kg y lleva 0,5 kg; ¿cuánto paga?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 8,
+      "nombre": "Los refrigerantes de la fiesta",
+      "registro": "cercano",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Cada refrigerante cuesta R$ 5,50 y compra 6; ¿cuánto gasta?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 9,
+      "nombre": "El pan francés por kilo",
+      "registro": "cercano",
+      "magnitudes": "masa × precio (mult.)",
+      "enunciado_muestra": "El pão francês está a R$ 12,40 el kg y lleva 0,750 kg; ¿cuánto paga?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 10,
+      "nombre": "El premio de la rifa repartido",
+      "registro": "cercano",
+      "magnitudes": "dinero (div.)",
+      "enunciado_muestra": "Un premio de R$ 45,00 se reparte entre 6 ganadores; ¿cuánto cada uno?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 11,
+      "nombre": "Las parcelas del videojuego",
+      "registro": "cercano",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Un juego se paga en 3 parcelas iguales de R$ 29,90; ¿cuánto cuesta el juego?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 12,
+      "nombre": "Las entradas del cine en familia",
+      "registro": "cercano",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Cada entrada cuesta R$ 18,50 y compra 4; ¿cuánto gasta?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 13,
+      "nombre": "El promedio de las notas",
+      "registro": "cercano",
+      "magnitudes": "números (div.)",
+      "enunciado_muestra": "La suma de sus 4 notas es 34,0; ¿cuál es el promedio?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 14,
+      "nombre": "Los cuadernos del año escolar",
+      "registro": "cercano",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Cada cuaderno cuesta R$ 7,25 y compra 4; ¿cuánto gasta?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 15,
+      "nombre": "La carne por kilo del asado",
+      "registro": "formal",
+      "magnitudes": "masa × precio (mult.)",
+      "enunciado_muestra": "La carne está a R$ 32,90 el kg y compra 1,5 kg; ¿cuánto paga?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 16,
+      "nombre": "La cuenta del restaurante dividida",
+      "registro": "formal",
+      "magnitudes": "dinero (div.)",
+      "enunciado_muestra": "La cuenta es R$ 156,00 y la dividen 8 personas; ¿cuánto cada una?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 17,
+      "nombre": "Las cuotas del plan de salud",
+      "registro": "formal",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Son 12 cuotas iguales de R$ 89,90; ¿cuál es el costo del año?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 18,
+      "nombre": "La comisión del vendedor",
+      "registro": "formal",
+      "magnitudes": "dinero (mult.)",
+      "enunciado_muestra": "Vende 15 unidades a R$ 24,80 cada una; ¿cuánto recauda?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 19,
+      "nombre": "El reparto de las propinas",
+      "registro": "formal",
+      "magnitudes": "dinero (div.)",
+      "enunciado_muestra": "Las propinas del día suman R$ 240,00 entre 5 mozos; ¿cuánto cada uno?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 20,
+      "nombre": "El precio unitario del mayorista",
+      "registro": "formal",
+      "magnitudes": "dinero (div.)",
+      "enunciado_muestra": "Una caja de 12 jugos cuesta R$ 39,00; ¿cuál es el precio de cada jugo?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 1,
+      "nombre": "La estatura del niño",
+      "registro": "concreto",
+      "magnitudes": "longitud (m↔cm)",
+      "enunciado_muestra": "Mide 1,42 m; ¿cuántos centímetros son?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 2,
+      "nombre": "El lápiz gastado",
+      "registro": "concreto",
+      "magnitudes": "longitud (cm↔mm)",
+      "enunciado_muestra": "Un lápiz mide 12,5 cm; ¿cuántos milímetros son?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 3,
+      "nombre": "La cinta del regalo",
+      "registro": "concreto",
+      "magnitudes": "longitud (cm↔m)",
+      "enunciado_muestra": "Envuelve un regalo con 85 cm de cinta; ¿cuántos metros son?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 4,
+      "nombre": "El cordón del zapato",
+      "registro": "concreto",
+      "magnitudes": "longitud (m↔cm)",
+      "enunciado_muestra": "Un cordón mide 0,75 m; ¿cuántos centímetros son?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 5,
+      "nombre": "La hoja del cuaderno",
+      "registro": "concreto",
+      "magnitudes": "longitud (cm↔mm)",
+      "enunciado_muestra": "La hoja mide 29,7 cm de alto; ¿cuántos milímetros son?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 6,
+      "nombre": "El salto en largo del recreo",
+      "registro": "concreto",
+      "magnitudes": "longitud (comparar m/cm)",
+      "enunciado_muestra": "Salta 1,35 m y su amigo 148 cm; ¿quién saltó más lejos?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 7,
+      "nombre": "La altura de la puerta",
+      "registro": "concreto",
+      "magnitudes": "longitud (m↔cm)",
+      "enunciado_muestra": "Una puerta mide 2,10 m; ¿cuántos centímetros son?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 8,
+      "nombre": "El largo de la cancha de fútbol",
+      "registro": "cercano",
+      "magnitudes": "longitud (m, suma)",
+      "enunciado_muestra": "La cancha mide 40 m de largo y la recorre ida y vuelta; ¿cuántos metros?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 9,
+      "nombre": "La vuelta a la manzana",
+      "registro": "cercano",
+      "magnitudes": "longitud (m, tramos)",
+      "enunciado_muestra": "Camina tramos de 350 m, 480 m y 270 m; ¿cuántos metros en total?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 10,
+      "nombre": "La distancia a la escuela",
+      "registro": "cercano",
+      "magnitudes": "longitud (km↔m)",
+      "enunciado_muestra": "Vive a 1,2 km de la escuela; ¿cuántos metros son?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 11,
+      "nombre": "Las vueltas de la pista de atletismo",
+      "registro": "cercano",
+      "magnitudes": "longitud (m, mult.)",
+      "enunciado_muestra": "Corre 3 vueltas de 150 m cada una; ¿qué distancia recorrió?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 12,
+      "nombre": "La alfombra del pasillo",
+      "registro": "cercano",
+      "magnitudes": "longitud (unidades mixtas, resta)",
+      "enunciado_muestra": "El pasillo mide 12,40 m y la alfombra 950 cm; ¿cuánto pasillo queda sin cubrir?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 13,
+      "nombre": "La cuerda de saltar del patio",
+      "registro": "cercano",
+      "magnitudes": "longitud (unidades mixtas, suma)",
+      "enunciado_muestra": "Una cuerda de 2,5 m se une a otra de 180 cm; ¿qué largo total tienen?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 14,
+      "nombre": "El recorrido en bici por el parque",
+      "registro": "cercano",
+      "magnitudes": "longitud (km/m, tramos)",
+      "enunciado_muestra": "Pedalea tramos de 0,8 km, 650 m y 1,2 km; ¿cuántos kilómetros hizo?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 15,
+      "nombre": "El mapa de la ciudad a escala",
+      "registro": "formal",
+      "magnitudes": "longitud (escala de mapa)",
+      "enunciado_muestra": "En el mapa 1 cm equivale a 5 km y dos puntos distan 4 cm; ¿distancia real?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 16,
+      "nombre": "La ruta de la mudanza por tramos",
+      "registro": "formal",
+      "magnitudes": "longitud (km, tramos)",
+      "enunciado_muestra": "La mudanza recorre tramos de 12,5 km, 8,75 km y 15,0 km; ¿distancia total?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 17,
+      "nombre": "El plano de la casa a escala",
+      "registro": "formal",
+      "magnitudes": "longitud (escala 1:100)",
+      "enunciado_muestra": "En el plano 1:100 una pared mide 3,5 cm; ¿cuánto mide de verdad en metros?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 18,
+      "nombre": "La altura del edificio",
+      "registro": "formal",
+      "magnitudes": "longitud (m, mult.)",
+      "enunciado_muestra": "Cada piso mide 2,80 m y el edificio tiene 5 pisos; ¿qué altura tiene?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 19,
+      "nombre": "Los carteles de la carretera",
+      "registro": "formal",
+      "magnitudes": "longitud (km/m, resta)",
+      "enunciado_muestra": "Un cartel marca 2,4 km y otro 800 m más adelante; ¿cuánto hay entre ellos en metros?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 20,
+      "nombre": "El maratón infantil por etapas",
+      "registro": "formal",
+      "magnitudes": "longitud (km, tramos)",
+      "enunciado_muestra": "El maratón tiene etapas de 1,5 km, 2,0 km y 1,75 km; ¿distancia total?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 1,
+      "nombre": "La botella de agua",
+      "registro": "concreto",
+      "magnitudes": "capacidad (L↔mL)",
+      "enunciado_muestra": "Una botella tiene 1,5 L; ¿cuántos mililitros son?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 2,
+      "nombre": "Los vasos de jugo",
+      "registro": "concreto",
+      "magnitudes": "capacidad (mL, mult.)",
+      "enunciado_muestra": "Llena 3 vasos de 250 mL cada uno; ¿cuántos mililitros usó?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 3,
+      "nombre": "El jarabe de la farmacia",
+      "registro": "concreto",
+      "magnitudes": "capacidad (mL, div.)",
+      "enunciado_muestra": "Un frasco de 120 mL y cada dosis es de 5 mL; ¿cuántas dosis tiene?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 4,
+      "nombre": "La leche del desayuno",
+      "registro": "concreto",
+      "magnitudes": "capacidad (L/mL, resta)",
+      "enunciado_muestra": "Un cartón de 1 L y usa 350 mL; ¿cuántos mililitros quedan?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 5,
+      "nombre": "El balde del patio",
+      "registro": "concreto",
+      "magnitudes": "capacidad (L↔mL)",
+      "enunciado_muestra": "Un balde tiene 8 L de capacidad; ¿cuántos mililitros son?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 6,
+      "nombre": "La mamadeira del bebé",
+      "registro": "concreto",
+      "magnitudes": "capacidad (mL, resta)",
+      "enunciado_muestra": "Prepara 210 mL y el bebé toma 150 mL; ¿cuánto sobra?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 7,
+      "nombre": "Las latas de refresco",
+      "registro": "concreto",
+      "magnitudes": "capacidad (mL→L, suma)",
+      "enunciado_muestra": "Junta 6 latas de 350 mL; ¿cuántos litros suman?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 8,
+      "nombre": "La garrafa térmica del paseo",
+      "registro": "cercano",
+      "magnitudes": "capacidad (L↔mL)",
+      "enunciado_muestra": "Un termo tiene 0,75 L; ¿cuántos mililitros son?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 9,
+      "nombre": "La receta del jugo para la fiesta",
+      "registro": "cercano",
+      "magnitudes": "capacidad (L/mL, suma)",
+      "enunciado_muestra": "Mezcla 1,2 L de agua con 800 mL de concentrado; ¿cuántos litros de jugo?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 10,
+      "nombre": "El riego de las plantas",
+      "registro": "cercano",
+      "magnitudes": "capacidad (L, mult.)",
+      "enunciado_muestra": "Riega 5 plantas con 0,4 L cada una; ¿cuántos litros gasta?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 11,
+      "nombre": "El acuario de la sala",
+      "registro": "cercano",
+      "magnitudes": "volumen↔capacidad (dm³=L)",
+      "enunciado_muestra": "Un acuario ocupa 30 dm³; ¿cuántos litros de agua caben?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 12,
+      "nombre": "La jarra de la merienda",
+      "registro": "cercano",
+      "magnitudes": "capacidad (L/mL, div.)",
+      "enunciado_muestra": "Una jarra de 1,8 L reparte vasos de 300 mL; ¿cuántos vasos salen?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 13,
+      "nombre": "El bidón de agua mineral",
+      "registro": "cercano",
+      "magnitudes": "capacidad (L, resta)",
+      "enunciado_muestra": "Un bidón de 20 L ya perdió 12,5 L; ¿cuánto queda?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 14,
+      "nombre": "La piscina inflable del verano",
+      "registro": "cercano",
+      "magnitudes": "capacidad↔volumen (L=dm³)",
+      "enunciado_muestra": "La piscina se llenó con 240 L; ¿cuántos dm³ ocupa el agua?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 15,
+      "nombre": "El tanque de gasolina",
+      "registro": "formal",
+      "magnitudes": "capacidad (L, resta)",
+      "enunciado_muestra": "El tanque es de 45 L y carga 28,5 L; ¿cuánto falta para llenarlo?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 16,
+      "nombre": "La caja de agua de la casa",
+      "registro": "formal",
+      "magnitudes": "volumen→capacidad (m³→L)",
+      "enunciado_muestra": "Una caja de agua de 2 m³; ¿cuántos litros almacena?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 17,
+      "nombre": "El envase de detergente",
+      "registro": "formal",
+      "magnitudes": "volumen↔capacidad (cm³=mL)",
+      "enunciado_muestra": "Un envase de 500 cm³; ¿cuántos mililitros contiene?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 18,
+      "nombre": "La dosis del medicamento",
+      "registro": "formal",
+      "magnitudes": "capacidad (mL, juicio)",
+      "enunciado_muestra": "Un frasco de 200 mL con dosis de 15 mL tres veces al día; ¿alcanza un día?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 19,
+      "nombre": "El reparto de leche en la escuela",
+      "registro": "formal",
+      "magnitudes": "capacidad (L→mL, div.)",
+      "enunciado_muestra": "Se reparten 60 L en cajitas de 200 mL; ¿cuántas cajitas se llenan?"
+    },
+    {
+      "modulo_id": 4,
+      "numero": 20,
+      "nombre": "El galón de pintura",
+      "registro": "formal",
+      "magnitudes": "capacidad (L/mL, resta)",
+      "enunciado_muestra": "Un galón trae 3,6 L y usa 1250 mL; ¿cuántos litros quedan?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 1,
+      "nombre": "El azulejo del baño",
+      "registro": "concreto",
+      "magnitudes": "superficie (cm²↔dm²)",
+      "enunciado_muestra": "Un azulejo tiene 400 cm²; ¿cuántos dm² son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 2,
+      "nombre": "La cartulina de manualidades",
+      "registro": "concreto",
+      "magnitudes": "superficie (cm², resta)",
+      "enunciado_muestra": "Una cartulina de 600 cm² y recorta 250 cm²; ¿cuánto queda?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 3,
+      "nombre": "La pantalla del celular en pulgadas",
+      "registro": "concreto",
+      "magnitudes": "no métrica (pulg→cm)",
+      "enunciado_muestra": "Un celular de 6 pulgadas de diagonal; ¿cuántos cm son? (1 pulg = 2,54 cm)"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 4,
+      "nombre": "Los stickers del cuaderno",
+      "registro": "concreto",
+      "magnitudes": "superficie (cm², mult.)",
+      "enunciado_muestra": "Cada sticker ocupa 25 cm² y pega 4; ¿cuánta superficie usó?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 5,
+      "nombre": "El post-it de recados",
+      "registro": "concreto",
+      "magnitudes": "superficie (cm²↔mm²)",
+      "enunciado_muestra": "Un post-it de 49 cm²; ¿cuántos mm² son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 6,
+      "nombre": "La pantalla del televisor en pulgadas",
+      "registro": "concreto",
+      "magnitudes": "no métrica (pulg→cm)",
+      "enunciado_muestra": "Una TV de 32 pulgadas de diagonal; ¿cuántos cm son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 7,
+      "nombre": "La servilleta de tela",
+      "registro": "concreto",
+      "magnitudes": "superficie (cm²↔dm²)",
+      "enunciado_muestra": "Una servilleta de 100 cm²; ¿cuántos dm² son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 8,
+      "nombre": "El piso del salón de clases",
+      "registro": "cercano",
+      "magnitudes": "superficie (m²↔dm²)",
+      "enunciado_muestra": "El aula tiene 48 m² de piso; ¿cuántos dm² son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 9,
+      "nombre": "El patio de la escuela",
+      "registro": "cercano",
+      "magnitudes": "superficie (m², resta)",
+      "enunciado_muestra": "El patio mide 250 m² y se pavimentan 180 m²; ¿cuánto falta pavimentar?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 10,
+      "nombre": "La cancha de básquet",
+      "registro": "cercano",
+      "magnitudes": "superficie (m²↔dm²)",
+      "enunciado_muestra": "La cancha ocupa 420 m²; ¿cuántos dm² son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 11,
+      "nombre": "El jardín de casa",
+      "registro": "cercano",
+      "magnitudes": "superficie (m², resta)",
+      "enunciado_muestra": "El jardín tiene 36 m² y planta césped en 24,5 m²; ¿cuánto queda sin césped?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 12,
+      "nombre": "La alfombra de la sala",
+      "registro": "cercano",
+      "magnitudes": "superficie (m²↔dm²)",
+      "enunciado_muestra": "Una alfombra cubre 6 m²; ¿cuántos dm² son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 13,
+      "nombre": "El ancho del mueble en pies",
+      "registro": "cercano",
+      "magnitudes": "no métrica (pies→cm)",
+      "enunciado_muestra": "Un mueble mide 5 pies de ancho; ¿cuántos cm son? (1 pie = 30,48 cm)"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 14,
+      "nombre": "La huerta escolar",
+      "registro": "cercano",
+      "magnitudes": "superficie (m², suma)",
+      "enunciado_muestra": "La huerta tiene 20 m² y se amplía 8,5 m²; ¿cuál es la superficie final?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 15,
+      "nombre": "El terreno en hectáreas",
+      "registro": "formal",
+      "magnitudes": "superficie (ha→m²)",
+      "enunciado_muestra": "Un terreno mide 4,5 ha; ¿cuántos m² son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 16,
+      "nombre": "El reparto del terreno en lotes",
+      "registro": "formal",
+      "magnitudes": "superficie (ha/m², div.)",
+      "enunciado_muestra": "Un terreno de 4,5 ha se reparte en 15 lotes iguales; ¿cuántos m² cada lote?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 17,
+      "nombre": "La parcela agrícola",
+      "registro": "formal",
+      "magnitudes": "superficie (ha→m²)",
+      "enunciado_muestra": "Una parcela mide 2,8 ha; ¿cuántos m² son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 18,
+      "nombre": "El campo de fútbol profesional",
+      "registro": "formal",
+      "magnitudes": "superficie (m²→ha)",
+      "enunciado_muestra": "El campo ocupa 7140 m²; ¿cuántas hectáreas son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 19,
+      "nombre": "La fazenda",
+      "registro": "formal",
+      "magnitudes": "superficie (km²→ha)",
+      "enunciado_muestra": "Una fazenda mide 1,5 km²; ¿cuántas hectáreas son?"
+    },
+    {
+      "modulo_id": 5,
+      "numero": 20,
+      "nombre": "El loteo del barrio",
+      "registro": "formal",
+      "magnitudes": "superficie (m², div.)",
+      "enunciado_muestra": "Un terreno de 9000 m² se divide en 12 casas iguales; ¿cuántos m² cada una?"
+    }
+  ],
+  "confusiones": [
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C01",
+      "nombre": "Coma desalineada",
+      "consiste": "Alinea los números por la derecha (últimos dígitos) en vez de por la coma.",
+      "fabricacion": "Reoperar alineando por el último dígito: p. ej. 3,50 + 2,75 tratado como 350+275/… con las columnas corridas un lugar.",
+      "feedback": "\"Alinea las comas, no los últimos dígitos: enteros con enteros y décimos con décimos.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C02",
+      "nombre": "Préstamo olvidado",
+      "consiste": "En la resta no pide prestado cuando arriba hay menos que abajo.",
+      "fabricacion": "Restar cada columna en valor absoluto sin llevar el préstamo.",
+      "feedback": "\"Si arriba hay menos que abajo, pide prestado a la cifra de la izquierda antes de restar.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C03",
+      "nombre": "Ceros no completados",
+      "consiste": "No rellena con ceros los lugares decimales vacíos.",
+      "fabricacion": "Tratar 2,4 como 2,04 (o alinear 2,4 con 0,75 sin completar): A calculada sin igualar decimales.",
+      "feedback": "\"Completa con ceros los lugares vacíos: las dos cantidades deben tener los mismos decimales.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C04",
+      "nombre": "Operación invertida",
+      "consiste": "Suma cuando debía restar (o al revés).",
+      "fabricacion": "Aplicar la operación contraria a A.",
+      "feedback": "\"Vuelve a leer: si algo se gasta o se va, se resta; si se junta o se agrega, se suma.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C05",
+      "nombre": "Coma ignorada como enteros",
+      "consiste": "Quita la coma, opera como enteros y no la repone.",
+      "fabricacion": "Operar A sin coma y dejar el resultado entero (3,50+2,75 → 625).",
+      "feedback": "\"La coma no desaparece: el resultado también lleva coma en el mismo lugar.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C06",
+      "nombre": "Acarreo perdido",
+      "consiste": "No lleva la decena a la columna siguiente en la suma.",
+      "fabricacion": "Sumar columna a columna sin acarreo: A − 1 en la posición afectada.",
+      "feedback": "\"Cuando una columna pasa de 9, lleva 1 a la columna de la izquierda.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C07",
+      "nombre": "Vuelto igual al precio",
+      "consiste": "Da como vuelto el precio del producto en vez de la diferencia.",
+      "fabricacion": "Distractor = precio del producto (no pago − precio).",
+      "feedback": "\"El vuelto es lo que pagaste menos lo que costó, no el precio del producto.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C08",
+      "nombre": "Centavos como reales",
+      "consiste": "Lee los centavos como si fueran reales (escala ×100).",
+      "fabricacion": "Multiplicar o mover la coma de A dos lugares (R$ 0,75 → R$ 75).",
+      "feedback": "\"Dos cifras tras la coma son centavos: R$ 0,75 son setenta y cinco centavos, no reales.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C09",
+      "nombre": "Resta invertida en columna",
+      "consiste": "En cada columna resta el menor al mayor sin importar el orden.",
+      "fabricacion": "Restar",
+      "feedback": "arriba−abajo"
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C10",
+      "nombre": "Redondeo prematuro",
+      "consiste": "Redondea cada decimal al entero antes de operar.",
+      "fabricacion": "Redondear los sumandos/minuendos y operar: entero más cercano a cada dato, luego operar.",
+      "feedback": "\"No redondees antes de calcular: trabaja con los decimales completos.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C11",
+      "nombre": "Décimos sin reagrupar",
+      "consiste": "Suma enteros y decimales como bloques y no reagrupa los décimos que pasan de 10.",
+      "fabricacion": "Concatenar la suma de enteros y la de décimos sin llevar (3,5+2,7 → 5,12).",
+      "feedback": "\"Los décimos que pasan de 10 forman una unidad: 5+7 décimos son 1 entero y 2 décimos.\""
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F5M1-C12",
+      "nombre": "Coma corrida en el resultado",
+      "consiste": "Coloca la coma un lugar de más o de menos en el resultado.",
+      "fabricacion": "Mover la coma de A un lugar (A×10 o A÷10).",
+      "feedback": "\"Cuenta los decimales: el resultado lleva tantos lugares tras la coma como el dato que más tenía.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C01",
+      "nombre": "Posiciones decimales mal contadas",
+      "consiste": "Cuenta los decimales de un solo factor en el producto.",
+      "fabricacion": "Correr la coma de A un lugar a la derecha (poner un decimal de menos).",
+      "feedback": "\"Suma los decimales de los dos factores: ese total es cuántas cifras van tras la coma.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C02",
+      "nombre": "Coma no desplazada al dividir",
+      "consiste": "Divide ignorando que el divisor tiene coma.",
+      "fabricacion": "Dividir sin igualar: resultado de A con la coma corrida al lugar equivocado.",
+      "feedback": "\"Si el divisor tiene coma, córrela los mismos lugares en los dos números antes de dividir.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C03",
+      "nombre": "Repartir multiplicando",
+      "consiste": "Multiplica cuando debía dividir para repartir en partes iguales.",
+      "fabricacion": "Distractor = total × cantidad de partes (en vez de total ÷ partes).",
+      "feedback": "\"Repartir en partes iguales es dividir: la cuenta entre la cantidad de personas.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C04",
+      "nombre": "Costo total dividiendo",
+      "consiste": "Divide cuando debía multiplicar cantidad × precio.",
+      "fabricacion": "Distractor = precio ÷ cantidad (en vez de precio × cantidad).",
+      "feedback": "\"Para el costo total de varias unidades iguales, multiplica el precio por la cantidad.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C05",
+      "nombre": "Coma alineada como en la suma",
+      "consiste": "Coloca la coma del producto alineándola con los factores.",
+      "fabricacion": "Ubicar la coma de A por alineación, no por conteo (suele dar un decimal de más).",
+      "feedback": "\"En la multiplicación la coma no se alinea: se cuenta la de los factores.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C06",
+      "nombre": "Factor 0,1 sin correr la coma",
+      "consiste": "Multiplica por 0,1 sin correr la coma (deja el número igual).",
+      "fabricacion": "Distractor = el número sin corrimiento (A×10).",
+      "feedback": "\"Multiplicar por 0,1 divide entre 10: la coma se corre un lugar a la izquierda.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C07",
+      "nombre": "División invertida",
+      "consiste": "Divide el mayor entre el menor siempre, aunque el reparto sea al revés.",
+      "fabricacion": "Distractor = divisor ÷ dividendo (invertido).",
+      "feedback": "\"Divide lo que se reparte entre en cuántas partes, no al revés.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C08",
+      "nombre": "Resto pegado a la coma",
+      "consiste": "Escribe el resto directamente tras la coma.",
+      "fabricacion": "Distractor = cociente entero con el resto pegado (13÷4 → 3,1).",
+      "feedback": "\"El resto no se pega tras la coma: agrega un cero y sigue dividiendo.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C09",
+      "nombre": "Solo la parte entera multiplicada",
+      "consiste": "Ignora la parte decimal de un factor.",
+      "fabricacion": "Distractor = producto usando solo la parte entera de un factor (4,80×0,5 → 4×0,5).",
+      "feedback": "\"Multiplica el número completo, con sus decimales, no solo la parte entera.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C10",
+      "nombre": "Unitario y total confundidos",
+      "consiste": "Confunde precio unitario (total÷cantidad) con total (unitario×cantidad).",
+      "fabricacion": "Intercambiar las dos operaciones respecto de A.",
+      "feedback": "\"El precio de cada uno se obtiene dividiendo el total entre las unidades.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C11",
+      "nombre": "Coma al lado equivocado",
+      "consiste": "Al multiplicar por 10/100 corre la coma hacia la izquierda.",
+      "fabricacion": "Distractor = A ÷ 100 (o ÷10) cuando debía crecer.",
+      "feedback": "\"Al multiplicar por 10 el número crece: la coma se corre a la derecha.\""
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F5M2-C12",
+      "nombre": "Centavos truncados",
+      "consiste": "Redondea o trunca el resultado a entero cuando el contexto pide centavos.",
+      "fabricacion": "Distractor = A truncada a la parte entera.",
+      "feedback": "\"El dinero se expresa con dos decimales: no borres los centavos del resultado.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C01",
+      "nombre": "Peldaño de más o de menos",
+      "consiste": "Cuenta mal cuántos peldaños hay entre las dos unidades.",
+      "fabricacion": "Distractor = A × 10 o A ÷ 10 (un peldaño de más o de menos).",
+      "feedback": "\"Cada peldaño de longitud vale 10: cuenta cuántos peldaños subes o bajas.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C02",
+      "nombre": "Multiplicar al subir de unidad",
+      "consiste": "Pasa de unidad chica a grande multiplicando (cm→m ×10).",
+      "fabricacion": "Distractor = valor multiplicado en vez de dividido.",
+      "feedback": "\"De una unidad chica a una grande el número se achica: divide, no multipliques.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C03",
+      "nombre": "Dividir al bajar de unidad",
+      "consiste": "Pasa de unidad grande a chica dividiendo (m→cm ÷10).",
+      "fabricacion": "Distractor = valor dividido en vez de multiplicado.",
+      "feedback": "\"De una unidad grande a una chica el número crece: multiplica.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C04",
+      "nombre": "Coma un lugar por defecto",
+      "consiste": "Mueve la coma un solo lugar sin contar los peldaños.",
+      "fabricacion": "Distractor = A con la coma movida un lugar (no la cantidad real).",
+      "feedback": "\"Mueve la coma un lugar por cada peldaño: de m a mm son tres peldaños, tres lugares.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C05",
+      "nombre": "Unidades mixtas sin igualar",
+      "consiste": "Suma o resta metros con centímetros sin igualar la unidad.",
+      "fabricacion": "Distractor = suma directa de los números (1,5 m + 45 cm → 46,5).",
+      "feedback": "\"Antes de operar, pon las dos medidas en la misma unidad.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C06",
+      "nombre": "km confundido con factor 100",
+      "consiste": "Usa 100 en lugar de 1000 entre km y m.",
+      "fabricacion": "Distractor = A × 100 o ÷ 100 en un paso km↔m.",
+      "feedback": "\"Un kilómetro son mil metros: el salto de km a m es de 1000, no de 100.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C07",
+      "nombre": "Escala invertida",
+      "consiste": "Divide cuando la escala pide multiplicar la distancia del mapa.",
+      "fabricacion": "Distractor = cm ÷ factor de escala (en vez de ×).",
+      "feedback": "\"Con la escala, cada centímetro del mapa vale la medida indicada: multiplica.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C08",
+      "nombre": "Tramos restados",
+      "consiste": "Resta los tramos de la ruta en vez de sumarlos.",
+      "fabricacion": "Distractor = mayor tramo − suma de los otros.",
+      "feedback": "\"La distancia total de un recorrido es la suma de todos los tramos.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C09",
+      "nombre": "Tramo olvidado",
+      "consiste": "Suma solo algunos tramos y deja uno afuera.",
+      "fabricacion": "Distractor = A menos un tramo del recorrido.",
+      "feedback": "\"Suma todos los tramos: no dejes ninguno afuera.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C10",
+      "nombre": "Comparación sin igualar",
+      "consiste": "Compara longitudes en distintas unidades mirando solo el número.",
+      "fabricacion": "Distractor = elegir la de número mayor (148 cm > 1,35 m).",
+      "feedback": "\"Para comparar, primero lleva ambas a la misma unidad y recién ahí decide.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C11",
+      "nombre": "mm confundido con factor 100",
+      "consiste": "Usa 100 en lugar de 10 entre cm y mm.",
+      "fabricacion": "Distractor = A × 100 o ÷ 100 en un paso cm↔mm.",
+      "feedback": "\"Un centímetro son diez milímetros, no cien.\""
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F5M3-C12",
+      "nombre": "Escala 1:100 mal leída",
+      "consiste": "Interpreta 1:100 como 1 cm = 100 m en vez de 100 cm.",
+      "fabricacion": "Distractor = medida real de A multiplicada por 100 (m en vez de cm).",
+      "feedback": "\"En 1:100, un centímetro del plano equivale a cien centímetros reales, o sea un metro.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C01",
+      "nombre": "Salto cúbico de 10",
+      "consiste": "Usa factor 10 por peldaño en vez de 1000.",
+      "fabricacion": "Distractor = A escalada por 10 (o 100) en vez de 1000.",
+      "feedback": "\"En volumen cada peldaño vale 1000, no 10: de dm³ a cm³ se multiplica por mil.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C02",
+      "nombre": "L confundido con factor 100",
+      "consiste": "Usa 100 en lugar de 1000 entre L y mL.",
+      "fabricacion": "Distractor = A × 100 o ÷ 100 en un paso L↔mL.",
+      "feedback": "\"Un litro son mil mililitros: el salto es de 1000.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C03",
+      "nombre": "dm³ ≠ L",
+      "consiste": "No reconoce que un decímetro cúbico es un litro.",
+      "fabricacion": "Distractor = dm³ convertido a L con un factor cualquiera (×10, ÷1000).",
+      "feedback": "\"Un decímetro cúbico es exactamente un litro: el número no cambia.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C04",
+      "nombre": "cm³ ≠ mL",
+      "consiste": "No reconoce que un centímetro cúbico es un mililitro.",
+      "fabricacion": "Distractor = cm³ multiplicado por algún factor para dar mL.",
+      "feedback": "\"Un centímetro cúbico es exactamente un mililitro: el número es el mismo.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C05",
+      "nombre": "Multiplicar de mL a L",
+      "consiste": "Pasa de mililitros a litros multiplicando por 1000.",
+      "fabricacion": "Distractor = mL × 1000 (en vez de ÷1000).",
+      "feedback": "\"De mililitros a litros el número se achica: divide entre mil.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C06",
+      "nombre": "Dividir de L a mL",
+      "consiste": "Pasa de litros a mililitros dividiendo.",
+      "fabricacion": "Distractor = L ÷ 1000 (en vez de ×1000).",
+      "feedback": "\"De litros a mililitros el número crece: multiplica por mil.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C07",
+      "nombre": "Consumo sumado",
+      "consiste": "Suma lo consumido en vez de restarlo para saber lo que queda.",
+      "fabricacion": "Distractor = total + consumido (en vez de total − consumido).",
+      "feedback": "\"Lo que queda es la capacidad total menos lo que ya se usó: se resta.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C08",
+      "nombre": "Dosis multiplicadas",
+      "consiste": "Multiplica frasco × dosis para saber cuántas dosis caben.",
+      "fabricacion": "Distractor = total × dosis (en vez de total ÷ dosis).",
+      "feedback": "\"Cuántas dosis caben se halla dividiendo el total entre la dosis.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C09",
+      "nombre": "m³ a L mal escalado",
+      "consiste": "Usa 100 en lugar de 1000 entre m³ y L.",
+      "fabricacion": "Distractor = A × 100 en un paso m³→L.",
+      "feedback": "\"Un metro cúbico son mil litros: el salto de m³ a L es de 1000.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C10",
+      "nombre": "Coma un lugar por peldaño",
+      "consiste": "Mueve la coma un lugar por peldaño cúbico en vez de tres.",
+      "fabricacion": "Distractor = A con la coma movida un lugar.",
+      "feedback": "\"En volumen cada peldaño mueve la coma tres lugares, no uno.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C11",
+      "nombre": "Capacidades sin igualar",
+      "consiste": "Suma litros con mililitros sin igualar la unidad.",
+      "fabricacion": "Distractor = suma directa de los números (1,2 L + 800 mL → 801,2).",
+      "feedback": "\"Iguala las unidades antes de sumar: todo a litros o todo a mililitros.\""
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F5M4-C12",
+      "nombre": "Volumen y capacidad distintos",
+      "consiste": "Trata el volumen ocupado y la capacidad como cantidades diferentes.",
+      "fabricacion": "Distractor = convertir 30 dm³ a un valor distinto de 30 L.",
+      "feedback": "\"El volumen que ocupa el agua y la capacidad que cabe son lo mismo: 30 dm³ son 30 L.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C01",
+      "nombre": "Salto cuadrado de 10",
+      "consiste": "Usa factor 10 por peldaño en vez de 100.",
+      "fabricacion": "Distractor = A escalada por 10 en vez de 100.",
+      "feedback": "\"En superficie cada peldaño vale 100, no 10: de dm² a cm² se multiplica por cien.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C02",
+      "nombre": "Coma un lugar por peldaño",
+      "consiste": "Mueve la coma un lugar por peldaño en vez de dos.",
+      "fabricacion": "Distractor = A con la coma movida un lugar.",
+      "feedback": "\"En superficie cada peldaño mueve la coma dos lugares, no uno.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C03",
+      "nombre": "m² a cm² con factor 100",
+      "consiste": "Usa 100 en lugar de 10000 entre m² y cm².",
+      "fabricacion": "Distractor = A × 100 (un solo peldaño) en un paso m²↔cm².",
+      "feedback": "\"Un metro cuadrado son diez mil centímetros cuadrados: son dos peldaños, factor 10000.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C04",
+      "nombre": "Hectárea con factor 1000",
+      "consiste": "Convierte ha a m² usando 1000 en vez de 10000.",
+      "fabricacion": "Distractor = ha × 1000 (en vez de ×10000).",
+      "feedback": "\"Una hectárea son diez mil metros cuadrados: un cuadrado de 100 m por 100 m.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C05",
+      "nombre": "Reparto multiplicando",
+      "consiste": "Multiplica la superficie por la cantidad de lotes en vez de dividir.",
+      "fabricacion": "Distractor = superficie × lotes (en vez de superficie ÷ lotes).",
+      "feedback": "\"Para repartir un terreno en lotes iguales se divide la superficie entre la cantidad de lotes.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C06",
+      "nombre": "Pulgada mal redondeada",
+      "consiste": "Usa 2 o 2,5 en vez de 2,54 cm por pulgada.",
+      "fabricacion": "Distractor = pulgadas × 2,5 (o × 2).",
+      "feedback": "\"Una pulgada son 2,54 cm exactos: usa ese factor, no lo redondees.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C07",
+      "nombre": "Pie mal convertido",
+      "consiste": "Usa 30 o 12 en vez de 30,48 cm por pie.",
+      "fabricacion": "Distractor = pies × 30 (o × 12).",
+      "feedback": "\"Un pie son 30,48 cm: no lo confundas con las 12 pulgadas que contiene.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C08",
+      "nombre": "Factor lineal en la superficie",
+      "consiste": "Aplica el factor lineal (100) a una conversión de superficie.",
+      "fabricacion": "Distractor = usar el factor de longitud (m→cm es 100) en vez del cuadrático.",
+      "feedback": "\"La superficie usa el factor al cuadrado: de m² a cm² es 100×100 = 10000.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C09",
+      "nombre": "Multiplicar al subir de unidad",
+      "consiste": "Pasa de unidad chica a grande multiplicando (cm²→m² ×).",
+      "fabricacion": "Distractor = valor multiplicado en vez de dividido.",
+      "feedback": "\"De una unidad chica a una grande el número se achica: divide.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C10",
+      "nombre": "km² a ha con factor 1000",
+      "consiste": "Usa 1000 en lugar de 100 entre km² y ha.",
+      "fabricacion": "Distractor = km² × 1000 (en vez de ×100).",
+      "feedback": "\"Un kilómetro cuadrado son cien hectáreas.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C11",
+      "nombre": "Superficie ocupada sumada",
+      "consiste": "Suma la parte ya cubierta en vez de restarla para hallar lo que falta.",
+      "fabricacion": "Distractor = total + cubierto (en vez de total − cubierto).",
+      "feedback": "\"Lo que falta es la superficie total menos la parte ya cubierta: se resta.\""
+    },
+    {
+      "modulo_id": 5,
+      "codigo": "F5M5-C12",
+      "nombre": "Diagonal tratada como lado",
+      "consiste": "Toma las pulgadas de la pantalla como un lado, no como diagonal.",
+      "fabricacion": "Distractor = tratar la diagonal como lado y devolver otra medida (o el número de pulgadas sin convertir).",
+      "feedback": "\"Las pulgadas de una pantalla miden su diagonal, no un lado: solo conviértelas a cm.\""
+    }
+  ]
+}

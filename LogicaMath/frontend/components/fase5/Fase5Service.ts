@@ -1,5 +1,5 @@
 /**
- * Servicio API — Fase 5: Geometría Plana y Medidas
+ * Servicio API — Fase 5: Operatoria Decimal y Conversiones
  * Capa de comunicación con el backend de Fase 5.
  */
 
@@ -15,7 +15,6 @@ import type {
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 function getAuthHeaders(): HeadersInit {
-  // Compatibilidad con el sistema de almacenamiento de tokens del proyecto
   const token =
     localStorage.getItem('auth_token') ||
     localStorage.getItem('token') ||
@@ -52,7 +51,7 @@ async function fetchDeduplicated<T>(key: string, fetchFn: () => Promise<T>): Pro
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Obtiene el dashboard de Fase 5 con los 5 módulos y su estado.
+ * Obtiene el dashboard de Fase 5 con los módulos y su estado.
  */
 export async function getFase5Dashboard(): Promise<Fase5Dashboard> {
   const key = 'dashboard';
@@ -136,4 +135,3 @@ export async function graduateFase5(): Promise<{
   });
   return handleResponse(res);
 }
-

@@ -30,11 +30,13 @@ SEED_VERSIONS = {
     "fase_2": "20260609_v2",
     "fase_3": "20260619_v1",
     "fase_4": "20260721_v2",
-    "fase_5": "20260723_v17",
-    "fase_6": "20260722_v3",
+    "fase_5": "20260724_v1",
+    "fase_6": "20260724_v1",
     "fase_7": "20260609_v1",
     "fase_8": "20260609_v1",
-    "fase_9": "20260609_v1"
+    "fase_9": "20260609_v1",
+    "fase_10": "20260724_v1",
+    "fase_11": "20260609_v1"
 }
 
 PEDAGOGY_CONFIG_KEY = "pedagogy_config"
@@ -87,33 +89,45 @@ FASES_DATA = [
     },
     {
         "id": 5,
-        "nombre": "Geometría Plana y Medidas",
-        "descripcion": "Desarrollar la comprensión del espacio bidimensional mediante el análisis visual y la conservación de la superficie.",
+        "nombre": "Operatoria Decimal y Conversiones",
+        "descripcion": "Dominio de las cuatro operaciones con decimales y su aplicación a medidas de longitud, volumen y superficie.",
         "orden": 5,
     },
     {
         "id": 6,
-        "nombre": "Geometría Espacial, Volumen y Magnitudes Físicas",
-        "descripcion": "Desarrollar la visualización tridimensional, el razonamiento abstracto analítico y la medición de magnitudes.",
+        "nombre": "Geometría Plana Multiforme y Áreas",
+        "descripcion": "Elementos de las figuras planas, perímetros complejos y dominio del área por fórmula y descomposición.",
         "orden": 6,
     },
     {
         "id": 7,
-        "nombre": "Coordenadas, Rutas y Tiempo",
-        "descripcion": "Dominar la orientación en un plano de referencia, la vectorización del movimiento y la aritmética del tiempo.",
+        "nombre": "Geometría Espacial, Volumen y Magnitudes",
+        "descripcion": "Visualización tridimensional, medición de volumen y aplicación de magnitudes.",
         "orden": 7,
     },
     {
         "id": 8,
-        "nombre": "Lógica, Combinatoria y Probabilidad",
-        "descripcion": "Desarrollar el razonamiento abstracto puro, el análisis combinatorio primario y el cálculo de posibilidades.",
+        "nombre": "Coordenadas, Rutas y Tiempo",
+        "descripcion": "Orientación en un plano de referencia, vectorización del movimiento y aritmética del tiempo.",
         "orden": 8,
     },
     {
         "id": 9,
-        "nombre": "Simulados Pedro II",
-        "descripcion": "Entrenar en las condiciones formales, el formato, los límites de tiempo y la variedad de temas del examen real Pedro II.",
+        "nombre": "Probabilidad, Combinatoria y Lógica",
+        "descripcion": "Razonamiento abstracto, análisis combinatorio primario y cálculo de posibilidades.",
         "orden": 9,
+    },
+    {
+        "id": 10,
+        "nombre": "Razonamiento Abstracto y Visual",
+        "descripcion": "Tangram, figuras abstractas y razonamiento visual (fase reservada; alcance definido, sin diseño interno).",
+        "orden": 10,
+    },
+    {
+        "id": 11,
+        "nombre": "Simulacros",
+        "descripcion": "Entrenamiento en las condiciones formales, el formato y los tiempos del examen real Colégio Pedro II.",
+        "orden": 11,
     },
 ]
 

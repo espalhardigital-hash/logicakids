@@ -1,5 +1,5 @@
 /**
- * Tipos TypeScript — Fase 6: Desarrollo Numérico y Razonamiento
+ * Tipos TypeScript — Fase 5: Geometría Plana y Medidas
  * Espeja exactamente los schemas Pydantic del backend (fase6/schemas.py)
  */
 

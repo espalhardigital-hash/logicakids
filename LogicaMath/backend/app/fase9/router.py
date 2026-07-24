@@ -1,17 +1,17 @@
 """
-Router FastAPI — Fase 9: Simulados Colegio Pedro II
+Router FastAPI — Fase 2: Desarrollo Numérico y Razonamiento (Refactorizado)
 =============================================================================
-Prefijo: /fase9
-Tags:    fase9
+Prefijo: /fase8
+Tags:    fase8
 
 Responsabilidades:
-  - Dashboard con los 3 módulos de preparación para el Pedro II.
-  - Contenido de teoría y simulacros históricos/cortos.
+  - Dashboard con los 4 módulos (niveles de práctica y de desafíos).
+  - Contenido de teoría dinámico desde la tabla NivelTeoria.
   - Obtener preguntas (desde BD para práctica libre y desafíos).
   - Validar respuestas:
     - Bucle Espejo (Mirror Loop) en modo Práctica Libre.
     - Salida Temprana (Early Exit) en modo Desafío con reinicio de progreso.
-  - Graduación de Fase 9.
+  - Graduación a Fase 3 (requiere 26 niveles dominados).
 """
 
 import random
@@ -35,16 +35,16 @@ from ..models.sql_models import (
 from ..utils.math_utils import normalize_response, calcular_max_errores
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from .schemas import (
-    fase9Dashboard, fase9ModuloInfo, fase9NivelInfo,
-    fase9PreguntaParaAlumno, fase9Token,
-    fase9ResponderPregunta, fase9ResultadoRespuesta,
-    fase9ContenidoLectura, fase9DesafioInfo,
-    fase9AlternativaOut, fase9CerrarRescate,
+    fase8Dashboard, fase8ModuloInfo, fase8NivelInfo,
+    fase8PreguntaParaAlumno, fase8Token,
+    fase8ResponderPregunta, fase8ResultadoRespuesta,
+    fase8ContenidoLectura, fase8DesafioInfo,
+    fase8AlternativaOut, fase8CerrarRescate,
 )
 
-router = APIRouter(prefix="/fase9", tags=["fase9"])
+router = APIRouter(prefix="/fase9", tags=["fase8"])
 
-fase9_ID = 9
+fase8_ID = 8
 MAX_ESPEJO = 3  # Intentos máximos en Bucle Espejo
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -80,21 +80,21 @@ async def _sync_unlocked_levels(db: AsyncSession, alumno_id: int, operacion: str
 # ─────────────────────────────────────────────────────────────────────────────
 
 MODULOS_META = {
-    1: {"nombre": "Simulados Cortos", "descripcion": "Bloques rápidos de preparación enfocada.", "icono": "clock", "color": "#10B981"},
-    2: {"nombre": "Simulados Completos", "descripcion": "Exámenes históricos oficiales completos.", "icono": "file-text", "color": "#8B5CF6"},
-    3: {"nombre": "Revisión Dirigida y Tutoría IA", "descripcion": "Revisión inteligente de errores frecuentes.", "icono": "cpu", "color": "#F59E0B"},
+    1: {"nombre": "Secuencias Lógicas", "descripcion": "Progresiones y patrones numéricos.", "icono": "bar-chart", "color": "#10B981"},
+    2: {"nombre": "Combinatoria Visual", "descripcion": "Diagramas de árbol y multiplicativos.", "icono": "share-2", "color": "#8B5CF6"},
+    3: {"nombre": "Probabilidad", "descripcion": "Espacios muestrales y fracciones.", "icono": "help-circle", "color": "#F59E0B"},
 }
 
 NIVELES_META = {
-    (1, 1): {"nombre": "Simulacro Temático", "descripcion": "Bloques de 10 preguntas enfocadas."},
-    (1, 2): {"nombre": "Simulacro Focalizado", "descripcion": "Distractores y mezcla de enunciados."},
-    (1, 3): {"nombre": "Maratón de Velocidad", "descripcion": "Simulación con reducción de tiempo por pregunta."},
-    (2, 1): {"nombre": "Examen Tipo Estándar", "descripcion": "Simulación idéntica al examen de admisión."},
-    (2, 2): {"nombre": "Simulacro Histórico", "descripcion": "Resolución de exámenes de años específicos del Pedro II."},
-    (2, 3): {"nombre": "Máxima Resistencia", "descripcion": "Simulación completa del 100% de los temas."},
-    (3, 1): {"nombre": "Exploración de Resultados", "descripcion": "Filtros selectivos sobre tus exámenes terminados."},
-    (3, 2): {"nombre": "Análisis de Respuestas", "descripcion": "Contraste visual de alternativas correctas e incorrectas."},
-    (3, 3): {"nombre": "Tutoría Pedro II", "descripcion": "Explicación interactiva por Inteligencia Artificial."},
+    (1, 1): {"nombre": "Progresiones Aritméticas", "descripcion": "Hallar patrón de suma/resta."},
+    (1, 2): {"nombre": "Progresiones Compuestas", "descripcion": "Multiplicación e intercaladas."},
+    (1, 3): {"nombre": "Interpolación", "descripcion": "Deducir término faltante."},
+    (2, 1): {"nombre": "Diagramas de Árbol", "descripcion": "Combinaciones filas x columnas."},
+    (2, 2): {"nombre": "Principio Multiplicativo", "descripcion": "Opciones sin repetición."},
+    (2, 3): {"nombre": "Divisores Comunes", "descripcion": "Empacar grupos exactos."},
+    (3, 1): {"nombre": "Clasificación Determinística", "descripcion": "Evento seguro, posible, imposible."},
+    (3, 2): {"nombre": "Definición de Laplace", "descripcion": "Casos Favorables / Posibles."},
+    (3, 3): {"nombre": "Análisis Probabilístico", "descripcion": "Fracciones comparativas."},
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ def _seccion_operacion(modulo_id: int, nivel_id: int) -> tuple:
     else:
         # Práctica libre
         seccion = modulo_id * 100 + nivel_id
-        operacion_map = {1: "suma", 2: "multiplicacion", 3: "mixta"}
+        operacion_map = {1: "suma", 2: "multiplicacion", 3: "mixta", 4: "mixta"}
         return seccion, operacion_map.get(modulo_id, "mixta")
 
 
@@ -146,7 +146,7 @@ async def _get_config(db: AsyncSession, seccion: int, operacion: str) -> Optiona
     # 1. Intentar obtener configuración específica y activa del bloque/nivel
     result = await db.execute(
         select(ConfiguracionProgreso).where(and_(
-            ConfiguracionProgreso.fase_id == fase9_ID,
+            ConfiguracionProgreso.fase_id == fase8_ID,
             ConfiguracionProgreso.seccion == seccion,
             ConfiguracionProgreso.activo == True
         ))
@@ -158,7 +158,7 @@ async def _get_config(db: AsyncSession, seccion: int, operacion: str) -> Optiona
     # 2. Fallback: intentar obtener configuración por defecto de la Fase 2 (seccion = 0, operacion = 'mixta')
     result_phase = await db.execute(
         select(ConfiguracionProgreso).where(and_(
-            ConfiguracionProgreso.fase_id == fase9_ID,
+            ConfiguracionProgreso.fase_id == fase8_ID,
             ConfiguracionProgreso.seccion == 0,
             ConfiguracionProgreso.operacion == "mixta",
             ConfiguracionProgreso.activo == True
@@ -173,7 +173,7 @@ async def _get_or_create_progreso(
     result = await db.execute(
         select(ProgresoMaestria).where(and_(
             ProgresoMaestria.alumno_id == alumno_id,
-            ProgresoMaestria.fase_id == fase9_ID,
+            ProgresoMaestria.fase_id == fase8_ID,
             ProgresoMaestria.seccion == seccion,
         ))
     )
@@ -181,7 +181,7 @@ async def _get_or_create_progreso(
     if not progreso:
         progreso = ProgresoMaestria(
             alumno_id=alumno_id,
-            fase_id=fase9_ID,
+            fase_id=fase8_ID,
             seccion=seccion,
             operacion=operacion,
             estado=EstadoProgresoEnum.EN_PROGRESO,
@@ -194,7 +194,7 @@ async def _get_or_create_progreso(
 
 
 def _is_nivel_unlocked(progresos: dict, modulo_id: int, nivel_id: int) -> bool:
-    """Verifica si un nivel de examen está desbloqueado secuencialmente."""
+    """Verifica si un nivel de práctica libre está desbloqueado secuencialmente."""
     if modulo_id == 1 and nivel_id == 1:
         return True
     
@@ -205,14 +205,20 @@ def _is_nivel_unlocked(progresos: dict, modulo_id: int, nivel_id: int) -> bool:
     
     if nivel_id == 1 and modulo_id > 1:
         prev_mod = modulo_id - 1
-        # Módulo 1 tiene 5 niveles, Módulo 2 tiene 10 niveles, Módulo 3 tiene 5
-        prev_mod_levels = {1: 5, 2: 10, 3: 5}.get(prev_mod, 5)
+        prev_mod_levels = {1: 3, 2: 4, 3: 4}[prev_mod]
         
-        # Check all levels of previous module
+        # Check all practice levels of previous module
         for p_level in range(1, prev_mod_levels + 1):
             p_sec, p_op = _seccion_operacion(prev_mod, p_level)
             p_prog = progresos.get(p_sec)
             if not p_prog or p_prog.estado != EstadoProgresoEnum.APROBADO:
+                return False
+                
+        # Check all challenges of previous module
+        for des_id in (11, 12, 13):
+            c_sec, c_op = _seccion_operacion(prev_mod, des_id)
+            c_prog = progresos.get(c_sec)
+            if not c_prog or c_prog.estado != EstadoProgresoEnum.APROBADO:
                 return False
                 
         return True
@@ -220,48 +226,70 @@ def _is_nivel_unlocked(progresos: dict, modulo_id: int, nivel_id: int) -> bool:
     return False
 
 
+def _is_desafio_unlocked(progresos: dict, modulo_id: int, desafio_id: int, all_practice_approved: bool) -> bool:
+    """Verifica si un desafío está desbloqueado basado en la maestría de práctica."""
+    if not all_practice_approved:
+        return False
+    if desafio_id == 11:
+        return True
+    if desafio_id == 12:
+        sec_d1, op_d1 = _seccion_operacion(modulo_id, 11)
+        prog_d1 = progresos.get(sec_d1)
+        return prog_d1 is not None and prog_d1.estado == EstadoProgresoEnum.APROBADO
+    if desafio_id == 13:
+        sec_d2, op_d2 = _seccion_operacion(modulo_id, 12)
+        prog_d2 = progresos.get(sec_d2)
+        return prog_d2 is not None and prog_d2.estado == EstadoProgresoEnum.APROBADO
+    return False
+
+
 # ─────────────────────────────────────────────────────────────────────────────
-# ENDPOINT 1 — Dashboard de la Fase 9 (20 simulacros)
+# ENDPOINT 1 — Dashboard de la Fase 2 (26 niveles)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/dashboard", response_model=fase9Dashboard)
-async def get_fase9_dashboard(
+@router.get("/dashboard", response_model=fase8Dashboard)
+async def get_fase8_dashboard(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
     """
-    Devuelve el estado completo de los 3 módulos de Fase 9 para el alumno,
-    incluyendo niveles de simulacros.
+    Devuelve el estado completo de los 4 módulos de Fase 2 para el alumno,
+    incluyendo niveles de práctica libre y desafíos.
     """
 
-    # Cargar progresos en Fase 9
+    # Cargar progresos en Fase 2
     result = await db.execute(
         select(ProgresoMaestria).where(and_(
             ProgresoMaestria.alumno_id == alumno.id,
-            ProgresoMaestria.fase_id == fase9_ID,
+            ProgresoMaestria.fase_id == fase8_ID,
         ))
     )
     progresos = {p.seccion: p for p in result.scalars().all()}
 
     # Cargar configuraciones
     result = await db.execute(
-        select(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == fase9_ID)
+        select(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == fase8_ID)
     )
     configs = {c.seccion: c for c in result.scalars().all()}
 
+    global_cfg = await _get_global_config(db)
+    pl_cfg = global_cfg.get("practica_libre", {})
+    des_cfg = global_cfg.get("desafios", {})
+
     modulos = []
-    modulo_niveles_map = {1: 5, 2: 10, 3: 5}
+    modulo_niveles_map = {1: 3, 2: 3, 3: 3, 4: 3}
     
     for mod_id in range(1, 4):
         meta = MODULOS_META[mod_id]
         niveles = []
+        desafios = []
         mod_porcentaje_total = 0
-        num_niveles = modulo_niveles_map[mod_id]
+        num_niveles = 3
 
-        # Cargar exámenes del módulo
+        # 1. Cargar niveles de práctica libre
         for niv_id in range(1, num_niveles + 1):
             seccion, operacion = _seccion_operacion(mod_id, niv_id)
-            niv_meta = NIVELES_META.get((mod_id, niv_id), {"nombre": f"Simulacro {niv_id}", "descripcion": "Simulacro de examen."})
+            niv_meta = NIVELES_META.get((mod_id, niv_id), {"nombre": f"Nivel {niv_id}", "descripcion": ""})
             config = configs.get(seccion)
             progreso = progresos.get(seccion)
 
@@ -269,7 +297,7 @@ async def get_fase9_dashboard(
                 estado = "bloqueado"
                 porcentaje = 0
                 aciertos = 0
-                requeridos = 10  # 10 preguntas por examen
+                requeridos = pl_cfg.get("cantidad_requerida", 15)
             elif progreso is None:
                 estado = "en_progreso" if _is_nivel_unlocked(progresos, mod_id, niv_id) else "bloqueado"
                 porcentaje = 0
@@ -286,7 +314,7 @@ async def get_fase9_dashboard(
                     estado = "en_progreso" if _is_nivel_unlocked(progresos, mod_id, niv_id) else "bloqueado"
 
             mod_porcentaje_total += porcentaje
-            niveles.append(fase9NivelInfo(
+            niveles.append(fase8NivelInfo(
                 nivel_id=niv_id,
                 nombre=niv_meta["nombre"],
                 descripcion=niv_meta["descripcion"],
@@ -294,19 +322,82 @@ async def get_fase9_dashboard(
                 porcentaje=porcentaje,
                 aciertos=aciertos,
                 requeridos=requeridos,
-                usa_cronometro=True,
+                usa_cronometro=config.usa_cronometro if config else pl_cfg.get("usa_cronometro", False),
             ))
 
-        mod_porcentaje = mod_porcentaje_total // num_niveles if num_niveles > 0 else 0
+        all_practice_approved = all(n.estado == "dominado" for n in niveles)
+
+        # 2. Cargar desafíos (11, 12, 13)
+        desafio_configs = {
+            11: {"nombre": "Desafío 1", "dificultad": "estandar", "tiempo_limite": 30, "max_errores": 3},
+            12: {"nombre": "Desafío 2", "dificultad": "avanzada", "tiempo_limite": 45, "max_errores": 3},
+            13: {"nombre": "Desafío Final", "dificultad": "maestria", "tiempo_limite": 60, "max_errores": 2},
+        }
+
+        for des_id in [11, 12, 13]:
+            seccion, operacion = _seccion_operacion(mod_id, des_id)
+            d_conf = desafio_configs[des_id]
+            config = configs.get(seccion)
+            progreso = progresos.get(seccion)
+
+            if config is None:
+                estado = "bloqueado"
+                porcentaje = 0
+                aciertos = 0
+                requeridos = des_cfg.get("cantidad_requerida", 25 if des_id != 13 else 10)
+            elif progreso is None:
+                estado = "en_progreso" if _is_desafio_unlocked(progresos, mod_id, des_id, all_practice_approved) else "bloqueado"
+                porcentaje = 0
+                aciertos = 0
+                requeridos = config.cantidad_requerida
+            else:
+                requeridos = config.cantidad_requerida
+                aciertos = progreso.aciertos_acumulados
+                porcentaje = min(100, progreso.porcentaje_actual)
+                if progreso.estado == EstadoProgresoEnum.APROBADO:
+                    estado = "dominado"
+                    porcentaje = 100
+                else:
+                    estado = "en_progreso" if _is_desafio_unlocked(progresos, mod_id, des_id, all_practice_approved) else "bloqueado"
+            if config:
+                usa_crono = config.usa_cronometro
+                tiempo_limite = config.tiempo_default_segundos if (config.tiempo_default_segundos is not None and config.tiempo_default_segundos > 0) else d_conf["tiempo_limite"]
+                cantidad_req = config.cantidad_requerida
+                porc_aprobacion = config.porcentaje_aprobacion
+            else:
+                usa_crono = des_cfg.get("usa_cronometro", True)
+                tiempo_key = f"tiempo_default_segundos_{des_id}"
+                tiempo_limite = des_cfg.get(tiempo_key, d_conf["tiempo_limite"])
+                cantidad_req = des_cfg.get("cantidad_requerida", 25 if des_id != 13 else 10)
+                porc_aprobacion = des_cfg.get("porcentaje_aprobacion", 90)
+
+            if not usa_crono:
+                tiempo_limite = 0
+
+            max_errores_dinamico = calcular_max_errores(cantidad_req, porc_aprobacion)
+
+            mod_porcentaje_total += porcentaje
+            desafios.append(fase8DesafioInfo(
+                desafio_id=des_id,
+                nombre=d_conf["nombre"],
+                dificultad=d_conf["dificultad"],
+                estado=estado,
+                porcentaje=porcentaje,
+                aciertos=aciertos,
+                requeridos=requeridos,
+                tiempo_limite=tiempo_limite,
+                max_errores=max_errores_dinamico,
+            ))
+        mod_porcentaje = mod_porcentaje_total // (num_niveles + 3)
         
-        if all(n.estado == "dominado" for n in niveles):
+        if all(n.estado == "dominado" for n in niveles) and all(d.estado == "dominado" for d in desafios):
             estado_modulo = "dominado"
         elif all(n.estado == "bloqueado" for n in niveles):
             estado_modulo = "bloqueado"
         else:
             estado_modulo = "en_progreso"
 
-        modulos.append(fase9ModuloInfo(
+        modulos.append(fase8ModuloInfo(
             modulo_id=mod_id,
             nombre=meta["nombre"],
             descripcion=meta["descripcion"],
@@ -323,10 +414,10 @@ async def get_fase9_dashboard(
         1 for p in progresos.values() if p.estado == EstadoProgresoEnum.APROBADO
     )
     
-    desafio_mixto_disponible = (total_niveles_aprobados >= 12)
+    desafio_mixto_disponible = (total_niveles_aprobados >= 9)
     desafio_mixto_estado = "completado" if desafio_mixto_disponible else "bloqueado"
 
-    return fase9Dashboard(
+    return fase8Dashboard(
         alumno_nombre=alumno.nombre,
         puntos_totales=puntos,
         modulos=modulos,
@@ -339,8 +430,8 @@ async def get_fase9_dashboard(
 # ENDPOINT 2 — Contenido de lectura / teoría dinámico
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=fase9ContenidoLectura)
-async def get_lectura_fase9(
+@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=fase8ContenidoLectura)
+async def get_lectura_fase8(
     modulo_id: int,
     nivel_id: int,
     db: AsyncSession = Depends(get_db),
@@ -349,7 +440,7 @@ async def get_lectura_fase9(
     """Devuelve el contenido de lectura/teoría de un nivel específico desde la base de datos."""
     result = await db.execute(
         select(NivelTeoria).where(and_(
-            NivelTeoria.fase_id == fase9_ID,
+            NivelTeoria.fase_id == fase8_ID,
             NivelTeoria.modulo_id == modulo_id,
             NivelTeoria.nivel_id == nivel_id,
         ))
@@ -357,14 +448,20 @@ async def get_lectura_fase9(
     theory = result.scalar_one_or_none()
     
     if not theory:
-        raise HTTPException(
-            status_code=404, 
-            detail=f"No se encontró contenido teórico para el módulo {modulo_id}, nivel {nivel_id}."
+        return fase8ContenidoLectura(
+            modulo_id=modulo_id,
+            nivel_id=nivel_id,
+            titulo="Teoría Próximamente",
+            parrafos=["El contenido teórico de este nivel está en desarrollo."],
+            ejemplos=[],
+            tip_pedagogico="Observa cuidadosamente.",
+            diccionario=None,
+            interactivos=[],
         )
     
     parrafos = [p.strip() for p in theory.texto_descubrimiento.split("\n") if p.strip()]
     
-    return fase9ContenidoLectura(
+    return fase8ContenidoLectura(
         modulo_id=modulo_id,
         nivel_id=nivel_id,
         titulo=theory.titulo,
@@ -380,8 +477,8 @@ async def get_lectura_fase9(
 # ENDPOINT 3 — Obtener Pregunta (Práctica con Bucle Espejo y Desafíos aleatorios)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=fase9PreguntaParaAlumno)
-async def get_pregunta_fase9(
+@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=fase8PreguntaParaAlumno)
+async def get_pregunta_fase8(
     modulo_id: int,
     nivel_id: int,
     reload: bool = False,
@@ -404,7 +501,7 @@ async def get_pregunta_fase9(
             await db.execute(
                 delete(Intento).where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase9_ID,
+                    Intento.fase_id == fase8_ID,
                     Intento.seccion == seccion
                 ))
             )
@@ -412,7 +509,7 @@ async def get_pregunta_fase9(
             # Borrar los intentos de la tabla `IntentoPregunta` si aplica
             result_q_ids = await db.execute(
                 select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == fase9_ID,
+                    Pregunta.fase_id == fase8_ID,
                     Pregunta.seccion == seccion
                 ))
             )
@@ -437,7 +534,7 @@ async def get_pregunta_fase9(
             select(Intento.pregunta_id)
             .where(and_(
                 Intento.alumno_id == alumno.id,
-                Intento.fase_id == fase9_ID,
+                Intento.fase_id == fase8_ID,
                 Intento.seccion == seccion,
                 Intento.es_correcta == True
             ))
@@ -446,7 +543,7 @@ async def get_pregunta_fase9(
 
         # Si modulo_id == 99, traer preguntas de toda la fase 2 (preferiblemente de nivel 13)
         query = select(Pregunta).options(selectinload(Pregunta.alternativas)).where(and_(
-            Pregunta.fase_id == fase9_ID,
+            Pregunta.fase_id == fase8_ID,
             Pregunta.estado == StatusEnum.ACTIVO
         ))
         
@@ -472,7 +569,7 @@ async def get_pregunta_fase9(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                fase9AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                fase8AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -500,12 +597,13 @@ async def get_pregunta_fase9(
         if not tiene_crono:
             tiempo_lim = None
 
-        return fase9PreguntaParaAlumno(
+        return fase8PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
             enunciado=pregunta_elex.enunciado,
             tipo_pregunta=pregunta_elex.tipo_pregunta.value,
+            respuesta_correcta=pregunta_elex.respuesta_correcta if pregunta_elex.tipo_pregunta.value != "multiple_opcion" else None,
             tiene_cronometro=tiene_crono,
             tiempo_limite_segundos=tiempo_lim,
             alternativas=alts_out,
@@ -524,7 +622,7 @@ async def get_pregunta_fase9(
             await db.execute(
                 delete(Intento).where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase9_ID,
+                    Intento.fase_id == fase8_ID,
                     Intento.seccion == seccion
                 ))
             )
@@ -532,7 +630,7 @@ async def get_pregunta_fase9(
             # 2. Borrar los intentos de la tabla `IntentoPregunta` para las preguntas de esta sección
             result_q_ids = await db.execute(
                 select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == fase9_ID,
+                    Pregunta.fase_id == fase8_ID,
                     Pregunta.seccion == seccion
                 ))
             )
@@ -559,7 +657,7 @@ async def get_pregunta_fase9(
                 select(Intento)
                 .where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase9_ID,
+                    Intento.fase_id == fase8_ID,
                     Intento.seccion == seccion,
                 ))
                 .order_by(Intento.fecha.desc(), Intento.id.desc())
@@ -618,7 +716,7 @@ async def get_pregunta_fase9(
             result_qs = await db.execute(
                 select(Pregunta).options(selectinload(Pregunta.alternativas))
                 .where(and_(
-                    Pregunta.fase_id == fase9_ID,
+                    Pregunta.fase_id == fase8_ID,
                     Pregunta.seccion == seccion,
                     Pregunta.estado == StatusEnum.ACTIVO
                 ))
@@ -637,7 +735,7 @@ async def get_pregunta_fase9(
                 .join(Intento, Intento.pregunta_id == Pregunta.id)
                 .where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase9_ID,
+                    Intento.fase_id == fase8_ID,
                     Intento.seccion == seccion,
                     or_(
                         Intento.es_correcta == True,
@@ -662,7 +760,7 @@ async def get_pregunta_fase9(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                fase9AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                fase8AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -691,12 +789,13 @@ async def get_pregunta_fase9(
         if not tiene_crono:
             tiempo_lim = None
 
-        return fase9PreguntaParaAlumno(
+        return fase8PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
             enunciado=pregunta_elex.enunciado,
             tipo_pregunta=pregunta_elex.tipo_pregunta.value,
+            respuesta_correcta=pregunta_elex.respuesta_correcta if pregunta_elex.tipo_pregunta.value != "multiple_opcion" else None,
             tiene_cronometro=tiene_crono,
             tiempo_limite_segundos=tiempo_lim,
             pasos_encadenados=pasos_encadenados,
@@ -710,9 +809,9 @@ async def get_pregunta_fase9(
 # ENDPOINT 4 — Responder pregunta (Valida y actualiza progreso)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.post("/responder", response_model=fase9ResultadoRespuesta)
-async def responder_fase9(
-    payload: fase9ResponderPregunta,
+@router.post("/responder", response_model=fase8ResultadoRespuesta)
+async def responder_fase8(
+    payload: fase8ResponderPregunta,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -732,6 +831,7 @@ async def responder_fase9(
 
     result_q = await db.execute(
         select(Pregunta).options(selectinload(Pregunta.alternativas))
+        .options(selectinload(Pregunta.alternativas))
         .where(Pregunta.id == payload.pregunta_id)
     )
     pregunta = result_q.scalar_one_or_none()
@@ -745,7 +845,11 @@ async def responder_fase9(
 
     # 1. VALIDAR LA RESPUESTA
     tipo_pregunta = pregunta.tipo_pregunta.value
-    is_money = (modulo_id == 3)
+    # Fase 8 no maneja dinero (módulo 3 = "Probabilidad", copiado de Fase 2/3 donde
+    # módulo 3 sí era la Tienda). Todas las preguntas de Fase 8 son multiple_opcion
+    # hoy, así que esto es defensivo, pero corregimos el copy-paste para que no rompa si
+    # se agrega algún tipo de respuesta numérica/texto libre en el futuro.
+    is_money = False
 
     tipo_error = None
     feedback_mostrado = None
@@ -874,7 +978,7 @@ async def responder_fase9(
         pregunta_id=payload.pregunta_id,
         respuesta_dada=payload.respuesta_dada or (str(payload.alternativa_id) if payload.alternativa_id else ""),
         es_correcta=es_correcta_intento,
-        fase_id=fase9_ID,
+        fase_id=fase8_ID,
         seccion=seccion,
         operacion=operacion,
         tipo_error=tipo_error,
@@ -906,7 +1010,7 @@ async def responder_fase9(
             select(Intento)
             .where(and_(
                 Intento.alumno_id == alumno.id,
-                Intento.fase_id == fase9_ID,
+                Intento.fase_id == fase8_ID,
                 Intento.seccion == seccion,
             ))
             .order_by(Intento.fecha.desc(), Intento.id.desc())
@@ -942,7 +1046,7 @@ async def responder_fase9(
             await db.execute(
                 delete(Intento).where(and_(
                     Intento.alumno_id == alumno.id,
-                    Intento.fase_id == fase9_ID,
+                    Intento.fase_id == fase8_ID,
                     Intento.seccion == seccion
                 ))
             )
@@ -950,7 +1054,7 @@ async def responder_fase9(
             # Borrar los intentos de la tabla `IntentoPregunta` si aplica
             result_q_ids = await db.execute(
                 select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == fase9_ID,
+                    Pregunta.fase_id == fase8_ID,
                     Pregunta.seccion == seccion
                 ))
             )
@@ -965,7 +1069,7 @@ async def responder_fase9(
             
             await db.commit()
             
-            return fase9ResultadoRespuesta(
+            return fase8ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
                 aciertos_acumulados=0,
@@ -1026,16 +1130,16 @@ async def responder_fase9(
                 res_aprob = await db.execute(
                     select(func.count(ProgresoMaestria.id)).where(and_(
                         ProgresoMaestria.alumno_id == alumno.id,
-                        ProgresoMaestria.fase_id == fase9_ID,
+                        ProgresoMaestria.fase_id == fase8_ID,
                         ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO,
                     ))
                 )
-                if res_aprob.scalar() >= 20:
+                if res_aprob.scalar() >= 18:
                     fase_completada = True
 
             await db.commit()
 
-            return fase9ResultadoRespuesta(
+            return fase8ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
                 aciertos_acumulados=progreso.aciertos_acumulados,
@@ -1088,7 +1192,7 @@ async def responder_fase9(
             .join(Intento, Intento.pregunta_id == Pregunta.id)
             .where(and_(
                 Intento.alumno_id == alumno.id,
-                Intento.fase_id == fase9_ID,
+                Intento.fase_id == fase8_ID,
                 Intento.seccion == seccion,
                 or_(
                     Intento.es_correcta == True,
@@ -1103,7 +1207,7 @@ async def responder_fase9(
         bloque_completado = False
         fase_completada = False
 
-        if progreso.porcentaje_actual >= porc_aprobacion:
+        if progreso.porcentaje_actual >= 100:
             if progreso.estado != EstadoProgresoEnum.APROBADO:
                 progreso.estado = EstadoProgresoEnum.APROBADO
                 progreso.fecha_aprobacion = datetime.utcnow()
@@ -1113,11 +1217,11 @@ async def responder_fase9(
             res_aprob = await db.execute(
                 select(func.count(ProgresoMaestria.id)).where(and_(
                     ProgresoMaestria.alumno_id == alumno.id,
-                    ProgresoMaestria.fase_id == fase9_ID,
+                    ProgresoMaestria.fase_id == fase8_ID,
                     ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
                 ))
             )
-            if res_aprob.scalar() >= 20:
+            if res_aprob.scalar() >= 18:
                 fase_completada = True
 
             # Sincronizar espejo visual heredado
@@ -1141,11 +1245,11 @@ async def responder_fase9(
             intentos_espejo = len(family_attempts)
             
             espejo = intentos_espejo > 0
-            soporte_avanzado = intentos_espejo >= (MAX_ESPEJO + 1)
+            soporte_avanzado = (config and config.tipo_feedback == "detallado") or intentos_espejo >= (MAX_ESPEJO + 1)
 
         await db.commit()
 
-        return fase9ResultadoRespuesta(
+        return fase8ResultadoRespuesta(
             es_correcta=es_correcta,
             respuesta_correcta=respuesta_correcta_str,
             explicacion=pregunta.explicacion_paso_a_paso if (not es_correcta and soporte_avanzado) else None,
@@ -1168,9 +1272,9 @@ async def responder_fase9(
 # ENDPOINT 4.5 — Cerrar Rescate (Bypass sin anti-spam)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.post("/cerrar-rescate", response_model=fase9ResultadoRespuesta)
-async def cerrar_rescate_fase9(
-    payload: fase9CerrarRescate,
+@router.post("/cerrar-rescate", response_model=fase8ResultadoRespuesta)
+async def cerrar_rescate_fase8(
+    payload: fase8CerrarRescate,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -1197,7 +1301,7 @@ async def cerrar_rescate_fase9(
         pregunta_id=payload.pregunta_id,
         respuesta_dada="BYPASS_EXPLICACION",
         es_correcta=False,
-        fase_id=fase9_ID,
+        fase_id=fase8_ID,
         seccion=seccion,
         operacion=operacion,
         tipo_error=TipoErrorEnum.CALCULO,
@@ -1223,7 +1327,7 @@ async def cerrar_rescate_fase9(
         .join(Intento, Intento.pregunta_id == Pregunta.id)
         .where(and_(
             Intento.alumno_id == alumno.id,
-            Intento.fase_id == fase9_ID,
+            Intento.fase_id == fase8_ID,
             Intento.seccion == seccion,
             or_(
                 Intento.es_correcta == True,
@@ -1248,11 +1352,11 @@ async def cerrar_rescate_fase9(
         res_aprob = await db.execute(
             select(func.count(ProgresoMaestria.id)).where(and_(
                 ProgresoMaestria.alumno_id == alumno.id,
-                ProgresoMaestria.fase_id == fase9_ID,
+                ProgresoMaestria.fase_id == fase8_ID,
                 ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
             ))
         )
-        if res_aprob.scalar() >= 20:
+        if res_aprob.scalar() >= 18:
             fase_completada = True
 
         # Sincronizar espejo visual heredado
@@ -1260,7 +1364,7 @@ async def cerrar_rescate_fase9(
 
     await db.commit()
 
-    return fase9ResultadoRespuesta(
+    return fase8ResultadoRespuesta(
         es_correcta=False,
         respuesta_correcta=pregunta.respuesta_correcta,
         aciertos_acumulados=progreso.aciertos_acumulados,
@@ -1276,33 +1380,45 @@ async def cerrar_rescate_fase9(
 
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ENDPOINT 5 — Graduación a Fase 9 (Exige 18 niveles aprobados)
+# ─────────────────────────────────────────────────────────────────────────────
+
 @router.post("/graduate")
-async def graduate_fase9(
+async def graduate_fase8(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
     """
-    Gradúa al alumno de Fase 9 si todos los 20 simulacros están dominados.
+    Gradúa al alumno de Fase 8 a Fase 9 si todos los 18 niveles (9 de práctica y 9 desafíos) están dominados.
     """
 
     result = await db.execute(
         select(func.count(ProgresoMaestria.id)).where(and_(
             ProgresoMaestria.alumno_id == alumno.id,
-            ProgresoMaestria.fase_id == fase9_ID,
+            ProgresoMaestria.fase_id == fase8_ID,
             ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO,
         ))
     )
     aprobados = result.scalar()
-    if aprobados < 20:
+    if aprobados < 18:
         raise HTTPException(
             status_code=400,
-            detail=f"Debes dominar los 20 simulacros de Fase 9. Llevas {aprobados}/20.",
+            detail=f"Debes dominar los 18 niveles de Fase 8 (9 de práctica y 9 desafíos). Llevas {aprobados}/18.",
         )
 
+    result = await db.execute(select(Fase).where(Fase.orden == 9))
+    fase9 = result.scalar_one_or_none()
+    if not fase9:
+        raise HTTPException(status_code=500, detail="La Fase 9 aún no ha sido configurada.")
+
+    alumno.fase_actual_id = fase9.id
+    await db.commit()
+
     return {
-        "message": "¡Felicitaciones! ¡Has completado con éxito todos los simulacros de la Fase 9!",
-        "nueva_fase_id": None,
-        "nueva_fase_nombre": None,
+        "message": "¡Felicitaciones! ¡Has dominado la Fase 8 y avanzas a la Fase 9!",
+        "nueva_fase_id": fase9.id,
+        "nueva_fase_nombre": fase9.nombre,
     }
 
 

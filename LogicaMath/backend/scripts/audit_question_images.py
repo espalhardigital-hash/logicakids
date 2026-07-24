@@ -30,7 +30,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from app.db.session import engine, AsyncSessionLocal
 from app.models.sql_models import Pregunta, OperacionEnum, TipoPreguntaEnum
 from app.core.storage import storage_service
-from app.core.config import settings
+from app.config import settings
 from app.utils.graphics_generator import (
     generate_clock_image,
     generate_cartesian_plane_image,
@@ -486,10 +486,7 @@ async def audit_and_heal_database():
     async with AsyncSessionLocal() as session:
         # Obtener todas las preguntas de las fases 3 a 8
         query = select(Pregunta).where(
-            and_(
-                Pregunta.fase_id >= 3,
-                Pregunta.fase_id <= 8
-            )
+            Pregunta.fase_id.in_([5, 6, 7])
         ).order_by(Pregunta.fase_id, Pregunta.seccion, Pregunta.id)
         
         result = await session.execute(query)

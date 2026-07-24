@@ -33,6 +33,21 @@ class ConfiguracionProgreso(Base):
     usa_cronometro = Column(Boolean, default=False, nullable=False)
     tiempo_default_segundos = Column(Integer, nullable=True)
 
+    # ── Modelo B (TJS) — Decisiones 8 y 14 ──────────────────────────────────
+    # Añadidos en migración g1h2i3j4k5l6. Ref: docs/reestructuraciondefases.md §12.6
+
+    # Errores tolerados explícitos (Decisión 8). NULL = comportamiento legacy
+    # (deducción por porcentaje de aprobación) conservado para Fases 1–3.
+    # Las Fases 4–11 lo fijan explícito en su seed (no se deduce del porcentaje).
+    errores_tolerados = Column(Integer, nullable=True)                        # Decisión 8
+
+    # Pistas por sesión de desafío (Decisión 14). 0 = sin pistas (Fases 1–3).
+    pistas_permitidas = Column(Integer, nullable=False, default=0)            # Decisión 14
+
+    # Penalización en segundos sobre el cronómetro de la pregunta al pedir
+    # una pista (Decisión 14). 0 = sin penalización (Fases 1–3).
+    penalizacion_pista_segundos = Column(Integer, nullable=False, default=0)  # Decisión 14
+
     activo = Column(Boolean, default=True, nullable=False)
 
     fecha_creacion = Column(DateTime, default=datetime.utcnow, nullable=False)

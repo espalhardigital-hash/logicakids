@@ -17,11 +17,11 @@ interface Fase5TheoryModalProps {
 }
 
 const MODULE_NAMES: Record<number, string> = {
-  1: 'Gimnasio Mental',
-  2: 'Tablas en Acción',
-  3: 'Tienda Matemática',
-  4: 'Constructor de Soluciones',
-  5: 'Desafío Lógico',
+  1: 'Operaciones Decimales',
+  2: 'Unidades y Conversiones',
+  3: 'Sistema Métrico',
+  4: 'Resolución de Problemas',
+  5: 'Desafío Integrador',
 };
 
 export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
@@ -30,7 +30,8 @@ export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
   onClose,
   onAbort,
   userAvatar,
-  isInitialReading = true, isEvaluatorMode
+  isInitialReading = true,
+  isEvaluatorMode
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -111,7 +112,6 @@ export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
     return true;
   }, [currentSlide, feedback, isEvaluatorMode]);
 
-  // Animations (Slide)
   const variants = {
     enter: (direction: number) => ({
       x: direction > 0 ? 50 : -50,
@@ -157,7 +157,7 @@ export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
               letterSpacing: '1.2px',
               marginBottom: '2px'
             }}>
-              Módulo {readingData.modulo_id}: {MODULE_NAMES[readingData.modulo_id] || 'Cálculo'} • Nivel {readingData.nivel_id}
+              Módulo {readingData.modulo_id}: {MODULE_NAMES[readingData.modulo_id] || 'Operatoria'} • Nivel {readingData.nivel_id}
             </div>
             <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>
                ✨ {fixEncoding(readingData.titulo)}

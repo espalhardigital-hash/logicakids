@@ -1,3 +1,8 @@
+/**
+ * Servicio API — Fase 6: Desarrollo Numérico y Razonamiento
+ * Capa de comunicación con el backend de Fase 6.
+ */
+
 import { fetchWithTimeout } from '../../services/apiHelper';
 import type {
   Fase7Dashboard,
@@ -10,6 +15,7 @@ import type {
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 function getAuthHeaders(): HeadersInit {
+  // Compatibilidad con el sistema de almacenamiento de tokens del proyecto
   const token =
     localStorage.getItem('auth_token') ||
     localStorage.getItem('token') ||
@@ -43,8 +49,13 @@ async function fetchDeduplicated<T>(key: string, fetchFn: () => Promise<T>): Pro
   return promise;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Obtiene el dashboard de Fase 6 con los 5 módulos y su estado.
+ */
 export async function getFase7Dashboard(): Promise<Fase7Dashboard> {
-  const key = 'dashboard-fase7';
+  const key = 'dashboard';
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(`${API_URL}/fase7/dashboard`, {
       headers: getAuthHeaders(),
@@ -53,9 +64,12 @@ export async function getFase7Dashboard(): Promise<Fase7Dashboard> {
   });
 }
 
+/**
+ * Obtiene la siguiente pregunta para un módulo y nivel específicos.
+ */
 export async function getFase7Question(
   moduloId: number, nivelId: number, reload: boolean = false): Promise<Fase7Pregunta> {
-  const key = `question-fase7-${moduloId}-${nivelId}-${reload}`;
+  const key = `question-${moduloId}-${nivelId}-${reload}`;
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(
       `${API_URL}/fase7/modulo/${moduloId}/nivel/${nivelId}/pregunta?reload=${reload}`,
@@ -65,6 +79,9 @@ export async function getFase7Question(
   });
 }
 
+/**
+ * Envía la respuesta del alumno y recibe el resultado con feedback.
+ */
 export async function submitFase7Answer(
   payload: Fase7AnswerPayload
 ): Promise<Fase7AnswerResult> {
@@ -76,6 +93,9 @@ export async function submitFase7Answer(
   return handleResponse<Fase7AnswerResult>(res);
 }
 
+/**
+ * Cierra el bloque de rescate y avanza.
+ */
 export async function closeFase7Rescate(
   moduloId: number, nivelId: number, preguntaId: number
 ): Promise<Fase7AnswerResult> {
@@ -87,9 +107,12 @@ export async function closeFase7Rescate(
   return handleResponse<Fase7AnswerResult>(res);
 }
 
+/**
+ * Obtiene el contenido de lectura/teoría de un nivel.
+ */
 export async function getFase7Reading(
   moduloId: number, nivelId: number, reload: boolean = false): Promise<Fase7Lectura> {
-  const key = `reading-fase7-${moduloId}-${nivelId}`;
+  const key = `reading-${moduloId}-${nivelId}`;
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(
       `${API_URL}/fase7/lectura/${moduloId}/nivel/${nivelId}`,
@@ -98,3 +121,19 @@ export async function getFase7Reading(
     return handleResponse<Fase7Lectura>(res);
   });
 }
+
+/**
+ * Gradúa al alumno de Fase 6 a Fase 3 (requiere todos los módulos dominados).
+ */
+export async function graduateFase7(): Promise<{
+  message: string;
+  nueva_fase_id: number;
+  nueva_fase_nombre: string;
+}> {
+  const res = await fetchWithTimeout(`${API_URL}/fase7/graduate`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  return handleResponse(res);
+}
+

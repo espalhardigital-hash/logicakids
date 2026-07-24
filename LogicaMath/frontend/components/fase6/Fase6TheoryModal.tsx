@@ -137,15 +137,15 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
   };
 
   return (
-    <div className="f6-reading-overlay">
+    <div className="f5-reading-overlay">
       <motion.div 
         initial={{ scale: 0.9, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
         exit={{ scale: 0.9, y: 20, opacity: 0 }}
-        className="f6-reading-card flashcard-mode"
+        className="f5-reading-card flashcard-mode"
       >
-        <div className="f6-reading-header">
-          <div className="f6-reading-icon" style={{ backgroundColor: `${moduleColor}22`, color: moduleColor, flexShrink: 0 }}>
+        <div className="f5-reading-header">
+          <div className="f5-reading-icon" style={{ backgroundColor: `${moduleColor}22`, color: moduleColor, flexShrink: 0 }}>
             <BookOpen size={24} />
           </div>
           <div style={{ flex: 1 }}>
@@ -183,18 +183,18 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                   height: '36px',
                   transition: 'all 0.2s ease'
                 }}
-                className="f6-abort-btn"
+                className="f5-abort-btn"
               >
                 <LogOut size={16} />
               </button>
             )}
-            <div className="f6-step-indicator" style={{ marginTop: 0 }}>
+            <div className="f5-step-indicator" style={{ marginTop: 0 }}>
               Paso {currentStep + 1} de {totalSteps}
             </div>
           </div>
         </div>
         
-        <div className="f6-reading-body flashcard-body">
+        <div className="f5-reading-body flashcard-body">
           <AnimatePresence mode="wait" custom={direction}>
             {currentSlide?.type === 'intro' && (
               <motion.div
@@ -205,20 +205,20 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="f6-flashcard-content"
+                className="f5-flashcard-content"
               >
                 {readingData.parrafos.map((p, idx) => (
-                  <p key={idx} className="f6-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
+                  <p key={idx} className="f5-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
                 ))}
 
                 {readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
-                  <div className="f6-reading-dictionary">
+                  <div className="f5-reading-dictionary">
                     <h3>📖 EL DICCIONARIO DEL NIVEL:</h3>
-                    <div className="f6-dict-grid">
+                    <div className="f5-dict-grid">
                       {Object.entries(readingData.diccionario).map(([termino, definicion], idx) => (
-                        <div key={idx} className="f6-dict-card" style={{ borderColor: `${moduleColor}55` }}>
-                          <div className="f6-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
-                          <div className="f6-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion as string) }} />
+                        <div key={idx} className="f5-dict-card" style={{ borderColor: `${moduleColor}55` }}>
+                          <div className="f5-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
+                          <div className="f5-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion as string) }} />
                         </div>
                       ))}
                     </div>
@@ -236,32 +236,32 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="f6-flashcard-content"
+                className="f5-flashcard-content"
               >
                 {currentSlide.data.length > 0 ? (
-                  <div className="f6-reading-examples">
+                  <div className="f5-reading-examples">
                     <h3>EJEMPLOS GUIADOS:</h3>
                     {currentSlide.data.map((ex: any, idx: number) => (
-                      <div key={idx} className="f6-example-box">
-                        <div className="f6-ex-q" dangerouslySetInnerHTML={{ __html: ex.enunciado }} />
+                      <div key={idx} className="f5-example-box">
+                        <div className="f5-ex-q" dangerouslySetInnerHTML={{ __html: ex.enunciado }} />
                         {ex.pasos ? (
-                          <div className="f6-ex-steps">
+                          <div className="f5-ex-steps">
                             {ex.pasos.map((paso: any) => (
-                              <div key={paso.orden} className="f6-ex-step">
-                                <span className="f6-ex-step-num">{paso.orden}</span>
+                              <div key={paso.orden} className="f5-ex-step">
+                                <span className="f5-ex-step-num">{paso.orden}</span>
                                 <span dangerouslySetInnerHTML={{ __html: paso.texto }} />
                               </div>
                             ))}
                           </div>
                         ) : (
-                           <div className="f6-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: ex.respuesta }} /></div>
+                           <div className="f5-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: ex.respuesta }} /></div>
                         )}
                       </div>
                     ))}
                   </div>
 
                 ) : (
-                  <div className="f6-reading-p">No hay ejemplos para este nivel. Avanza al siguiente paso.</div>
+                  <div className="f5-reading-p">No hay ejemplos para este nivel. Avanza al siguiente paso.</div>
                 )}
               </motion.div>
             )}
@@ -275,9 +275,9 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="f6-flashcard-content"
+                className="f5-flashcard-content"
               >
-                <div className="f6-reading-interactive">
+                <div className="f5-reading-interactive">
                   <h3>¡Tu turno! Completa los ejercicios:</h3>
                   {currentSlide.data.map((int: any, localIdx: number) => {
                     const idx = int.globalIndex;
@@ -288,11 +288,11 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                     return (
                       <div 
                         key={idx} 
-                        className={`f6-interactive-box ${isCorrect ? 'correct' : ''} ${feedback[idx] && !isCorrect ? 'error' : ''}`}
+                        className={`f5-interactive-box ${isCorrect ? 'correct' : ''} ${feedback[idx] && !isCorrect ? 'error' : ''}`}
                         style={isLocked ? { position: 'relative', overflow: 'hidden', minHeight: '110px' } : {}}
                       >
                         <div 
-                          className="f6-int-q"
+                          className="f5-int-q"
                           style={isLocked ? { filter: 'blur(5px)', opacity: 0.3, pointerEvents: 'none', userSelect: 'none' } : {}}
                           dangerouslySetInnerHTML={{ __html: qText }}
                         />
@@ -319,19 +319,19 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                         ) : (
                           <>
                             {int.pasos && (
-                              <div className="f6-ex-steps">
+                              <div className="f5-ex-steps">
                                 {int.pasos.map((paso: any) => {
                                   const isInputPaso = paso.texto.includes("= ?");
                                   if (isInputPaso) {
                                     const parts = paso.texto.split("= ?");
                                     return (
-                                      <div key={paso.orden} className="f6-ex-step input-step">
-                                        <span className="f6-ex-step-num">{paso.orden}</span>
+                                      <div key={paso.orden} className="f5-ex-step input-step">
+                                        <span className="f5-ex-step-num">{paso.orden}</span>
                                         <span>{parts[0]} = </span>
-                                        <div className="f6-int-input-group">
+                                        <div className="f5-int-input-group">
                                           <input 
                                             type="number" 
-                                            className="f6-int-input"
+                                            className="f5-int-input"
                                             value={answers[idx] || ''}
                                             onChange={(e) => handleAnswerChange(idx, e.target.value)}
                                             disabled={isCorrect}
@@ -341,7 +341,7 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                                           />
                                           {!isCorrect && (
                                             <button 
-                                              className="f6-int-verify"
+                                              className="f5-int-verify"
                                               style={{ backgroundColor: moduleColor }}
                                               onClick={() => handleVerify(idx, int.respuesta, int.feedback_acierto, int.feedback_error)}
                                             >
@@ -353,8 +353,8 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                                     );
                                   }
                                   return (
-                                    <div key={paso.orden} className="f6-ex-step">
-                                      <span className="f6-ex-step-num">{paso.orden}</span>
+                                    <div key={paso.orden} className="f5-ex-step">
+                                      <span className="f5-ex-step-num">{paso.orden}</span>
                                       <span>{paso.texto}</span>
                                     </div>
                                   );
@@ -362,10 +362,10 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                               </div>
                             )}
                             {!int.pasos && (
-                              <div className="f6-int-input-group legacy">
+                              <div className="f5-int-input-group legacy">
                                 <input 
                                   type="text" 
-                                  className="f6-int-input"
+                                  className="f5-int-input"
                                   value={answers[idx] || ''}
                                   onChange={(e) => handleAnswerChange(idx, e.target.value)}
                                   disabled={isCorrect}
@@ -375,7 +375,7 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                                 />
                                 {!isCorrect && (
                                   <button 
-                                    className="f6-int-verify"
+                                    className="f5-int-verify"
                                     style={{ backgroundColor: moduleColor }}
                                     onClick={() => handleVerify(idx, int.respuesta, int.feedback_acierto, int.feedback_error)}
                                   >
@@ -386,7 +386,7 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                             )}
                             
                             {feedback[idx] && (
-                              <div className={`f6-int-feedback ${feedback[idx].isCorrect ? 'success' : 'error'}`}>
+                              <div className={`f5-int-feedback ${feedback[idx].isCorrect ? 'success' : 'error'}`}>
                                 {feedback[idx].isCorrect ? <CheckCircle size={18} /> : <XCircle size={18} />}
                                 <span>{feedback[idx].message}</span>
                               </div>
@@ -409,9 +409,9 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="f6-flashcard-content"
+                className="f5-flashcard-content"
               >
-                <div className="f6-reading-tip highlighted">
+                <div className="f5-reading-tip highlighted">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#f59e0b', fontWeight: 800, fontSize: '1.05rem' }}>
                     <span style={{ fontSize: '1.25rem' }}>⚠️</span>
                     <span>¡CONSEJO IMPORTANTE!</span>
@@ -421,9 +421,9 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                   </div>
                 </div>
 
-                <div className="f6-ready-container">
+                <div className="f5-ready-container">
                   <motion.div 
-                    className="f6-ready-rocket"
+                    className="f5-ready-rocket"
                     animate={{ 
                       y: [0, -15, 0],
                       rotate: [0, 5, -5, 0]
@@ -436,15 +436,15 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                   >
                     🚀
                   </motion.div>
-                  <div className="f6-ready-msg">
+                  <div className="f5-ready-msg">
                     ¡Excelente trabajo!<br />
                     Estás listo para la práctica libre.
                   </div>
-                  <div className="f6-ready-stars">
+                  <div className="f5-ready-stars">
                     {[...Array(5)].map((_, i) => (
                       <motion.span 
                         key={i}
-                        className="f6-ready-star"
+                        className="f5-ready-star"
                         animate={{ opacity: [0.2, 1, 0.2], scale: [1, 1.2, 1] }}
                         transition={{ duration: 2 + i * 0.5, repeat: Infinity }}
                       >
@@ -458,9 +458,9 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
           </AnimatePresence>
         </div>
         
-        <div className="f6-reading-footer">
+        <div className="f5-reading-footer">
           <button 
-            className="f6-nav-btn" 
+            className="f5-nav-btn" 
             disabled={currentStep === 0}
             onClick={() => goToStep(currentStep - 1)}
           >
@@ -469,7 +469,7 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
           
           {currentStep < totalSteps - 1 ? (
             <button 
-              className="f6-nav-btn primary" 
+              className="f5-nav-btn primary" 
               style={{ backgroundColor: moduleColor, opacity: canGoNext ? 1 : 0.5 }}
               disabled={!canGoNext}
               onClick={() => goToStep(currentStep + 1)}
@@ -478,7 +478,7 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
             </button>
           ) : (
             <button 
-              className="f6-reading-close-btn"
+              className="f5-reading-close-btn"
               style={{ background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})` }}
               onClick={onClose}
             >

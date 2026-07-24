@@ -1,276 +1,269 @@
-import React, { useState, useEffect } from 'react';
-import * as Lucide from 'lucide-react';
-import { getFaseMetadata, FaseModulo, FaseNivel } from '../fase_generic/faseMetadata';
+/**
+ * WelcomeScreenPhase2.tsx
+ * ─────────────────────────────────────────────────────────────
+ * Hub de selección de módulos para la Fase 6.
+ * Replica el diseño de la imagen de referencia:
+ *   - Header con saludo, badge FASE 2, avatar y puntaje
+ *   - 5 tarjetas de módulo con ícono de color, badge de estado y barra de progreso
+ *   - Banner del Desafío Mixto al fondo (disponible cuando todos dominados)
+ */
+
+import React, { useEffect, useState, useCallback } from 'react';
+import './Fase7Styles.css';
+import { getFase7Dashboard } from './Fase7Service';
+import type { Fase7Dashboard, Fase7ModuloInfo } from './Fase7Types';
 import { getAvatarUrl } from '../../services/storageService';
 import { motion } from 'framer-motion';
-import '../fase_generic/FaseGenericStyles.css';
 
-// ── Icons Helper ───────────────────────────────────────────────
+// ── Íconos SVG inline para no depender de dependencias externas ───────────
 
-const IconMap: Record<string, React.ComponentType<any>> = {
-  book: Lucide.BookOpen,
-  table: Lucide.Table,
-  puzzle: Lucide.Brain,
-  globe: Lucide.Globe,
-  pie: Lucide.PieChart,
-  divide: Lucide.Percent,
-  percent: Lucide.Percent,
-  beaker: Lucide.HelpCircle,
-  border: Lucide.Square,
-  grid: Lucide.Grid,
-  shapes: Lucide.Shapes,
-  monitor: Lucide.Tv,
-  cube: Lucide.Box,
-  layers: Lucide.Layers,
-  compass: Lucide.Compass,
-  crosshair: Lucide.Crosshair,
-  clock: Lucide.Clock,
-  calendar: Lucide.Calendar,
-  trending: Lucide.TrendingUp,
-  shuffle: Lucide.Shuffle,
-  target: Lucide.Target,
-  graduation: Lucide.GraduationCap,
+const Icons: Record<string, React.FC<{ size?: number; color?: string }>> = {
+  activity: ({ size = 24, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
+  ),
+  hash: ({ size = 24, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="4" y1="9" x2="20" y2="9" /><line x1="4" y1="15" x2="20" y2="15" />
+      <line x1="10" y1="3" x2="8" y2="21" /><line x1="16" y1="3" x2="14" y2="21" />
+    </svg>
+  ),
+  'shopping-bag': ({ size = 24, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <path d="M16 10a4 4 0 01-8 0" />
+    </svg>
+  ),
+  search: ({ size = 24, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  ),
+  tool: ({ size = 24, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
+    </svg>
+  ),
+  check: ({ size = 16, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  ),
+  lock: ({ size = 16, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0110 0v4" />
+    </svg>
+  ),
+  trophy: ({ size = 28, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="8 21 12 17 16 21" />
+      <path d="M4 5h16" /><path d="M19 5v6a7 7 0 01-14 0V5" />
+      <path d="M19 5a2 2 0 002-2H3a2 2 0 002 2" />
+    </svg>
+  ),
+  arrow_left: ({ size = 18, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+    </svg>
+  ),
+  shield: ({ size = 22, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  ),
 };
 
-function DynamicIcon({ name, size = 24, color = '#fff' }: { name: string; size?: number; color?: string }) {
-  const IconComponent = IconMap[name] || Lucide.HelpCircle;
-  return <IconComponent size={size} color={color} />;
-}
+// Estado por módulo → label amigable
+const ESTADO_LABELS: Record<string, string> = {
+  dominado:    'DOMINADO',
+  en_progreso: 'EN PROGRESO',
+  bloqueado:   'BLOQUEADO',
+};
 
-// ── Props ──────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 
-interface WelcomeScreenPhase7Props {
+interface Props {
+  onModuleSelect: (moduloId: number, nivelId?: number) => void;
+  onBack: () => void;
   studentName?: string;
   userAvatar?: string;
   userRole?: string;
-  onModuleSelect: (moduloId: number, nivelId: number) => void;
-  onBack: () => void;
 }
 
-export default function WelcomeScreenPhase7({
+const WelcomeScreenPhase7: React.FC<Props> = ({
+  onModuleSelect,
+  onBack,
   studentName = 'Estudiante',
   userAvatar,
   userRole,
-  onModuleSelect,
-  onBack,
-}: WelcomeScreenPhase7Props) {
-  const faseId = 7;
+}) => {
+  const [dashboard, setDashboard] = useState<Fase7Dashboard | null>(null);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState<string | null>(null);
+  const [selectedModule, setSelectedModule] = useState<Fase7ModuloInfo | null>(null);
 
-  const [selectedModule, setSelectedModule] = useState<FaseModulo | null>(null);
-  const [completedLevels, setCompletedLevels] = useState<Record<string, boolean>>({});
-
-  const metadata = getFaseMetadata(faseId);
-
-  // Load completed levels progress from localStorage
-  useEffect(() => {
+  const loadDashboard = useCallback(async () => {
     try {
-      const saved = localStorage.getItem(`lk_fase_progress_${faseId}`);
-      if (saved) {
-        setCompletedLevels(JSON.parse(saved));
+      setLoading(true);
+      setError(null);
+      let data = await getFase7Dashboard();
+      
+      // -- Si es ADMIN, desbloqueamos todo para pruebas
+      if (userRole === 'ADMIN') {
+        data = {
+          ...data,
+          desafio_mixto_disponible: true,
+          desafio_mixto_estado: 'completado',
+          modulos: data.modulos.map(m => ({
+            ...m,
+            estado: m.estado === 'bloqueado' ? 'en_progreso' : m.estado,
+            niveles: m.niveles.map(n => ({
+              ...n,
+              estado: n.estado === 'bloqueado' ? 'en_progreso' : n.estado,
+            }))
+          }))
+        };
       }
-    } catch (e) {
-      console.error('[WelcomeScreenPhase7] Error loading progress', e);
+      
+      setDashboard(data);
+    } catch (e: unknown) {
+      console.error('[Fase7] Error loading dashboard from backend.', e);
+      setError('No se pudo conectar con el servidor. Por favor, verifica tu conexión.');
+    } finally {
+      setLoading(false);
     }
-  }, [faseId]);
+  }, [studentName, userRole]);
 
-  if (!metadata) {
+  useEffect(() => { loadDashboard(); }, [loadDashboard]);
+
+  const handleModuleClick = (modulo: Fase7ModuloInfo) => {
+    if (modulo.estado === 'bloqueado' && userRole !== 'ADMIN') return;
+    setSelectedModule(modulo);
+  };
+
+  const handleChallengeClick = () => {
+    if (!dashboard?.desafio_mixto_disponible) return;
+    onModuleSelect(99, 99); // 99,99 = Desafío Mixto
+  };
+
+  if (loading) {
     return (
-      <div className="fg-screen">
-        <div style={{ textAlign: 'center', padding: '100px 20px' }}>
-          <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '16px' }}>Fase no encontrada</h2>
-          <p style={{ color: '#94a3b8', marginBottom: '32px' }}>La Fase {faseId} aún no tiene metadatos configurados.</p>
-          <button onClick={onBack} className="fg-eval-btn">Volver al Mapa</button>
+      <div className="f6-screen">
+        <div className="f6-loading">
+          <div className="f6-spinner" />
+          <span>Cargando Fase 6…</span>
         </div>
       </div>
     );
   }
 
-  // Check if a level is unlocked
-  const isLevelUnlocked = (modulo: FaseModulo, nivel: FaseNivel) => {
-    if (userRole === 'ADMIN') return true;
-    if (nivel.nivelId === 1) return true; // Level 1 is always unlocked
+  if (!dashboard) {
+    return (
+      <div className="f6-screen">
+        <div className="f6-error-box">
+          {error || 'No se pudo cargar el dashboard.'}
+          <br />
+          <button
+            onClick={loadDashboard}
+            style={{ marginTop: 12, padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer' }}
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-    // Level N is unlocked if level N-1 is completed
-    const prevKey = `${modulo.moduloId}_${nivel.nivelId - 1}`;
-    return !!completedLevels[prevKey];
-  };
-
-  // Check if a module is unlocked (Module 1 is always unlocked, others unlocked if previous module is completed)
-  const isModuleUnlocked = (modulo: FaseModulo) => {
-    if (userRole === 'ADMIN') return true;
-    if (modulo.moduloId === 1) return true;
-
-    // Check if the previous module's last level (Level 3) is completed
-    const prevModule = metadata.modulos.find(m => m.moduloId === modulo.moduloId - 1);
-    if (!prevModule) return true;
-    const prevLastLevelKey = `${prevModule.moduloId}_3`;
-    return !!completedLevels[prevLastLevelKey];
-  };
-
-  // Calculate global module progress percentage
-  const getModuleProgress = (modulo: FaseModulo) => {
-    const total = modulo.niveles.length;
-    const completed = modulo.niveles.filter(n => completedLevels[`${modulo.moduloId}_${n.nivelId}`]).length;
-    return Math.round((completed / total) * 100);
-  };
-
-  const handleModuleClick = (modulo: FaseModulo) => {
-    if (!isModuleUnlocked(modulo)) return;
-    setSelectedModule(modulo);
-  };
-
-  const handleBackClick = () => {
-    if (selectedModule) {
-      setSelectedModule(null);
-    } else {
-      onBack();
-    }
-  };
-
-  const isEvalLocked = metadata ? (userRole !== 'ADMIN' && metadata.modulos.some(m => getModuleProgress(m) < 100)) : true;
+  const nombre = dashboard.alumno_nombre || studentName;
 
   return (
-    <div 
-      className="fg-screen"
-      style={{
-        ['--phase-color-primary' as any]: metadata.colorPrimario,
-        ['--phase-color-secondary' as any]: metadata.colorSecundario,
-        ['--phase-color-glow' as any]: `${metadata.colorPrimario}0d`,
-      }}
-    >
+    <div className="f6-screen">
       {/* ── Header ── */}
-      <header className="fg-header">
-        <div className="fg-header-left-side">
+      <header className="f6-header">
+        <div className="f6-header-left-side">
           {/* Botón volver en la esquina izquierda */}
           <button 
-            className="fg-back-btn" 
-            onClick={handleBackClick} 
+            className="f6-back-btn" 
+            onClick={selectedModule ? () => setSelectedModule(null) : onBack} 
             aria-label="Volver"
           >
-            <Lucide.ArrowLeft size={20} />
+            <Icons.arrow_left />
           </button>
 
           {/* Avatar y Saludo */}
-          <div className="fg-header-profile">
-            <div className="fg-avatar-container">
+          <div className="f6-header-profile">
+            <div className="f6-avatar-container">
               {userAvatar ? (
-                <img src={getAvatarUrl(userAvatar)} alt={studentName} className="fg-avatar-img" />
+                <img src={getAvatarUrl(userAvatar)} alt={nombre} className="f6-avatar-img" />
               ) : (
-                <div className="fg-avatar-placeholder">
-                  <Lucide.Shield color={metadata.colorPrimario} size={24} />
+                <div className="f6-avatar-placeholder">
+                  <Icons.shield color="#8B5CF6" size={24} />
                 </div>
               )}
             </div>
-            <div className="fg-header-user-info">
-              <div className="fg-header-greeting">
-                ¡Hola, {studentName}! <span>👋</span>
+            <div className="f6-header-user-info">
+              <div className="f6-header-greeting">
+                ¡Hola, {nombre}! <span>👋</span>
               </div>
-              <div className="fg-header-subtitle">
-                <span className="fg-badge-fase">FASE {faseId}</span>
-                <span className="fg-header-fasename">{metadata.nombre}</span>
+              <div className="f6-header-subtitle">
+                <span className="f6-badge-fase">FASE 6</span>
+                <span className="f6-header-fasename">Geometría Espacial, Volumen y Magnitudes Físicas</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="fg-header-right">
-          {/* Progress trophy indicator */}
-          <div 
-            style={{
-              background: 'rgba(22, 32, 51, 0.4)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '16px',
-              padding: '10px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            <Lucide.Trophy size={18} color="#F59E0B" />
-            <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>
-              {Object.values(completedLevels).filter(Boolean).length * 10} pts
-            </span>
+        <div className="f6-header-right">
+          {/* Puntaje */}
+          <div className="f6-score-badge">
+            <span className="f6-score-label">Mi Progreso</span>
+            <div className="f6-score-value">
+              <Icons.trophy size={18} color="#F59E0B" />
+              {dashboard.puntos_totales}
+            </div>
           </div>
         </div>
       </header>
 
-      {/* ── Content ── */}
-      <main className="fg-content">
+      {/* ── Contenido ── */}
+      <main className="f6-content">
         {!selectedModule ? (
           <>
-            {/* Grid of Modules */}
-            <div className="fg-modules-grid">
-              {metadata.modulos.map((modulo) => {
-                const unlocked = isModuleUnlocked(modulo);
-                const progress = getModuleProgress(modulo);
-                
-                return (
-                  <div
-                    key={modulo.moduloId}
-                    className={`fg-module-card ${unlocked ? 'unlocked' : 'locked'}`}
-                    style={{ ['--card-accent' as any]: modulo.color }}
-                    onClick={() => unlocked && handleModuleClick(modulo)}
-                    role={unlocked ? 'button' : undefined}
-                    tabIndex={unlocked ? 0 : undefined}
-                    onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && unlocked) handleModuleClick(modulo); }}
-                  >
-                    <div 
-                      className="fg-module-icon"
-                      style={{ background: unlocked ? `${modulo.color}15` : 'rgba(255,255,255,0.02)' }}
-                    >
-                      {unlocked ? (
-                        <DynamicIcon name={modulo.icono} color={modulo.color} />
-                      ) : (
-                        <Lucide.Lock size={24} color="#64748b" />
-                      )}
-                    </div>
-
-                    <h3 className="fg-module-name">{modulo.nombre}</h3>
-                    <p className="fg-module-desc">{modulo.descripcion}</p>
-
-                    {/* Progress Bar */}
-                    <div className="fg-module-progress">
-                      <div className="fg-module-progress-label">
-                        <span>PROGRESO</span>
-                        <span>{progress}%</span>
-                      </div>
-                      <div className="fg-progress-track">
-                        <div 
-                          className="fg-progress-fill" 
-                          style={{ 
-                            width: `${progress}%`,
-                            background: unlocked
-                              ? `linear-gradient(90deg, ${modulo.color}b3, ${modulo.color})`
-                              : 'rgba(255, 255, 255, 0.1)'
-                          }} 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Grid de 5 módulos */}
+            <div className="f6-modules-grid">
+              {dashboard.modulos.map(modulo => (
+                <ModuleCard
+                  key={modulo.modulo_id}
+                  modulo={modulo}
+                  onClick={() => handleModuleClick(modulo)}
+                  userRole={userRole}
+                />
+              ))}
             </div>
 
-            {/* General Evaluation Banner or General Progress Card */}
-            {!isEvalLocked ? (
-              <div className="fg-evaluation-card">
-                <div>
-                  <h3 className="fg-eval-title">Desafío Final de Maestría</h3>
-                  <p className="fg-eval-desc">
-                    Demuestra tu completo dominio en la Fase {faseId} resolviendo el Desafío de entrada pura.
-                    Necesitarás una maestría del 90% para obtener tu insignia.
-                  </p>
+            {/* Banner Desafío Mixto o Progreso General */}
+            {dashboard.desafio_mixto_disponible ? (
+              <div className="f6-challenge-banner">
+                <div className="f6-challenge-icon">🏆</div>
+                <div className="f6-challenge-text">
+                  <div className="f6-challenge-title">Desafío Mixto de la Fase 6</div>
+                  <div className="f6-challenge-desc">
+                    ¡Has completado exitosamente todos los módulos! Es momento de resolver el Desafío Mixto y demostrar tu maestría en Razonamiento Matemático.
+                  </div>
                 </div>
-                <button 
-                  className="fg-eval-btn"
-                  onClick={() => onModuleSelect(99, 99)}
+                <button
+                  className="f6-challenge-btn"
+                  onClick={handleChallengeClick}
                 >
-                  Iniciar Desafío
+                  Iniciar Desafío Mixto
                 </button>
               </div>
             ) : (() => {
-              const totalLevelsPassed = metadata.modulos.reduce((sum, m) => sum + m.niveles.filter(n => completedLevels[`${m.moduloId}_${n.nivelId}`]).length + [11, 12, 13].filter(id => completedLevels[`${m.moduloId}_${id}`]).length, 0);
-              const maxTotalLevels = metadata.modulos.reduce((sum, m) => sum + m.niveles.length + 3, 0);
+              const totalLevelsPassed = dashboard.modulos.reduce((sum, m) => sum + m.niveles.filter(n => n.estado === 'dominado').length + (m.desafios || []).filter(d => d.estado === 'dominado').length, 0);
+              const maxTotalLevels = dashboard.modulos.reduce((sum, m) => sum + m.niveles.length + (m.desafios || []).length, 0);
               const globalProgressPercent = maxTotalLevels > 0 ? Math.round((totalLevelsPassed / maxTotalLevels) * 100) : 0;
 
               return (
@@ -278,11 +271,11 @@ export default function WelcomeScreenPhase7({
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
                     <div className="flex items-center">
                       <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center mr-5 shrink-0">
-                        <Lucide.Trophy size={32} color="#3b82f6" />
+                        <Icons.trophy size={32} color="#3b82f6" />
                       </div>
                       <div>
                         <h3 className="text-xl font-black text-slate-900 dark:text-white mb-1 font-display tracking-tight">
-                          Tu Camino a la Fase {faseId + 1}
+                          Tu Camino a la Fase 7
                         </h3>
                         <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
                           Completa todos los niveles y desafíos en cada módulo para desbloquear el Desafío Mixto y avanzar de fase.
@@ -299,7 +292,7 @@ export default function WelcomeScreenPhase7({
                   <div>
                     <div className="flex justify-between items-center mb-2 font-sans">
                       <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider">PROGRESO GENERAL DE LA FASE</span>
-                      <span className="text-xs font-black text-blue-600 dark:text-blue-400">{totalLevelsPassed} / {maxTotalLevels} Actividades</span>
+                      <span className="text-xs font-black text-blue-600 dark:text-blue-400">{totalLevelsPassed} / {maxTotalLevels} Niveles y Desafíos</span>
                     </div>
                     <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <motion.div
@@ -312,12 +305,12 @@ export default function WelcomeScreenPhase7({
 
                     {/* Per-category mini indicators */}
                     <div className="flex justify-between mt-4">
-                      {metadata.modulos.map((m) => {
-                        const completedCount = m.niveles.filter(n => completedLevels[`${m.moduloId}_${n.nivelId}`]).length + [11, 12, 13].filter(id => completedLevels[`${m.moduloId}_${id}`]).length;
-                        const totalCount = m.niveles.length + 3;
+                      {dashboard.modulos.map((m) => {
+                        const completedCount = m.niveles.filter(n => n.estado === 'dominado').length + (m.desafios || []).filter(d => d.estado === 'dominado').length;
+                        const totalCount = m.niveles.length + (m.desafios || []).length;
                         const pct = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
                         return (
-                          <div key={m.moduloId} className="flex flex-col items-center gap-1.5 flex-1 px-2">
+                          <div key={m.modulo_id} className="flex flex-col items-center gap-1.5 flex-1 px-2">
                             <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                               <motion.div
                                 className="h-full rounded-full"
@@ -338,149 +331,214 @@ export default function WelcomeScreenPhase7({
             })()}
           </>
         ) : (
-          /* Levels Sub-view */
-          <div 
-            className="fg-levels-container"
-            style={{ ['--module-accent' as any]: selectedModule.color }}
-          >
-            {/* Volver al menu de modulos */}
-            <button onClick={() => setSelectedModule(null)} className="fg-levels-back-btn">
-              <Lucide.ArrowLeft size={16} />
-              <span>Volver a módulos</span>
-            </button>
-
-            <div className="fg-levels-header">
-              <h2 className="fg-levels-title">Niveles de {selectedModule.nombre}</h2>
-              <p className="fg-levels-subtitle">Supera cada nivel con al menos 90% para avanzar.</p>
+          <div className="f6-levels-container">
+            {/* Botón Volver al menú */}
+            <div className="f6-levels-back-wrap">
+              <button 
+                onClick={() => setSelectedModule(null)}
+                className="f6-levels-back-btn"
+              >
+                <Icons.arrow_left />
+                <span>Volver al menú</span>
+              </button>
             </div>
 
-            <div className="fg-levels-grid">
-              {selectedModule.niveles.filter(n => !n.nombre.toLowerCase().includes('desafío')).map((nivel) => {
-                const unlocked = isLevelUnlocked(selectedModule, nivel);
-                const completed = !!completedLevels[`${selectedModule.moduloId}_${nivel.nivelId}`];
+            {/* Título de niveles */}
+            <div className="f6-levels-header">
+              <h1 className="f6-levels-title">
+                Niveles De {selectedModule.nombre}
+              </h1>
+              <p className="f6-levels-subtitle">
+                Completa el <span className="highlight">100%</span> de cada nivel de práctica para desbloquear el siguiente.
+              </p>
+            </div>
 
+            {/* Grid de Niveles */}
+            <div className="f6-levels-grid">
+              {selectedModule.niveles.map((nivel) => {
+                const isUnlocked = nivel.estado !== 'bloqueado' || userRole === 'ADMIN';
+                const isPassed = nivel.estado === 'dominado';
+                
                 return (
-                  <div
-                    key={nivel.nivelId}
-                    className={`fg-level-card ${unlocked ? 'unlocked' : 'locked'}`}
-                    onClick={() => unlocked && onModuleSelect(selectedModule.moduloId, nivel.nivelId)}
+                  <button
+                    key={nivel.nivel_id}
+                    disabled={!isUnlocked}
+                    onClick={() => onModuleSelect(selectedModule.modulo_id, nivel.nivel_id)}
+                    className={`f6-level-card ${nivel.estado} ${isUnlocked ? 'unlocked' : 'locked'}`}
+                    style={{ ['--level-accent' as string]: selectedModule.color }}
                   >
-                    <div className="fg-level-circle">
-                      {completed ? (
-                        <Lucide.Check size={32} color="#10B981" />
-                      ) : !unlocked ? (
-                        <Lucide.Lock size={24} color="#64748b" />
+                    <div className="f6-level-circle">
+                      {isPassed ? (
+                        <Icons.check size={24} color="#ffffff" />
+                      ) : !isUnlocked ? (
+                        <Icons.lock size={18} color="#9CA3AF" />
                       ) : (
-                        nivel.nivelId
+                        nivel.nivel_id
                       )}
                     </div>
-
-                    <h4 className="fg-level-title">Nivel {nivel.nivelId}</h4>
-                    <p className="fg-level-desc">{nivel.nombre}</p>
-
-                    {/* Status Badge */}
-                    {completed && (
-                      <div className="fg-level-status">
-                        <span 
-                          style={{
-                            background: 'rgba(16, 185, 129, 0.1)',
-                            border: '1px solid rgba(16, 185, 129, 0.2)',
-                            color: '#34D399',
-                            fontSize: '0.75rem',
-                            fontWeight: 900,
-                            padding: '4px 8px',
-                            borderRadius: '9999px'
-                          }}
-                        >
-                          Dominado
-                        </span>
-                      </div>
+                    <span className="f6-level-title">Nivel {nivel.nivel_id}</span>
+                    
+                    {isPassed && (
+                      <span className="f6-level-ping-wrap">
+                        <span className="f6-level-ping-pulse" />
+                        <span className="f6-level-ping-dot" />
+                      </span>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
 
-            {selectedModule.niveles.filter(n => n.nombre.toLowerCase().includes('desafío')).length > 0 && (
-              <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                  <Lucide.Trophy size={22} color="#F59E0B" />
-                  <h2 style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.05em', color: '#fff', margin: 0 }}>
-                    ZONA DE DESAFÍOS
-                  </h2>
-                </div>
-                <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '24px', maxWidth: '600px', lineHeight: 1.5 }}>
-                  Pon a prueba tu velocidad y precisión. Completa todos los niveles de práctica para desbloquear la evaluación.
-                </p>
+            {/* Zona de Desafíos */}
+            <div className="f6-challenge-zone">
+              <div className="f6-challenge-zone-title-wrapper">
+                <Icons.trophy size={22} color="#F59E0B" />
+                <h2 className="f6-challenge-zone-title">
+                  ZONA DE DESAFÍOS
+                </h2>
+              </div>
+              <p className="f6-challenge-zone-subtitle">
+                Pon a prueba tu velocidad y precisión. Completa todos los niveles de práctica para desbloquear la evaluación.
+              </p>
+              
+              <div className="f6-challenge-zone-list">
+                {(selectedModule.desafios || []).map((desafio) => {
+                  const allLevelsDominated = selectedModule.niveles.every(n => n.estado === 'dominado');
+                  let isDesafioUnlocked = false;
+                  
+                  if (userRole === 'ADMIN') {
+                    isDesafioUnlocked = true;
+                  } else if (allLevelsDominated) {
+                    if (desafio.desafio_id === 11) {
+                      isDesafioUnlocked = true;
+                    } else if (desafio.desafio_id === 12) {
+                      const d11 = selectedModule.desafios.find(d => d.desafio_id === 11);
+                      isDesafioUnlocked = d11?.estado === 'dominado';
+                    } else if (desafio.desafio_id === 13) {
+                      const d12 = selectedModule.desafios.find(d => d.desafio_id === 12);
+                      isDesafioUnlocked = d12?.estado === 'dominado';
+                    }
+                  }
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {selectedModule.niveles.filter(n => n.nombre.toLowerCase().includes('desafío')).map((desafio) => {
-                    const unlocked = isLevelUnlocked(selectedModule, desafio);
-                    const completed = !!completedLevels[`${selectedModule.moduloId}_${desafio.nivelId}`];
-                    return (
-                      <div
-                        key={desafio.nivelId}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '20px 24px',
-                          borderRadius: '16px',
-                          background: unlocked 
-                            ? `linear-gradient(135deg, ${selectedModule.color}cc 0%, ${selectedModule.color} 100%)` 
-                            : 'rgba(255,255,255,0.02)',
-                          border: unlocked ? 'none' : '1px solid rgba(255,255,255,0.05)',
-                          cursor: unlocked ? 'pointer' : 'not-allowed',
-                          opacity: unlocked ? 1 : 0.6,
-                          transition: 'all 0.2s',
-                        }}
-                        onClick={() => unlocked && onModuleSelect(selectedModule.moduloId, desafio.nivelId)}
-                        role={unlocked ? 'button' : undefined}
-                        tabIndex={unlocked ? 0 : undefined}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                          <div style={{
-                            width: '48px', height: '48px', borderRadius: '12px', 
-                            background: completed ? 'rgba(255,255,255,0.2)' : unlocked ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.05)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                          }}>
-                            {completed ? <Lucide.Check size={24} color="#fff" /> : 
-                             !unlocked ? <Lucide.Lock size={20} color="#64748b" /> : 
-                             <Lucide.Target size={24} color="#fff" />}
-                          </div>
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                              <h3 style={{ fontSize: '1.125rem', fontWeight: 800, color: unlocked ? '#fff' : '#94a3b8', margin: 0 }}>
-                                Evaluación
-                              </h3>
-                              <span style={{ 
-                                fontSize: '0.65rem', fontWeight: 800, padding: '2px 8px', borderRadius: '4px',
-                                background: completed ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', color: unlocked ? '#fff' : '#64748b'
-                              }}>
-                                DESAFÍO
-                              </span>
-                            </div>
-                            <p style={{ fontSize: '0.875rem', color: unlocked ? 'rgba(255,255,255,0.9)' : '#64748b', margin: 0 }}>
-                              {desafio.nombre}
-                            </p>
-                          </div>
+                  const isPassed = desafio.estado === 'dominado';
+                  
+                  if (isPassed) {
+                      isDesafioUnlocked = true;
+                  }
+                  const bgGradient = isDesafioUnlocked
+                    ? `linear-gradient(135deg, ${selectedModule.color}cc 0%, ${selectedModule.color} 100%)`
+                    : undefined;
+                  
+                  return (
+                    <div
+                      key={desafio.desafio_id}
+                      className={`f6-challenge-bar ${desafio.estado} ${isDesafioUnlocked ? 'unlocked' : 'locked'}`}
+                      style={{
+                        ['--challenge-color' as any]: selectedModule.color,
+                        background: bgGradient,
+                      }}
+                    >
+                      {/* Left: Icon */}
+                      <div className="f6-challenge-bar-icon">
+                        {isPassed ? '✅' : desafio.dificultad === 'maestria' ? '🏆' : desafio.dificultad === 'avanzada' ? '⚡' : '🎯'}
+                      </div>
+
+                      {/* Middle: Content info */}
+                      <div className="f6-challenge-bar-text">
+                        <div className="f6-challenge-bar-title-row">
+                          <h3 className="f6-challenge-bar-title">
+                            {desafio.nombre}
+                          </h3>
+                          <span className={`f6-challenge-bar-badge ${desafio.dificultad}`}>
+                            {desafio.dificultad}
+                          </span>
                         </div>
-                        <div style={{
-                          background: unlocked && !completed ? '#fff' : 'rgba(255,255,255,0.1)',
-                          color: unlocked && !completed ? selectedModule.color : '#fff',
-                          padding: '10px 20px', borderRadius: '8px', fontWeight: 800, fontSize: '0.875rem'
-                        }}>
-                          {completed ? 'Dominado' : 'Iniciar Desafío'}
+                        <div className="f6-challenge-bar-meta">
+                          <span>⏱️ Límite: {desafio.tiempo_limite}s</span>
+                          <span>❌ Errores máx: {desafio.max_errores}</span>
+                          {isPassed && <span style={{ color: '#a7f3d0', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>✓ Dominado</span>}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+
+                      {/* Right: Button */}
+                      <button
+                        className="f6-challenge-bar-btn"
+                        disabled={!isDesafioUnlocked}
+                        onClick={() => onModuleSelect(selectedModule.modulo_id, desafio.desafio_id)}
+                      >
+                        {isPassed ? 'Iniciar de nuevo' : isDesafioUnlocked ? 'Iniciar Desafío' : '🔒 Bloqueado'}
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
+
           </div>
         )}
       </main>
     </div>
   );
-}
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUBCOMPONENTE: Tarjeta de módulo
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ModuleCard: React.FC<{ modulo: Fase7ModuloInfo; onClick: () => void; userRole?: string }> = ({
+  modulo,
+  onClick,
+  userRole,
+}) => {
+  const IconComp = Icons[modulo.icono] || Icons.activity;
+  const porcentaje = Math.max(0, Math.min(100, modulo.porcentaje_global));
+  const isLocked = modulo.estado === 'bloqueado' && userRole !== 'ADMIN';
+
+  return (
+    <article
+      className={`f6-module-card ${modulo.estado} ${userRole === 'ADMIN' ? 'admin-unlocked' : ''}`}
+      style={{ ['--card-color' as string]: modulo.color }}
+      onClick={onClick}
+      role={!isLocked ? 'button' : undefined}
+      tabIndex={!isLocked ? 0 : undefined}
+      onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && !isLocked) onClick(); }}
+      aria-label={`${modulo.nombre} — ${ESTADO_LABELS[modulo.estado]}`}
+    >
+      {/* Ícono con color de módulo */}
+      <div
+        className="f6-module-icon"
+        style={{ background: isLocked ? 'rgba(255, 255, 255, 0.02)' : `${modulo.color}22` }}
+      >
+        {isLocked ? (
+          <Icons.lock size={26} color="#6b7280" />
+        ) : (
+          <IconComp size={26} color={modulo.color} />
+        )}
+      </div>
+
+      {/* Nombre y descripción */}
+      <div className="f6-module-name">{modulo.nombre}</div>
+      <div className="f6-module-desc">{modulo.descripcion}</div>
+
+      {/* Barra de progreso */}
+      <div className="f6-module-progress-section">
+        <div className="f6-module-progress-label">
+          <span>PROGRESO</span>
+          <span>{porcentaje}%</span>
+        </div>
+        <div className="f6-progress-bar-track">
+          <div
+            className="f6-progress-bar-fill"
+            style={{
+              width: `${porcentaje}%`,
+              background: `linear-gradient(90deg, ${modulo.color}cc, ${modulo.color})`,
+            }}
+          />
+        </div>
+      </div>
+    </article>
+  );
+};
+
+
+export default WelcomeScreenPhase7;

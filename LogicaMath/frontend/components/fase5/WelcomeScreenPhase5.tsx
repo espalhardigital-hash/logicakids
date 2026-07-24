@@ -1,11 +1,7 @@
 /**
- * WelcomeScreenPhase2.tsx
+ * WelcomeScreenPhase5.tsx
  * ─────────────────────────────────────────────────────────────
- * Hub de selección de módulos para la Fase 5.
- * Replica el diseño de la imagen de referencia:
- *   - Header con saludo, badge FASE 2, avatar y puntaje
- *   - 5 tarjetas de módulo con ícono de color, badge de estado y barra de progreso
- *   - Banner del Desafío Mixto al fondo (disponible cuando todos dominados)
+ * Hub de selección de módulos para la Fase 5: Operatoria Decimal y Conversiones.
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -14,8 +10,6 @@ import { getFase5Dashboard } from './Fase5Service';
 import type { Fase5Dashboard, Fase5ModuloInfo } from './Fase5Types';
 import { getAvatarUrl } from '../../services/storageService';
 import { motion } from 'framer-motion';
-
-// ── Íconos SVG inline para no depender de dependencias externas ───────────
 
 const Icons: Record<string, React.FC<{ size?: number; color?: string }>> = {
   activity: ({ size = 24, color = 'currentColor' }) => (
@@ -76,14 +70,11 @@ const Icons: Record<string, React.FC<{ size?: number; color?: string }>> = {
   ),
 };
 
-// Estado por módulo → label amigable
 const ESTADO_LABELS: Record<string, string> = {
   dominado:    'DOMINADO',
   en_progreso: 'EN PROGRESO',
   bloqueado:   'BLOQUEADO',
 };
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 interface Props {
   onModuleSelect: (moduloId: number, nivelId?: number) => void;
@@ -111,7 +102,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
       setError(null);
       let data = await getFase5Dashboard();
       
-      // -- Si es ADMIN, desbloqueamos todo para pruebas
       if (userRole === 'ADMIN') {
         data = {
           ...data,
@@ -146,7 +136,7 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
 
   const handleChallengeClick = () => {
     if (!dashboard?.desafio_mixto_disponible) return;
-    onModuleSelect(99, 99); // 99,99 = Desafío Mixto
+    onModuleSelect(99, 99);
   };
 
   if (loading) {
@@ -181,10 +171,8 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
 
   return (
     <div className="f5-screen">
-      {/* ── Header ── */}
       <header className="f5-header">
         <div className="f5-header-left-side">
-          {/* Botón volver en la esquina izquierda */}
           <button 
             className="f5-back-btn" 
             onClick={selectedModule ? () => setSelectedModule(null) : onBack} 
@@ -193,7 +181,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
             <Icons.arrow_left />
           </button>
 
-          {/* Avatar y Saludo */}
           <div className="f5-header-profile">
             <div className="f5-avatar-container">
               {userAvatar ? (
@@ -210,14 +197,13 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
               </div>
               <div className="f5-header-subtitle">
                 <span className="f5-badge-fase">FASE 5</span>
-                <span className="f5-header-fasename">Geometría Plana y Medidas</span>
+                <span className="f5-header-fasename">Operatoria Decimal y Conversiones</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="f5-header-right">
-          {/* Puntaje */}
           <div className="f5-score-badge">
             <span className="f5-score-label">Mi Progreso</span>
             <div className="f5-score-value">
@@ -228,11 +214,9 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
         </div>
       </header>
 
-      {/* ── Contenido ── */}
       <main className="f5-content">
         {!selectedModule ? (
           <>
-            {/* Grid de 5 módulos */}
             <div className="f5-modules-grid">
               {dashboard.modulos.map(modulo => (
                 <ModuleCard
@@ -244,14 +228,13 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
               ))}
             </div>
 
-            {/* Banner Desafío Mixto o Progreso General */}
             {dashboard.desafio_mixto_disponible ? (
               <div className="f5-challenge-banner">
                 <div className="f5-challenge-icon">🏆</div>
                 <div className="f5-challenge-text">
                   <div className="f5-challenge-title">Desafío Mixto de la Fase 5</div>
                   <div className="f5-challenge-desc">
-                    ¡Has completado exitosamente todos los módulos! Es momento de resolver el Desafío Mixto y demostrar tu maestría en Razonamiento Matemático.
+                    ¡Has completado exitosamente todos los módulos! Es momento de resolver el Desafío Mixto y demostrar tu maestría en Operatoria Decimal.
                   </div>
                 </div>
                 <button
@@ -288,7 +271,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
                     </div>
                   </div>
 
-                  {/* General Progress Bar */}
                   <div>
                     <div className="flex justify-between items-center mb-2 font-sans">
                       <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider">PROGRESO GENERAL DE LA FASE</span>
@@ -303,7 +285,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
                       />
                     </div>
 
-                    {/* Per-category mini indicators */}
                     <div className="flex justify-between mt-4">
                       {dashboard.modulos.map((m) => {
                         const completedCount = m.niveles.filter(n => n.estado === 'dominado').length + (m.desafios || []).filter(d => d.estado === 'dominado').length;
@@ -332,7 +313,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
           </>
         ) : (
           <div className="f5-levels-container">
-            {/* Botón Volver al menú */}
             <div className="f5-levels-back-wrap">
               <button 
                 onClick={() => setSelectedModule(null)}
@@ -343,7 +323,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
               </button>
             </div>
 
-            {/* Título de niveles */}
             <div className="f5-levels-header">
               <h1 className="f5-levels-title">
                 Niveles De {selectedModule.nombre}
@@ -353,7 +332,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
               </p>
             </div>
 
-            {/* Grid de Niveles */}
             <div className="f5-levels-grid">
               {selectedModule.niveles.map((nivel) => {
                 const isUnlocked = nivel.estado !== 'bloqueado' || userRole === 'ADMIN';
@@ -389,7 +367,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
               })}
             </div>
 
-            {/* Zona de Desafíos */}
             <div className="f5-challenge-zone">
               <div className="f5-challenge-zone-title-wrapper">
                 <Icons.trophy size={22} color="#F59E0B" />
@@ -438,12 +415,10 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
                         background: bgGradient,
                       }}
                     >
-                      {/* Left: Icon */}
                       <div className="f5-challenge-bar-icon">
                         {isPassed ? '✅' : desafio.dificultad === 'maestria' ? '🏆' : desafio.dificultad === 'avanzada' ? '⚡' : '🎯'}
                       </div>
 
-                      {/* Middle: Content info */}
                       <div className="f5-challenge-bar-text">
                         <div className="f5-challenge-bar-title-row">
                           <h3 className="f5-challenge-bar-title">
@@ -460,7 +435,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
                         </div>
                       </div>
 
-                      {/* Right: Button */}
                       <button
                         className="f5-challenge-bar-btn"
                         disabled={!isDesafioUnlocked}
@@ -481,10 +455,6 @@ const WelcomeScreenPhase5: React.FC<Props> = ({
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SUBCOMPONENTE: Tarjeta de módulo
-// ─────────────────────────────────────────────────────────────────────────────
-
 const ModuleCard: React.FC<{ modulo: Fase5ModuloInfo; onClick: () => void; userRole?: string }> = ({
   modulo,
   onClick,
@@ -504,7 +474,6 @@ const ModuleCard: React.FC<{ modulo: Fase5ModuloInfo; onClick: () => void; userR
       onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && !isLocked) onClick(); }}
       aria-label={`${modulo.nombre} — ${ESTADO_LABELS[modulo.estado]}`}
     >
-      {/* Ícono con color de módulo */}
       <div
         className="f5-module-icon"
         style={{ background: isLocked ? 'rgba(255, 255, 255, 0.02)' : `${modulo.color}22` }}
@@ -516,11 +485,9 @@ const ModuleCard: React.FC<{ modulo: Fase5ModuloInfo; onClick: () => void; userR
         )}
       </div>
 
-      {/* Nombre y descripción */}
       <div className="f5-module-name">{modulo.nombre}</div>
       <div className="f5-module-desc">{modulo.descripcion}</div>
 
-      {/* Barra de progreso */}
       <div className="f5-module-progress-section">
         <div className="f5-module-progress-label">
           <span>PROGRESO</span>
@@ -539,7 +506,5 @@ const ModuleCard: React.FC<{ modulo: Fase5ModuloInfo; onClick: () => void; userR
     </article>
   );
 };
-
-
 
 export default WelcomeScreenPhase5;

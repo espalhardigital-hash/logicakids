@@ -1,0 +1,1078 @@
+{
+  "escenarios": [
+    {
+      "modulo_id": 1,
+      "numero": 1,
+      "nombre": "Etiqueta del cuaderno",
+      "registro": "concreto",
+      "magnitudes": "figura rectangular, lados, vértices",
+      "enunciado_muestra": "Nombra la figura de la etiqueta del cuaderno y cuenta sus lados y vértices."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 2,
+      "nombre": "Servilleta cuadrada de papel",
+      "registro": "concreto",
+      "magnitudes": "clasificación cuadrado/rectángulo, ejes de simetría",
+      "enunciado_muestra": "¿La servilleta cuadrada es también un rectángulo? Justifica por sus lados."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 3,
+      "nombre": "Cometa de papel",
+      "registro": "concreto",
+      "magnitudes": "clasificación rombo, ejes de simetría",
+      "enunciado_muestra": "Clasifica la cometa de papel y traza sus ejes de simetría."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 4,
+      "nombre": "Posavasos hexagonal",
+      "registro": "concreto",
+      "magnitudes": "lados y vértices de un hexágono",
+      "enunciado_muestra": "Cuenta los lados y vértices del posavasos hexagonal de la mesa."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 5,
+      "nombre": "Marco de foto rectangular",
+      "registro": "concreto",
+      "magnitudes": "perímetro (cm), suma de lados con decimales",
+      "enunciado_muestra": "Halla el perímetro del marco de foto para saber cuánta moldura lleva."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 6,
+      "nombre": "Banderín triangular del pupitre",
+      "registro": "concreto",
+      "magnitudes": "clasificación triángulo, igualdad de lados",
+      "enunciado_muestra": "Nombra el banderín triangular y di si sus tres lados son iguales."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 7,
+      "nombre": "Sobre de carta",
+      "registro": "concreto",
+      "magnitudes": "clasificación de cuadrilátero",
+      "enunciado_muestra": "Clasifica el cuerpo rectangular del sobre de carta sin la solapa."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 8,
+      "nombre": "Cartel de la puerta del salón",
+      "registro": "cercano",
+      "magnitudes": "perímetro (cm), cinta de borde",
+      "enunciado_muestra": "¿Cuánta cinta bordea el cartel rectangular de la puerta del salón?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 9,
+      "nombre": "Señal de Pare octogonal",
+      "registro": "cercano",
+      "magnitudes": "lados y vértices, ejes de simetría",
+      "enunciado_muestra": "Cuenta los lados de la señal de Pare y sus ejes de simetría."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 10,
+      "nombre": "Mantel cuadrado del salón",
+      "registro": "cercano",
+      "magnitudes": "clasificación, perímetro (m) para puntilla",
+      "enunciado_muestra": "Halla el contorno del mantel cuadrado para ribetearlo con puntilla."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 11,
+      "nombre": "Ventana del aula",
+      "registro": "cercano",
+      "magnitudes": "perímetro (m) del marco, burlete",
+      "enunciado_muestra": "¿Cuánto burlete rodea el marco rectangular de la ventana del aula?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 12,
+      "nombre": "Bandera del colegio",
+      "registro": "cercano",
+      "magnitudes": "clasificación rectángulo, ejes de simetría",
+      "enunciado_muestra": "Traza los ejes de simetría de la bandera rectangular del colegio."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 13,
+      "nombre": "Rayuela pintada del patio",
+      "registro": "cercano",
+      "magnitudes": "perímetro (m), línea de borde",
+      "enunciado_muestra": "¿Cuántos metros de línea bordean la rayuela rectangular del patio?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 14,
+      "nombre": "Logotipo romboidal del club",
+      "registro": "cercano",
+      "magnitudes": "clasificación rombo, ejes de simetría",
+      "enunciado_muestra": "Clasifica el logo romboidal del club y cuenta sus ejes de simetría."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 15,
+      "nombre": "Señal de ceda el paso",
+      "registro": "cercano",
+      "magnitudes": "triángulo, ejes de simetría",
+      "enunciado_muestra": "La señal triangular de ceda el paso: ¿cuántos ejes de simetría tiene?"
+    },
+    {
+      "modulo_id": 1,
+      "numero": 16,
+      "nombre": "Tablero de mesa trapezoidal",
+      "registro": "formal",
+      "magnitudes": "clasificación trapecio, perímetro (m) del canto",
+      "enunciado_muestra": "Clasifica el tablero de mesa y halla su perímetro para el canto."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 17,
+      "nombre": "Placa señalética de la avenida",
+      "registro": "formal",
+      "magnitudes": "perímetro (m), marco de aluminio",
+      "enunciado_muestra": "Calcula el perímetro de la placa señalética para el marco de aluminio."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 18,
+      "nombre": "Estandarte institucional",
+      "registro": "formal",
+      "magnitudes": "figura, lados y vértices de un pentágono",
+      "enunciado_muestra": "Nombra la figura del estandarte institucional y cuenta sus lados."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 19,
+      "nombre": "Vitral rectangular con parteluz",
+      "registro": "formal",
+      "magnitudes": "perímetro (m), perfil de plomo",
+      "enunciado_muestra": "Halla el perímetro del vitral rectangular para el perfil de plomo."
+    },
+    {
+      "modulo_id": 1,
+      "numero": 20,
+      "nombre": "Paño de tres franjas",
+      "registro": "formal",
+      "magnitudes": "clasificación, ejes de simetría, perímetro",
+      "enunciado_muestra": "Un paño rectangular de tres franjas: halla su perímetro y sus ejes de simetría."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 1,
+      "nombre": "Bandeja de galletas en L",
+      "registro": "concreto",
+      "magnitudes": "perímetro figura en L (cm)",
+      "enunciado_muestra": "Halla el contorno de la bandeja en forma de L para ponerle cinta."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 2,
+      "nombre": "Etiqueta en forma de T",
+      "registro": "concreto",
+      "magnitudes": "perímetro compuesto (cm)",
+      "enunciado_muestra": "Mide el borde de la etiqueta en forma de T para recortarla."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 3,
+      "nombre": "Cartulina recortada en escalera",
+      "registro": "concreto",
+      "magnitudes": "perímetro escalera, lados ocultos",
+      "enunciado_muestra": "Calcula el contorno de la cartulina recortada en escalera."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 4,
+      "nombre": "Posavasos circular",
+      "registro": "concreto",
+      "magnitudes": "circunferencia, radio",
+      "enunciado_muestra": "¿Cuánto hilo rodea el borde del posavasos circular?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 5,
+      "nombre": "Mandala de cartón",
+      "registro": "concreto",
+      "magnitudes": "circunferencia, diámetro",
+      "enunciado_muestra": "Halla la longitud del borde de la mandala circular de cartón."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 6,
+      "nombre": "Cantero del jardín en L",
+      "registro": "cercano",
+      "magnitudes": "perímetro figura en L, cerco",
+      "enunciado_muestra": "¿Cuánto cerco necesita el cantero en forma de L del jardín?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 7,
+      "nombre": "Huerto escolar en forma de T",
+      "registro": "cercano",
+      "magnitudes": "perímetro, lados ocultos, vallado",
+      "enunciado_muestra": "Calcula el vallado del huerto escolar con forma de T."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 8,
+      "nombre": "Pista de atletismo del patio",
+      "registro": "cercano",
+      "magnitudes": "circunferencia (dos curvas) + rectas",
+      "enunciado_muestra": "Halla la vuelta completa a la pista con dos curvas semicirculares."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 9,
+      "nombre": "Fuente redonda del patio",
+      "registro": "cercano",
+      "magnitudes": "circunferencia, diámetro",
+      "enunciado_muestra": "¿Cuántos metros de borde tiene la fuente redonda del patio?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 10,
+      "nombre": "Grada escalonada de la cancha",
+      "registro": "cercano",
+      "magnitudes": "perímetro escalera",
+      "enunciado_muestra": "Calcula el contorno de la grada escalonada de la cancha."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 11,
+      "nombre": "Zona pintada de básquet",
+      "registro": "cercano",
+      "magnitudes": "perímetro compuesto con semicírculo",
+      "enunciado_muestra": "Halla el contorno de la zona pintada de básquet con su semicírculo."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 12,
+      "nombre": "Sendero circular del parque",
+      "registro": "cercano",
+      "magnitudes": "circunferencia",
+      "enunciado_muestra": "¿Cuánto mide dar una vuelta al sendero circular del parque?"
+    },
+    {
+      "modulo_id": 2,
+      "numero": 13,
+      "nombre": "Vallado del jardín en escuadra",
+      "registro": "cercano",
+      "magnitudes": "lados ocultos por paralelismo",
+      "enunciado_muestra": "Deduce el lado que falta y halla el cerco del jardín en L."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 14,
+      "nombre": "Moldura de un marco en L",
+      "registro": "formal",
+      "magnitudes": "perímetro compuesto (m)",
+      "enunciado_muestra": "Calcula los metros de moldura para el marco en forma de L."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 15,
+      "nombre": "Parcela en escuadra para cercar",
+      "registro": "formal",
+      "magnitudes": "perímetro, lados ocultos",
+      "enunciado_muestra": "Deduce los lados ocultos y presupuesta la cerca de la parcela en L."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 16,
+      "nombre": "Cantero circular de la plaza",
+      "registro": "formal",
+      "magnitudes": "circunferencia, bordillo",
+      "enunciado_muestra": "Calcula el bordillo del cantero circular de la plaza."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 17,
+      "nombre": "Rotonda de tránsito",
+      "registro": "formal",
+      "magnitudes": "circunferencia, diámetro",
+      "enunciado_muestra": "Halla la longitud del anillo de la rotonda de tránsito."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 18,
+      "nombre": "Terreno en forma de T",
+      "registro": "formal",
+      "magnitudes": "perímetro, lados ocultos, alambrado",
+      "enunciado_muestra": "Deduce las medidas ocultas y calcula el alambrado del terreno en T."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 19,
+      "nombre": "Curva del velódromo",
+      "registro": "formal",
+      "magnitudes": "perímetro de semicírculo + diámetro",
+      "enunciado_muestra": "Halla el contorno de la curva semicircular del velódromo."
+    },
+    {
+      "modulo_id": 2,
+      "numero": 20,
+      "nombre": "Piscina en forma de L",
+      "registro": "formal",
+      "magnitudes": "perímetro compuesto, bordillo",
+      "enunciado_muestra": "Calcula el bordillo de la piscina en forma de L del club."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 1,
+      "nombre": "Figura en la malla del cuaderno",
+      "registro": "concreto",
+      "magnitudes": "malla, cuadrados y medios cuadrados",
+      "enunciado_muestra": "Cuenta los cuadrados y medios cuadrados sombreados en la malla."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 2,
+      "nombre": "Cara del azulejo cuadrado",
+      "registro": "concreto",
+      "magnitudes": "área de cuadrado (cm²)",
+      "enunciado_muestra": "Halla el área de la cara del azulejo cuadrado."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 3,
+      "nombre": "Hoja rectangular de papel",
+      "registro": "concreto",
+      "magnitudes": "área de rectángulo (cm²)",
+      "enunciado_muestra": "Calcula el área de la hoja para forrarla con adhesivo."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 4,
+      "nombre": "Banderín triangular de la fiesta",
+      "registro": "concreto",
+      "magnitudes": "área de triángulo (cm²)",
+      "enunciado_muestra": "Halla el área del banderín triangular de la fiesta."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 5,
+      "nombre": "Cartabón de geometría",
+      "registro": "concreto",
+      "magnitudes": "área de triángulo",
+      "enunciado_muestra": "Calcula el área del cartabón triangular de geometría."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 6,
+      "nombre": "Rombo de cartulina",
+      "registro": "concreto",
+      "magnitudes": "área de rombo, diagonales",
+      "enunciado_muestra": "Halla el área del rombo de cartulina con sus dos diagonales."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 7,
+      "nombre": "Servilleta doblada en trapecio",
+      "registro": "concreto",
+      "magnitudes": "área de trapecio",
+      "enunciado_muestra": "Calcula el área de la servilleta doblada en trapecio."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 8,
+      "nombre": "Tapa redonda del frasco",
+      "registro": "concreto",
+      "magnitudes": "área de círculo, radio",
+      "enunciado_muestra": "Halla el área de la tapa redonda del frasco."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 9,
+      "nombre": "Piso embaldosado del salón",
+      "registro": "cercano",
+      "magnitudes": "área de rectángulo (m²)",
+      "enunciado_muestra": "¿Cuántos m² de baldosa cubren el piso del salón?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 10,
+      "nombre": "Pared del aula para pintar",
+      "registro": "cercano",
+      "magnitudes": "área de rectángulo (m²), pintura",
+      "enunciado_muestra": "Calcula el área de la pared del aula para saber cuánta pintura lleva."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 11,
+      "nombre": "Vela triangular del bote",
+      "registro": "cercano",
+      "magnitudes": "área de triángulo",
+      "enunciado_muestra": "Halla el área de la vela triangular del bote."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 12,
+      "nombre": "Cantero del huerto escolar",
+      "registro": "cercano",
+      "magnitudes": "área de rectángulo (m²)",
+      "enunciado_muestra": "¿Cuál es el área del cantero rectangular del huerto escolar?"
+    },
+    {
+      "modulo_id": 3,
+      "numero": 13,
+      "nombre": "Señal en forma de paralelogramo",
+      "registro": "cercano",
+      "magnitudes": "área de paralelogramo, base y altura",
+      "enunciado_muestra": "Calcula el área de la señal vial en forma de paralelogramo."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 14,
+      "nombre": "Alfombra circular del rincón de lectura",
+      "registro": "cercano",
+      "magnitudes": "área de círculo",
+      "enunciado_muestra": "Halla el área de la alfombra circular del rincón de lectura."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 15,
+      "nombre": "Pieza triangular del mosaico",
+      "registro": "cercano",
+      "magnitudes": "área de triángulo en malla",
+      "enunciado_muestra": "Calcula el área de cada pieza triangular del mosaico."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 16,
+      "nombre": "Techo del quiosco del patio",
+      "registro": "cercano",
+      "magnitudes": "área de trapecio",
+      "enunciado_muestra": "Halla el área del techo trapezoidal del quiosco del patio."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 17,
+      "nombre": "Terreno para sembrar césped",
+      "registro": "formal",
+      "magnitudes": "área de rectángulo (m²)",
+      "enunciado_muestra": "Calcula el área del terreno rectangular para el césped."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 18,
+      "nombre": "Parcela triangular del loteo",
+      "registro": "formal",
+      "magnitudes": "área de triángulo (m²)",
+      "enunciado_muestra": "Halla el área de la parcela triangular del loteo."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 19,
+      "nombre": "Placa circular de señalización",
+      "registro": "formal",
+      "magnitudes": "área de círculo",
+      "enunciado_muestra": "Calcula el área de la placa circular de señalización."
+    },
+    {
+      "modulo_id": 3,
+      "numero": 20,
+      "nombre": "Vela mayor del velero",
+      "registro": "formal",
+      "magnitudes": "área de trapecio",
+      "enunciado_muestra": "Halla el área de la vela mayor trapezoidal del velero."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 1,
+      "nombre": "Etiqueta en forma de L",
+      "registro": "concreto",
+      "magnitudes": "área compuesta por suma (cm²)",
+      "enunciado_muestra": "Halla el área de la etiqueta en forma de L sumando dos rectángulos."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 2,
+      "nombre": "Cartulina en forma de cruz",
+      "registro": "concreto",
+      "magnitudes": "área compuesta, descomposición",
+      "enunciado_muestra": "Calcula el área de la cruz de cartulina descomponiéndola en rectángulos."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 3,
+      "nombre": "Marco de foto con hueco",
+      "registro": "concreto",
+      "magnitudes": "área por resta (cm²)",
+      "enunciado_muestra": "Halla el área del marco restando el hueco de la foto."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 4,
+      "nombre": "Galleta con botón de chocolate",
+      "registro": "concreto",
+      "magnitudes": "cuadrado menos círculo",
+      "enunciado_muestra": "Halla el área de galleta que queda alrededor del botón redondo."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 5,
+      "nombre": "Sello con círculo en un cuadrado",
+      "registro": "concreto",
+      "magnitudes": "figura inscrita, sombreado",
+      "enunciado_muestra": "Calcula el área sombreada entre el cuadrado y el círculo del sello."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 6,
+      "nombre": "Servilleta con agujero cuadrado",
+      "registro": "concreto",
+      "magnitudes": "área por resta",
+      "enunciado_muestra": "Halla el área de la servilleta descontando el agujero cuadrado."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 7,
+      "nombre": "Logo con forma de casita",
+      "registro": "concreto",
+      "magnitudes": "área compuesta (triángulo + rectángulo)",
+      "enunciado_muestra": "Calcula el área del logo con forma de casita."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 8,
+      "nombre": "Piso del salón con columna",
+      "registro": "cercano",
+      "magnitudes": "área por resta (m²)",
+      "enunciado_muestra": "Halla los m² de piso descontando la base cuadrada de la columna."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 9,
+      "nombre": "Jardín con rosaleda circular",
+      "registro": "cercano",
+      "magnitudes": "área por resta (círculo)",
+      "enunciado_muestra": "Calcula el césped del jardín restando la rosaleda circular central."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 10,
+      "nombre": "Ventana con arco semicircular",
+      "registro": "cercano",
+      "magnitudes": "área compuesta (rectángulo + semicírculo)",
+      "enunciado_muestra": "Halla el área del vidrio de la ventana con arco semicircular."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 11,
+      "nombre": "Cancha con círculo central",
+      "registro": "cercano",
+      "magnitudes": "área sombreada",
+      "enunciado_muestra": "Calcula el área pintada de la cancha fuera del círculo central."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 12,
+      "nombre": "Alfombra con cenefa",
+      "registro": "cercano",
+      "magnitudes": "área de anillo (por resta)",
+      "enunciado_muestra": "Halla el área de la cenefa que bordea la alfombra rectangular."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 13,
+      "nombre": "Bandera con rombo inscrito",
+      "registro": "cercano",
+      "magnitudes": "figura inscrita",
+      "enunciado_muestra": "Calcula el área del rombo inscrito en el paño de la bandera."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 14,
+      "nombre": "Patio en forma de L",
+      "registro": "cercano",
+      "magnitudes": "área compuesta por suma (m²)",
+      "enunciado_muestra": "Halla los m² del patio en forma de L para embaldosar."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 15,
+      "nombre": "Mosaico de esquinas redondeadas",
+      "registro": "cercano",
+      "magnitudes": "área sombreada (cuadrado − 4 cuartos)",
+      "enunciado_muestra": "Calcula el área sombreada del mosaico con esquinas redondeadas."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 16,
+      "nombre": "Solar en forma de L del loteo",
+      "registro": "formal",
+      "magnitudes": "área compuesta por suma (m²)",
+      "enunciado_muestra": "Halla el área del solar en forma de L del loteo."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 17,
+      "nombre": "Plaza con estanque circular",
+      "registro": "formal",
+      "magnitudes": "área por resta (m²)",
+      "enunciado_muestra": "Calcula el área pavimentada de la plaza restando el estanque circular."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 18,
+      "nombre": "Terreno con pileta circular",
+      "registro": "formal",
+      "magnitudes": "área por resta (m²)",
+      "enunciado_muestra": "Halla el área verde del terreno descontando la pileta circular."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 19,
+      "nombre": "Señal vial con triángulo recortado",
+      "registro": "formal",
+      "magnitudes": "área por resta (triángulo)",
+      "enunciado_muestra": "Calcula el área de chapa restando el triángulo recortado de la señal."
+    },
+    {
+      "modulo_id": 4,
+      "numero": 20,
+      "nombre": "Fachada con ventanas",
+      "registro": "formal",
+      "magnitudes": "área por resta múltiple (m²)",
+      "enunciado_muestra": "Halla el área a revocar de la fachada descontando las ventanas."
+    }
+  ],
+  "confusiones": [
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C01",
+      "nombre": "Vértices y lados desfasados",
+      "consiste": "Cuenta un vértice de más o de menos al recorrer la figura (empieza y termina en el mismo punto contándolo dos veces).",
+      "fabricacion": "Respuesta correcta `n`; distractor `n+1` o `n−1`.",
+      "tipo_error": "ATENCION",
+      "feedback": "Contá de nuevo dando una sola vuelta a la figura: el punto donde empezaste se cuenta una sola vez. Los lados y los vértices de un polígono son la misma cantidad."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C02",
+      "nombre": "Cuadrado que no es rectángulo",
+      "consiste": "Cree que un cuadrado no es un rectángulo (o al revés, que todo rectángulo es cuadrado).",
+      "fabricacion": "Distractor = la clasificación opuesta a la correcta.",
+      "tipo_error": "LECTURA",
+      "feedback": "Un cuadrado sí es un rectángulo especial: tiene los cuatro ángulos rectos, y además todos los lados iguales. No todo rectángulo es cuadrado."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C03",
+      "nombre": "Rombo tomado por cuadrado",
+      "consiste": "Llama cuadrado a un rombo solo porque está apoyado en punta.",
+      "fabricacion": "Distractor = «cuadrado» cuando la figura es rombo.",
+      "tipo_error": "LECTURA",
+      "feedback": "Fíjate en los ángulos, no en cómo está apoyado: si los ángulos no son rectos, es un rombo, aunque tenga los cuatro lados iguales."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C04",
+      "nombre": "Trapecio confundido con paralelogramo",
+      "consiste": "No distingue el trapecio (un solo par de lados paralelos) del paralelogramo (dos pares).",
+      "fabricacion": "Distractor = «paralelogramo» cuando la figura es trapecio.",
+      "tipo_error": "LECTURA",
+      "feedback": "Cuenta los pares de lados paralelos: el paralelogramo tiene dos pares; el trapecio, uno solo."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C05",
+      "nombre": "Ejes de simetría de más",
+      "consiste": "Inventa ejes de simetría que la figura no tiene (le pone al rectángulo los 4 del cuadrado).",
+      "fabricacion": "Respuesta correcta `s`; distractor `s+1` o `s+2`.",
+      "tipo_error": "ATENCION",
+      "feedback": "Dobla la figura por cada eje que propones: solo vale si las dos mitades coinciden exactamente. El rectángulo tiene 2 ejes, no 4."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C06",
+      "nombre": "Ejes de simetría de menos",
+      "consiste": "Se olvida de contar uno de los ejes (ve el vertical y no el horizontal).",
+      "fabricacion": "Distractor `s−1`.",
+      "tipo_error": "ATENCION",
+      "feedback": "Revisá también el eje que va en la otra dirección: muchas figuras tienen más de un eje de simetría."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C07",
+      "nombre": "Perímetro calculado como área",
+      "consiste": "Para el perímetro multiplica los lados (`b×h`) en vez de sumarlos.",
+      "fabricacion": "Distractor = `b×h` (valor del área).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "El perímetro es la suma de todos los lados, no una multiplicación. Multiplicar lado por lado da el área, que es otra cosa."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C08",
+      "nombre": "Perímetro con un lado olvidado",
+      "consiste": "Suma solo algunos lados y deja uno fuera.",
+      "fabricacion": "Distractor = `P − (un lado)`.",
+      "tipo_error": "PROBLEMA_INCOMPLETO",
+      "feedback": "Volvé a rodear la figura con el dedo: te faltó sumar uno de los lados. El perímetro los incluye a todos."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C09",
+      "nombre": "Rectángulo sumado a medias",
+      "consiste": "En el rectángulo suma `b+h` una sola vez y olvida que hay dos lados de cada medida.",
+      "fabricacion": "Distractor = `b+h` (mitad del perímetro).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Un rectángulo tiene dos lados largos y dos cortos: hay que sumar las dos parejas, o hacer (largo + corto) × 2."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C10",
+      "nombre": "Coma mal alineada",
+      "consiste": "Al sumar lados con decimales desalinea la coma y corre el resultado.",
+      "fabricacion": "Distractor = suma con la coma desplazada un lugar (`P×10` o `P/10` según el error).",
+      "tipo_error": "VALOR_POSICIONAL",
+      "feedback": "Alineá las comas una debajo de otra antes de sumar; completá con ceros si hace falta. Un lugar mal cambia todo el resultado."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C11",
+      "nombre": "Diagonal contada como lado",
+      "consiste": "Cuenta una diagonal marcada en la figura como si fuera un lado más.",
+      "fabricacion": "Distractor = `P + diagonal`.",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "La diagonal une dos vértices por dentro; no es un lado. El perímetro solo recorre el borde de la figura."
+    },
+    {
+      "modulo_id": 1,
+      "codigo": "F6M1-C12",
+      "nombre": "Polígono supuesto regular",
+      "consiste": "Asume que todos los lados son iguales y hace `l×n` cuando los lados son distintos.",
+      "fabricacion": "Distractor = `l×n` con un solo lado.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Solo podés multiplicar lado por número de lados si TODOS los lados miden igual. Si son distintos, hay que sumarlos uno por uno."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C01",
+      "nombre": "Lados ocultos sumados dos veces",
+      "consiste": "Deduce el lado oculto y además suma los segmentos que ya lo formaban: cuenta el mismo tramo dos veces.",
+      "fabricacion": "Distractor = `P + (lado oculto)`.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Cada tramo del contorno se recorre una sola vez. El lado que dedujiste reemplaza a los pedazos, no se suma además de ellos."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C02",
+      "nombre": "Lados ocultos ignorados",
+      "consiste": "No completa los lados que no están acotados y suma solo los que ve.",
+      "fabricacion": "Distractor = `P − (lados ocultos)`.",
+      "tipo_error": "PROBLEMA_INCOMPLETO",
+      "feedback": "La figura tiene lados sin número escrito: hay que deducirlos mirando los lados paralelos. Sin ellos, el contorno queda abierto."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C03",
+      "nombre": "Deducción por paralelismo invertida",
+      "consiste": "Deduce el lado oculto restando cuando debía sumar (o al revés) los tramos paralelos.",
+      "fabricacion": "Distractor = usa `a−b` donde correspondía `a+b` (o viceversa).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Para hallar el lado que falta, compará los lados paralelos de enfrente: a veces se suman los tramos, a veces se restan. Mirá bien cuál es cuál."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C04",
+      "nombre": "Contorno de la L tomado como área",
+      "consiste": "En la figura en L multiplica dimensiones en vez de recorrer el contorno.",
+      "fabricacion": "Distractor = área aproximada de la figura en L.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Te piden cuánto mide el borde, no cuánto cabe dentro. El perímetro se recorre sumando lados; multiplicar da el área."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C05",
+      "nombre": "Radio usado como diámetro",
+      "consiste": "En `C = π·d` pone el radio donde va el diámetro.",
+      "fabricacion": "Distractor = `π·r` (la mitad de la respuesta).",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "Ese dato es el radio, no el diámetro. El diámetro es el doble del radio; multiplicá por 2 antes de usar π."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C06",
+      "nombre": "Diámetro usado como radio",
+      "consiste": "En `C = 2·π·r` pone el diámetro donde va el radio.",
+      "fabricacion": "Distractor = `2·π·d` (el doble de la respuesta).",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "Ese dato es el diámetro: el radio es su mitad. Al usar la fórmula con 2·π·radio, primero dividí el diámetro entre 2."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C07",
+      "nombre": "Circunferencia calculada como área",
+      "consiste": "Usa `π·r²` para el borde del círculo en vez de `2·π·r`.",
+      "fabricacion": "Distractor = `π·r²` (valor del área del círculo).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "El borde del círculo se halla con 2·π·radio. Multiplicar radio por radio da el área, que se mide en unidades cuadradas."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C08",
+      "nombre": "Pi redondeado a 3",
+      "consiste": "Usa π = 3 en vez de 3,14 y queda corto.",
+      "fabricacion": "Distractor = `C` calculado con π = 3.",
+      "tipo_error": "CALCULO",
+      "feedback": "Pi no es 3 exacto: vale aproximadamente 3,14. Con 3 el resultado queda siempre un poco corto."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C09",
+      "nombre": "Escalones contados, contorno no",
+      "consiste": "En la figura en escalera cuenta los escalones o suma solo los tramos horizontales.",
+      "fabricacion": "Distractor = suma parcial de los peldaños sin las subidas (o al revés).",
+      "tipo_error": "PROBLEMA_INCOMPLETO",
+      "feedback": "El contorno de una escalera sube y baja: hay que sumar TODOS los tramos, los horizontales y los verticales."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C10",
+      "nombre": "Semicírculo mal cerrado",
+      "consiste": "En un semicírculo olvida sumar el diámetro recto, o suma la circunferencia completa.",
+      "fabricacion": "Distractor = `π·r` sin el diámetro, o `2·π·r` completo.",
+      "tipo_error": "PROBLEMA_INCOMPLETO",
+      "feedback": "El borde de medio círculo es media circunferencia MÁS el diámetro recto que lo cierra. No es la vuelta entera ni solo la curva."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C11",
+      "nombre": "Unidades mixtas sin igualar",
+      "consiste": "Suma tramos en metros con tramos en centímetros sin convertir.",
+      "fabricacion": "Distractor = suma directa de los números sin igualar unidades.",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "Antes de sumar, pasá todos los tramos a la misma unidad. Sumar metros con centímetros como si fueran iguales da cualquier cosa."
+    },
+    {
+      "modulo_id": 2,
+      "codigo": "F6M2-C12",
+      "nombre": "Contorno interior por exterior",
+      "consiste": "En un marco o cerca con hueco mide el contorno equivocado (mide el interior cuando piden el exterior).",
+      "fabricacion": "Distractor = perímetro del contorno opuesto.",
+      "tipo_error": "LECTURA",
+      "feedback": "Fijate qué borde te piden: el de afuera y el de adentro del marco no miden lo mismo."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C01",
+      "nombre": "Medios cuadrados como enteros",
+      "consiste": "En la malla cuenta cada medio cuadrado sombreado como si fuera uno entero.",
+      "fabricacion": "Distractor = enteros + (medios contados como enteros), es decir `A + (n_medios / 2)`.",
+      "tipo_error": "ATENCION",
+      "feedback": "Dos triángulos que llenan medio cuadrado cada uno hacen UN cuadrado entero. Contá los medios de a dos, no de a uno."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C02",
+      "nombre": "Medios cuadrados ignorados",
+      "consiste": "Cuenta solo los cuadrados llenos y descarta los medios.",
+      "fabricacion": "Distractor = solo enteros = `A − (n_medios / 2)`.",
+      "tipo_error": "PROBLEMA_INCOMPLETO",
+      "feedback": "Los cuadrados cortados por la mitad también cuentan: cada dos medios suman uno. No los dejes fuera."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C03",
+      "nombre": "Área calculada como perímetro",
+      "consiste": "Suma los lados en vez de multiplicar base por altura.",
+      "fabricacion": "Distractor = `2b + 2h` (perímetro del rectángulo).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "El área es cuánto cabe dentro: base por altura. Sumar los lados da el borde (el perímetro), no la superficie."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C04",
+      "nombre": "Triángulo sin dividir entre 2",
+      "consiste": "Calcula `b×h` y olvida dividir entre 2.",
+      "fabricacion": "Distractor = `b×h` (el doble de `A`).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Un triángulo es la mitad de un rectángulo de la misma base y altura: después de multiplicar, hay que dividir entre 2."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C05",
+      "nombre": "Lado inclinado usado como altura",
+      "consiste": "Toma el lado inclinado del triángulo (o del paralelogramo) como si fuera la altura.",
+      "fabricacion": "Distractor = `(b × l) / 2` con `l > h`, mayor que `A`.",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "La altura es la distancia en línea recta desde la base hasta la punta, no el lado inclinado. El lado torcido es más largo que la altura."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C06",
+      "nombre": "Paralelogramo lado por lado",
+      "consiste": "Multiplica los dos lados del paralelogramo en vez de base por altura.",
+      "fabricacion": "Distractor = `b × (lado inclinado)`.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "El área del paralelogramo es base por altura, igual que el rectángulo. La altura no es el lado inclinado, es la distancia recta entre las bases."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C07",
+      "nombre": "Rombo sin dividir entre 2",
+      "consiste": "Multiplica las diagonales y no divide entre 2.",
+      "fabricacion": "Distractor = `D × d` (el doble de `A`).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "El área del rombo es diagonal mayor por diagonal menor, dividido entre 2. Sin ese medio, el resultado se duplica."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C08",
+      "nombre": "Trapecio sin promediar bases",
+      "consiste": "Usa una sola base, o suma las bases sin dividir entre 2.",
+      "fabricacion": "Distractor = `((B + b) × h)` sin dividir, o `B × h`.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "En el trapecio se suman las dos bases, se dividen entre 2 (el promedio) y recién ahí se multiplica por la altura."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C09",
+      "nombre": "Diámetro usado como radio en el área",
+      "consiste": "En `π·r²` pone el diámetro donde va el radio.",
+      "fabricacion": "Distractor = `π·(2r)² = 4A` (cuatro veces el área).",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "Para el área se usa el radio, que es la mitad del diámetro. Si usás el diámetro entero, el área te sale cuatro veces más grande."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C10",
+      "nombre": "Área del círculo como circunferencia",
+      "consiste": "Usa `2·π·r` (el borde) en vez de `π·r²` para el área.",
+      "fabricacion": "Distractor = `2·π·r` (valor de la circunferencia).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "El área del círculo es π por el radio al cuadrado. La fórmula con 2·π·radio da el borde, que se mide en unidades de longitud, no cuadradas."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C11",
+      "nombre": "Factor lineal aplicado a la superficie",
+      "consiste": "Al duplicar el lado cree que el área se duplica (o convierte cm² a m² dividiendo entre 100 en vez de 10 000).",
+      "fabricacion": "Distractor = `A×2` (cuando debía ser `×4`), o `A` con la conversión lineal.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Si un lado se hace el doble, el área se hace CUATRO veces mayor, no el doble. La superficie crece con el cuadrado del factor."
+    },
+    {
+      "modulo_id": 3,
+      "codigo": "F6M3-C12",
+      "nombre": "Base y altura mal emparejadas",
+      "consiste": "Multiplica una base por una altura que no le corresponde (toma una medida diagonal).",
+      "fabricacion": "Distractor = producto de dos medidas que no forman base-altura perpendiculares.",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "La altura tiene que caer perpendicular (en ángulo recto) sobre la base que elegiste. Emparejá cada base con SU altura."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C01",
+      "nombre": "Resta cuando había que sumar",
+      "consiste": "En una figura compuesta que se arma por suma de dos piezas, las resta.",
+      "fabricacion": "Distractor = `A_parte1 − A_parte2`.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Aquí las dos partes se juntan para formar la figura: hay que SUMAR sus áreas, no restarlas."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C02",
+      "nombre": "Suma cuando había que restar",
+      "consiste": "En una figura con hueco suma el hueco en vez de descontarlo.",
+      "fabricacion": "Distractor = `A_grande + A_hueco`.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "El hueco es espacio que falta: se RESTA del total, no se suma. Sumarlo agranda la figura en lugar de vaciarla."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C03",
+      "nombre": "Sombreada respondida como total",
+      "consiste": "Da el área de toda la figura sin quitar la parte en blanco.",
+      "fabricacion": "Distractor = `A_grande` (sin restar).",
+      "tipo_error": "PROBLEMA_INCOMPLETO",
+      "feedback": "Te piden solo la parte pintada: al total hay que descontarle la región blanca que queda dentro."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C04",
+      "nombre": "Sombreada respondida como hueco",
+      "consiste": "Da el área de la parte blanca en vez de la sombreada.",
+      "fabricacion": "Distractor = `A_hueco`.",
+      "tipo_error": "LECTURA",
+      "feedback": "Fijate qué zona está pintada: respondiste el área del hueco, no la del contorno sombreado. Es justo la que sobra al restar."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C05",
+      "nombre": "Descomposición solapada",
+      "consiste": "Al partir la figura cuenta dos veces la zona donde se superponen las piezas.",
+      "fabricacion": "Distractor = `A + (zona común)`.",
+      "tipo_error": "ATENCION",
+      "feedback": "Cortá la figura en piezas que NO se pisen: la parte donde se solapan tus rectángulos la contaste dos veces."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C06",
+      "nombre": "Descomposición incompleta",
+      "consiste": "Olvida una de las piezas al descomponer la figura.",
+      "fabricacion": "Distractor = `A − (una pieza)`.",
+      "tipo_error": "PROBLEMA_INCOMPLETO",
+      "feedback": "Revisá que tus piezas cubran TODA la figura: te quedó un pedazo sin sumar."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C07",
+      "nombre": "Radio del inscrito mal tomado",
+      "consiste": "En un círculo inscrito en un cuadrado usa el lado como radio (o el diámetro como lado).",
+      "fabricacion": "Distractor = usa `r = L` en vez de `r = L/2` ⇒ área ×4.",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "El círculo inscrito toca los cuatro lados: su diámetro es igual al lado del cuadrado, así que el radio es la MITAD del lado."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C08",
+      "nombre": "Perímetro por área compuesta",
+      "consiste": "Da el contorno de la figura compuesta en vez de su área.",
+      "fabricacion": "Distractor = perímetro de la figura compuesta.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Te piden cuánto cabe dentro (el área), no cuánto mide el borde. Sumar los lados da el perímetro, que es otra cosa."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C09",
+      "nombre": "Áreas restadas en distinta unidad",
+      "consiste": "Resta un área en m² de otra en cm² (o al revés) sin convertir.",
+      "fabricacion": "Distractor = resta directa de los números sin igualar unidades.",
+      "tipo_error": "NO_IDENTIFICA_DATOS",
+      "feedback": "Antes de restar, pasá las dos áreas a la misma unidad. Restar m² con cm² como si fueran iguales da un disparate."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C10",
+      "nombre": "Resta con el signo invertido",
+      "consiste": "En «esquinas sombreadas» o anillo da la pieza menor menos la mayor (círculo − cuadrado).",
+      "fabricacion": "Distractor = `A_hueco − A_grande` (valor negativo o intercambiado).",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Al total mayor se le resta la pieza que se quita, no al revés. Si te da negativo, invertiste el orden de la resta."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C11",
+      "nombre": "Triángulo interno sin dividir entre 2",
+      "consiste": "Dentro de la compuesta calcula el área de un triángulo sin dividir entre 2.",
+      "fabricacion": "Distractor = `A` con la parte triangular contada como `b×h`.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "La pieza triangular de esta figura también va dividida entre 2: es la mitad de su rectángulo. No te olvides dentro de la compuesta."
+    },
+    {
+      "modulo_id": 4,
+      "codigo": "F6M4-C12",
+      "nombre": "Factor lineal en la parte restada",
+      "consiste": "Escala mal la pieza que se resta (la agranda al doble en vez de al cuádruple, o convierte con factor lineal).",
+      "fabricacion": "Distractor = `A_grande − (A_hueco × factor lineal erróneo)`.",
+      "tipo_error": "OPERACION_INCORRECTA",
+      "feedback": "Si la pieza que quitás cambia de tamaño, su área crece con el cuadrado del factor, no de forma proporcional simple."
+    }
+  ]
+}

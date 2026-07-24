@@ -1,6 +1,6 @@
 /**
- * Servicio API — Fase 6: Desarrollo Numérico y Razonamiento
- * Capa de comunicación con el backend de Fase 6.
+ * Servicio API — Fase 5: Geometría Plana y Medidas
+ * Capa de comunicación con el backend de Fase 5.
  */
 
 import { fetchWithTimeout } from '../../services/apiHelper';
@@ -52,7 +52,7 @@ async function fetchDeduplicated<T>(key: string, fetchFn: () => Promise<T>): Pro
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Obtiene el dashboard de Fase 6 con los 5 módulos y su estado.
+ * Obtiene el dashboard de Fase 5 con los 5 módulos y su estado.
  */
 export async function getFase6Dashboard(): Promise<Fase6Dashboard> {
   const key = 'dashboard';
@@ -123,7 +123,7 @@ export async function getFase6Reading(
 }
 
 /**
- * Gradúa al alumno de Fase 6 a Fase 3 (requiere todos los módulos dominados).
+ * Gradúa al alumno de Fase 5 a Fase 6 (requiere todos los módulos dominados).
  */
 export async function graduateFase6(): Promise<{
   message: string;
