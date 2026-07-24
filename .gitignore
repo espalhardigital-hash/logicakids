@@ -35,3 +35,6 @@ openspec/
 .agent/
 
 docs/ux_feedback/
+
+# Database dumps and backups
+*.sql

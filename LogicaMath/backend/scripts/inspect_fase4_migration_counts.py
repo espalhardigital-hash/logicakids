@@ -13,17 +13,22 @@ async def main():
     async with AsyncSessionLocal() as session:
         # 1. Preguntas fase 4
         res_p_act = await session.execute(
-            select(func.count(Pregunta.id)).where(Pregunta.fase_id == 4, Pregunta.estado == 'ACTIVO')
+            select(func.count(Pregunta.id)).where(Pregunta.fase_id == 4, func.upper(Pregunta.estado).in_(['ACTIVO', 'ACTIVO']))
         )
         count_p_act = res_p_act.scalar_one()
 
+        res_p_inact = await session.execute(
+            select(func.count(Pregunta.id)).where(Pregunta.fase_id == 4, func.upper(Pregunta.estado) == 'INACTIVO')
+        )
+        count_p_inact = res_p_inact.scalar_one()
+
         res_p_desafios = await session.execute(
-            select(func.count(Pregunta.id)).where(Pregunta.fase_id == 4, Pregunta.seccion >= 1000, Pregunta.estado == 'ACTIVO')
+            select(func.count(Pregunta.id)).where(Pregunta.fase_id == 4, Pregunta.seccion >= 1000, func.upper(Pregunta.estado) == 'ACTIVO')
         )
         count_p_desafios = res_p_desafios.scalar_one()
 
         res_p_practica = await session.execute(
-            select(func.count(Pregunta.id)).where(Pregunta.fase_id == 4, Pregunta.seccion < 1000, Pregunta.estado == 'ACTIVO')
+            select(func.count(Pregunta.id)).where(Pregunta.fase_id == 4, Pregunta.seccion < 1000, func.upper(Pregunta.estado) == 'ACTIVO')
         )
         count_p_practica = res_p_practica.scalar_one()
 
@@ -66,11 +71,12 @@ async def main():
         count_cfg = res_cfg.scalar_one()
 
         print("=" * 80)
-        print("CONTEO PREVIO A LA MIGRACIÓN DE FASE 4 A TJS (EVIDENCIA REQUERIDA)")
+        print("ESTADO ACTUAL DE LA BASE DE DATOS PARA FASE 4 TJS")
         print("=" * 80)
-        print(f"Total preguntas activas en Fase 4: {count_p_act}")
-        print(f"  - Preguntas de desafío (seccion >= 1000): {count_p_desafios}")
-        print(f"  - Preguntas de práctica (seccion < 1000): {count_p_practica}")
+        print(f"Total preguntas ACTIVAS (TJS Nuevas) en Fase 4: {count_p_act}")
+        print(f"  - Preguntas de desafío activas (seccion >= 1000): {count_p_desafios}")
+        print(f"  - Preguntas de práctica activas (seccion < 1000): {count_p_practica}")
+        print(f"Total preguntas INACTIVAS (Viejas reservadas para FK/historial): {count_p_inact}")
         print("-" * 80)
         print("FILAS A BORRAR EN REINICIO DE PROGRESO (PASO 5):")
         print(f"  - Filas en 'progreso_maestria' (fase_id = 4): {count_pm}")

@@ -931,7 +931,7 @@ async def run_seed():
 
     # Inyectar datos semilla de la Fase 6
     try:
-        from app.fase6.seed import run_fase6_seed
+        from app.fase6.seed import seed_fase6_full as run_fase6_seed
         await run_fase6_seed()
     except Exception as e:
         import traceback
