@@ -22,6 +22,7 @@ import type {
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Delete, ArrowRight, Trophy, Star, Target, Award, Compass, Clock } from 'lucide-react';
 import { getCurrentUserFull } from '../../services/storageService';
+import { safeHtml } from '../../services/textService';
 import { useNavigate } from 'react-router-dom';
 
 // ── Íconos inline ─────────────────────────────────────────────────────────
@@ -1331,7 +1332,7 @@ const Fase8GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {/* Contenido adaptativo */}
                 {pregunta.tipo_pregunta === 'respuesta_numerica' && (
                   <div className="flex flex-col h-full justify-between">
-                    <div className="f8-question-text-box"><div className={(pregunta.enunciado || '').length < 25 ? "f8-question-text short" : "f8-question-text"} dangerouslySetInnerHTML={{ __html: pregunta.enunciado }} /></div>
+                    <div className="f8-question-text-box"><div className={(pregunta.enunciado || '').length < 25 ? "f8-question-text short" : "f8-question-text"} dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} /></div>
                     <div className="f8-numeric-input-wrap">
                       <div className={`f8-custom-input-box ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : 'focused'}`} onClick={() => inputRef.current?.focus()}>
                         <input ref={inputRef} type="text" value={respuesta} onChange={e => !feedback.visible && /^[0-9,.\-]*$/.test(e.target.value) && setRespuesta(e.target.value)} onKeyDown={handleKeyDown} className="f8-hidden-input" autoFocus autoComplete="off" inputMode="none" />
@@ -1372,7 +1373,7 @@ const Fase8GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {/* Otros tipos (constructor, tokens, etc) simplificados para brevedad pero funcionales */}
                 {pregunta.tipo_pregunta === 'multiple_opcion' && (
                   <div className="flex flex-col h-full justify-between">
-                     <div className="f8-question-text-box"><div className="f8-question-text" dangerouslySetInnerHTML={{ __html: pregunta.enunciado }} /></div>
+                     <div className="f8-question-text-box"><div className="f8-question-text" dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} /></div>
                      <div className="grid gap-3 mt-6">
                        {pregunta.alternativas?.map(alt => (
                          <button key={alt.id} disabled={feedback.visible} onClick={() => setSelectedAltId(alt.id)}
@@ -1406,7 +1407,7 @@ const Fase8GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {pregunta.tipo_pregunta === 'constructor_soluciones_chained' && (
                   <div className="flex flex-col h-full justify-between gap-4">
                     <div className="f8-question-text-box">
-                      <div className="f8-question-text" dangerouslySetInnerHTML={{ __html: cleanEnunciado(pregunta.enunciado) }} />
+                      <div className="f8-question-text" dangerouslySetInnerHTML={safeHtml(cleanEnunciado(pregunta.enunciado))} />
                     </div>
 
                     <div className="flex flex-col gap-4 my-2">

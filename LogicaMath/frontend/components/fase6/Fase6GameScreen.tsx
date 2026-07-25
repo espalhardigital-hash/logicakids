@@ -21,6 +21,7 @@ import type {
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Delete, ArrowRight, Trophy, Star, Target, Award, Compass, Clock } from 'lucide-react';
 import { getCurrentUserFull } from '../../services/storageService';
+import { safeHtml } from '../../services/textService';
 import { useNavigate } from 'react-router-dom';
 
 // ── Íconos inline ─────────────────────────────────────────────────────────
@@ -1306,7 +1307,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {pregunta.tipo_pregunta === 'respuesta_numerica' && (
                   <div className="flex flex-col h-full justify-between">
                     <div className="f5-question-text-box">
-                      <div className={(pregunta.enunciado || '').length < 25 ? "f5-question-text short" : "f5-question-text"} dangerouslySetInnerHTML={{ __html: pregunta.enunciado }} />
+                      <div className={(pregunta.enunciado || '').length < 25 ? "f5-question-text short" : "f5-question-text"} dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} />
                       {pregunta.datos_numericos?.tipo_visual === 'imagen' && pregunta.datos_numericos.url && (
                         <img src={pregunta.datos_numericos.url} alt="Figura Ilustrativa" className="lk-question-graphic mt-2" />
                       )}
@@ -1334,7 +1335,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {pregunta.tipo_pregunta === 'multiple_opcion' && (
                   <div className="flex flex-col h-full justify-between">
                      <div className="f5-question-text-box">
-                       <div className="f5-question-text" dangerouslySetInnerHTML={{ __html: pregunta.enunciado }} />
+                       <div className="f5-question-text" dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} />
                        {pregunta.datos_numericos?.tipo_visual === 'imagen' && pregunta.datos_numericos.url && (
                          <img src={pregunta.datos_numericos.url} alt="Figura Ilustrativa" className="lk-question-graphic mt-2" />
                        )}
@@ -1383,7 +1384,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {pregunta.tipo_pregunta === 'constructor_soluciones_chained' && (
                   <div className="flex flex-col h-full justify-between gap-4">
                     <div className="f5-question-text-box">
-                      <div className="f5-question-text" dangerouslySetInnerHTML={{ __html: cleanEnunciado(pregunta.enunciado) }} />
+                      <div className="f5-question-text" dangerouslySetInnerHTML={safeHtml(cleanEnunciado(pregunta.enunciado))} />
                       {pregunta.datos_numericos?.tipo_visual === 'imagen' && pregunta.datos_numericos.url && (
                         <img src={pregunta.datos_numericos.url} alt="Figura Ilustrativa" className="lk-question-graphic mt-2" />
                       )}

@@ -242,18 +242,18 @@ export const Fase7TheoryModal: React.FC<Fase7TheoryModalProps> = ({
                     <h3>EJEMPLOS GUIADOS:</h3>
                     {currentSlide.data.map((ex: any, idx: number) => (
                       <div key={idx} className="f7-example-box">
-                        <div className="f7-ex-q" dangerouslySetInnerHTML={{ __html: ex.enunciado }} />
+                        <div className="f7-ex-q" dangerouslySetInnerHTML={{ __html: formatContent(ex.enunciado) }} />
                         {ex.pasos ? (
                           <div className="f7-ex-steps">
                             {ex.pasos.map((paso: any) => (
                               <div key={paso.orden} className="f7-ex-step">
                                 <span className="f7-ex-step-num">{paso.orden}</span>
-                                <span dangerouslySetInnerHTML={{ __html: paso.texto }} />
+                                <span dangerouslySetInnerHTML={{ __html: formatContent(paso.texto) }} />
                               </div>
                             ))}
                           </div>
                         ) : (
-                           <div className="f7-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: ex.respuesta }} /></div>
+                           <div className="f7-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(ex.respuesta) }} /></div>
                         )}
                       </div>
                     ))}

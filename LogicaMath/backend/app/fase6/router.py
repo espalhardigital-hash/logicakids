@@ -1,5 +1,5 @@
 """
-Router FastAPI — Fase 2: Desarrollo Numérico y Razonamiento (Refactorizado)
+Router FastAPI — Fase 6: Cubos Unitarios y Razonamiento
 =============================================================================
 Prefijo: /fase6
 Tags:    fase6

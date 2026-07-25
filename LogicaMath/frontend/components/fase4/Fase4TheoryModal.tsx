@@ -719,18 +719,18 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                             </div>
                           ) : (
                             <>
-                              <div className="f4-ex-q" dangerouslySetInnerHTML={{ __html: ex.enunciado }} />
+                              <div className="f4-ex-q" dangerouslySetInnerHTML={{ __html: formatContent(ex.enunciado) }} />
                               {ex.pasos ? (
                                 <div className="f4-ex-steps">
                                   {ex.pasos.map((paso: any) => (
                                     <div key={paso.orden} className="f4-ex-step">
                                       <span className="f4-ex-step-num" style={{ color: moduleColor, backgroundColor: `${moduleColor}12` }}>{paso.orden}</span>
-                                      <span className="f4-ex-step-text" dangerouslySetInnerHTML={{ __html: paso.texto }} />
+                                      <span className="f4-ex-step-text" dangerouslySetInnerHTML={{ __html: formatContent(paso.texto) }} />
                                     </div>
                                   ))}
                                 </div>
                               ) : (
-                                 <div className="f4-ex-legacy">Respuesta → <span style={{ color: moduleColor, fontWeight: 800 }} dangerouslySetInnerHTML={{ __html: ex.respuesta }} /></div>
+                                 <div className="f4-ex-legacy">Respuesta → <span style={{ color: moduleColor, fontWeight: 800 }} dangerouslySetInnerHTML={{ __html: formatContent(ex.respuesta) }} /></div>
                               )}
                             </>
                           )}

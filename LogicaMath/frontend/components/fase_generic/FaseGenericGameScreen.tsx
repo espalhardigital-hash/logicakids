@@ -8,6 +8,7 @@ import { ClockVisualizer } from '../shared/ClockVisualizer';
 import { ThermometerVisualizer } from '../shared/ThermometerVisualizer';
 import { ImageVisualizer } from '../shared/ImageVisualizer';
 import { FaseGenericTheoryModal } from './FaseGenericTheoryModal';
+import { safeHtml } from '../../services/textService';
 import './FaseGenericStyles.css';
 
 // Framer motion variants
@@ -465,7 +466,7 @@ export default function FaseGenericGameScreen({ isEvaluatorMode }: { isEvaluator
                   <div className="fg-question-text-box">
                     <div 
                       className={currentQuestion.enunciado.length < 25 ? "fg-question-text short" : "fg-question-text"}
-                      dangerouslySetInnerHTML={{ __html: currentQuestion.enunciado }}
+                      dangerouslySetInnerHTML={safeHtml(currentQuestion.enunciado)}
                     />
                   </div>
 
@@ -540,7 +541,7 @@ export default function FaseGenericGameScreen({ isEvaluatorMode }: { isEvaluator
                   <div className="fg-question-text-box">
                     <div 
                       className={currentQuestion.enunciado.length < 25 ? "fg-question-text short" : "fg-question-text"}
-                      dangerouslySetInnerHTML={{ __html: currentQuestion.enunciado }}
+                      dangerouslySetInnerHTML={safeHtml(currentQuestion.enunciado)}
                     />
                   </div>
 

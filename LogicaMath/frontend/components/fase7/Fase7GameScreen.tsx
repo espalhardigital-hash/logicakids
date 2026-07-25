@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { ClockVisualizer } from '../shared/ClockVisualizer';
 import { ThermometerVisualizer } from '../shared/ThermometerVisualizer';
 import { ImageVisualizer } from '../shared/ImageVisualizer';
+import { safeHtml } from '../../services/textService';
 
 // ── Íconos inline ─────────────────────────────────────────────────────────
 
@@ -1317,7 +1318,7 @@ const Fase7GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {/* Contenido adaptativo */}
                 {pregunta.tipo_pregunta === 'respuesta_numerica' && (
                   <div className="flex flex-col h-full justify-between">
-                    <div className="f6-question-text-box"><div className={(pregunta.enunciado || '').length < 25 ? "f6-question-text short" : "f6-question-text"} dangerouslySetInnerHTML={{ __html: pregunta.enunciado }} /></div>
+                    <div className="f6-question-text-box"><div className={(pregunta.enunciado || '').length < 25 ? "f6-question-text short" : "f6-question-text"} dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} /></div>
                     
                     {pregunta.datos_numericos?.tipo_visual === 'reloj' && (
                       <ClockVisualizer 
@@ -1380,7 +1381,7 @@ const Fase7GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {/* Otros tipos (constructor, tokens, etc) simplificados para brevedad pero funcionales */}
                 {pregunta.tipo_pregunta === 'multiple_opcion' && (
                   <div className="flex flex-col h-full justify-between">
-                     <div className="f6-question-text-box"><div className="f6-question-text" dangerouslySetInnerHTML={{ __html: pregunta.enunciado }} /></div>
+                     <div className="f6-question-text-box"><div className="f6-question-text" dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} /></div>
                      
                      {pregunta.datos_numericos?.tipo_visual === 'reloj' && (
                        <ClockVisualizer 
@@ -1447,7 +1448,7 @@ const Fase7GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {pregunta.tipo_pregunta === 'constructor_soluciones_chained' && (
                   <div className="flex flex-col h-full justify-between gap-4">
                     <div className="f6-question-text-box">
-                      <div className="f6-question-text" dangerouslySetInnerHTML={{ __html: cleanEnunciado(pregunta.enunciado) }} />
+                      <div className="f6-question-text" dangerouslySetInnerHTML={safeHtml(cleanEnunciado(pregunta.enunciado))} />
                     </div>
 
                     {pregunta.datos_numericos?.tipo_visual === 'reloj' && (

@@ -237,18 +237,18 @@ export const FaseGenericTheoryModal: React.FC<FaseGenericTheoryModalProps> = ({
                     <h3>EJEMPLOS GUIADOS:</h3>
                     {currentSlide.data.map((ex: any, idx: number) => (
                       <div key={idx} className="fg-example-box">
-                        <div className="fg-ex-q" dangerouslySetInnerHTML={{ __html: ex.enunciado }} />
+                        <div className="fg-ex-q" dangerouslySetInnerHTML={{ __html: formatContent(ex.enunciado) }} />
                         {ex.pasos ? (
                           <div className="fg-ex-steps">
                             {ex.pasos.map((paso: any) => (
                               <div key={paso.orden} className="fg-ex-step">
                                 <span className="fg-ex-step-num">{paso.orden}</span>
-                                <span dangerouslySetInnerHTML={{ __html: paso.texto }} />
+                                <span dangerouslySetInnerHTML={{ __html: formatContent(paso.texto) }} />
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <div className="fg-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: ex.respuesta }} /></div>
+                          <div className="fg-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(ex.respuesta) }} /></div>
                         )}
                       </div>
                     ))}

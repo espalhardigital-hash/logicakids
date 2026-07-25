@@ -155,18 +155,31 @@ app.include_router(simulados_router)
 # ============================================================
 
 from fastapi import WebSocket, WebSocketDisconnect
+from jose import jwt, JWTError
 from .utils.websocket_manager import manager
 
 @app.websocket("/ws/admin-sync")
 async def websocket_endpoint(websocket: WebSocket):
     """
-    Endpoint para que los estudiantes escuchen actualizaciones en tiempo real
-    del administrador (ej: nueva pregunta agregada, flujo modificado).
+    Endpoint seguro para escuchar actualizaciones en tiempo real. Requiere token JWT válido.
     """
+    token = websocket.cookies.get("access_token") or websocket.query_params.get("token")
+    if not token:
+        await websocket.close(code=4001, reason="Autenticación requerida")
+        return
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        if not payload.get("sub"):
+            await websocket.close(code=4001, reason="Token inválido")
+            return
+    except JWTError:
+        await websocket.close(code=4001, reason="Token inválido o expirado")
+        return
+
     await manager.connect(websocket)
     try:
         while True:
-            # Mantener la conexión viva y escuchar si envían algún mensaje (no se espera ninguno por ahora)
+            # Mantener la conexión viva y escuchar si envían algún mensaje
             data = await websocket.receive_text()
     except WebSocketDisconnect:
         pass

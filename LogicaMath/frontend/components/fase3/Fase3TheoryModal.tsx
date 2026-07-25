@@ -225,18 +225,18 @@ export const Fase3TheoryModal: React.FC<Fase3TheoryModalProps> = ({
                     <h3>📐 EJEMPLOS GUIADOS:</h3>
                     {currentSlide.data.map((ex: any, idx: number) => (
                       <div key={idx} className="f3-example-box" style={{ borderLeftColor: moduleColor }}>
-                        <div className="f3-ex-q" dangerouslySetInnerHTML={{ __html: ex.enunciado }} />
+                        <div className="f3-ex-q" dangerouslySetInnerHTML={{ __html: formatContent(ex.enunciado) }} />
                         {ex.pasos ? (
                           <div className="f3-ex-steps">
                             {ex.pasos.map((paso: any) => (
                               <div key={paso.orden} className="f3-ex-step">
                                 <span className="f3-ex-step-num" style={{ color: moduleColor, backgroundColor: `${moduleColor}12` }}>{paso.orden}</span>
-                                <span className="f3-ex-step-text" dangerouslySetInnerHTML={{ __html: paso.texto }} />
+                                <span className="f3-ex-step-text" dangerouslySetInnerHTML={{ __html: formatContent(paso.texto) }} />
                               </div>
                             ))}
                           </div>
                         ) : (
-                           <div className="f3-ex-legacy">Respuesta → <span style={{ color: moduleColor, fontWeight: 800 }} dangerouslySetInnerHTML={{ __html: ex.respuesta }} /></div>
+                           <div className="f3-ex-legacy">Respuesta → <span style={{ color: moduleColor, fontWeight: 800 }} dangerouslySetInnerHTML={{ __html: formatContent(ex.respuesta) }} /></div>
                         )}
                       </div>
                     ))}

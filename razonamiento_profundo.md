@@ -4,9 +4,11 @@
 >
 > **Complemento obligatorio:** [`LECCIONES_verificacion_agentes.md`](LECCIONES_verificacion_agentes.md) cubre el caso específico de *verificación visual* (generar la imagen y mirarla). Este documento generaliza esa lección a **todo tipo de bug**.
 >
-> **Cómo usar este documento:** no lo leas como teoría. Cada técnica trae una *receta concreta* y un *ejemplo real* de esta sesión. Cuando enfrentes una tarea, entra por la sección 10 (protocolo de arranque), y usa las secciones 3–5 como referencia mientras trabajas.
+> **Capa PRO (seguridad + integridad + no-regresión):** [`razonamiento_profundo_PRO.md`](razonamiento_profundo_PRO.md) **extiende este documento sin retirarlo**. Añade cheat sheet de 60s, bucle de 8 pasos, fronteras de seguridad, arquetipos N–Z, checklists anti-brecha y anti-daño colateral. **Para cualquier fix o feature, usá el PRO como capa de cierre obligatoria** y este archivo como profundidad de caza pedagógica/datos.
 >
-> **Dos modos de trabajo.** Las secciones 0–11 son para *cazar y verificar bugs que ya existen*. La sección **12** es el complemento *preventivo*: cómo **ejecutar un cambio grande** (rediseño de UI, refactor, feature nueva) sin introducir bugs y alineando el alcance con el usuario antes de escribir. Si tu tarea es "mejorá/rediseñá X" en vez de "algo está roto", entra por §12.
+> **Cómo usar este documento:** no lo leas como teoría. Cada técnica trae una *receta concreta* y un *ejemplo real* de esta sesión. Cuando enfrentes una tarea, entra por la sección 10 (protocolo de arranque), y usa las secciones 3–5 como referencia mientras trabajas. Antes de declarar listo, pasá el DoD PRO.
+>
+> **Dos modos de trabajo.** Las secciones 0–11 son para *cazar y verificar bugs que ya existen*. La sección **12** es el complemento *preventivo*: cómo **ejecutar un cambio grande** (rediseño de UI, refactor, feature nueva) sin introducir bugs y alineando el alcance con el usuario antes de escribir. Si tu tarea es "mejorá/rediseñá X" en vez de "algo está roto", entra por §12 (y PRO §P5/§P9).
 
 ---
 

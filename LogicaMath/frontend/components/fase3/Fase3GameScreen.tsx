@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, BookOpen, Clock, Compass, Target, Trophy, Award, Star } from 'lucide-react';
 import { getCurrentUserFull } from '../../services/storageService';
 import { Fase3TheoryModal } from './Fase3TheoryModal';
+import { safeHtml } from '../../services/textService';
 import './Fase3Styles.css';
 
 const MODULE_NAMES: Record<number, string> = {
@@ -1132,7 +1133,7 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
             <div className="flex flex-col items-center justify-center space-y-8 w-full max-w-2xl mx-auto">
               <motion.div animate={shaking ? { x: [-8, 8, -6, 6, -4, 4, 0] } : {}} className={`f3-question-card ${shaking ? 'shake-error' : ''} w-full`} style={{ borderColor: feedback.visible ? (feedback.esCorrecta ? '#10B981' : '#EF4444') : '#1e293b' }}>
                 <div className="f3-question-text-box">
-                  <div className="f3-question-text" dangerouslySetInnerHTML={{ __html: pregunta.enunciado }} />
+                  <div className="f3-question-text" dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} />
                 </div>
                 <div className="f3-numeric-input-wrap mt-6">
                   <div className={`f3-custom-input-box ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : 'focused'}`}>
@@ -1155,7 +1156,7 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
           {pregunta.tipo_pregunta === 'multiple_opcion' && pregunta.alternativas && (
             <motion.div animate={shaking ? { x: [-8, 8, -6, 6, -4, 4, 0] } : {}} className={`f3-question-card ${shaking ? 'shake-error' : ''} max-w-3xl mx-auto w-full`} style={{ borderColor: feedback.visible ? (feedback.esCorrecta ? '#10B981' : '#EF4444') : '#1e293b' }}>
               <div className="f3-question-text-box mb-8">
-                <div className="f3-question-text" dangerouslySetInnerHTML={{ __html: pregunta.enunciado }} />
+                <div className="f3-question-text" dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} />
               </div>
               <div className="grid grid-cols-1 gap-4">
                 {pregunta.alternativas.map(alt => {

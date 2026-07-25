@@ -241,18 +241,18 @@ export const Fase8TheoryModal: React.FC<Fase8TheoryModalProps> = ({
                     <h3>EJEMPLOS GUIADOS:</h3>
                     {currentSlide.data.map((ex: any, idx: number) => (
                       <div key={idx} className="f8-example-box">
-                        <div className="f8-ex-q" dangerouslySetInnerHTML={{ __html: ex.enunciado }} />
+                        <div className="f8-ex-q" dangerouslySetInnerHTML={{ __html: formatContent(ex.enunciado) }} />
                         {ex.pasos ? (
                           <div className="f8-ex-steps">
                             {ex.pasos.map((paso: any) => (
                               <div key={paso.orden} className="f8-ex-step">
                                 <span className="f8-ex-step-num">{paso.orden}</span>
-                                <span dangerouslySetInnerHTML={{ __html: paso.texto }} />
+                                <span dangerouslySetInnerHTML={{ __html: formatContent(paso.texto) }} />
                               </div>
                             ))}
                           </div>
                         ) : (
-                           <div className="f8-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: ex.respuesta }} /></div>
+                           <div className="f8-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(ex.respuesta) }} /></div>
                         )}
                       </div>
                     ))}

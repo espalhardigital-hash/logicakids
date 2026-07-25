@@ -745,7 +745,7 @@ async def responder_fase9(
 
     # 1. VALIDAR LA RESPUESTA
     tipo_pregunta = pregunta.tipo_pregunta.value
-    is_money = (modulo_id == 3)
+    is_money = False
 
     tipo_error = None
     feedback_mostrado = None
