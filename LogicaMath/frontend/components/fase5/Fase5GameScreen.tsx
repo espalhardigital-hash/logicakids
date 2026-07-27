@@ -35,10 +35,10 @@ const IconArrowLeft: React.FC = () => (
 // ─────────────────────────────────────────────────────────────────────────────
 
 const MODULE_NAMES: Record<number, string> = {
-  1: 'Perímetro y Borde',
-  2: 'Área en Malha',
-  3: 'Figuras Compuestas',
-  4: 'Conversión y Pantallas',
+  1: 'Suma y Resta de Decimales',
+  2: 'Multiplicación de Decimales',
+  3: 'División con Decimales',
+  4: 'Conversión de Unidades',
 };
 
 const MODULE_COLORS: Record<number, string> = {
@@ -547,7 +547,7 @@ const Fase5PhaseGraduationModal: React.FC<{
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 1</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Gimnasio Mental</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Suma y Resta</span>
             </div>
 
             {/* Nodo 2: Mód 2 */}
@@ -556,7 +556,7 @@ const Fase5PhaseGraduationModal: React.FC<{
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 2</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Tablas en Acción</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Multiplicación</span>
             </div>
 
             {/* Nodo 3: Mód 3 */}
@@ -565,7 +565,7 @@ const Fase5PhaseGraduationModal: React.FC<{
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 3</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Tienda</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>División</span>
             </div>
 
             {/* Nodo 4: Mód 4 */}
@@ -574,7 +574,7 @@ const Fase5PhaseGraduationModal: React.FC<{
                 ✓
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fff', marginTop: '10px', textAlign: 'center' }}>Módulo 4</span>
-              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Constructor</span>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: '2px' }}>Conversión</span>
             </div>
           </div>
         </motion.div>

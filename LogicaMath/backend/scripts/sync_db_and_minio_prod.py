@@ -77,11 +77,15 @@ async def sync_minio_images(
     if not all([local_access, local_secret, local_bucket]):
         raise RuntimeError("Faltan S3_ACCESS_KEY / S3_SECRET_KEY / S3_BUCKET_NAME en entorno local.")
 
-    local_endpoint = (
-        local_env.get("S3_ENDPOINT_URL")
-        or local_env.get("S3_ENDPOINT")
-        or "http://localhost:9100"
-    )
+    in_docker = os.path.exists("/.dockerenv") or "DATABASE_URL" in os.environ
+    if not in_docker:
+        local_endpoint = local_env.get("S3_PUBLIC_URL") or "http://localhost:9100"
+    else:
+        local_endpoint = (
+            local_env.get("S3_ENDPOINT_URL")
+            or local_env.get("S3_ENDPOINT")
+            or "http://localhost:9100"
+        )
 
     remote_access = remote_env.get("S3_ACCESS_KEY")
     remote_secret = remote_env.get("S3_SECRET_KEY")
@@ -357,96 +361,63 @@ def sync_database(
                 cur.execute("DELETE FROM alternativas WHERE pregunta_id = %s", (q_id,))
                 cur.execute("DELETE FROM preguntas WHERE id = %s", (q_id,))
 
-            # B) Insert / update
-            work_ids = to_insert_ids | update_ids
-            for q_id in work_ids:
-                q = local_questions[q_id]
-                datos = q["datos_numericos"]
-                if public_url and remote_bucket:
-                    datos = rewrite_datos_numericos_url(datos, public_url, remote_bucket)
+            # B) Insert / update en lotes para no saturar la conexión SSH
+            work_ids = list(to_insert_ids | update_ids)
+            total_work = len(work_ids)
+            batch_size = 500
+            print(f"[*] Iniciando sincronización de {total_work} preguntas en lotes de {batch_size}...")
 
-                creado, modificado, revisado = null_missing_user_fks(
-                    q["creado_por"], q["modificado_por"], q["revisado_por"], user_ids
-                )
+            for i in range(0, total_work, batch_size):
+                batch_chunk = work_ids[i : i + batch_size]
+                for q_id in batch_chunk:
+                    q = local_questions[q_id]
+                    datos = q["datos_numericos"]
+                    if public_url and remote_bucket:
+                        datos = rewrite_datos_numericos_url(datos, public_url, remote_bucket)
 
-                row_vals = (
-                    q["fase_id"],
-                    q["seccion"],
-                    q["sub_nivel"],
-                    q["estructura_padre_id"],
-                    q["operacion"],
-                    q["tipo_pregunta"],
-                    q["enunciado"],
-                    q["respuesta_correcta"],
-                    serialize_jsonb(datos),
-                    serialize_jsonb(q["payload_tokenizado"]),
-                    serialize_jsonb(q["explicacion_paso_a_paso"]),
-                    q["requiere_subrayado"],
-                    serialize_jsonb(q["palabras_clave"]),
-                    serialize_jsonb(q["errores_previstos"]),
-                    creado,
-                    modificado,
-                    q["estado"],
-                    q["revisado_admin"],
-                    revisado,
-                    q["fecha_revision"],
-                )
-
-                if q_id in to_insert_ids:
-                    cur.execute(
-                        """
-                        INSERT INTO preguntas (
-                            id, fase_id, seccion, sub_nivel, estructura_padre_id, operacion, tipo_pregunta,
-                            enunciado, respuesta_correcta, datos_numericos, payload_tokenizado,
-                            explicacion_paso_a_paso, requiere_subrayado, palabras_clave, errores_previstos,
-                            creado_por, modificado_por, estado, revisado_admin, revisado_por, fecha_revision,
-                            fecha_creacion, ultima_modificacion
-                        ) VALUES (
-                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                            NOW(), NOW()
-                        )
-                        """,
-                        (q_id, *row_vals),
+                    creado, modificado, revisado = null_missing_user_fks(
+                        q["creado_por"], q["modificado_por"], q["revisado_por"], user_ids
                     )
-                    # Alternativas nuevas: insertar siempre
-                    for alt in local_alts.get(q_id, []):
+
+                    row_vals = (
+                        q["fase_id"],
+                        q["seccion"],
+                        q["sub_nivel"],
+                        q["estructura_padre_id"],
+                        q["operacion"],
+                        q["tipo_pregunta"],
+                        q["enunciado"],
+                        q["respuesta_correcta"],
+                        serialize_jsonb(datos),
+                        serialize_jsonb(q["payload_tokenizado"]),
+                        serialize_jsonb(q["explicacion_paso_a_paso"]),
+                        q["requiere_subrayado"],
+                        serialize_jsonb(q["palabras_clave"]),
+                        serialize_jsonb(q["errores_previstos"]),
+                        creado,
+                        modificado,
+                        q["estado"],
+                        q["revisado_admin"],
+                        revisado,
+                        q["fecha_revision"],
+                    )
+
+                    if q_id in to_insert_ids:
                         cur.execute(
                             """
-                            INSERT INTO alternativas (
-                                pregunta_id, texto, es_correcta, orden, tipo_error, feedback_error,
+                            INSERT INTO preguntas (
+                                id, fase_id, seccion, sub_nivel, estructura_padre_id, operacion, tipo_pregunta,
+                                enunciado, respuesta_correcta, datos_numericos, payload_tokenizado,
+                                explicacion_paso_a_paso, requiere_subrayado, palabras_clave, errores_previstos,
+                                creado_por, modificado_por, estado, revisado_admin, revisado_por, fecha_revision,
                                 fecha_creacion, ultima_modificacion
-                            ) VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
+                            ) VALUES (
+                                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                                NOW(), NOW()
+                            )
                             """,
-                            (
-                                q_id,
-                                alt["texto"],
-                                alt["es_correcta"],
-                                alt["orden"],
-                                alt["tipo_error"],
-                                alt["feedback_error"],
-                            ),
+                            (q_id, *row_vals),
                         )
-                    report["alts_rewritten"] += len(local_alts.get(q_id, []))
-                else:
-                    # UPDATE pregunta
-                    cur.execute(
-                        """
-                        UPDATE preguntas SET
-                            fase_id = %s, seccion = %s, sub_nivel = %s, estructura_padre_id = %s,
-                            operacion = %s, tipo_pregunta = %s, enunciado = %s, respuesta_correcta = %s,
-                            datos_numericos = %s, payload_tokenizado = %s, explicacion_paso_a_paso = %s,
-                            requiere_subrayado = %s, palabras_clave = %s, errores_previstos = %s,
-                            creado_por = %s, modificado_por = %s, estado = %s, revisado_admin = %s,
-                            revisado_por = %s, fecha_revision = %s, ultima_modificacion = NOW()
-                        WHERE id = %s
-                        """,
-                        (*row_vals, q_id),
-                    )
-                    # Alternativas: no reescribir si hay intentos (§7.3)
-                    if _question_has_intentos(cur, q_id):
-                        report["alts_preserved"] += 1
-                    else:
-                        cur.execute("DELETE FROM alternativas WHERE pregunta_id = %s", (q_id,))
                         for alt in local_alts.get(q_id, []):
                             cur.execute(
                                 """
@@ -464,10 +435,48 @@ def sync_database(
                                     alt["feedback_error"],
                                 ),
                             )
-                        report["alts_rewritten"] += 1
+                        report["alts_rewritten"] += len(local_alts.get(q_id, []))
+                    else:
+                        cur.execute(
+                            """
+                            UPDATE preguntas SET
+                                fase_id = %s, seccion = %s, sub_nivel = %s, estructura_padre_id = %s,
+                                operacion = %s, tipo_pregunta = %s, enunciado = %s, respuesta_correcta = %s,
+                                datos_numericos = %s, payload_tokenizado = %s, explicacion_paso_a_paso = %s,
+                                requiere_subrayado = %s, palabras_clave = %s, errores_previstos = %s,
+                                creado_por = %s, modificado_por = %s, estado = %s, revisado_admin = %s,
+                                revisado_por = %s, fecha_revision = %s, ultima_modificacion = NOW()
+                            WHERE id = %s
+                            """,
+                            (*row_vals, q_id),
+                        )
+                        if _question_has_intentos(cur, q_id):
+                            report["alts_preserved"] += 1
+                        else:
+                            cur.execute("DELETE FROM alternativas WHERE pregunta_id = %s", (q_id,))
+                            for alt in local_alts.get(q_id, []):
+                                cur.execute(
+                                    """
+                                    INSERT INTO alternativas (
+                                        pregunta_id, texto, es_correcta, orden, tipo_error, feedback_error,
+                                        fecha_creacion, ultima_modificacion
+                                    ) VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
+                                    """,
+                                    (
+                                        q_id,
+                                        alt["texto"],
+                                        alt["es_correcta"],
+                                        alt["orden"],
+                                        alt["tipo_error"],
+                                        alt["feedback_error"],
+                                    ),
+                                )
+                            report["alts_rewritten"] += 1
 
-            remote_conn.commit()
-            print("✅ Commit OK")
+                remote_conn.commit()
+                print(f"   Progreso DB: {min(i + batch_size, total_work)}/{total_work} preguntas sincronizadas")
+
+            print("✅ Sincronización DB completada con éxito.")
             print(f"   Insertadas: {report['to_insert']} | Actualizadas: {report['to_update']}")
             print(f"   Huérfanas borradas: {report['orphans_delete']} | Preservadas: {report['orphans_preserve']}")
             print(f"   Alts reescritas (preguntas): {report['alts_rewritten']} | Alts preservadas: {report['alts_preserved']}")

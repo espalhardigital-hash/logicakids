@@ -80,26 +80,25 @@ async def _sync_unlocked_levels(db: AsyncSession, alumno_id: int, operacion: str
 # ─────────────────────────────────────────────────────────────────────────────
 
 MODULOS_META = {
-    1: {"nombre": "Perímetro y Borde", "descripcion": "Longitudes métricas lineales y conversiones.", "icono": "activity", "color": "#10B981"},
-    2: {"nombre": "Área en Malha", "descripcion": "Conservación de la superficie y unidades confinadas.", "icono": "hash", "color": "#8B5CF6"},
-    3: {"nombre": "Figuras Compuestas y Simetría", "descripcion": "Descomposición estructural y ejes de simetría.", "icono": "shopping-bag", "color": "#F59E0B"},
-    4: {"nombre": "Conversión y Pantallas", "descripcion": "Escalas gráficas, modelado de diagonal y conversión al cuadrado.", "icono": "tool", "color": "#EC4899"},
+    1: {"nombre": "Suma y Resta de Decimales", "descripcion": "Alineación de comas, enteros, décimas y centésimas.", "icono": "activity", "color": "#10B981"},
+    2: {"nombre": "Multiplicación de Decimales", "descripcion": "Conteo de cifras decimales y factores.", "icono": "hash", "color": "#8B5CF6"},
+    3: {"nombre": "División con Decimales", "descripcion": "Cocientes decimales y desplazamiento de comas.", "icono": "shopping-bag", "color": "#F59E0B"},
+    4: {"nombre": "Conversión de Unidades", "descripcion": "Escalera métrica: m, cm, mm, km y superficie.", "icono": "tool", "color": "#EC4899"},
 }
 
 NIVELES_META = {
-    (1, 1): {"nombre": "Conteo directo", "descripcion": "Conteo directo sobre bordes de cuadrículas."},
-    (1, 2): {"nombre": "Cálculo analítico", "descripcion": "Perímetros sumando magnitudes de polígonos irregulares."},
-    (1, 3): {"nombre": "Conversión", "descripcion": "Conversión de mm, cm, dm, m, km."},
-    (2, 1): {"nombre": "Conteo analítico", "descripcion": "Conteo de unidades confinadas en cuadrícula densa."},
-    (2, 2): {"nombre": "Fusión de sectores", "descripcion": "Fusión de sectores triangulares (mitades = enteros)."},
-    (2, 3): {"nombre": "Estimación", "descripcion": "Estimación analítica de áreas irregulares sobre malla."},
-    (3, 1): {"nombre": "Descomposición", "descripcion": "Descomposición estructural de polígonos complejos."},
-    (3, 2): {"nombre": "Tangram", "descripcion": "Análisis de conservación del área mediante Tangram."},
-    (3, 3): {"nombre": "Cálculo analítico", "descripcion": "Cálculo analítico de áreas sombreadas (Resta geométrica)."},
-    (3, 4): {"nombre": "Simetría", "descripcion": "Identificación de Ejes de Simetría formal."},
-    (4, 1): {"nombre": "Escala gráfica", "descripcion": "Interpretación de la escala gráfica base."},
-    (4, 2): {"nombre": "Modelado de pantallas", "descripcion": "Modelado analítico de la diagonal (pantallas de TV)."},
-    (4, 3): {"nombre": "Conversión", "descripcion": "Matriz de conversión de unidades de superficie al cuadrado."},
+    (1, 1): {"nombre": "Suma alineando la coma", "descripcion": "Alineación vertical de comas y ceros de relleno."},
+    (1, 2): {"nombre": "Resta con prestados", "descripcion": "Resta de decimales con desatado de unidades."},
+    (1, 3): {"nombre": "Problemas de cambio", "descripcion": "Transacciones monetarias y cambio con decimales."},
+    (2, 1): {"nombre": "Multiplicación por 10, 100, 1000", "descripcion": "Desplazamiento directo de la coma a la derecha."},
+    (2, 2): {"nombre": "Decimal por entero", "descripcion": "Multiplicación de factores decimales por enteros."},
+    (2, 3): {"nombre": "Decimal por decimal", "descripcion": "Suma de cifras decimales del producto final."},
+    (3, 1): {"nombre": "División por entero", "descripcion": "División con coma en el cociente."},
+    (3, 2): {"nombre": "División entre decimales", "descripcion": "Multiplicación por potencias de 10 para eliminar el divisor decimal."},
+    (3, 3): {"nombre": "Aproximación y redondeo", "descripcion": "Redondeo a décimas y centésimas más cercanas."},
+    (4, 1): {"nombre": "Escalera métrica lineal", "descripcion": "Conversión entre mm, cm, dm, m, dam, hm, km."},
+    (4, 2): {"nombre": "Escalera de superficie", "descripcion": "Conversión entre mm², cm², m² (factores de 100)."},
+    (4, 3): {"nombre": "Masa y capacidad", "descripcion": "Conversiones de g, kg, L, mL e integración."},
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
