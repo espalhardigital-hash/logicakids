@@ -49,10 +49,21 @@ export function fixEncoding(text: string): string {
 
 /**
  * Sanitiza HTML usando DOMPurify con una allowlist estricta para prevenir XSS.
+ * Incluye reparación automática de SVGs con dimensiones distorsionadas.
  */
 export function sanitizeHtml(dirtyHtml: string): string {
   if (!dirtyHtml) return '';
-  return DOMPurify.sanitize(dirtyHtml, {
+
+  // Reparar SVGs distorsionados con width='320' height='320' y viewBox corto
+  let processedHtml = dirtyHtml.replace(
+    /<svg\s+width=['"]320['"]\s+height=['"]320['"]\s+viewBox=['"]0 68 200 64['"]/g,
+    `<svg viewBox="0 68 200 64" style="margin:10px auto; display:block; width:100%; max-width:320px; height:auto; background:#111827; border:2px solid #8B5CF6; border-radius:14px;"`
+  ).replace(
+    /width=['"]320['"]\s+height=['"]320['"]\s+viewBox=['"]0 68 200 64['"]/g,
+    `viewBox="0 68 200 64" style="margin:10px auto; display:block; width:100%; max-width:320px; height:auto; background:#111827; border:2px solid #8B5CF6; border-radius:14px;"`
+  );
+
+  return DOMPurify.sanitize(processedHtml, {
     ALLOWED_TAGS: [
       'p', 'span', 'div', 'strong', 'em', 'b', 'i', 'u', 's', 'strike',
       'a', 'img', 'br', 'hr', 'ul', 'ol', 'li', 'sub', 'sup', 'code', 'pre',
@@ -62,7 +73,9 @@ export function sanitizeHtml(dirtyHtml: string): string {
     ALLOWED_ATTR: [
       'class', 'style', 'src', 'alt', 'href', 'target', 'rel', 'title',
       'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'stroke-width',
-      'stroke-linecap', 'stroke-linejoin', 'cx', 'cy', 'r', 'x', 'y', 'x1', 'y1', 'x2', 'y2'
+      'stroke-linecap', 'stroke-linejoin', 'cx', 'cy', 'r', 'x', 'y', 'x1', 'y1', 'x2', 'y2',
+      'fill-opacity', 'stroke-opacity', 'rx', 'ry', 'font-size', 'font-weight', 'text-anchor',
+      'dominant-baseline', 'alignment-baseline', 'transform', 'preserveAspectRatio'
     ],
     ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/|#|data:image\/(?:png|jpeg|webp|gif|svg\+xml);base64,)/i,
     ADD_ATTR: ['target'],
