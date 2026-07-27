@@ -21,7 +21,7 @@
 |-------|--------|
 | Remoto | `https://github.com/espalhardigital-hash/logicakids.git` |
 | Rama producción / `origin/HEAD` | **`producion`** (no `main`) |
-| Rama desarrollo | `desarrollo` (puede ir **atrás** de `producion`; no asumir paridad) |
+| Rama desarrollo | `desarrollo` (**congelada** — todo el trabajo activo va en `producion`) |
 | App code | `LogicaMath/` |
 | Carpeta local del monorepo | `APP_Logica_Matematicas_kids` (en VPS el clone suele llamarse `logicakids`) |
 

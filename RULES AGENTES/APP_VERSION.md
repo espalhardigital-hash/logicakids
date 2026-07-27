@@ -69,7 +69,7 @@ Valores por entorno solo en `.env` (gitignored).
 | Campo | Valor (workspace) |
 |-------|-------------------|
 | Remoto | `https://github.com/espalhardigital-hash/logicakids.git` |
-| Desarrollo | rama `desarrollo` |
+| Desarrollo | rama `desarrollo` (**congelada** — todo va a `producion`) |
 | Producción | rama **`producion`** (`origin/HEAD`) — no `main` |
 | App | `LogicaMath/` |
 | Sync de preguntas | [`bd_minio.md`](./bd_minio.md) |

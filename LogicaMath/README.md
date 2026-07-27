@@ -45,7 +45,7 @@ El código de la app vive en **`LogicaMath/`** (este directorio). En la **raíz 
 
 - **Remoto actual del workspace:** `https://github.com/espalhardigital-hash/logicakids.git`
 - **Rama de producción en uso:** `producion` (también es `origin/HEAD`)
-- **Rama de desarrollo:** `desarrollo`
+- **Rama de desarrollo:** `desarrollo` (**congelada** — todo va a `producion`)
 - Carpeta local del monorepo: `APP_Logica_Matematicas_kids` (el clone en servidor suele llamarse `logicakids`).
 
 > Si el remoto se mueve o se sustituye por otro repositorio, actualiza `git remote`, este README, `DEPLOY.md` y `RULES AGENTES/APP_VERSION.md` en el mismo cambio.

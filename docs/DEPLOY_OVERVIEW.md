@@ -19,11 +19,11 @@ MinIO/S3    ←
 | Concepto | Valor actual del workspace |
 |----------|----------------------------|
 | Remoto | `https://github.com/espalhardigital-hash/logicakids.git` |
-| Integración | rama `desarrollo` |
-| Estable | rama **`producion`** (`origin/HEAD`) |
+| Rama activa / estable | rama **`producion`** (`origin/HEAD`) |
+| Rama `desarrollo` | **Congelada** — no recibe commits; todo va a `producion` |
 | ⚠️ | No uses `main` salvo que el remoto lo reintroduzca |
 
-**Nota:** en algunos momentos `desarrollo` en el remoto puede ir **detrás** de `producion`. Antes de merge/deploy, compara:
+**Nota:** `desarrollo` está congelada y va detrás de `producion`. No asumir paridad. Si algún día se reactiva, primero sincronizar:
 
 ```bash
 git fetch origin
