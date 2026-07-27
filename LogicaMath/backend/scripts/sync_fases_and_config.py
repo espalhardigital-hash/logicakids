@@ -64,31 +64,18 @@ def main():
     config_rows = loc_cur.fetchall()
     print(f"[*] Configuraciones de progreso locales encontradas: {len(config_rows)}")
 
-    upsert_config_sql = """
+    # Truncar tabla configuracion_progreso en VPS Prod para paridad exacta 100% de 208 filas
+    rem_cur.execute("TRUNCATE TABLE configuracion_progreso RESTART IDENTITY CASCADE;")
+
+    insert_config_sql = """
         INSERT INTO configuracion_progreso (
             id, fase_id, seccion, operacion, cantidad_requerida, porcentaje_aprobacion, 
             orden_desbloqueo, tipo_feedback, usa_cronometro, tiempo_default_segundos, 
             activo, fecha_creacion, ultima_modificacion, errores_tolerados, 
             pistas_permitidas, penalizacion_pista_segundos
-        ) VALUES %s
-        ON CONFLICT (id) DO UPDATE SET
-            fase_id = EXCLUDED.fase_id,
-            seccion = EXCLUDED.seccion,
-            operacion = EXCLUDED.operacion,
-            cantidad_requerida = EXCLUDED.cantidad_requerida,
-            porcentaje_aprobacion = EXCLUDED.porcentaje_aprobacion,
-            orden_desbloqueo = EXCLUDED.orden_desbloqueo,
-            tipo_feedback = EXCLUDED.tipo_feedback,
-            usa_cronometro = EXCLUDED.usa_cronometro,
-            tiempo_default_segundos = EXCLUDED.tiempo_default_segundos,
-            activo = EXCLUDED.activo,
-            fecha_creacion = EXCLUDED.fecha_creacion,
-            ultima_modificacion = EXCLUDED.ultima_modificacion,
-            errores_tolerados = EXCLUDED.errores_tolerados,
-            pistas_permitidas = EXCLUDED.pistas_permitidas,
-            penalizacion_pista_segundos = EXCLUDED.penalizacion_pista_segundos;
+        ) VALUES %s;
     """
-    execute_values(rem_cur, upsert_config_sql, config_rows)
+    execute_values(rem_cur, insert_config_sql, config_rows)
     rem_conn.commit()
     print(f"  ✓ {len(config_rows)} Configuraciones de progreso sincronizadas exitosamente en VPS Prod.")
 
