@@ -54,13 +54,10 @@ export function fixEncoding(text: string): string {
 export function sanitizeHtml(dirtyHtml: string): string {
   if (!dirtyHtml) return '';
 
-  // Reparar SVGs distorsionados con width='320' height='320' y viewBox corto
+  // Reparar SVGs de tablas de montos con viewBox corto (prevenir colapso a 0px de altura)
   let processedHtml = dirtyHtml.replace(
-    /<svg\s+width=['"]320['"]\s+height=['"]320['"]\s+viewBox=['"]0 68 200 64['"]/g,
-    `<svg viewBox="0 68 200 64" style="margin:10px auto; display:block; width:100%; max-width:320px; height:auto; background:#111827; border:2px solid #8B5CF6; border-radius:14px;"`
-  ).replace(
-    /width=['"]320['"]\s+height=['"]320['"]\s+viewBox=['"]0 68 200 64['"]/g,
-    `viewBox="0 68 200 64" style="margin:10px auto; display:block; width:100%; max-width:320px; height:auto; background:#111827; border:2px solid #8B5CF6; border-radius:14px;"`
+    /<svg[^>]*viewBox=["\']0 (?:68|57) 200 (?:64|86)["\'][^>]*>/gi,
+    `<svg viewBox="0 68 200 64" width="100%" height="102" style="margin:10px auto; display:block; width:100%; max-width:320px; height:102px; min-height:102px; aspect-ratio:200/64; background:#111827; border:2px solid #8B5CF6; border-radius:14px;">`
   );
 
   return DOMPurify.sanitize(processedHtml, {
