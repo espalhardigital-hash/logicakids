@@ -1,10 +1,18 @@
 # Razonamiento Profundo PRO — Seguridad, integridad y no-regresión
 
+> ## ⚠️ SUPERSEDED — use the unified manual
+>
+> **Agents must follow:** [`deep_analise_pro.md`](deep_analise_pro.md) (folder: `RULES AGENTES/`)  
+> **Loaders:** [`AGENTS.md`](AGENTS.md) · [`../AGENTS.md`](../AGENTS.md) · [`../.agent/AGENTS.md`](../.agent/AGENTS.md)  
+>
+> This file is kept as **historical Spanish PRO layer**. Where it conflicts with `deep_analise_pro.md`, **the unified English manual wins**.
+
+---
+
 > **Versión:** 1.0 · **Fecha:** 2026-07-25  
-> **Relación con el documento base:** este archivo **extiende y enfatiza**  
-> [`razonamiento_profundo.md`](razonamiento_profundo.md) **sin reemplazarlo ni retirar su método**.  
-> El documento base sigue siendo la fuente del bucle de caza de bugs, arquetipos A–M, recetario SQL pedagógico y DoD clásico.  
-> **PRO** añade: seguridad, integridad transversal, radio de explosión, anti-regresión y disciplina de cambios que *no rompan lo que ya funciona*.
+> **Relación con el documento base:** este archivo **extendía y enfatizaba**  
+> [`razonamiento_profundo.md`](razonamiento_profundo.md).  
+> **Ahora ambos están unificados en** [`deep_analise_pro.md`](deep_analise_pro.md).
 
 ---
 

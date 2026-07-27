@@ -58,11 +58,20 @@ def load_env_credentials(env_name: str):
                 creds[key.strip()] = val.strip()
     return creds
 
-async def sync_images(env_name: str, batch_size: int = 3, fase5_only: bool = False):
+async def sync_images(
+    env_name: str,
+    batch_size: int = 3,
+    fase5_only: bool = False,
+    fase_id=None,
+):
     print("=" * 90)
     print(f"SINCRONIZANDO IMÁGENES HACIA VPS - ENTORNO: {env_name.upper()}")
     if fase5_only:
-        print("   (MODO: Solo figuras de Fase 5)")
+        print("   (MODO legacy: Solo figuras de Fase 5)")
+    if fase_id is not None:
+        print(f"   (MODO: Solo figuras referenciadas por fase_id={fase_id})")
+        if fase_id in (5, 6):
+            print("   [!] Fases 5–6 usan SVG inline (bd_minio §1.3); normalmente no hay graphics/.")
     print("=" * 90)
 
     # 1. Cargar credenciales del destino
@@ -72,19 +81,23 @@ async def sync_images(env_name: str, batch_size: int = 3, fase5_only: bool = Fal
         print(f"❌ Error al cargar credenciales del entorno {env_name}: {e}")
         return
 
-    # Extraer variables remotas
+    # Extraer variables remotas (sin fallbacks hardcodeados de secretos — bd_minio §2)
     remote_access_key = remote_creds.get("S3_ACCESS_KEY")
     remote_secret_key = remote_creds.get("S3_SECRET_KEY")
-    remote_bucket = remote_creds.get("S3_BUCKET_NAME", "logicakids")
-    
-    # Fallback si las credenciales de desarrollo locales son las incorrectas del VPS
-    if remote_access_key == "6yEM0adbFfcllTFZeJVI":
-        remote_access_key = "amilcar"
-        remote_secret_key = "Colombia1@_"
-    
-    # El endpoint público es files.espalhar.shop
-    remote_endpoint = "https://files.espalhar.shop"
-    
+    remote_bucket = remote_creds.get("S3_BUCKET_NAME")
+    remote_endpoint = (
+        remote_creds.get("S3_ENDPOINT_URL")
+        or remote_creds.get("S3_ENDPOINT")
+        or remote_creds.get("S3_PUBLIC_URL")
+    )
+
+    if not all([remote_access_key, remote_secret_key, remote_bucket, remote_endpoint]):
+        raise RuntimeError(
+            "Faltan S3_ACCESS_KEY / S3_SECRET_KEY / S3_BUCKET_NAME / "
+            "(S3_ENDPOINT_URL|S3_ENDPOINT|S3_PUBLIC_URL) en el .env del destino. "
+            "No se usan credenciales hardcodeadas."
+        )
+
     print(f"Destino:")
     print(f" - Endpoint: {remote_endpoint}")
     print(f" - Bucket:   {remote_bucket}")
@@ -136,28 +149,40 @@ async def sync_images(env_name: str, batch_size: int = 3, fase5_only: bool = Fal
         print(f"[!] Error al listar objetos locales: {e}")
         return
 
-    if fase5_only:
+    filter_fase = 5 if fase5_only else fase_id
+    if filter_fase is not None:
         import psycopg2
-        print("   [+] Consultando base de datos local para mapear archivos UUID de Fase 5...")
+        print(f"   [+] Mapeando filenames de graphics/ para fase_id={filter_fase}...")
         try:
             local_db_url = local_creds["DATABASE_URL"].replace("+asyncpg", "")
             local_db_url = local_db_url.replace("@postgres:5432/", "@localhost:5433/")
-            
+
             conn = psycopg2.connect(local_db_url)
-            fase5_filenames = set()
+            filenames = set()
             with conn.cursor() as cur:
-                cur.execute("SELECT datos_numericos FROM preguntas WHERE fase_id = 5 AND datos_numericos IS NOT NULL;")
+                cur.execute(
+                    "SELECT datos_numericos FROM preguntas WHERE fase_id = %s AND datos_numericos IS NOT NULL;",
+                    (filter_fase,),
+                )
                 for row in cur.fetchall():
                     datos = row[0]
+                    if isinstance(datos, str):
+                        import json
+                        try:
+                            datos = json.loads(datos)
+                        except Exception:
+                            continue
                     if isinstance(datos, dict) and "url" in datos:
-                        url = datos["url"]
-                        filename = url.split("/")[-1]
-                        fase5_filenames.add(filename)
+                        url = datos["url"] or ""
+                        if "graphics/" in url:
+                            filenames.add(url.split("graphics/")[-1].split("?")[0])
+                        else:
+                            filenames.add(url.split("/")[-1])
             conn.close()
-            print(f"       Mapeados {len(fase5_filenames)} nombres de archivo de Fase 5 en DB.")
-            local_keys = [k for k in local_keys if k.split("/")[-1] in fase5_filenames]
+            print(f"       Mapeados {len(filenames)} filenames en DB.")
+            local_keys = [k for k in local_keys if k.split("/")[-1] in filenames]
         except Exception as db_err:
-            print(f"   [!] Falló obtener imágenes de la DB local: {db_err}. Se sincronizarán todas.")
+            print(f"   [!] Falló filtro por fase en DB local: {db_err}. Se sincronizarán todas.")
 
     total_files = len(local_keys)
     print(f"Total de imágenes locales encontradas: {total_files}")
@@ -221,9 +246,19 @@ async def sync_images(env_name: str, batch_size: int = 3, fase5_only: bool = Fal
     print("=" * 90)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Sincroniza imágenes locales de MinIO con la VPS.")
+    parser = argparse.ArgumentParser(description="Sincroniza imágenes locales de MinIO (graphics/) con la VPS.")
     parser.add_argument("--env", choices=["dev", "prod"], required=True, help="Entorno de la VPS (dev o prod)")
-    parser.add_argument("--fase5-only", action="store_true", help="Sincronizar únicamente figuras de Fase 5 (con prefijo grid_p_ o grid_a_)")
+    parser.add_argument(
+        "--fase5-only",
+        action="store_true",
+        help="(Legacy) Solo figuras referenciadas por fase_id=5",
+    )
+    parser.add_argument(
+        "--fase",
+        type=int,
+        default=None,
+        help="Solo figuras referenciadas por preguntas de este fase_id",
+    )
     args = parser.parse_args()
 
-    asyncio.run(sync_images(args.env, fase5_only=args.fase5_only))
+    asyncio.run(sync_images(args.env, fase5_only=args.fase5_only, fase_id=args.fase))

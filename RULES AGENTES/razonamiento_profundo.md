@@ -1,5 +1,14 @@
 # Razonamiento Profundo — Guía de verificación y caza de bugs para agentes LLM
 
+> ## ⚠️ SUPERSEDED — use the unified manual
+>
+> **Agents must follow:** [`deep_analise_pro.md`](deep_analise_pro.md) (folder: `RULES AGENTES/`)  
+> **Loaders:** [`AGENTS.md`](AGENTS.md) · [`../AGENTS.md`](../AGENTS.md) · [`../.agent/AGENTS.md`](../.agent/AGENTS.md)  
+>
+> This file is kept as **historical Spanish depth material**. Where it conflicts with `deep_analise_pro.md`, **the unified English manual wins**.
+
+---
+
 > **Para quién es esto:** cualquier LLM (o persona) con capacidad de razonamiento razonable que tenga que auditar, depurar o mejorar este repositorio (u otro parecido: backend que genera datos + BD + frontend que los renderiza). No es una lista de bugs conocidos; es el **método de razonamiento** que permite encontrar bugs que *nadie ha identificado todavía*, verificarlos contra la realidad, arreglarlos de raíz y probar que quedaron arreglados.
 >
 > **Complemento obligatorio:** [`LECCIONES_verificacion_agentes.md`](LECCIONES_verificacion_agentes.md) cubre el caso específico de *verificación visual* (generar la imagen y mirarla). Este documento generaliza esa lección a **todo tipo de bug**.

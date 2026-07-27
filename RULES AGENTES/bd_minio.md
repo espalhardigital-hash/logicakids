@@ -22,6 +22,11 @@ metadata:
 > **Este documento es GENÉRICO.** No incluye host, puertos, claves ni dominios reales
 > de la VPS. Antes de actuar, **el LLM debe solicitar al usuario todos los datos de
 > conexión** (ver §2) y **nunca** hardcodearlos ni commitearlos.
+>
+> **Sustituye** el SOP one-shot de julio 2026 (`final_migration.sql` por consola
+> Portainer), archivado en
+> [`docs/historico/INSTRUCCIONES_MIGRACION_VPS_2026-07.md`](../docs/historico/INSTRUCCIONES_MIGRACION_VPS_2026-07.md).
+> Para **despliegue de código** (Docker/Portainer), usa [`DEPLOY.md`](../DEPLOY.md).
 
 ---
 
@@ -81,6 +86,20 @@ la comparación con la VPS y a la detección de huérfanas:
 > **Regla de oro del alcance:** la detección de "preguntas huérfanas a borrar en la VPS"
 > (§5, Fase 3.C) debe restringirse **al mismo filtro de alcance**. Si el usuario sincroniza
 > solo la Fase 5, **jamás** consideres huérfanas a las preguntas de otras fases.
+
+### 1.3 Excepción: Fases 5 y 6 (SVG inline — sin MinIO `graphics/`)
+
+Para **Fase 5** y **Fase 6**, las figuras van como **SVG embebido en `enunciado`** (no como
+PNG/objeto en MinIO). En ese alcance:
+
+- **Sincronizar = copiar filas** de `preguntas` / `alternativas` (y la política de conflicto,
+  pre-vuelo, preservación de progreso y borrado seguro de huérfanas de este documento).
+- **No aplica** el capítulo MinIO (§4) ni las Fases 2 y 4 del procedimiento (§5) de subida /
+  limpieza de `graphics/`: no hay objetos que subir ni URLs de bucket que reescribir.
+- Si una pregunta de esas fases **sí** tuviera `datos_numericos.url` apuntando a
+  `graphics/`, trátla como caso excepcional y aplica el flujo MinIO solo a esas keys.
+
+> El resto de fases con figuras en MinIO (`graphics/`) sigue el flujo completo de esta skill.
 
 ---
 
@@ -370,16 +389,52 @@ o dentro de un contenedor (`http://minio:9000`). Confirma cuál aplica.
 
 | Script | Qué hace | Uso en esta skill |
 |---|---|---|
+| `sync_helpers.py` | Helpers puros: URL DB, reescritura `datos_numericos`, alcance, FK users, skip MinIO F5/F6. | Compartido; tests en `tests/test_sync_helpers.py`. |
 | `compare_environments.py` | Compara preguntas/alternativas y figuras `graphics/` entre local, dev y prod. | **Pre-vuelo (Fase 1)** y verificación (Fase 5). |
-| `sync_minio_vps.py` | Sube figuras `graphics/` de local a la VPS (`--env dev/prod`, `--fase5-only`). | **Fase 2** (generalizar el filtro al alcance). |
-| `sync_db_and_minio_prod.py` | Sincroniza imágenes + `preguntas`/`alternativas`, con borrado seguro de huérfanas. | Base de **Fase 3** — **ajústalo** por §7.1/§7.2/§7.3/§7.4 (política de conflicto y reescritura de URL) antes de prod. |
-| `update_db_urls.py` | Reescribe las URLs de `datos_numericos` al dominio/bucket destino. | Referencia para la **reescritura de URL (§4.2)**. |
-| `verify_minio_integrity.py` | HEAD-check de que cada pregunta visual tiene su objeto en MinIO. | **Verificación (Fase 5)**. |
-| `audit_question_images.py` | Audita y **autogenera** figuras faltantes (procedimental/Gemini). | Opcional: sanear figuras faltantes en local **antes** de sincronizar. |
+| `sync_minio_vps.py` | Sube `graphics/` local → VPS (`--env dev/prod`, `--fase N`, legacy `--fase5-only`). **Sin secretos hardcodeados.** | **Fase 2**. |
+| `sync_db_and_minio_prod.py` | Sync DB + MinIO alineado a esta skill (ver flags abajo). | **Fases 1–3** en un solo CLI. |
+| `update_db_urls.py` | Reescribe URLs de `datos_numericos` al dominio/bucket destino. | Referencia §4.2 / reparación. |
+| `verify_minio_integrity.py` | HEAD-check de figuras visuales. | **Verificación (Fase 5)**. |
+| `audit_question_images.py` | Audita / autogenera figuras faltantes. | Opcional, en local **antes** de sync. |
 
-> Estos scripts contienen valores específicos del entorno (endpoints/keys/buckets).
-> **Parametrízalos** con los datos que aporte el usuario (§2); no reutilices credenciales
-> hardcodeadas ni las copies a este documento.
+### 8.1 `sync_db_and_minio_prod.py` — flags canónicos
+
+```bash
+# Pre-vuelo (obligatorio antes de escribir)
+python scripts/sync_db_and_minio_prod.py --env dev --fase 5 --dry-run
+
+# Aplicar (insert-new = default seguro); requiere --yes
+python scripts/sync_db_and_minio_prod.py --env dev --fase 5 --policy insert-new --yes
+
+# Upsert de una sección (no reescribe alternativas si hay intentos)
+python scripts/sync_db_and_minio_prod.py --env prod --policy upsert --fase 3 --seccion 1 --yes
+
+# Solo DB / solo MinIO
+python scripts/sync_db_and_minio_prod.py --env dev --db-only --dry-run
+python scripts/sync_db_and_minio_prod.py --env dev --minio-only --yes
+```
+
+| Flag | Efecto |
+|---|---|
+| `--env dev\|prod` | Destino (lee `Datos_Desarrollo` / `Datos_Producion`) |
+| `--policy insert-new\|upsert` | Default **`insert-new`** (§5 Fase 3.B) |
+| `--dry-run` | Solo pre-vuelo; **cero escrituras** |
+| `--yes` | Confirma escritura (sin esto, exit 2 si no es dry-run) |
+| `--fase` / `--seccion` / `--operacion` / `--ids` | Alcance (§1.2) |
+| `--no-minio` / auto F5–F6 | Omite MinIO (§1.3) |
+| `--skip-orphan-delete` | No borra huérfanas |
+| `--db-only` / `--minio-only` | Un solo dominio |
+| `--local-port` / `--remote-port` | Túneles (defaults 5433 / 5434 / 5435) |
+
+Comportamiento ya implementado respecto a §7:
+
+- §7.2 FK `users` → `NULL` si no existen en destino  
+- §7.3 no reescribe `alternativas` si la pregunta tiene `intentos`  
+- §7.4 reescribe `datos_numericos.url` con `S3_PUBLIC_URL` + bucket remotos  
+- §7.5 huérfanas solo **dentro del alcance**  
+- Sin credenciales hardcodeadas (fallan si faltan en `.env`)
+
+> **Parametriza** con datos del usuario (§2). No copies secretos a este documento ni al chat.
 
 ---
 

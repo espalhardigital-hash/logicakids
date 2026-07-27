@@ -17,9 +17,15 @@ build/
 /docs/Theme/
 /docs/cambio_para_vps.md
 /docs/checklist_despliegue_portainer.md
-DEPLOY.md
-APP_VERSION.md
-INSTRUCCIONES_MIGRACION_VPS.md
+/DEPLOY.md
+/APP_VERSION.md
+/INSTRUCCIONES_MIGRACION_VPS.md
+# Histórico de migración one-shot (nombres de DB/infra)
+/docs/historico/INSTRUCCIONES_MIGRACION_VPS*.md
+
+# Archivos de agentes con datos sensibles (IPs, usuarios SSH, rutas locales)
+RULES AGENTES/gemini.md
+RULES AGENTES/reglas.md
 
 # Carpeta de exámenes Pedro II (archivos binarios, no van al repositorio)
 Pedro II/

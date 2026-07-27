@@ -1,393 +1,654 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Script de Sincronización Segura a Producción (VPS)
-==================================================
-Este script realiza las siguientes acciones de forma automática:
-1. Sincroniza todas las imágenes del bucket local de MinIO bajo 'graphics/'
-   hacia el bucket de producción en la VPS.
-2. Compara y sincroniza las tablas 'preguntas' y 'alternativas':
-   - Modifica las existentes con la versión local actual.
-   - Inserta las nuevas locales.
-   - Elimina las preguntas de la VPS que ya no están en local, SIEMPRE Y CUANDO
-     no tengan intentos de alumnos ni estén en pools de asignación activos.
-   - Deja intactas las tablas de alumnos, usuarios y progresos/intentos.
+Sincronización segura de preguntas (+ MinIO graphics/) local → VPS.
 
-REQUISITO:
-Tener abierto el túnel SSH para la base de datos de producción en el puerto 5435:
-ssh -L 5435:localhost:5432 rominejo@35.222.6.7 -N
+Alineado con RULES AGENTES/bd_minio.md:
+  - Política por defecto: insert-new (no sobrescribe existentes)
+  - upsert opcional (no reescribe alternativas si hay intentos)
+  - Reescritura de datos_numericos.url al dominio/bucket destino
+  - FK a users inexistentes → NULL
+  - Huérfanas: solo dentro del alcance; preserva si hay progreso
+  - --dry-run (pre-vuelo) sin escrituras
+  - --no-minio / auto-skip para Fases 5–6 (SVG inline)
+  - Confirmación humana requerida salvo --yes (y nunca en dry-run)
+
+Ejemplos:
+  # Pre-vuelo solo Fase 5 hacia dev (sin MinIO)
+  python scripts/sync_db_and_minio_prod.py --env dev --fase 5 --dry-run
+
+  # Insertar solo nuevas en prod (requiere confirmación)
+  python scripts/sync_db_and_minio_prod.py --env prod --policy insert-new
+
+  # Upsert de una sección con confirmación explícita
+  python scripts/sync_db_and_minio_prod.py --env dev --policy upsert --fase 3 --seccion 1 --yes
 """
 
+from __future__ import annotations
+
+import argparse
+import asyncio
 import os
 import sys
-import json
-import asyncio
-import argparse
-import psycopg2
+from typing import Any, Optional
+
+# Asegura import de sync_helpers al ejecutar como script
+_SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
+if _SCRIPTS_DIR not in sys.path:
+    sys.path.insert(0, _SCRIPTS_DIR)
+
 import boto3
+import psycopg2
 from botocore.config import Config
-from botocore.exceptions import ClientError
-from urllib.parse import urlparse
 
-# Cargar configuración del .env
-def load_env_file(filepath: str) -> dict:
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"No se encontró el archivo .env en: {filepath}")
-    
-    env_data = {}
-    with open(filepath, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if "=" in line:
-                key, val = line.split("=", 1)
-                env_data[key.strip()] = val.strip()
-    return env_data
+from sync_helpers import (
+    DEFAULT_TUNNEL_PORTS,
+    SVG_INLINE_FASES,
+    build_scope_where,
+    load_env_file,
+    null_missing_user_fks,
+    parse_id_list,
+    repo_root_from_scripts,
+    resolve_env_path,
+    rewrite_datos_numericos_url,
+    rewrite_db_url,
+    serialize_jsonb,
+    should_skip_minio,
+)
 
-def rewrite_db_url(db_url: str, override_host: str = None, override_port: int = None) -> str:
-    # Quitar asyncpg
-    url = db_url.replace("+asyncpg", "")
-    
-    # Pre-procesar para codificar '#' en la sección de auth
-    if "://" in url:
-        scheme, rest = url.split("://", 1)
-        if "@" in rest:
-            auth, host_path = rest.split("@", 1)
-            auth = auth.replace("#", "%23")
-            url = f"{scheme}://{auth}@{host_path}"
+# ---------------------------------------------------------------------------
+# MinIO (solo prefijo graphics/)
+# ---------------------------------------------------------------------------
 
-    if not override_host and not override_port:
-        return url
-        
-    parsed = urlparse(url)
-    scheme = parsed.scheme
-    netloc = parsed.netloc
-    path = parsed.path
-    
-    auth = ""
-    host_port = netloc
-    if "@" in netloc:
-        auth, host_port = netloc.split("@", 1)
-        auth += "@"
-        
-    host = host_port
-    port = ""
-    if ":" in host_port:
-        host, port = host_port.split(":", 1)
-        
-    new_host = override_host if override_host else host
-    new_port = str(override_port) if override_port else port
-    
-    new_netloc = auth + new_host
-    if new_port:
-        new_netloc += ":" + new_port
-        
-    return f"{scheme}://{new_netloc}{path}"
+async def sync_minio_images(
+    local_env: dict,
+    remote_env: dict,
+    *,
+    dry_run: bool = False,
+) -> dict[str, int]:
+    """Sube objetos graphics/ faltantes local → remoto. No borra nada."""
+    print("\n" + "=" * 80)
+    print("[+] SINCRONIZACIÓN DE IMÁGENES (MinIO graphics/)")
+    print("=" * 80)
 
-# =====================================================================
-# SINCRONIZACIÓN DE IMÁGENES EN MINIO
-# =====================================================================
-async def sync_minio_images(local_env: dict, prod_env: dict):
-    print("\n" + "="*80)
-    print("[+] INICIANDO SINCRONIZACIÓN DE IMÁGENES (MINIO)")
-    print("="*80)
+    local_access = local_env.get("S3_ACCESS_KEY")
+    local_secret = local_env.get("S3_SECRET_KEY")
+    local_bucket = local_env.get("S3_BUCKET_NAME")
+    if not all([local_access, local_secret, local_bucket]):
+        raise RuntimeError("Faltan S3_ACCESS_KEY / S3_SECRET_KEY / S3_BUCKET_NAME en entorno local.")
 
-    # Credenciales Locales
-    local_access = local_env.get("S3_ACCESS_KEY", "logicakids_minio_admin")
-    local_secret = local_env.get("S3_SECRET_KEY", "LogicaKids2026#MinIO")
-    local_bucket = local_env.get("S3_BUCKET_NAME", "logicakids")
-    local_endpoint = "http://localhost:9100"  # Endpoint desde el host
+    local_endpoint = (
+        local_env.get("S3_ENDPOINT_URL")
+        or local_env.get("S3_ENDPOINT")
+        or "http://localhost:9100"
+    )
 
-    # Credenciales VPS Producción
-    prod_access = prod_env.get("S3_ACCESS_KEY")
-    prod_secret = prod_env.get("S3_SECRET_KEY")
-    prod_bucket = prod_env.get("S3_BUCKET_NAME", "logicakids-producion")
-    prod_endpoint = "https://files.espalhar.shop"
-
-    print(f"[*] Origen:  Local MinIO ({local_endpoint}, bucket: '{local_bucket}')")
-    print(f"[*] Destino: VPS MinIO ({prod_endpoint}, bucket: '{prod_bucket}')")
-
-    # Inicializar clientes
-    try:
-        local_s3 = boto3.client(
-            's3',
-            endpoint_url=local_endpoint,
-            aws_access_key_id=local_access,
-            aws_secret_access_key=local_secret,
-            config=Config(s3={'addressing_style': 'path'})
+    remote_access = remote_env.get("S3_ACCESS_KEY")
+    remote_secret = remote_env.get("S3_SECRET_KEY")
+    remote_bucket = remote_env.get("S3_BUCKET_NAME")
+    remote_endpoint = (
+        remote_env.get("S3_ENDPOINT_URL")
+        or remote_env.get("S3_ENDPOINT")
+        or remote_env.get("S3_PUBLIC_URL")
+    )
+    if not all([remote_access, remote_secret, remote_bucket, remote_endpoint]):
+        raise RuntimeError(
+            "Faltan credenciales MinIO remotas (S3_ACCESS_KEY, S3_SECRET_KEY, "
+            "S3_BUCKET_NAME, S3_ENDPOINT o S3_PUBLIC_URL). No se usan fallbacks hardcodeados."
         )
-        prod_s3 = boto3.client(
-            's3',
-            endpoint_url=prod_endpoint,
-            aws_access_key_id=prod_access,
-            aws_secret_access_key=prod_secret,
-            config=Config(s3={'addressing_style': 'path'}, signature_version='s3v4')
-        )
-    except Exception as e:
-        print(f"❌ Error al inicializar clientes de MinIO: {e}")
-        return
 
-    # Listar objetos locales
-    print("[*] Listando archivos del bucket local bajo el prefijo 'graphics/'...")
+    print(f"[*] Origen:  {local_endpoint} / {local_bucket}")
+    print(f"[*] Destino: {remote_endpoint} / {remote_bucket}")
+
+    local_s3 = boto3.client(
+        "s3",
+        endpoint_url=local_endpoint,
+        aws_access_key_id=local_access,
+        aws_secret_access_key=local_secret,
+        config=Config(s3={"addressing_style": "path"}),
+    )
+    remote_s3 = boto3.client(
+        "s3",
+        endpoint_url=remote_endpoint,
+        aws_access_key_id=remote_access,
+        aws_secret_access_key=remote_secret,
+        config=Config(s3={"addressing_style": "path"}, signature_version="s3v4"),
+    )
+
+    paginator = local_s3.get_paginator("list_objects_v2")
+    local_keys: list[str] = []
+    for page in paginator.paginate(Bucket=local_bucket, Prefix="graphics/"):
+        for obj in page.get("Contents") or []:
+            local_keys.append(obj["Key"])
+
+    remote_keys: set[str] = set()
     try:
-        paginator = local_s3.get_paginator('list_objects_v2')
-        pages = paginator.paginate(Bucket=local_bucket, Prefix='graphics/')
-        local_keys = []
-        for page in pages:
-            if 'Contents' in page:
-                for obj in page['Contents']:
-                    local_keys.append(obj['Key'])
+        for page in remote_s3.get_paginator("list_objects_v2").paginate(
+            Bucket=remote_bucket, Prefix="graphics/"
+        ):
+            for obj in page.get("Contents") or []:
+                remote_keys.add(obj["Key"])
     except Exception as e:
-        print(f"❌ Error al listar objetos del MinIO local: {e}")
-        return
+        print(f"[!] No se pudo listar remoto (se subirán todos): {e}")
 
-    total_files = len(local_keys)
-    print(f"✅ Se encontraron {total_files} figuras locales para sincronizar.")
-    if total_files == 0:
-        return
+    to_upload = [k for k in local_keys if k not in remote_keys]
+    print(f"[*] Local graphics/: {len(local_keys)} | Remoto: {len(remote_keys)} | A subir: {len(to_upload)}")
 
-    # Sincronizar en lotes asíncronos
+    if dry_run:
+        print("[dry-run] No se sube ningún objeto.")
+        return {"local": len(local_keys), "remote": len(remote_keys), "would_upload": len(to_upload), "uploaded": 0}
+
+    if not to_upload:
+        print("✅ Nada que subir.")
+        return {"local": len(local_keys), "remote": len(remote_keys), "would_upload": 0, "uploaded": 0}
+
     sem = asyncio.Semaphore(5)
-    success_count = 0
-    fail_count = 0
+    success = 0
+    fail = 0
 
-    async def sync_file(key: str):
-        nonlocal success_count, fail_count
+    async def _one(key: str) -> None:
+        nonlocal success, fail
         async with sem:
             try:
-                # Descargar local
                 obj = await asyncio.to_thread(local_s3.get_object, Bucket=local_bucket, Key=key)
-                file_data = obj['Body'].read()
-                content_type = obj.get('ContentType', 'image/png')
-
-                # Subir a la VPS
+                body = obj["Body"].read()
+                ctype = obj.get("ContentType", "image/png")
                 await asyncio.to_thread(
-                    prod_s3.put_object,
-                    Bucket=prod_bucket,
+                    remote_s3.put_object,
+                    Bucket=remote_bucket,
                     Key=key,
-                    Body=file_data,
-                    ContentType=content_type
+                    Body=body,
+                    ContentType=ctype,
                 )
-                success_count += 1
+                success += 1
             except Exception as ex:
-                print(f"   [!] Error al sincronizar '{key}': {ex}")
-                fail_count += 1
+                print(f"   [!] Error '{key}': {ex}")
+                fail += 1
 
-    tasks = [sync_file(k) for k in local_keys]
-    
-    # Procesar y mostrar progreso
-    for start_idx in range(0, len(tasks), 100):
-        chunk = tasks[start_idx:start_idx+100]
-        await asyncio.gather(*chunk)
-        print(f"   Progreso de subida: {min(start_idx + 100, total_files)}/{total_files} procesados...")
+    tasks = [_one(k) for k in to_upload]
+    for i in range(0, len(tasks), 100):
+        await asyncio.gather(*tasks[i : i + 100])
+        print(f"   Progreso: {min(i + 100, len(tasks))}/{len(tasks)}")
 
-    print(f"✅ Sincronización de figuras completa. Exitosos: {success_count}, Fallidos: {fail_count}")
+    print(f"✅ MinIO: subidos={success} fallidos={fail}")
+    return {
+        "local": len(local_keys),
+        "remote": len(remote_keys),
+        "would_upload": len(to_upload),
+        "uploaded": success,
+        "failed": fail,
+    }
 
-# =====================================================================
-# SINCRONIZACIÓN DE BASE DE DATOS
-# =====================================================================
-def sync_database(local_db_url: str, prod_db_url: str):
-    print("\n" + "="*80)
-    print("[+] INICIANDO SINCRONIZACIÓN DE BASE DE DATOS (PREGUNTAS Y ALTERNATIVAS)")
-    print("="*80)
+
+# ---------------------------------------------------------------------------
+# Base de datos
+# ---------------------------------------------------------------------------
+
+QUESTION_SELECT = """
+    SELECT id, fase_id, seccion, sub_nivel, estructura_padre_id, operacion, tipo_pregunta,
+           enunciado, respuesta_correcta, datos_numericos, payload_tokenizado,
+           explicacion_paso_a_paso, requiere_subrayado, palabras_clave, errores_previstos,
+           creado_por, modificado_por, estado, revisado_admin, revisado_por, fecha_revision
+    FROM preguntas
+    {where}
+"""
+
+
+def _fetch_questions(conn, where_sql: str, params: list[Any]) -> dict[int, dict]:
+    with conn.cursor() as cur:
+        cur.execute(QUESTION_SELECT.format(where=where_sql), params)
+        cols = [d[0] for d in cur.description]
+        return {row[0]: dict(zip(cols, row)) for row in cur.fetchall()}
+
+
+def _fetch_alternatives(conn, question_ids: set[int]) -> dict[int, list[dict]]:
+    if not question_ids:
+        return {}
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, pregunta_id, texto, es_correcta, orden, tipo_error, feedback_error
+            FROM alternativas
+            WHERE pregunta_id = ANY(%s)
+            """,
+            (list(question_ids),),
+        )
+        out: dict[int, list[dict]] = {}
+        for row in cur.fetchall():
+            alt = {
+                "id": row[0],
+                "pregunta_id": row[1],
+                "texto": row[2],
+                "es_correcta": row[3],
+                "orden": row[4],
+                "tipo_error": row[5],
+                "feedback_error": row[6],
+            }
+            out.setdefault(alt["pregunta_id"], []).append(alt)
+        return out
+
+
+def _existing_user_ids(conn) -> set[int]:
+    with conn.cursor() as cur:
+        cur.execute("SELECT id FROM users")
+        return {row[0] for row in cur.fetchall()}
+
+
+def _question_has_progress(cur, q_id: int) -> bool:
+    cur.execute(
+        """
+        SELECT EXISTS (
+            SELECT 1 FROM pool_asignado_alumno WHERE pregunta_id = %s
+            UNION ALL SELECT 1 FROM intentos WHERE pregunta_id = %s
+            UNION ALL SELECT 1 FROM intento_preguntas WHERE pregunta_id = %s
+        )
+        """,
+        (q_id, q_id, q_id),
+    )
+    return bool(cur.fetchone()[0])
+
+
+def _question_has_intentos(cur, q_id: int) -> bool:
+    cur.execute("SELECT EXISTS (SELECT 1 FROM intentos WHERE pregunta_id = %s)", (q_id,))
+    return bool(cur.fetchone()[0])
+
+
+def sync_database(
+    local_db_url: str,
+    remote_db_url: str,
+    *,
+    policy: str = "insert-new",
+    dry_run: bool = False,
+    fase_id: Optional[int] = None,
+    seccion: Optional[int] = None,
+    operacion: Optional[str] = None,
+    ids: Optional[list[int]] = None,
+    public_url: str = "",
+    remote_bucket: str = "",
+    skip_orphan_delete: bool = False,
+) -> dict[str, Any]:
+    """
+    Sincroniza preguntas + alternativas según política.
+    policy: insert-new | upsert
+    """
+    if policy not in ("insert-new", "upsert"):
+        raise ValueError("policy debe ser 'insert-new' o 'upsert'")
+
+    print("\n" + "=" * 80)
+    print(f"[+] DB SYNC policy={policy} dry_run={dry_run}")
+    print("=" * 80)
+
+    where_sql, where_params = build_scope_where(
+        fase_id=fase_id, seccion=seccion, operacion=operacion, ids=ids
+    )
+    scope_desc = where_sql or "(TOTAL)"
+    print(f"[*] Alcance: {scope_desc} params={where_params}")
+
+    local_conn = psycopg2.connect(local_db_url)
+    remote_conn = psycopg2.connect(remote_db_url)
+
+    report: dict[str, Any] = {
+        "policy": policy,
+        "dry_run": dry_run,
+        "to_insert": 0,
+        "to_update": 0,
+        "to_skip_existing": 0,
+        "orphans_delete": 0,
+        "orphans_preserve": 0,
+        "alts_rewritten": 0,
+        "alts_preserved": 0,
+    }
 
     try:
-        local_conn = psycopg2.connect(local_db_url)
-        prod_conn = psycopg2.connect(prod_db_url)
-        print("✅ Conexiones a bases de datos establecidas con éxito.")
-    except Exception as e:
-        print(f"❌ Error al conectar a las bases de datos: {e}")
-        return
+        local_questions = _fetch_questions(local_conn, where_sql, where_params)
+        local_alts = _fetch_alternatives(local_conn, set(local_questions.keys()))
+        remote_questions = _fetch_questions(remote_conn, where_sql, where_params)
+        remote_ids = set(remote_questions.keys())
+        local_ids = set(local_questions.keys())
 
-    try:
-        # 1. Obtener datos locales
-        print("[*] Leyendo preguntas y alternativas locales...")
-        local_questions = {}
-        with local_conn.cursor() as cur:
-            cur.execute("""
-                SELECT id, fase_id, seccion, sub_nivel, estructura_padre_id, operacion, tipo_pregunta,
-                       enunciado, respuesta_correcta, datos_numericos, payload_tokenizado, 
-                       explicacion_paso_a_paso, requiere_subrayado, palabras_clave, errores_previstos,
-                       creado_por, modificado_por, estado, revisado_admin, revisado_por, fecha_revision
-                FROM preguntas;
-            """)
-            columns = [desc[0] for desc in cur.description]
-            for row in cur.fetchall():
-                q_data = dict(zip(columns, row))
-                local_questions[q_data['id']] = q_data
+        print(f"   Local (alcance): {len(local_ids)} | Remoto (alcance): {len(remote_ids)}")
 
-            # Leer alternativas locales
-            cur.execute("SELECT id, pregunta_id, texto, es_correcta, orden, tipo_error, feedback_error FROM alternativas;")
-            local_alternatives = {}
-            for row in cur.fetchall():
-                alt = {
-                    "id": row[0],
-                    "pregunta_id": row[1],
-                    "texto": row[2],
-                    "es_correcta": row[3],
-                    "orden": row[4],
-                    "tipo_error": row[5],
-                    "feedback_error": row[6]
-                }
-                if alt["pregunta_id"] not in local_alternatives:
-                    local_alternatives[alt["pregunta_id"]] = []
-                local_alternatives[alt["pregunta_id"]].append(alt)
+        user_ids = _existing_user_ids(remote_conn)
 
-        print(f"   Local: {len(local_questions)} preguntas cargadas.")
+        to_insert_ids = local_ids - remote_ids
+        common_ids = local_ids & remote_ids
+        orphan_ids = remote_ids - local_ids
 
-        # 2. Obtener preguntas de la VPS
-        prod_question_ids = set()
-        with prod_conn.cursor() as cur:
-            cur.execute("SELECT id FROM preguntas;")
-            for row in cur.fetchall():
-                prod_question_ids.add(row[0])
-        print(f"   VPS Producción: {len(prod_question_ids)} preguntas existentes.")
+        report["to_insert"] = len(to_insert_ids)
+        if policy == "insert-new":
+            report["to_skip_existing"] = len(common_ids)
+            report["to_update"] = 0
+            update_ids: set[int] = set()
+        else:
+            report["to_update"] = len(common_ids)
+            report["to_skip_existing"] = 0
+            update_ids = set(common_ids)
 
-        # 3. Detectar preguntas huérfanas en la VPS (existen en VPS pero ya no en local)
-        orphans = prod_question_ids - set(local_questions.keys())
-        deleted_count = 0
-        preserved_count = 0
-
-        if orphans:
-            print(f"[*] Se detectaron {len(orphans)} preguntas en la VPS que ya no están localmente.")
-            print("[*] Evaluando si es seguro eliminarlas sin romper el progreso de los alumnos...")
-            
-            with prod_conn.cursor() as cur:
-                for q_id in orphans:
-                    # Verificar FKs en progreso, intentos e intento_preguntas
-                    cur.execute("""
-                        SELECT EXISTS (
-                            SELECT 1 FROM pool_asignado_alumno WHERE pregunta_id = %s
-                            UNION ALL
-                            SELECT 1 FROM intentos WHERE pregunta_id = %s
-                            UNION ALL
-                            SELECT 1 FROM intento_preguntas WHERE pregunta_id = %s
-                        );
-                    """, (q_id, q_id, q_id))
-                    has_progress = cur.fetchone()[0]
-                    
-                    if not has_progress:
-                        # Es seguro eliminarla (las alternativas se borran en cascada si está la FK configurada,
-                        # pero para asegurar las borramos a mano primero)
-                        cur.execute("DELETE FROM alternativas WHERE pregunta_id = %s;", (q_id,))
-                        cur.execute("DELETE FROM preguntas WHERE id = %s;", (q_id,))
-                        deleted_count += 1
+        # Pre-vuelo huérfanas
+        deletable: list[int] = []
+        preservable: list[int] = []
+        if orphan_ids and not skip_orphan_delete:
+            with remote_conn.cursor() as cur:
+                for q_id in orphan_ids:
+                    if _question_has_progress(cur, q_id):
+                        preservable.append(q_id)
                     else:
-                        # Tiene registros asociados de alumnos, se preserva intacta para no alterar puntajes
-                        preserved_count += 1
-            print(f"   🗑️ Preguntas huérfanas eliminadas de forma segura: {deleted_count}")
-            print(f"   🔒 Preguntas huérfanas preservadas por tener progreso/intentos de alumnos: {preserved_count}")
+                        deletable.append(q_id)
+        elif orphan_ids and skip_orphan_delete:
+            preservable = list(orphan_ids)
 
-        # 4. Insertar o actualizar preguntas locales en la VPS
-        print("[*] Sincronizando preguntas locales hacia la VPS...")
-        upserted_count = 0
-        inserted_count = 0
+        report["orphans_delete"] = len(deletable)
+        report["orphans_preserve"] = len(preservable)
 
-        with prod_conn.cursor() as cur:
-            for q_id, q in local_questions.items():
-                # Serializar campos JSONB
-                datos_numericos = json.dumps(q['datos_numericos']) if q['datos_numericos'] else None
-                payload_tokenizado = json.dumps(q['payload_tokenizado']) if q['payload_tokenizado'] else None
-                explicacion_paso_a_paso = json.dumps(q['explicacion_paso_a_paso']) if q['explicacion_paso_a_paso'] else None
-                palabras_clave = json.dumps(q['palabras_clave']) if q['palabras_clave'] else None
-                errores_previstos = json.dumps(q['errores_previstos']) if q['errores_previstos'] else None
+        print("\n--- PRE-VUELO ---")
+        print(f"  Insertar (nuevas):     {report['to_insert']}")
+        print(f"  Actualizar (upsert):   {report['to_update']}")
+        print(f"  Dejar intactas:        {report['to_skip_existing']}")
+        print(f"  Huérfanas a borrar:    {report['orphans_delete']}")
+        print(f"  Huérfanas preservadas: {report['orphans_preserve']}")
 
-                if q_id in prod_question_ids:
-                    # UPDATE de pregunta existente
-                    cur.execute("""
-                        UPDATE preguntas
-                        SET fase_id = %s, seccion = %s, sub_nivel = %s, estructura_padre_id = %s, 
-                            operacion = %s, tipo_pregunta = %s, enunciado = %s, respuesta_correcta = %s, 
-                            datos_numericos = %s, payload_tokenizado = %s, explicacion_paso_a_paso = %s, 
-                            requiere_subrayado = %s, palabras_clave = %s, errores_previstos = %s, 
-                            creado_por = %s, modificado_por = %s, estado = %s, revisado_admin = %s, 
-                            revisado_por = %s, fecha_revision = %s, ultima_modificacion = NOW()
-                        WHERE id = %s;
-                    """, (
-                        q['fase_id'], q['seccion'], q['sub_nivel'], q['estructura_padre_id'],
-                        q['operacion'], q['tipo_pregunta'], q['enunciado'], q['respuesta_correcta'],
-                        datos_numericos, payload_tokenizado, explicacion_paso_a_paso,
-                        q['requiere_subrayado'], palabras_clave, errores_previstos,
-                        q['creado_por'], q['modificado_por'], q['estado'], q['revisado_admin'],
-                        q['revisado_por'], q['fecha_revision'], q_id
-                    ))
-                    upserted_count += 1
-                else:
-                    # INSERT de nueva pregunta
-                    cur.execute("""
+        if dry_run:
+            print("[dry-run] Sin escrituras en DB.")
+            return report
+
+        with remote_conn.cursor() as cur:
+            # A) Borrar huérfanas seguras
+            for q_id in deletable:
+                cur.execute("DELETE FROM alternativas WHERE pregunta_id = %s", (q_id,))
+                cur.execute("DELETE FROM preguntas WHERE id = %s", (q_id,))
+
+            # B) Insert / update
+            work_ids = to_insert_ids | update_ids
+            for q_id in work_ids:
+                q = local_questions[q_id]
+                datos = q["datos_numericos"]
+                if public_url and remote_bucket:
+                    datos = rewrite_datos_numericos_url(datos, public_url, remote_bucket)
+
+                creado, modificado, revisado = null_missing_user_fks(
+                    q["creado_por"], q["modificado_por"], q["revisado_por"], user_ids
+                )
+
+                row_vals = (
+                    q["fase_id"],
+                    q["seccion"],
+                    q["sub_nivel"],
+                    q["estructura_padre_id"],
+                    q["operacion"],
+                    q["tipo_pregunta"],
+                    q["enunciado"],
+                    q["respuesta_correcta"],
+                    serialize_jsonb(datos),
+                    serialize_jsonb(q["payload_tokenizado"]),
+                    serialize_jsonb(q["explicacion_paso_a_paso"]),
+                    q["requiere_subrayado"],
+                    serialize_jsonb(q["palabras_clave"]),
+                    serialize_jsonb(q["errores_previstos"]),
+                    creado,
+                    modificado,
+                    q["estado"],
+                    q["revisado_admin"],
+                    revisado,
+                    q["fecha_revision"],
+                )
+
+                if q_id in to_insert_ids:
+                    cur.execute(
+                        """
                         INSERT INTO preguntas (
                             id, fase_id, seccion, sub_nivel, estructura_padre_id, operacion, tipo_pregunta,
-                            enunciado, respuesta_correcta, datos_numericos, payload_tokenizado, 
+                            enunciado, respuesta_correcta, datos_numericos, payload_tokenizado,
                             explicacion_paso_a_paso, requiere_subrayado, palabras_clave, errores_previstos,
                             creado_por, modificado_por, estado, revisado_admin, revisado_por, fecha_revision,
                             fecha_creacion, ultima_modificacion
                         ) VALUES (
-                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW()
-                        );
-                    """, (
-                        q_id, q['fase_id'], q['seccion'], q['sub_nivel'], q['estructura_padre_id'],
-                        q['operacion'], q['tipo_pregunta'], q['enunciado'], q['respuesta_correcta'],
-                        datos_numericos, payload_tokenizado, explicacion_paso_a_paso,
-                        q['requiere_subrayado'], palabras_clave, errores_previstos,
-                        q['creado_por'], q['modificado_por'], q['estado'], q['revisado_admin'],
-                        q['revisado_por'], q['fecha_revision']
-                    ))
-                    inserted_count += 1
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                            NOW(), NOW()
+                        )
+                        """,
+                        (q_id, *row_vals),
+                    )
+                    # Alternativas nuevas: insertar siempre
+                    for alt in local_alts.get(q_id, []):
+                        cur.execute(
+                            """
+                            INSERT INTO alternativas (
+                                pregunta_id, texto, es_correcta, orden, tipo_error, feedback_error,
+                                fecha_creacion, ultima_modificacion
+                            ) VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
+                            """,
+                            (
+                                q_id,
+                                alt["texto"],
+                                alt["es_correcta"],
+                                alt["orden"],
+                                alt["tipo_error"],
+                                alt["feedback_error"],
+                            ),
+                        )
+                    report["alts_rewritten"] += len(local_alts.get(q_id, []))
+                else:
+                    # UPDATE pregunta
+                    cur.execute(
+                        """
+                        UPDATE preguntas SET
+                            fase_id = %s, seccion = %s, sub_nivel = %s, estructura_padre_id = %s,
+                            operacion = %s, tipo_pregunta = %s, enunciado = %s, respuesta_correcta = %s,
+                            datos_numericos = %s, payload_tokenizado = %s, explicacion_paso_a_paso = %s,
+                            requiere_subrayado = %s, palabras_clave = %s, errores_previstos = %s,
+                            creado_por = %s, modificado_por = %s, estado = %s, revisado_admin = %s,
+                            revisado_por = %s, fecha_revision = %s, ultima_modificacion = NOW()
+                        WHERE id = %s
+                        """,
+                        (*row_vals, q_id),
+                    )
+                    # Alternativas: no reescribir si hay intentos (§7.3)
+                    if _question_has_intentos(cur, q_id):
+                        report["alts_preserved"] += 1
+                    else:
+                        cur.execute("DELETE FROM alternativas WHERE pregunta_id = %s", (q_id,))
+                        for alt in local_alts.get(q_id, []):
+                            cur.execute(
+                                """
+                                INSERT INTO alternativas (
+                                    pregunta_id, texto, es_correcta, orden, tipo_error, feedback_error,
+                                    fecha_creacion, ultima_modificacion
+                                ) VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
+                                """,
+                                (
+                                    q_id,
+                                    alt["texto"],
+                                    alt["es_correcta"],
+                                    alt["orden"],
+                                    alt["tipo_error"],
+                                    alt["feedback_error"],
+                                ),
+                            )
+                        report["alts_rewritten"] += 1
 
-                # Borrar alternativas previas de esta pregunta en la VPS e insertar las vigentes locales
-                cur.execute("DELETE FROM alternativas WHERE pregunta_id = %s;", (q_id,))
-                
-                alts = local_alternatives.get(q_id, [])
-                for alt in alts:
-                    cur.execute("""
-                        INSERT INTO alternativas (pregunta_id, texto, es_correcta, orden, tipo_error, feedback_error, fecha_creacion, ultima_modificacion)
-                        VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW());
-                    """, (q_id, alt['texto'], alt['es_correcta'], alt['orden'], alt['tipo_error'], alt['feedback_error']))
-
-            # Confirmar transacción
-            prod_conn.commit()
-            print(f"   🔄 Preguntas actualizadas en la VPS: {upserted_count}")
-            print(f"   ✨ Nuevas preguntas insertadas en la VPS: {inserted_count}")
+            remote_conn.commit()
+            print("✅ Commit OK")
+            print(f"   Insertadas: {report['to_insert']} | Actualizadas: {report['to_update']}")
+            print(f"   Huérfanas borradas: {report['orphans_delete']} | Preservadas: {report['orphans_preserve']}")
+            print(f"   Alts reescritas (preguntas): {report['alts_rewritten']} | Alts preservadas: {report['alts_preserved']}")
 
     except Exception as e:
-        prod_conn.rollback()
-        print(f"❌ Ocurrió un error durante la transacción de la Base de Datos. Se realizó Rollback: {e}")
+        remote_conn.rollback()
+        print(f"❌ Error DB — rollback: {e}")
+        raise
     finally:
         local_conn.close()
-        prod_conn.close()
-        print("✅ Conexiones a las bases de datos cerradas de forma segura.")
+        remote_conn.close()
 
-# =====================================================================
-# EJECUCIÓN PRINCIPAL
-# =====================================================================
-def main():
-    # Rutas absolutas a los archivos .env
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-    local_env_path = os.path.join(base_dir, "Datos_localhost", ".env.local")
-    prod_env_path = os.path.join(base_dir, "Datos_Producion", ".env")
+    return report
 
-    print("[*] Cargando archivos de configuración .env...")
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        description="Sync seguro de preguntas (+ MinIO graphics/) local → VPS (bd_minio.md)."
+    )
+    p.add_argument("--env", choices=["dev", "prod"], required=True, help="Destino VPS")
+    p.add_argument(
+        "--policy",
+        choices=["insert-new", "upsert"],
+        default="insert-new",
+        help="insert-new (default, seguro) | upsert",
+    )
+    p.add_argument("--dry-run", action="store_true", help="Pre-vuelo: solo compara, no escribe")
+    p.add_argument("--yes", action="store_true", help="Confirma escrituras sin prompt interactivo")
+    p.add_argument("--fase", type=int, default=None, help="Filtrar por fase_id")
+    p.add_argument("--seccion", type=int, default=None, help="Filtrar por seccion")
+    p.add_argument("--operacion", type=str, default=None, help="Filtrar por operacion")
+    p.add_argument("--ids", type=str, default=None, help="IDs separados por coma")
+    p.add_argument(
+        "--no-minio",
+        action="store_true",
+        help="No sincronizar MinIO (obligatorio de facto para Fases 5–6 SVG)",
+    )
+    p.add_argument(
+        "--skip-orphan-delete",
+        action="store_true",
+        help="No borrar huérfanas en el destino (solo insert/update)",
+    )
+    p.add_argument(
+        "--local-port",
+        type=int,
+        default=None,
+        help=f"Puerto túnel/local DB (default {DEFAULT_TUNNEL_PORTS['local']})",
+    )
+    p.add_argument(
+        "--remote-port",
+        type=int,
+        default=None,
+        help="Puerto túnel remoto (default 5434 dev / 5435 prod)",
+    )
+    p.add_argument("--local-env", type=str, default=None, help="Ruta alternativa al .env local")
+    p.add_argument("--remote-env", type=str, default=None, help="Ruta alternativa al .env remoto")
+    p.add_argument(
+        "--db-only",
+        action="store_true",
+        help="Solo DB (implica no MinIO)",
+    )
+    p.add_argument(
+        "--minio-only",
+        action="store_true",
+        help="Solo MinIO graphics/ (sin tocar DB)",
+    )
+    return p
+
+
+def main(argv: Optional[list[str]] = None) -> int:
+    args = build_parser().parse_args(argv)
+    root = repo_root_from_scripts()
+
     try:
+        local_env_path = args.local_env or resolve_env_path("local", root)
+        remote_env_path = args.remote_env or resolve_env_path(args.env, root)
         local_env = load_env_file(local_env_path)
-        prod_env = load_env_file(prod_env_path)
-        print("✅ Configuraciones cargadas correctamente.")
+        remote_env = load_env_file(remote_env_path)
     except Exception as e:
-        print(f"❌ Error al cargar los archivos .env: {e}")
-        sys.exit(1)
+        print(f"❌ Config: {e}")
+        return 1
 
-    # 1. Ejecutar sincronización de imágenes en MinIO (asíncrono)
-    asyncio.run(sync_minio_images(local_env, prod_env))
+    local_port = args.local_port or DEFAULT_TUNNEL_PORTS["local"]
+    remote_port = args.remote_port or DEFAULT_TUNNEL_PORTS[args.env]
 
-    # 2. Ejecutar sincronización de Base de Datos
-    local_db_url = rewrite_db_url(local_env.get("DATABASE_URL"), override_host="localhost", override_port=5433)
-    prod_db_url = rewrite_db_url(prod_env.get("DATABASE_URL"), override_host="localhost", override_port=5435)
-    
-    sync_database(local_db_url, prod_db_url)
+    local_db = rewrite_db_url(
+        local_env.get("DATABASE_URL", ""), override_host="localhost", override_port=local_port
+    )
+    remote_db = rewrite_db_url(
+        remote_env.get("DATABASE_URL", ""), override_host="localhost", override_port=remote_port
+    )
+    if not local_env.get("DATABASE_URL") or not remote_env.get("DATABASE_URL"):
+        print("❌ Falta DATABASE_URL en local o remoto.")
+        return 1
 
-    print("\n" + "="*80)
-    print("PROCESO DE SINCRONIZACIÓN A PRODUCCIÓN FINALIZADO EXITOSAMENTE")
-    print("="*80)
+    ids = parse_id_list(args.ids)
+    public_url = (
+        remote_env.get("S3_PUBLIC_URL")
+        or remote_env.get("S3_ENDPOINT_URL")
+        or remote_env.get("S3_ENDPOINT")
+        or ""
+    ).rstrip("/")
+    remote_bucket = remote_env.get("S3_BUCKET_NAME", "")
+
+    # Decidir MinIO
+    fase_scope: list[int] = []
+    if args.fase is not None:
+        fase_scope = [args.fase]
+    skip_minio = (
+        args.db_only
+        or should_skip_minio(args.no_minio, fase_scope)
+    )
+    if args.fase in SVG_INLINE_FASES and not args.no_minio and not args.db_only:
+        print(
+            f"[*] Fase {args.fase} es SVG-inline (bd_minio §1.3): se omite MinIO automáticamente. "
+            "Use sin --fase o force con sync_minio_vps si hubiera graphics/ excepcionales."
+        )
+        skip_minio = True
+
+    print("=" * 80)
+    print("SYNC local → VPS  (skill: RULES AGENTES/bd_minio.md)")
+    print(f"  destino={args.env} policy={args.policy} dry_run={args.dry_run}")
+    if args.minio_only:
+        print("  modo=minio-only")
+    elif skip_minio:
+        print("  minio=OFF")
+    else:
+        print("  minio=ON (solo graphics/ faltantes)")
+    print(f"  DB ports local={local_port} remote={remote_port}")
+    print("=" * 80)
+
+    if not args.dry_run and not args.yes:
+        print(
+            "\n⚠️  Escritura en destino requiere confirmación.\n"
+            "    Re-ejecute con --dry-run primero, luego con --yes para aplicar.\n"
+            "    (bd_minio.md: pre-vuelo + confirmación humana)"
+        )
+        return 2
+
+    # MinIO
+    if not skip_minio and not args.db_only:
+        try:
+            asyncio.run(sync_minio_images(local_env, remote_env, dry_run=args.dry_run))
+        except Exception as e:
+            print(f"❌ MinIO: {e}")
+            if args.minio_only:
+                return 1
+            print("[!] Continuando con DB (MinIO falló). Revise credenciales/endpoint.")
+
+    if args.minio_only:
+        print("\n✅ minio-only finalizado.")
+        return 0
+
+    # DB
+    try:
+        sync_database(
+            local_db,
+            remote_db,
+            policy=args.policy,
+            dry_run=args.dry_run,
+            fase_id=args.fase,
+            seccion=args.seccion,
+            operacion=args.operacion,
+            ids=ids,
+            public_url=public_url,
+            remote_bucket=remote_bucket,
+            skip_orphan_delete=args.skip_orphan_delete,
+        )
+    except Exception as e:
+        print(f"❌ Falló sync DB: {e}")
+        return 1
+
+    print("\n" + "=" * 80)
+    print("PROCESO FINALIZADO" + (" (dry-run)" if args.dry_run else ""))
+    print("=" * 80)
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
