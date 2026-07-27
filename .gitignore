@@ -1,46 +1,46 @@
-.env
-.env*
+# ============================================================
+# .gitignore — Solo se versiona lo necesario para deploy:
+#   docker-compose_Producion.yml  y  LogicaMath/
+# Todo lo demás es local. No borrar del PC; solo se excluye de Git.
+# ============================================================
+
+# --- Archivos Node / build ---
 node_modules/
 dist/
 build/
 .DS_Store
 
-# Pruebas y configuración local SRE
-/docs/Pruebas_y_Test_Unitario/
+# --- Variables de entorno (secretos) ---
+.env
+.env*
 
-# Entornos y datos sensibles de VPS
+# --- Entornos VPS y datos locales ---
 /Datos_Desarrollo/
 /Datos_Producion/
 /Datos_localhost/
 
-# Documentación específica y otros
-/docs/Theme/
-/docs/cambio_para_vps.md
-/docs/checklist_despliegue_portainer.md
+# --- Archivos de deploy y migración sensibles (solo local) ---
 /DEPLOY.md
 /APP_VERSION.md
 /INSTRUCCIONES_MIGRACION_VPS.md
-# Histórico de migración one-shot (nombres de DB/infra)
-/docs/historico/INSTRUCCIONES_MIGRACION_VPS*.md
+/docs/historico/
 
-# Archivos de agentes con datos sensibles (IPs, usuarios SSH, rutas locales)
-RULES AGENTES/gemini.md
-RULES AGENTES/reglas.md
+# --- Documentación interna (solo local, no necesaria para deploy) ---
+/AGENTS.md
+/RULES AGENTES/
+/docs/
+/coelgiomilitar.md
+/instalcion_clonador_voz.md
+/patch_theme.ps1
 
-# Carpeta de exámenes Pedro II (archivos binarios, no van al repositorio)
+# --- Exámenes y materiales externos ---
 Pedro II/
 Pedro\ II/
 
-# Workspace files de editores
+# --- Archivos de agentes / workspace ---
+openspec/
+.agent/
 *.code-workspace
 
-# OpenSpec directory
-openspec/
-
-# Agent configuration directory
-.agent/
-
-docs/ux_feedback/
-
-# Database dumps and backups
+# --- Base de datos / dumps ---
 *.sql
