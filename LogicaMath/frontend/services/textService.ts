@@ -26,8 +26,14 @@ export function parseMarkdown(text: string): string {
   let html = text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-2" />')
-    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-400 underline">$1</a>');
+    .replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+      const safeSrc = src.trim().toLowerCase().startsWith('javascript:') ? '#' : src;
+      return `<img src="${safeSrc}" alt="${alt}" class="max-w-full h-auto rounded-lg my-2" />`;
+    })
+    .replace(/\[(.*?)\]\((.*?)\)/g, (match, title, url) => {
+      const safeUrl = url.trim().toLowerCase().startsWith('javascript:') ? '#' : url;
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-indigo-400 underline">${title}</a>`;
+    });
 
   return html;
 }
