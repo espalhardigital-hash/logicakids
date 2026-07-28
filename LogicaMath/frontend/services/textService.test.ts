@@ -46,3 +46,37 @@ describe('textService XSS and Sanitization', () => {
     expect(result).toContain('<img src="https://img.com/a.png"');
   });
 });
+
+describe('SVG figure attribute preservation', () => {
+  it('preserves numeric/keyword geometry attributes on svg children', () => {
+    const svg = `<svg viewBox="0 68 200 64" width="100%" height="102">` +
+      `<rect x="10.0" y="67.0" width="180.0" height="66.0" fill="#3B82F6" ` +
+      `fill-opacity="0.10" stroke="#FFFFFF" stroke-width="1" rx="4"></rect>` +
+      `<text x="16.0" y="82.4" fill="#FFFFFF" font-size="11" ` +
+      `text-anchor="start">Dinero</text></svg>`;
+    const sanitized = sanitizeHtml(svg);
+    expect(sanitized).toContain('viewBox="0 68 200 64"');
+    expect(sanitized).toContain('x="10.0"');
+    expect(sanitized).toContain('y="67.0"');
+    expect(sanitized).toContain('width="180.0"');
+    expect(sanitized).toContain('fill-opacity="0.10"');
+    expect(sanitized).toContain('stroke-width="1"');
+    expect(sanitized).toContain('rx="4"');
+    expect(sanitized).toContain('font-size="11"');
+    expect(sanitized).toContain('text-anchor="start"');
+  });
+
+  it('preserves points attribute on polygon shapes', () => {
+    const svg = `<svg viewBox="0 0 200 200"><polygon points="10.0,190.0 190.0,190.0 100.0,20.0" ` +
+      `fill="#F59E0B" fill-opacity="0.15" stroke="#FFFFFF" stroke-width="3.5"></polygon></svg>`;
+    const sanitized = sanitizeHtml(svg);
+    expect(sanitized).toContain('points="10.0,190.0 190.0,190.0 100.0,20.0"');
+  });
+
+  it('still blocks javascript: URLs even on svg-adjacent href/src', () => {
+    const svg = `<svg><a href="javascript:alert(1)"><text x="0" y="0">click</text></a></svg>`;
+    const sanitized = sanitizeHtml(svg);
+    expect(sanitized).not.toContain('href="javascript:');
+  });
+});
+

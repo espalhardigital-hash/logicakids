@@ -95,6 +95,14 @@ export function sanitizeHtml(dirtyHtml: string): string {
     return `<svg ${vbAttr} width="100%" height="${calcHeight}" style="margin:10px auto; display:block; width:100%; max-width:${calcWidth}px; height:${calcHeight}px; min-height:${calcHeight}px; aspect-ratio:${aspectRatioStr}; background:#111827; border:2px solid ${borderColor}; border-radius:14px;">`;
   });
 
+  const SVG_PRESENTATION_ATTR = [
+    'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'stroke-width',
+    'stroke-linecap', 'stroke-linejoin', 'cx', 'cy', 'r', 'x', 'y',
+    'x1', 'y1', 'x2', 'y2', 'points', 'fill-opacity', 'stroke-opacity',
+    'rx', 'ry', 'font-size', 'font-weight', 'text-anchor',
+    'dominant-baseline', 'alignment-baseline', 'transform', 'preserveAspectRatio'
+  ];
+
   return DOMPurify.sanitize(processedHtml, {
     ALLOWED_TAGS: [
       'p', 'span', 'div', 'strong', 'em', 'b', 'i', 'u', 's', 'strike',
@@ -104,11 +112,9 @@ export function sanitizeHtml(dirtyHtml: string): string {
     ],
     ALLOWED_ATTR: [
       'class', 'style', 'src', 'alt', 'href', 'target', 'rel', 'title',
-      'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'stroke-width',
-      'stroke-linecap', 'stroke-linejoin', 'cx', 'cy', 'r', 'x', 'y', 'x1', 'y1', 'x2', 'y2',
-      'fill-opacity', 'stroke-opacity', 'rx', 'ry', 'font-size', 'font-weight', 'text-anchor',
-      'dominant-baseline', 'alignment-baseline', 'transform', 'preserveAspectRatio'
+      ...SVG_PRESENTATION_ATTR
     ],
+    ADD_URI_SAFE_ATTR: SVG_PRESENTATION_ATTR,
     ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/|#|data:image\/(?:png|jpeg|webp|gif|svg\+xml);base64,)/i,
     ADD_ATTR: ['target'],
     FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
