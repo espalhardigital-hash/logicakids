@@ -1,19 +1,5 @@
-> ⚠️ **Reestructuración de la Fase 4 en curso.**
-> Para todo lo relativo a la **Fase 4**, prevalece `reestructuracion.md` (raíz del repositorio).
-> Las derogaciones concretas de este documento están listadas en su sección **A0**.
-> Para las demás fases, este documento sigue siendo normativo sin cambios.
-> *(Bloque temporal: se retira cuando CH-9 actualice este documento.)*
-
-﻿> ⚠️ **Reestructuración de la Fase 4 en curso.**
-> Para todo lo relativo a la **Fase 4**, prevalece 
-eestructuracion.md (raíz del repositorio).
-> Las derogaciones concretas de este documento están listadas en su sección **A0**.
-> Para las demás fases, este documento sigue siendo normativo sin cambios.
-> *(Bloque temporal: se retira cuando CH-9 actualice este documento.)*
-> ⚠️ **Reestructuración de la Fase 4 en curso.**
-> Las derogaciones concretas de este documento están listadas en su sección **A0**.
-> Para las demás fases, este documento sigue siendo normativo sin cambios.
-> *(Bloque temporal: se retira cuando CH-9 actualice este documento.)*
+> ✅ **Reestructuración de la Fase 4 completada.**
+> `reestructuracion.md` se conserva como referencia histórica; para la Fase 4 manda el estado real ya implementado en código y BD local.
 
 # Tomo 3: Guía Frontend UX — LogicaKids Pro
 
@@ -316,6 +302,17 @@ Para garantizar que todas las ilustraciones vectoriales SVG explicativas o inter
 * **Límites de Canvas Seguros (viewBox):** Todo elemento `<svg>` debe definir un atributo `viewBox` que encapsule con suficiente holgura las coordenadas máximas y mínimas de sus elementos secundarios (`<rect>`, `<path>`, `<text>`, etc.).
 * **Márgenes y Holgura de Texto:** Se debe incluir un margen mínimo de seguridad de `20px` a `30px` alrededor de los bordes del dibujo y en el posicionamiento de textos/etiquetas descriptivas, previniendo recortes visuales en distintos tamaños de pantalla.
 * **Escala y Dimensionamiento de Elementos:** Al dibujar figuras complejas o redes de poliedros que superen el alto estándar de los modales pedagógicos, es mandatorio reducir proporcionalmente la escala de los componentes (por ejemplo, reducir el lado de las caras cuadradas de una red a `24px`) para evitar desbordamientos verticales.
+
+### 7.2. Ilustración de Apertura en Teoría de Fase 4
+
+En la Fase 4, el primer flashcard de teoría puede incluir una ilustración contextual compacta, generada desde el frontend y asociada al módulo/nivel, para introducir el tema antes del texto principal.
+
+Reglas:
+
+* solo aparece en el primer paso de teoría;
+* no sustituye al contenido textual ni al diccionario;
+* debe mantenerse como bloque pequeño y estable para no forzar scroll;
+* no usa assets externos ni banners de gran altura.
 
 ---
 

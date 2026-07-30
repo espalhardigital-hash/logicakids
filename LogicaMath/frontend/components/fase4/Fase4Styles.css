@@ -1964,6 +1964,155 @@
   font-weight: bold;
 }
 
+.f4-reading-examples.compact-example {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.f4-ex-q-compact {
+  margin-bottom: 0;
+  max-width: 620px;
+}
+
+.f4-ex-q-compact svg {
+  width: min(100%, 320px) !important;
+  height: 118px !important;
+  margin: 10px 0 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.f4-example-box.compact-example-card {
+  min-height: 300px;
+  display: grid;
+  grid-template-columns: minmax(270px, 0.9fr) minmax(320px, 1fr);
+  align-items: start;
+  gap: 20px;
+  margin-bottom: 0;
+  padding: 0.25rem 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.f4-example-box.compact-example-card.without-prompt {
+  grid-template-columns: 1fr;
+}
+
+.compact-example-card .f4-ex-q-compact {
+  max-width: 330px;
+  font-size: 1.14rem;
+  line-height: 1.35;
+}
+
+.compact-example-card .f4-ex-q-compact svg {
+  width: 300px !important;
+  height: 96px !important;
+  margin: 10px 0 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.compact-example-card .f4-ex-q-compact svg text {
+  fill: #f1f5f9 !important;
+}
+
+.f4-compact-example-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compact-example-card.without-prompt .f4-compact-example-steps {
+  max-width: 690px;
+}
+
+.f4-ex-step.compact-step {
+  gap: 0.65rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.032);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: #dbe4f0;
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.f4-compact-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.f4-ex-step.compact-step .f4-ex-step-num {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  background-color: rgba(16, 185, 129, 0.16);
+  font-size: 0.76rem;
+}
+
+.f4-ex-step.compact-step.result-step {
+  color: #ffffff;
+  border-color: rgba(16, 185, 129, 0.22);
+  background: rgba(16, 185, 129, 0.07);
+}
+
+.f4-step-options {
+  display: grid;
+  gap: 6px;
+}
+
+.f4-step-option {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  align-items: start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  color: #dbe4f0;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.f4-step-option strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.f4-example-solved-mark {
+  grid-column: 2;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #d1fae5;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.18);
+}
+
+.compact-example-card.without-prompt .f4-example-solved-mark {
+  grid-column: 1;
+}
+
+.f4-example-solved-mark svg {
+  color: #10b981;
+}
+
 .f4-interactive-box {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);

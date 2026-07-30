@@ -1375,3 +1375,30 @@ Obteneido la respuesta del CODEX
 
   PARTE 6
   En esta parte se le pide CODEX OPENAI -CHAT GPT  MODELO 5.5 esfuerzo elevado
+
+## Cierre de la reestructuración visual de la teoría en Fase 4
+
+La Fase 4 quedó reestructurada con una mejora puntual en la presentación de la teoría de cada nivel. El cambio principal fue separar la lectura pedagógica en bloques más claros y evitar que el primer flashcard apareciera como una pared de texto abstracta sin referencia visual. A partir de la revisión visual, el primer slide de teoría ahora puede incorporar una ilustración didáctica compacta y contextual, específica para el módulo y el nivel, sin romper la regla de cero scroll vertical ni desplazar el contenido principal fuera de la tarjeta.
+
+Qué se solucionó:
+
+1. Se corrigió la forma en que se mostraba la teoría inicial de los niveles de la Fase 4.
+2. Se evitó que la explicación arrancara sin apoyo visual, lo que mejoró la lectura y la comprensión del bloque introductorio.
+3. Se mantuvo el diccionario del nivel como un bloque separado, legible y ordenado, sin mezclarlo con la teoría.
+4. Se conservó la compactación de la teoría en pasos, de modo que el contenido sigue siendo navegable dentro de la ventana fija.
+
+Cómo se resolvió:
+
+1. Se implementó una ilustración interna, generada desde el frontend, para el primer flashcard de teoría de cada nivel.
+2. La ilustración se vinculó al contexto del módulo y del nivel, para que represente la idea central del contenido que se va a leer.
+3. La pieza visual se diseñó como un bloque pequeño y estable, con tamaño controlado y sin dependencia de archivos externos.
+4. Se verificó visualmente que la tarjeta sigue completa, que la ilustración no provoca desbordes y que el flujo de navegación permanece intacto.
+
+Resultado obtenido:
+
+1. La teoría de la Fase 4 quedó más clara y más amable de leer.
+2. El primer flashcard ahora introduce el tema con una referencia visual concreta, no con un arranque textual seco.
+3. El diccionario quedó bien separado y legible.
+4. La implementación visual quedó aprobada en pruebas reales dentro del sitio local.
+
+En síntesis: la reestructuración no cambió la lógica pedagógica del contenido, sino su forma de presentación. El resultado es una Fase 4 más ordenada, más visual y más fácil de leer para el alumno, sin romper las restricciones de diseño ya resueltas en esta fase.

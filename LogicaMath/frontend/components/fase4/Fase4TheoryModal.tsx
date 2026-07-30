@@ -17,6 +17,7 @@ interface Fase4TheoryModalProps {
 }
 
 const MAX_THEORY_CHARACTERS_PER_SLIDE = 560;
+const MAX_EXAMPLE_WEIGHT_PER_SLIDE = 780;
 
 const formatFase4Content = (text: string) => {
   const normalizedText = text
@@ -49,6 +50,101 @@ const groupTheoryParagraphs = (paragraphs: string[]) => {
   if (currentGroup.length > 0) groups.push(currentGroup);
 
   return { intro, groups };
+};
+
+const getPlainTextWeight = (text = '') => (
+  text
+    .replace(/<svg[\s\S]*?<\/svg>/g, '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .length
+);
+
+const getExampleQuestionWeight = (text = '') => {
+  const hasSvg = /<svg[\s\S]*?<\/svg>/.test(text);
+  return getPlainTextWeight(text) + (hasSvg ? 260 : 110);
+};
+
+const getExampleStepWeight = (step: any) => {
+  const optionWeight = Array.isArray(step?.opciones)
+    ? step.opciones.reduce((total: number, option: any) => {
+      const optionText = typeof option === 'string' ? option : option?.texto || '';
+      return total + getPlainTextWeight(optionText) + 28;
+    }, 0)
+    : 0;
+
+  return getPlainTextWeight(step?.texto || '') + optionWeight + 55;
+};
+
+const buildCompactExampleSlides = (
+  example: any,
+  exampleIndex: number,
+  totalExamples: number
+) => {
+  const steps = Array.isArray(example?.pasos) ? example.pasos : [];
+  const chunks: Array<{
+    type: string;
+    data: {
+      example: any;
+      exampleIndex: number;
+      totalExamples: number;
+      includePrompt: boolean;
+      pasos: any[];
+      partIndex: number;
+      totalParts: number;
+      isFinalPart: boolean;
+    };
+  }> = [];
+
+  if (steps.length === 0) return chunks;
+
+  let includePrompt = true;
+  let currentSteps: any[] = [];
+  let currentWeight = getExampleQuestionWeight(example.enunciado || '');
+
+  const flushChunk = () => {
+    if (currentSteps.length === 0) return;
+    chunks.push({
+      type: 'example-compact',
+      data: {
+        example,
+        exampleIndex,
+        totalExamples,
+        includePrompt,
+        pasos: currentSteps,
+        partIndex: 0,
+        totalParts: 0,
+        isFinalPart: false
+      }
+    });
+    includePrompt = false;
+    currentSteps = [];
+    currentWeight = 0;
+  };
+
+  steps.forEach((step) => {
+    const stepWeight = getExampleStepWeight(step);
+    if (currentSteps.length > 0 && currentWeight + stepWeight > MAX_EXAMPLE_WEIGHT_PER_SLIDE) {
+      flushChunk();
+    }
+
+    currentSteps.push(step);
+    currentWeight += stepWeight;
+  });
+
+  flushChunk();
+
+  return chunks.map((chunk, index) => ({
+    ...chunk,
+    data: {
+      ...chunk.data,
+      partIndex: index,
+      totalParts: chunks.length,
+      isFinalPart: index === chunks.length - 1
+    }
+  }));
 };
 
 type TheoryIllustrationKind = 'stack' | 'positions' | 'division' | 'ladder';
@@ -244,8 +340,16 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
     }
     
     if (readingData.ejemplos && readingData.ejemplos.length > 0) {
-      const chunks = chunkArray(readingData.ejemplos, 1);
-      chunks.forEach(c => s.push({ type: 'examples', data: c }));
+      const totalExamples = readingData.ejemplos.length;
+      readingData.ejemplos.forEach((example, exampleIndex) => {
+        if (example.pasos?.length) {
+          const compactSlides = buildCompactExampleSlides(example, exampleIndex, totalExamples);
+          compactSlides.forEach((compactSlide) => s.push(compactSlide));
+          return;
+        }
+
+        s.push({ type: 'examples', data: [example], exampleIndex, totalExamples } as any);
+      });
     } else {
       s.push({ type: 'examples', data: [] });
     }
@@ -269,6 +373,19 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
   const blockInfo = useMemo(() => {
     if (!slides || slides.length === 0) return { label: 'Teoría 1 de 1' };
     const currentType = slides[currentStep]?.type;
+    const currentSlideData = slides[currentStep] as any;
+
+    if (currentType === 'example-compact') {
+      return {
+        label: `Ejemplo ${currentSlideData.data.exampleIndex + 1} de ${currentSlideData.data.totalExamples}`
+      };
+    }
+
+    if (currentType === 'examples' && currentSlideData.exampleIndex !== undefined) {
+      return {
+        label: `Ejemplo ${currentSlideData.exampleIndex + 1} de ${currentSlideData.totalExamples}`
+      };
+    }
     const sameTypeSlides = slides.filter(s => s.type === currentType);
     const indexInType = sameTypeSlides.findIndex(s => s === slides[currentStep]) + 1;
     const totalInType = sameTypeSlides.length;
@@ -463,6 +580,68 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
               </motion.div>
             )}
 
+            {currentSlide?.type === 'example-compact' && (
+              <motion.div
+                key={`example-compact-${currentStep}`}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="f4-flashcard-content"
+              >
+                <div className="f4-reading-examples compact-example">
+                  <div className={`f4-example-box compact-example-card ${currentSlide.data.includePrompt ? '' : 'without-prompt'}`}>
+                    {currentSlide.data.includePrompt && (
+                      <div
+                        className="f4-ex-q f4-ex-q-compact"
+                        dangerouslySetInnerHTML={{ __html: formatFase4Content(currentSlide.data.example.enunciado) }}
+                      />
+                    )}
+
+                    <div className="f4-compact-example-steps">
+                      {currentSlide.data.pasos.map((paso: any) => {
+                        const isLastStep = currentSlide.data.isFinalPart && paso === currentSlide.data.pasos[currentSlide.data.pasos.length - 1];
+                        return (
+                          <div
+                            key={paso.orden}
+                            className={`f4-ex-step compact-step ${isLastStep ? 'result-step' : ''}`}
+                          >
+                            <span className="f4-ex-step-num">{paso.orden}</span>
+                            <span className="f4-compact-step-body">
+                              <span dangerouslySetInnerHTML={{ __html: formatFase4Content(paso.texto) }} />
+                              {Array.isArray(paso.opciones) && paso.opciones.length > 0 && (
+                                <span className="f4-step-options">
+                                  {paso.opciones.map((option: any, optionIndex: number) => {
+                                    const optionText = typeof option === 'string' ? option : option?.texto || '';
+                                    const optionId = typeof option === 'string' ? String.fromCharCode(65 + optionIndex) : option?.id || String.fromCharCode(65 + optionIndex);
+                                    return (
+                                      <span key={`${paso.orden}-${optionId}`} className="f4-step-option">
+                                        <strong>{optionId}</strong>
+                                        <span dangerouslySetInnerHTML={{ __html: formatFase4Content(optionText) }} />
+                                      </span>
+                                    );
+                                  })}
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {currentSlide.data.isFinalPart && (
+                      <div className="f4-example-solved-mark" aria-label="Ejemplo resuelto">
+                        <CheckCircle size={16} />
+                        <span>Resuelto</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {currentSlide?.type === 'examples' && (
               <motion.div
                 key={`examples-${currentStep}`}
@@ -476,7 +655,6 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
               >
                 {currentSlide.data.length > 0 ? (
                   <div className="f4-reading-examples">
-                    <h3>EJEMPLOS GUIADOS:</h3>
                     {currentSlide.data.map((ex: any, idx: number) => (
                       <div key={idx} className="f4-example-box">
                         <div className="f4-ex-q" dangerouslySetInnerHTML={{ __html: formatFase4Content(ex.enunciado) }} />

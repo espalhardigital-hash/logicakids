@@ -1,19 +1,5 @@
-> ⚠️ **Reestructuración de la Fase 4 en curso.**
-> Para todo lo relativo a la **Fase 4**, prevalece `reestructuracion.md` (raíz del repositorio).
-> Las derogaciones concretas de este documento están listadas en su sección **A0**.
-> Para las demás fases, este documento sigue siendo normativo sin cambios.
-> *(Bloque temporal: se retira cuando CH-9 actualice este documento.)*
-
-﻿> ⚠️ **Reestructuración de la Fase 4 en curso.**
-> Para todo lo relativo a la **Fase 4**, prevalece 
-eestructuracion.md (raíz del repositorio).
-> Las derogaciones concretas de este documento están listadas en su sección **A0**.
-> Para las demás fases, este documento sigue siendo normativo sin cambios.
-> *(Bloque temporal: se retira cuando CH-9 actualice este documento.)*
-> ⚠️ **Reestructuración de la Fase 4 en curso.**
-> Las derogaciones concretas de este documento están listadas en su sección **A0**.
-> Para las demás fases, este documento sigue siendo normativo sin cambios.
-> *(Bloque temporal: se retira cuando CH-9 actualice este documento.)*
+> ✅ **Reestructuración de la Fase 4 completada.**
+> `reestructuracion.md` se conserva como referencia histórica; para la Fase 4 manda el estado real ya implementado en código y BD local.
 
 # Guía de Arquitectura y Construcción: Nueva Fase (Basado en Fase 2)
 
