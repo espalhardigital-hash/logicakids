@@ -1,0 +1,589 @@
+[
+  {
+    "id": "m1_n1_esq1_suma_directa",
+    "modulo_id": 1, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} compra en {lugar} un paquete de {objetos_0} y otro de {objetos_1}. El primero cuesta {unidad} {a} y el segundo {unidad} {b}.",
+    "pregunta": "¿Cuánto paga en total?",
+    "operacion_correcta": "sumar", "incognita": "total", "n_datos": 2
+  },
+  {
+    "id": "m1_n1_esq2_parte_faltante",
+    "modulo_id": 1, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} necesita {unidad} {total} para pagar {objetos_0} en {lugar}. Ya tiene ahorrado {unidad} {a}.",
+    "pregunta": "¿Cuánto dinero le falta aportar?",
+    "operacion_correcta": "restar", "incognita": "parte", "n_datos": 2
+  },
+  {
+    "id": "m1_n1_esq3_sobrante_resto",
+    "modulo_id": 1, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "{personaje} tiene un presupuesto de {unidad} {total} en {lugar}. Realiza un pago de {unidad} {a} y luego otro de {unidad} {b}.",
+    "pregunta": "¿Cuánto dinero le queda disponible?",
+    "operacion_correcta": "restar", "incognita": "resto", "n_datos": 3
+  },
+  {
+    "id": "m1_n1_esq4_corregir_errado",
+    "modulo_id": 1, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} compró en {lugar} dos artículos de {unidad} {a} y {unidad} {b}. La máquina registró por error un cobro equivocado.",
+    "pregunta": "¿Cuál es la suma real exacta que debía figurar?",
+    "operacion_correcta": "sumar", "incognita": "total", "n_datos": 2
+  },
+  {
+    "id": "m1_n1_esq5_tres_datos",
+    "modulo_id": 1, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} adquirió tres compras consecutivas en {lugar}: {unidad} {a}, {unidad} {b} y {unidad} {c}.",
+    "pregunta": "¿Cuánto gastó en total por los tres artículos?",
+    "operacion_correcta": "sumar", "incognita": "total", "n_datos": 3
+  },
+  {
+    "id": "m1_n1_esq6_filtro_ruido",
+    "modulo_id": 1, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} llevó {unidad} {ruido} al mercado en {lugar}. Compró {objetos_0} por {unidad} {a} y {objetos_1} por {unidad} {b}.",
+    "pregunta": "¿Cuánto gastó en la compra total de ambos objetos?",
+    "operacion_correcta": "sumar", "incognita": "total", "n_datos": 2
+  },
+
+  {
+    "id": "m1_n2_esq1_resta_completar_ceros",
+    "modulo_id": 1, "nivel_id": 2, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} tenía {a} {unidad} de {objetos_0} en {lugar} y retiró {b} {unidad} para usar.",
+    "pregunta": "¿Cuántos {unidad} de {objetos_0} quedan en la reserva?",
+    "operacion_correcta": "restar", "incognita": "resto", "n_datos": 2
+  },
+  {
+    "id": "m1_n2_esq2_diferencia_pesos",
+    "modulo_id": 1, "nivel_id": 2, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "Un paquete de {objetos_0} pesa {a} {unidad} y otro de {objetos_1} pesa {b} {unidad} en {lugar}.",
+    "pregunta": "¿Cuántos {unidad} más pesa el primer paquete respecto al segundo?",
+    "operacion_correcta": "restar", "incognita": "diferencia", "n_datos": 2
+  },
+  {
+    "id": "m1_n2_esq3_completar_peso_meta",
+    "modulo_id": 1, "nivel_id": 2, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "La meta de peso en {lugar} es de {total} {unidad}. {personaje} ya cargó {a} {unidad} en {objeto_medible}.",
+    "pregunta": "¿Cuánta masa en {unidad} falta para alcanzar la meta?",
+    "operacion_correcta": "restar", "incognita": "parte", "n_datos": 2
+  },
+  {
+    "id": "m1_n2_esq4_suma_ceros_distintos",
+    "modulo_id": 1, "nivel_id": 2, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} colocó en la balanza de {lugar} {a} {unidad} de {objetos_0} y {b} {unidad} de {objetos_1}.",
+    "pregunta": "¿Cuál es la masa total combinada en {unidad}?",
+    "operacion_correcta": "sumar", "incognita": "total", "n_datos": 2
+  },
+  {
+    "id": "m1_n2_esq5_sobrante_tres_pesos",
+    "modulo_id": 1, "nivel_id": 2, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "{personaje} dispone de {total} {unidad} de harina en {lugar}. Utiliza {a} {unidad} en un bizcocho y {b} {unidad} en galletas.",
+    "pregunta": "¿Cuánta harina en {unidad} le queda disponible?",
+    "operacion_correcta": "restar", "incognita": "resto", "n_datos": 3
+  },
+  {
+    "id": "m1_n2_esq6_comparar_pesos_faltantes",
+    "modulo_id": 1, "nivel_id": 2, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} necesita {total} {unidad} de {objetos_0} en {lugar}. Compró una bolsa de {a} {unidad}.",
+    "pregunta": "¿Cuántos {unidad} de {objetos_0} le quedan por comprar?",
+    "operacion_correcta": "restar", "incognita": "parte", "n_datos": 2
+  },
+
+  {
+    "id": "m1_n3_esq1_combinadas_encadenadas",
+    "modulo_id": 1, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} llevaba {total} {unidad} al ir a {lugar}. Compró {objetos_0} por {unidad} {a} y {objetos_1} por {unidad} {b}.",
+    "pregunta": "¿Cuánto vuelto le sobró al finalizar sus compras?",
+    "operacion_correcta": "restar", "incognita": "resto", "n_datos": 3
+  },
+  {
+    "id": "m1_n3_esq2_ingreso_egreso",
+    "modulo_id": 1, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "{personaje} tenía {a} {unidad} en {lugar}. Recibió un cobro de {unidad} {b} y luego abonó un servicio por {unidad} {c}.",
+    "pregunta": "¿Cuál es su saldo final disponible en {unidad}?",
+    "operacion_correcta": "sumar", "incognita": "total", "n_datos": 3
+  },
+  {
+    "id": "m1_n3_esq3_temperatura_variacion",
+    "modulo_id": 1, "nivel_id": 3, "magnitud": "temperatura",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "En {lugar}, la temperatura de {objeto_medible} era de {a} {unidad}. Subió {b} {unidad} al mediodía y bajó {c} {unidad} por la noche.",
+    "pregunta": "¿Cuál es la temperatura final en {unidad}?",
+    "operacion_correcta": "sumar", "incognita": "total", "n_datos": 3
+  },
+  {
+    "id": "m1_n3_esq4_longitud_tramos",
+    "modulo_id": 1, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} recorrió un tramo de {a} {unidad} en {lugar}, descansó y avanzó {b} {unidad} más. El trayecto total era de {total} {unidad}.",
+    "pregunta": "¿Cuántos {unidad} le faltan recorridos para llegar al destino?",
+    "operacion_correcta": "restar", "incognita": "resto", "n_datos": 3
+  },
+  {
+    "id": "m1_n3_esq5_vuelto_pago_billete",
+    "modulo_id": 1, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} pagó con un billete de {unidad} {total} en {lugar} tras comprar dos artículos de {unidad} {a} y {unidad} {b}.",
+    "pregunta": "¿Cuánto vuelto total le deben entregar?",
+    "operacion_correcta": "restar", "incognita": "vuelto", "n_datos": 3
+  },
+  {
+    "id": "m1_n3_esq6_meta_tres_aportes",
+    "modulo_id": 1, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "La meta colectiva en {lugar} es de {total} {unidad}. {personaje} aportó {unidad} {a} y su compañero aportó {unidad} {b}.",
+    "pregunta": "¿Cuánto dinero falta aportar para alcanzar la meta exacta?",
+    "operacion_correcta": "restar", "incognita": "falta", "n_datos": 3
+  },
+
+  {
+    "id": "m2_n1_esq1_mult_simple",
+    "modulo_id": 2, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} compró {n_cant} paquetes de {objetos_0} en {lugar}. Cada paquete cuesta {unidad} {a}.",
+    "pregunta": "¿Cuánto pagó en total por los {n_cant} paquetes?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n1_esq2_mult_peso_unitario",
+    "modulo_id": 2, "nivel_id": 1, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "En {lugar}, {personaje} lleva {n_cant} bolsas de {objetos_0}. Cada bolsa pesa {a} {unidad}.",
+    "pregunta": "¿Cuál es la masa total en {unidad} del cargamento?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n1_esq3_mult_longitud_repetida",
+    "modulo_id": 2, "nivel_id": 1, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} cortó {n_cant} trozos iguales de {objeto_medible} en {lugar}. Cada trozo mide {a} {unidad}.",
+    "pregunta": "¿Cuántos {unidad} de {objeto_medible} usó en total?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n1_esq4_mult_costo_diario",
+    "modulo_id": 2, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "{personaje} gasta diariamente {unidad} {a} en {lugar} durante {n_cant} días seguidos.",
+    "pregunta": "¿Cuánto gastó en total al cabo de esos días?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n1_esq5_mult_kilos_precio",
+    "modulo_id": 2, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "En {lugar}, el kilo de {objetos_0} vale {unidad} {a}. {personaje} compró {n_cant} kilos enteros.",
+    "pregunta": "¿Cuánto pagó en total por la fruta?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n1_esq6_mult_entradas",
+    "modulo_id": 2, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} compró {n_cant} entradas para el espectáculo en {lugar}. Cada ticket cuesta {unidad} {a}.",
+    "pregunta": "¿Cuánto costaron en total todas las entradas?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+
+  {
+    "id": "m2_n2_esq1_mult_dos_decimales",
+    "modulo_id": 2, "nivel_id": 2, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} compró en {lugar} {n_cant} unidades de {objetos_0} a {unidad} {a} cada una.",
+    "pregunta": "¿Cuál es el valor total que debe abonar?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n2_esq2_mult_peso_dos_dec",
+    "modulo_id": 2, "nivel_id": 2, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "Cada caja de {objetos_0} en {lugar} tiene una masa de {a} {unidad}. {personaje} transporta {n_cant} cajas.",
+    "pregunta": "¿Cuántos {unidad} pesa en total el lote transportado?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n2_esq3_mult_metros_dos_dec",
+    "modulo_id": 2, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "En {lugar}, cada rollo de {objeto_medible} contiene {a} {unidad}. {personaje} compró {n_cant} rollos.",
+    "pregunta": "¿Cuántos {unidad} de {objeto_medible} obtuvo en total?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n2_esq4_mult_cuota_mensual",
+    "modulo_id": 2, "nivel_id": 2, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "{personaje} paga una cuota fija de {unidad} {a} al mes en {lugar} durante {n_cant} meses.",
+    "pregunta": "¿Cuánto abona en total al cabo del periodo?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n2_esq5_mult_precio_kilo_dec",
+    "modulo_id": 2, "nivel_id": 2, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "El kilogramo de {objetos_0} cuesta {unidad} {a} en {lugar}. {personaje} llevó {n_cant} kilos.",
+    "pregunta": "¿Cuál es el precio total de la compra?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n2_esq6_mult_cajas_embalaje",
+    "modulo_id": 2, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} bordea {n_cant} marcos de {objeto_medible} en {lugar}. Cada marco requiere {a} {unidad} de tira.",
+    "pregunta": "¿Cuántos {unidad} de tira necesita en total?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+
+  {
+    "id": "m2_n3_esq1_ambos_factores_dec",
+    "modulo_id": 2, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} compró {a} kg de {objetos_0} en {lugar}. El precio por kilo es de {unidad} {b}.",
+    "pregunta": "¿Cuánto pagó exactamente por los {a} kg comprados?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n3_esq2_peso_por_factor_decimal",
+    "modulo_id": 2, "nivel_id": 3, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "Un recipiente con {a} litros de {objetos_0} en {lugar} pesa {b} {unidad} por cada litro.",
+    "pregunta": "¿Cuál es la masa total en {unidad} del contenido?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n3_esq3_metros_factor_decimal",
+    "modulo_id": 2, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} necesita {a} tramos de {objeto_medible} en {lugar}. Cada tramo mide {b} {unidad}.",
+    "pregunta": "¿Cuántos {unidad} de {objeto_medible} precisa en total?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n3_esq4_tarifa_por_hora_dec",
+    "modulo_id": 2, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "La tarifa en {lugar} es de {unidad} {b} por hora. {personaje} alquiló el servicio durante {a} horas.",
+    "pregunta": "¿Cuánto abonó en total por el tiempo contratado?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n3_esq5_densidad_masa_dec",
+    "modulo_id": 2, "nivel_id": 3, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} compró {a} unidades de {objetos_0} en {lugar}. Cada unidad pesa {b} {unidad}.",
+    "pregunta": "¿Cuál es la masa total de las unidades compradas?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+  {
+    "id": "m2_n3_esq6_lote_telas_ambos_dec",
+    "modulo_id": 2, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} adquirió {a} metros de {objeto_medible} en {lugar}. El metro cuesta {unidad} {b}.",
+    "pregunta": "¿Cuál es el valor final a pagar por la tela?",
+    "operacion_correcta": "multiplicar", "incognita": "producto", "n_datos": 2
+  },
+
+  {
+    "id": "m3_n1_esq1_div_dividendo_dec",
+    "modulo_id": 3, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} y {n_cant} amigos consumieron en {lugar} por un total de {unidad} {a}. Dividieron la cuenta en partes iguales.",
+    "pregunta": "¿Cuánto abonó cada persona en partes iguales?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n1_esq2_div_peso_reparto",
+    "modulo_id": 3, "nivel_id": 1, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} repartió equitativamente {a} {unidad} de {objetos_0} en {n_cant} paquetes iguales en {lugar}.",
+    "pregunta": "¿Cuántos {unidad} pesa cada paquete resultante?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n1_esq3_div_corta_cinta",
+    "modulo_id": 3, "nivel_id": 1, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} cortó una tira de {objeto_medible} de {a} {unidad} en {n_cant} trozos iguales en {lugar}.",
+    "pregunta": "¿Cuántos {unidad} mide cada trozo de {objeto_medible}?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n1_esq4_div_costo_unitario",
+    "modulo_id": 3, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "Un paquete de {n_cant} unidades de {objetos_0} cuesta {unidad} {a} en {lugar}.",
+    "pregunta": "¿Cuál es el precio individual de cada unidad?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n1_esq5_div_cuotas_sin_interes",
+    "modulo_id": 3, "nivel_id": 1, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "{personaje} pagó una compra de {unidad} {a} en {n_cant} cuotas mensuales iguales en {lugar}.",
+    "pregunta": "¿Cuánto pagará en cada cuota mensual?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n1_esq6_div_pesaje_raciones",
+    "modulo_id": 3, "nivel_id": 1, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "Un saco de {a} {unidad} de {objetos_0} en {lugar} se dividió en {n_cant} raciones idénticas.",
+    "pregunta": "¿Cuánta masa en {unidad} contiene cada ración?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+
+  {
+    "id": "m3_n2_esq1_div_dos_decimales",
+    "modulo_id": 3, "nivel_id": 2, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} gastó {unidad} {a} al comprar {n_cant} artículos idénticos de {objetos_0} en {lugar}.",
+    "pregunta": "¿Cuánto costó cada artículo individual?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n2_esq2_div_peso_dos_dec",
+    "modulo_id": 3, "nivel_id": 2, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "Una bolsa con {n_cant} porciones de {objetos_0} pesa en total {a} {unidad} en {lugar}.",
+    "pregunta": "¿Cuál es la masa en {unidad} de una sola porción?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n2_esq3_div_longitud_dos_dec",
+    "modulo_id": 3, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} dividió {a} {unidad} de {objeto_medible} en {n_cant} partes iguales en {lugar}.",
+    "pregunta": "¿Cuánto mide en {unidad} cada parte obtenida?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n2_esq4_div_promedio_diario",
+    "modulo_id": 3, "nivel_id": 2, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "{personaje} acumuló un gasto de {unidad} {a} a lo largo de {n_cant} días en {lugar}.",
+    "pregunta": "¿Cuál fue el gasto promedio diario en {unidad}?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n2_esq5_div_precio_por_kilo",
+    "modulo_id": 3, "nivel_id": 2, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "En {lugar}, una bolsa de {n_cant} kg de {objetos_0} vale {unidad} {a}.",
+    "pregunta": "¿Cuál es el costo equivalente de 1 kg en {unidad}?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n2_esq6_div_tramos_cancha",
+    "modulo_id": 3, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "Un cerco de {objeto_medible} de {a} {unidad} en {lugar} se dividió en {n_cant} paneles iguales.",
+    "pregunta": "¿Cuál es el ancho de cada panel en {unidad}?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+
+  {
+    "id": "m3_n3_esq1_divisor_decimal",
+    "modulo_id": 3, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} gastó {unidad} {a} comprando {objetos_0} a un valor de {unidad} {b} por kilo en {lugar}.",
+    "pregunta": "¿Cuántos kilos de {objetos_0} compró en total?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n3_esq2_div_peso_divisor_dec",
+    "modulo_id": 3, "nivel_id": 3, "magnitud": "masa",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} tiene un total de {a} {unidad} de {objetos_0} en {lugar} y empaqueta bolsas de {b} {unidad} cada una.",
+    "pregunta": "¿Cuántas bolsas completas logró armar?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n3_esq3_div_longitud_divisor_dec",
+    "modulo_id": 3, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} dispone de {a} {unidad} de {objeto_medible} en {lugar}. Corta varillas de {b} {unidad} de largo.",
+    "pregunta": "¿Cuántas varillas iguales puede obtener en total?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n3_esq4_div_costo_por_metro",
+    "modulo_id": 3, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objeto_medible"],
+    "marco": "{personaje} pagó {unidad} {a} por {b} metros de {objeto_medible} en {lugar}.",
+    "pregunta": "¿Cuál es el costo por cada metro en {unidad}?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n3_esq5_div_precio_por_litro_masa",
+    "modulo_id": 3, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "objetos"],
+    "marco": "{personaje} abonó {unidad} {a} por un envase de {b} kg de {objetos_0} en {lugar}.",
+    "pregunta": "¿Cuánto cuesta cada kilo de {objetos_0} en {unidad}?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+  {
+    "id": "m3_n3_esq6_div_cuotas_decimales",
+    "modulo_id": 3, "nivel_id": 3, "magnitud": "dinero",
+    "campos_requeridos": ["lugar", "sujeto_medible"],
+    "marco": "Una compra de {unidad} {a} en {lugar} se pagará en cuotas fijas de {unidad} {b}.",
+    "pregunta": "¿En cuántas cuotas se saldará la compra completa?",
+    "operacion_correcta": "dividir", "incognita": "cociente", "n_datos": 2
+  },
+
+  {
+    "id": "m4_n1_esq1_bajar_m_cm",
+    "modulo_id": 4, "nivel_id": 1, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} midió {atributo} de {objeto_medible} y registró {a} m. Quiere expresar la medida en centímetros (cm).",
+    "pregunta": "¿A cuántos centímetros (cm) equivale esa longitud?",
+    "operacion_correcta": "multiplicar", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n1_esq2_bajar_km_m",
+    "modulo_id": 4, "nivel_id": 1, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} recorrió un trayecto en {objeto_medible} de {a} km. Desea convertirlo a metros (m).",
+    "pregunta": "¿Cuántos metros (m) representa esa distancia?",
+    "operacion_correcta": "multiplicar", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n1_esq3_bajar_cm_mm",
+    "modulo_id": 4, "nivel_id": 1, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "El grosor de {objeto_medible} es de {a} cm. {personaje} necesita la medida en milímetros (mm).",
+    "pregunta": "¿Cuántos milímetros (mm) mide de grosor?",
+    "operacion_correcta": "multiplicar", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n1_esq4_bajar_m_mm",
+    "modulo_id": 4, "nivel_id": 1, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} tiene una cinta de {objeto_medible} de {a} m y requiere cortarla considerando milímetros (mm).",
+    "pregunta": "¿Cuántos milímetros (mm) mide la cinta en total?",
+    "operacion_correcta": "multiplicar", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n1_esq5_bajar_tabla_cm",
+    "modulo_id": 4, "nivel_id": 1, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} registró el largo de {objeto_medible} como {a} m en la ficha escolar.",
+    "pregunta": "¿Cuál es la medida equivalente expresada en cm?",
+    "operacion_correcta": "multiplicar", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n1_esq6_bajar_camino_m",
+    "modulo_id": 4, "nivel_id": 1, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "La señal de ruta en {objeto_medible} indica un avance de {a} km.",
+    "pregunta": "¿Cuántos metros (m) se han recorrido hasta la señal?",
+    "operacion_correcta": "multiplicar", "incognita": "conversion", "n_datos": 1
+  },
+
+  {
+    "id": "m4_n2_esq1_subir_cm_m",
+    "modulo_id": 4, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} midió {a} cm de {objeto_medible}. Necesita convertir esa longitud a metros (m).",
+    "pregunta": "¿A cuántos metros (m) equivale la medida tomada?",
+    "operacion_correcta": "dividir", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n2_esq2_subir_m_km",
+    "modulo_id": 4, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} caminó {a} m a lo largo de {objeto_medible}. Quiere registrar la distancia en kilómetros (km).",
+    "pregunta": "¿Cuántos kilómetros (km) caminó en total?",
+    "operacion_correcta": "dividir", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n2_esq3_subir_mm_cm",
+    "modulo_id": 4, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "El espesor de {objeto_medible} es de {a} mm. {personaje} lo convierte a centímetros (cm).",
+    "pregunta": "¿Cuántos centímetros (cm) de espesor tiene?",
+    "operacion_correcta": "dividir", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n2_esq4_subir_mm_m",
+    "modulo_id": 4, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "Una pieza de {objeto_medible} mide {a} mm en el taller. Se solicita convertir su longitud a metros (m).",
+    "pregunta": "¿A cuántos metros (m) equivale dicha longitud?",
+    "operacion_correcta": "dividir", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n2_esq5_subir_ficha_m",
+    "modulo_id": 4, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} tomó un trozo de {objeto_medible} de {a} cm de largo.",
+    "pregunta": "¿Cuál es esa misma medida expresada en metros (m)?",
+    "operacion_correcta": "dividir", "incognita": "conversion", "n_datos": 1
+  },
+  {
+    "id": "m4_n2_esq6_subir_maraton_km",
+    "modulo_id": 4, "nivel_id": 2, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "El odómetro de {objeto_medible} señala {a} m avanzados.",
+    "pregunta": "¿Cuántos kilómetros (km) representan esos metros?",
+    "operacion_correcta": "dividir", "incognita": "conversion", "n_datos": 1
+  },
+
+  {
+    "id": "m4_n3_esq1_mixtas_m_cm",
+    "modulo_id": 4, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} unió dos tiras de {objeto_medible}. La primera mide {a} m y la segunda {b} cm.",
+    "pregunta": "¿Cuál es la longitud total combinada expresada en metros (m)?",
+    "operacion_correcta": "sumar", "incognita": "total_convertido", "n_datos": 2
+  },
+  {
+    "id": "m4_n3_esq2_mixtas_km_m",
+    "modulo_id": 4, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "En {objeto_medible}, {personaje} recorrió {a} km en el primer tramo y {b} m en el segundo tramo.",
+    "pregunta": "¿Cuántos metros (m) recorrió en total considerando ambos tramos?",
+    "operacion_correcta": "sumar", "incognita": "total_convertido", "n_datos": 2
+  },
+  {
+    "id": "m4_n3_esq3_mixtas_resta_m_cm",
+    "modulo_id": 4, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} tenía un rollo de {objeto_medible} de {a} m y cortó un trozo de {b} cm.",
+    "pregunta": "¿Cuántos metros (m) de {objeto_medible} le quedan en el rollo?",
+    "operacion_correcta": "restar", "incognita": "resto_convertido", "n_datos": 2
+  },
+  {
+    "id": "m4_n3_esq4_mixtas_cm_mm",
+    "modulo_id": 4, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} juntó un listón de {objeto_medible} de {a} cm con otro de {b} mm.",
+    "pregunta": "¿Cuál es la medida total expresada en centímetros (cm)?",
+    "operacion_correcta": "sumar", "incognita": "total_convertido", "n_datos": 2
+  },
+  {
+    "id": "m4_n3_esq5_mixtas_diferencia_km_m",
+    "modulo_id": 4, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "El trayecto A en {objeto_medible} mide {a} km y el trayecto B mide {b} m.",
+    "pregunta": "¿Cuántos metros (m) más largo es el trayecto A respecto al trayecto B?",
+    "operacion_correcta": "restar", "incognita": "diferencia_convertida", "n_datos": 2
+  },
+  {
+    "id": "m4_n3_esq6_mixtas_tres_unidades",
+    "modulo_id": 4, "nivel_id": 3, "magnitud": "longitud",
+    "campos_requeridos": ["objeto_medible", "atributo"],
+    "marco": "{personaje} sumó tres cortes de {objeto_medible}: {a} m, {b} cm y {c} cm.",
+    "pregunta": "¿Cuál es la extensión total final expresada en metros (m)?",
+    "operacion_correcta": "sumar", "incognita": "total_convertido", "n_datos": 3
+  }
+]

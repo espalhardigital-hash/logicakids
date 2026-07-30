@@ -14,12 +14,9 @@ from app.models.sql_models import Alumno, Pregunta
 from app.fase1.router import router as fase1_router
 from app.fase2.router import responder_fase2
 from app.fase2.schemas import Fase2ResponderPregunta
-from app.fase3.router import responder_fase3
-from app.fase3.schemas import Fase3ResponderPregunta
-from app.fase4.router import responder_fase4
-from app.fase4.schemas import Fase4ResponderPregunta
-from app.fase5.router import responder_fase5
-from app.fase5.schemas import Fase5ResponderPregunta
+from app.fase3.router import responder_fase3, Fase3ResponderPregunta
+from app.fase4.router import responder_fase4, Fase4ResponderPregunta
+from app.fase5.router import responder_fase5, Fase5ResponderPregunta
 from app.fase6.router import responder_fase6
 from app.fase6.schemas import Fase6ResponderPregunta
 from app.fase7.router import responder_fase7

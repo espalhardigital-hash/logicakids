@@ -12,7 +12,7 @@ from app.models.sql_models import (
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 
-FASE8_ID = 8
+FASE9_ID = 8
 
 # --- DICCIONARIOS DE CONTEXTO FASE 8 ---
 NOMBRES = ["Samuel", "Camila", "Julieta", "Emilio", "Valentina", "Nicolás", "Mateo", "Isabella", "Lucas", "Martina"]
@@ -25,7 +25,7 @@ FRUTAS_2 = ["plátanos", "uvas", "frutillas", "ciruelas"]
 
 async def clear_fase8_data(session: AsyncSession):
     print("Purging existing Fase 8 data...")
-    result = await session.execute(select(Pregunta.id).where(Pregunta.fase_id == FASE8_ID))
+    result = await session.execute(select(Pregunta.id).where(Pregunta.fase_id == FASE9_ID))
     pregunta_ids_list = result.scalars().all()
     
     if pregunta_ids_list:
@@ -39,11 +39,11 @@ async def clear_fase8_data(session: AsyncSession):
         await session.execute(delete(Intento).where(Intento.pregunta_id.in_(pregunta_ids_list)))
         await session.execute(delete(PoolAsignadoAlumno).where(PoolAsignadoAlumno.pregunta_id.in_(pregunta_ids_list)))
         
-    await session.execute(delete(Intento).where(Intento.fase_id == FASE8_ID))
-    await session.execute(delete(PoolAsignadoAlumno).where(PoolAsignadoAlumno.fase_id == FASE8_ID))
-    await session.execute(delete(Pregunta).where(Pregunta.fase_id == FASE8_ID))
-    await session.execute(delete(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == FASE8_ID))
-    await session.execute(delete(NivelTeoria).where(NivelTeoria.fase_id == FASE8_ID))
+    await session.execute(delete(Intento).where(Intento.fase_id == FASE9_ID))
+    await session.execute(delete(PoolAsignadoAlumno).where(PoolAsignadoAlumno.fase_id == FASE9_ID))
+    await session.execute(delete(Pregunta).where(Pregunta.fase_id == FASE9_ID))
+    await session.execute(delete(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == FASE9_ID))
+    await session.execute(delete(NivelTeoria).where(NivelTeoria.fase_id == FASE9_ID))
     await session.commit()
     print("Fase 8 data purged.")
 
@@ -52,7 +52,7 @@ async def seed_teoria_niveles_fase8(session: AsyncSession):
     from app.fase8.content_fase8 import niveles_teoria_fase8
     
     for data in niveles_teoria_fase8:
-        nt = NivelTeoria(fase_id=FASE8_ID, **data)
+        nt = NivelTeoria(fase_id=FASE9_ID, **data)
         session.add(nt)
     await session.commit()
 
@@ -533,7 +533,7 @@ async def seed_configuracion_progreso_fase8(session: AsyncSession):
             tiempo = None
             
         config = ConfiguracionProgreso(
-            fase_id=FASE8_ID,
+            fase_id=FASE9_ID,
             seccion=seccion_id,
             operacion=OperacionEnum.MIXTA,
             cantidad_requerida=num_questions,
@@ -558,7 +558,7 @@ async def seed_practica_pool_fase8(session: AsyncSession):
             num_questions = 20
             
         for i in range(num_questions):
-            rng = random.Random(FASE8_ID * 100000 + seccion_id * 1000 + i * 41 + 17)
+            rng = random.Random(FASE9_ID * 100000 + seccion_id * 1000 + i * 41 + 17)
             q_data = await _gen_fase8_pool(rng, mod_id, lvl_id)
             
             payload = q_data.get("metadata_visual", {})
@@ -573,7 +573,7 @@ async def seed_practica_pool_fase8(session: AsyncSession):
             estructura_padre_id = f"f8_m{mod_id}_l{lvl_id}_q{i:03d}" if lvl_id <= 3 else None
 
             p = Pregunta(
-                fase_id=FASE8_ID, seccion=seccion_id, estructura_padre_id=estructura_padre_id,
+                fase_id=FASE9_ID, seccion=seccion_id, estructura_padre_id=estructura_padre_id,
                 operacion=OperacionEnum.MIXTA,
                 tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=q_data["enunciado"],
                 respuesta_correcta=q_data["respuesta_correcta"],
@@ -593,9 +593,9 @@ async def run_fase8_seed():
     print("=" * 60)
     print("Iniciando inyección de datos semilla de FASE 8...")
     async with AsyncSessionLocal() as session:
-        fase = await session.get(Fase, FASE8_ID)
+        fase = await session.get(Fase, FASE9_ID)
         if not fase:
-            fase = Fase(id=FASE8_ID, nombre="Secuencias, Combinatoria y Probabilidad", descripcion="Fase 8", orden=8, icono="🎲")
+            fase = Fase(id=FASE9_ID, nombre="Secuencias, Combinatoria y Probabilidad", descripcion="Fase 8", orden=8, icono="🎲")
             session.add(fase)
             await session.commit()
             

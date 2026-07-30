@@ -1,11 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, CheckCircle, XCircle, ArrowRight, ArrowLeft, LogOut, Sparkles } from 'lucide-react';
+import { BookOpen, CheckCircle, XCircle, ArrowRight, ArrowLeft, LogOut } from 'lucide-react';
 import { Fase4Lectura } from './Fase4Types';
 import { formatContent, fixEncoding } from '../../services/textService';
-import { PizzaFractionVisualizer } from './PizzaFractionVisualizer';
-import { PieChartVisualizer } from './PieChartVisualizer';
-import { FractionPercentageVisualizer } from './FractionPercentageVisualizer';
+import { getAvatarUrl } from '../../services/storageService';
 import './Fase4Styles.css';
 
 interface Fase4TheoryModalProps {
@@ -13,85 +11,19 @@ interface Fase4TheoryModalProps {
   moduleColor: string;
   onClose: () => void;
   onAbort?: () => void;
+  userAvatar?: string;
   isInitialReading?: boolean;
   isEvaluatorMode?: boolean;
 }
-
-const MODULE_NAMES: Record<number, string> = {
-  1: 'La Fracción Visual',
-  2: 'Fracción de Cantidad',
-  3: 'Porcentajes Rápidos y Promedios',
-  4: 'Razón y Mezclas',
-};
-
-const SHAPES = ['circle', 'square', 'pentagon', 'hexagon'] as const;
-
-const getDeterministicShape = (seedText: string): 'circle' | 'square' | 'pentagon' | 'hexagon' => {
-  let hash = 0;
-  for (let i = 0; i < seedText.length; i++) {
-    hash = seedText.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const index = Math.abs(hash) % SHAPES.length;
-  return SHAPES[index];
-};
-
-const getFractionForPercentage = (pct: number) => {
-  if (pct === 50) return { slices: 2, sombreados: [0] };
-  if (pct === 25) return { slices: 4, sombreados: [0] };
-  if (pct === 75) return { slices: 4, sombreados: [0, 1, 2] };
-  
-  for (let den = 2; den <= 20; den++) {
-    const val = (pct * den) / 100;
-    if (Number.isInteger(val)) {
-      return { slices: den, sombreados: Array.from({ length: val }, (_, i) => i) };
-    }
-  }
-  
-  const den = 10;
-  const num = Math.round((pct * den) / 100);
-  return { slices: den, sombreados: Array.from({ length: num }, (_, i) => i) };
-};
-
-const stripHtmlAndComments = (html: string): string => {
-  if (!html) return '';
-  // Remover comentarios de HTML/SVG
-  let clean = html.replace(/<!--[\s\S]*?-->/g, '');
-  // Remover todas las etiquetas HTML/SVG
-  clean = clean.replace(/<[^>]*>?/gm, '');
-  return clean;
-};
-
-const extraerSvgYTexto = (html: string) => {
-  if (!html) return { svg: null, texto: '' };
-  
-  // Si contiene múltiples SVGs o tiene un diseño flexible contenedor, no extraemos el SVG
-  // para preservar la maquetación original del enunciado.
-  const svgMatches = html.match(/<svg[\s\S]*?<\/svg>/g);
-  if (svgMatches && svgMatches.length > 1) {
-    return { svg: null, texto: html };
-  }
-  
-  if (html.includes('display:flex') || html.includes('display: flex')) {
-    return { svg: null, texto: html };
-  }
-
-  const svgMatch = html.match(/<svg[\s\S]*?<\/svg>/);
-  if (svgMatch) {
-    const svg = svgMatch[0];
-    const texto = html.replace(/<svg[\s\S]*?<\/svg>/, '').replace(/<br\s*\/?>\s*$/, '').trim();
-    return { svg, texto };
-  }
-  return { svg: null, texto: html };
-};
-
 
 export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
   readingData,
   moduleColor,
   onClose,
   onAbort,
+  userAvatar,
   isInitialReading = true,
-  isEvaluatorMode = false
+  isEvaluatorMode
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -106,250 +38,17 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
     return chunks;
   };
 
-  const renderInteractiveBarChart = (globalIdx: number) => {
-    const valA = 100;
-    const valB = 150;
-    const valC = 50;
-
-    const hMax = 180;
-    const getScaleY = (val: number) => 100 - (val / hMax) * 80;
-
-    const yA = getScaleY(valA);
-    const yB = getScaleY(valB);
-    const yC = getScaleY(valC);
-
-    const hA = 100 - yA;
-    const hB = 100 - yB;
-    const hC = 100 - yC;
-
-    let opacityA = 1;
-    let opacityB = 1;
-    let opacityC = 1;
-    
-    if (globalIdx === 1) {
-      opacityA = 0.3;
-    }
-
-    return (
-      <div className="flex flex-col items-center w-full max-w-[370px] mx-auto mt-4 p-3 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-700/50 shadow-lg">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Gráfico de Barras de Referencia</span>
-        <svg viewBox="0 0 240 120" className="w-full h-auto bg-slate-950/80 rounded-xl border border-slate-800 p-1">
-          {[0, 50, 100, 150].map((val) => {
-            const y = getScaleY(val);
-            return (
-              <g key={val}>
-                <line x1={35} y1={y} x2={220} y2={y} stroke="#334155" strokeWidth="1" strokeOpacity="0.4" strokeDasharray={val === 0 ? "none" : "3 3"} />
-                <text x={28} y={y + 3} fontFamily="Arial" fontSize="9" fontWeight="bold" fill="#94a3b8" textAnchor="end">{val}</text>
-              </g>
-            );
-          })}
-
-          <line x1={35} y1={100} x2={225} y2={100} stroke="#94a3b8" strokeWidth="1.5" />
-          <line x1={35} y1={20} x2={35} y2={100} stroke="#94a3b8" strokeWidth="1.5" />
-
-          <g opacity={opacityA} className="transition-all duration-300">
-            <rect x={60} y={yA} width={25} height={hA} rx={3} fill="url(#gradIntA)" stroke="#a78bfa" strokeWidth={1} />
-            <text x={72.5} y={yA - 4} fontFamily="Arial" fontSize="9" fontWeight="black" fill="#c084fc" textAnchor="middle">{valA}</text>
-            <text x={72.5} y={112} fontFamily="Arial" fontSize="9" fontWeight="black" fill="#94a3b8" textAnchor="middle">A</text>
-          </g>
-
-          <g opacity={opacityB} className="transition-all duration-300">
-            <rect x={110} y={yB} width={25} height={hB} rx={3} fill="url(#gradIntB)" stroke="#10b981" strokeWidth={1} />
-            <text x={122.5} y={yB - 4} fontFamily="Arial" fontSize="9" fontWeight="black" fill="#34d399" textAnchor="middle">{valB}</text>
-            <text x={122.5} y={112} fontFamily="Arial" fontSize="9" fontWeight="black" fill="#94a3b8" textAnchor="middle">B</text>
-          </g>
-
-          <g opacity={opacityC} className="transition-all duration-300">
-            <rect x={160} y={yC} width={25} height={hC} rx={3} fill="url(#gradIntC)" stroke="#f59e0b" strokeWidth={1} />
-            <text x={172.5} y={yC - 4} fontFamily="Arial" fontSize="9" fontWeight="black" fill="#fbbf24" textAnchor="middle">{valC}</text>
-            <text x={172.5} y={112} fontFamily="Arial" fontSize="9" fontWeight="black" fill="#94a3b8" textAnchor="middle">C</text>
-          </g>
-
-          {globalIdx === 1 && (
-            <g className="animate-pulse">
-              <line x1={172.5} y1={yC} x2={122.5} y2={yC} stroke="#fbbf24" strokeWidth="1" strokeDasharray="3 2" strokeOpacity="0.7" />
-              <line x1={140} y1={yB} x2={140} y2={yC} stroke="#ff007f" strokeWidth="1.5" />
-              <polygon points={`137,${yB + 3} 140,${yB} 143,${yB + 3}`} fill="#ff007f" />
-              <polygon points={`137,${yC - 3} 140,${yC} 143,${yC - 3}`} fill="#ff007f" />
-              <rect x={144} y={(yB + yC) / 2 - 6} width={22} height={12} rx={2} fill="#ff007f" />
-              <text x={155} y={(yB + yC) / 2 + 3} fontFamily="Arial" fontSize="8" fontWeight="bold" fill="#FFF" textAnchor="middle">100</text>
-            </g>
-          )}
-
-          {globalIdx === 2 && (
-            <g className="animate-pulse">
-              <line x1={35} y1={yB} x2={220} y2={yB} stroke="#10b981" strokeWidth="1" strokeDasharray="4 2" strokeOpacity="0.6" />
-              <rect x={60} y={yB} width={25} height={hC} rx={2} fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3 2" />
-              <text x={72.5} y={yB + hC / 2 + 3} fontFamily="Arial" fontSize="8" fontWeight="bold" fill="#fbbf24" textAnchor="middle">+50</text>
-              <text x={95} y={yB + 10} fontFamily="Arial" fontSize="9" fontWeight="bold" fill="#34d399">A + C = B</text>
-            </g>
-          )}
-
-          <defs>
-            <linearGradient id="gradIntA" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#a78bfa" />
-              <stop offset="100%" stopColor="#6d28d9" />
-            </linearGradient>
-            <linearGradient id="gradIntB" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#10b981" />
-              <stop offset="100%" stopColor="#047857" />
-            </linearGradient>
-            <linearGradient id="gradIntC" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#f59e0b" />
-              <stop offset="100%" stopColor="#b45309" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-    );
-  };
-
-  const renderAverageInteractiveChart = (globalIdx: number) => {
-    let values = [4, 8, 12];
-    let labels = ['A', 'B', 'C'];
-    let average = 8;
-
-    if (globalIdx === 1) {
-      values = [10, 20];
-      labels = ['Amigo 1', 'Amigo 2'];
-      average = 15;
-    } else if (globalIdx === 2) {
-      values = [6, 6, 12];
-      labels = ['Día 1', 'Día 2', 'Día 3'];
-      average = 8;
-    }
-
-    const maxVal = Math.max(...values);
-    const yScaleMax = maxVal + 4;
-    const getScaleY = (val: number) => 100 - (val / yScaleMax) * 80;
-
-    const yAvg = getScaleY(average);
-
-    return (
-      <div className="flex flex-col items-center w-full max-w-[555px] mx-auto mt-4 p-3 bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-700/50 shadow-lg">
-        <svg viewBox="0 0 240 130" className="w-full h-auto bg-slate-950/80 rounded-xl border border-slate-800 p-1">
-          {[0, Math.round(average), Math.round(yScaleMax - 2)].map((val) => {
-            const y = getScaleY(val);
-            return (
-              <g key={val}>
-                <line x1={35} y1={y} x2={220} y2={y} stroke="#334155" strokeWidth="1" strokeOpacity="0.4" strokeDasharray={val === 0 ? "none" : "3 3"} />
-                <text x={28} y={y + 3} fontFamily="Arial" fontSize="9" fontWeight="bold" fill="#94a3b8" textAnchor="end">{val}</text>
-              </g>
-            );
-          })}
-
-          <line x1={35} y1={100} x2={225} y2={100} stroke="#94a3b8" strokeWidth="1.5" />
-          <line x1={35} y1={20} x2={35} y2={100} stroke="#94a3b8" strokeWidth="1.5" />
-
-          {values.map((val, idx) => {
-            const width = 20;
-            const spacing = values.length === 2 ? 60 : 45;
-            const startX = values.length === 2 ? 70 : 55;
-            const x = startX + idx * spacing;
-            const y = getScaleY(val);
-            const height = 100 - y;
-            
-            const fillGradient = idx === 0 ? 'url(#gradIntA)' : idx === 1 ? 'url(#gradIntB)' : 'url(#gradIntC)';
-            const strokeColor = idx === 0 ? '#a78bfa' : idx === 1 ? '#10b981' : '#f59e0b';
-
-            return (
-              <g key={idx}>
-                {Array.from({ length: val }).map((_, blockIdx) => {
-                  const blockHeight = height / val;
-                  const blockY = 100 - (blockIdx + 1) * blockHeight;
-                  return (
-                    <rect
-                      key={blockIdx}
-                      x={x}
-                      y={blockY + 0.5}
-                      width={width}
-                      height={blockHeight - 1}
-                      rx={1}
-                      fill={fillGradient}
-                      stroke={strokeColor}
-                      strokeWidth={0.5}
-                    />
-                  );
-                })}
-                <text x={x + width / 2} y={y - 4} fontFamily="Arial" fontSize="9" fontWeight="black" fill={strokeColor} textAnchor="middle">{val}</text>
-                <text x={x + width / 2} y={112} fontFamily="Arial" fontSize="9" fontWeight="black" fill="#94a3b8" textAnchor="middle">{labels[idx]}</text>
-              </g>
-            );
-          })}
-
-
-
-          <defs>
-            <linearGradient id="gradIntA" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#a78bfa" />
-              <stop offset="100%" stopColor="#6d28d9" />
-            </linearGradient>
-            <linearGradient id="gradIntB" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#10b981" />
-              <stop offset="100%" stopColor="#047857" />
-            </linearGradient>
-            <linearGradient id="gradIntC" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#f59e0b" />
-              <stop offset="100%" stopColor="#b45309" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div>
-    );
-  };
-
   const slides = useMemo(() => {
     const s: { type: string; data: any }[] = [];
-    const parrafosRaw = readingData.parrafos || [];
-    const sepIdx = parrafosRaw.indexOf('---');
+    s.push({ type: 'intro', data: null });
     
-    let parrafosParte1 = [...parrafosRaw];
-    let parrafosParte2: string[] = [];
-    
-    if (sepIdx !== -1) {
-      parrafosParte1 = parrafosRaw.slice(0, sepIdx);
-      parrafosParte2 = parrafosRaw.slice(sepIdx + 1);
-    }
-    
-    const ejemplosRaw = readingData.ejemplos || [];
-    const ejemploChunks = chunkArray(ejemplosRaw, 2);
-    
-    // Slide 1: Teoría Parte 1 (Con diccionario)
-    s.push({ 
-      type: 'intro', 
-      data: { 
-        parrafos: parrafosParte1, 
-        mostrarDiccionario: true 
-      } 
-    });
-    
-    // Slide 2: Ejemplos 1 y 2
-    if (ejemploChunks.length > 0) {
-      s.push({ type: 'examples', data: ejemploChunks[0] });
-    }
-    
-    // Slide 3: Teoría Parte 2 (Si existe, sin diccionario)
-    if (parrafosParte2.length > 0) {
-      s.push({ 
-        type: 'intro', 
-        data: { 
-          parrafos: parrafosParte2, 
-          mostrarDiccionario: false 
-        } 
-      });
-    }
-    
-    // Slide 4: Ejemplos 3 y 4 (Si existen)
-    if (ejemploChunks.length > 1) {
-      s.push({ type: 'examples', data: ejemploChunks[1] });
-    }
-    
-    // Si no hubiera ejemplos en absoluto (caso borde)
-    if (ejemplosRaw.length === 0) {
+    if (readingData.ejemplos && readingData.ejemplos.length > 0) {
+      const chunks = chunkArray(readingData.ejemplos, 1);
+      chunks.forEach(c => s.push({ type: 'examples', data: c }));
+    } else {
       s.push({ type: 'examples', data: [] });
     }
 
-    // Interactivos prácticos
     if (readingData.interactivos && readingData.interactivos.length > 0) {
       const withIndex = readingData.interactivos.map((item, index) => ({ ...item, globalIndex: index }));
       const chunks = chunkArray(withIndex, 1);
@@ -365,6 +64,21 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
 
   const totalSteps = slides.length;
   const currentSlide = slides[currentStep];
+
+  const blockInfo = useMemo(() => {
+    if (!slides || slides.length === 0) return { label: 'Teoría 1 de 1' };
+    const currentType = slides[currentStep]?.type;
+    const sameTypeSlides = slides.filter(s => s.type === currentType);
+    const indexInType = sameTypeSlides.findIndex(s => s === slides[currentStep]) + 1;
+    const totalInType = sameTypeSlides.length;
+
+    let typeName = 'Teoría';
+    if (currentType === 'examples') typeName = 'Ejemplo';
+    else if (currentType === 'interactives') typeName = 'Tu turno';
+    else if (currentType === 'tip') typeName = 'Consejo';
+
+    return { label: `${typeName} ${indexInType} de ${totalInType}` };
+  }, [slides, currentStep]);
 
   const handleAnswerChange = (idx: number, val: string) => {
     setAnswers(prev => ({ ...prev, [idx]: val }));
@@ -400,21 +114,21 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
     const items = currentSlide.data;
     for (let i = 0; i < items.length; i++) {
       const globalIdx = items[i].globalIndex;
-      if (!feedback[globalIdx] || !feedback[globalIdx].isCorrect) return false;
+      const item = items[i];
+      // Regla C2.3: Si es modo compromiso sin consecuencia, basta con haber interactuado.
+      // NO exige acierto para habilitar el avance al siguiente paso.
+      if (item.modo_compromiso || item.tipo === 'eleccion_guiada') {
+        if (!feedback[globalIdx] && !answers[globalIdx]) return false;
+      } else {
+        if (!feedback[globalIdx] || !feedback[globalIdx].isCorrect) return false;
+      }
     }
     return true;
-  }, [currentSlide, feedback, isEvaluatorMode]);
-
-  const [direction, setDirection] = useState(0);
-
-  const goToStep = (newStep: number) => {
-    setDirection(newStep > currentStep ? 1 : -1);
-    setCurrentStep(newStep);
-  };
+  }, [currentSlide, feedback, answers, isEvaluatorMode]);
 
   const variants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 100 : -100,
+      x: direction > 0 ? 50 : -50,
       opacity: 0
     }),
     center: {
@@ -424,75 +138,99 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
     },
     exit: (direction: number) => ({
       zIndex: 0,
-      x: direction < 0 ? 100 : -100,
+      x: direction < 0 ? 50 : -50,
       opacity: 0
     })
+  };
+
+  const [direction, setDirection] = useState(0);
+
+  const goToStep = (newStep: number) => {
+    setDirection(newStep > currentStep ? 1 : -1);
+    setCurrentStep(newStep);
   };
 
   return (
     <div className="f4-reading-overlay">
       <motion.div 
-        initial={{ scale: 0.95, y: 20, opacity: 0 }}
+        initial={{ scale: 0.9, y: 20, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.95, y: 20, opacity: 0 }}
-        transition={{ type: "spring", duration: 0.5 }}
-        className="f4-reading-card"
-        style={{ '--neon-accent-color': moduleColor } as React.CSSProperties}
+        exit={{ scale: 0.9, y: 20, opacity: 0 }}
+        className="f4-reading-card flashcard-mode"
       >
-        {/* Header */}
         <div className="f4-reading-header">
-          <div className="f4-reading-icon" style={{ backgroundColor: `${moduleColor}18`, color: moduleColor }}>
-            <BookOpen size={22} />
+          <div className="f4-reading-icon" style={{ backgroundColor: `${moduleColor}22`, color: moduleColor, flexShrink: 0 }}>
+            <BookOpen size={24} />
           </div>
-          <div className="f4-reading-header-content">
-            <div className="f4-reading-badge" style={{ color: moduleColor }}>
-              MÓDULO {readingData.modulo_id}: {MODULE_NAMES[readingData.modulo_id] || 'Fracciones'} • NIVEL {readingData.nivel_id}
+          <div style={{ flex: 1 }}>
+            <div style={{
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              color: moduleColor,
+              letterSpacing: '1.2px',
+              marginBottom: '2px'
+            }}>
+              Módulo {readingData.modulo_id}: {readingData.modulo_nombre || 'Operatoria'} • Nivel {readingData.nivel_id}
             </div>
-            <h2 className="f4-reading-title">
-               💡 {fixEncoding(readingData.titulo)}
+            <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>
+               ✨ {fixEncoding(readingData.titulo)}
             </h2>
           </div>
           
-          <div className="f4-reading-header-controls">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
             {onAbort && (
               <button 
                 onClick={onAbort}
                 title={isInitialReading ? "Salir del nivel" : "Cerrar Teoría"}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#ef4444',
+                  padding: '8px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  width: '36px',
+                  height: '36px',
+                  transition: 'all 0.2s ease'
+                }}
                 className="f4-abort-btn"
               >
                 <LogOut size={16} />
               </button>
             )}
-            <div className="f4-step-indicator">
-              Paso {currentStep + 1} de {totalSteps}
+            <div className="f4-step-indicator" style={{ marginTop: 0 }}>
+              {blockInfo.label}
             </div>
           </div>
         </div>
         
-        {/* Body */}
-        <div className="f4-reading-body">
+        <div className="f4-reading-body flashcard-body">
           <AnimatePresence mode="wait" custom={direction}>
             {currentSlide?.type === 'intro' && (
               <motion.div
-                key={`intro-${currentStep}`}
+                key="intro"
                 custom={direction}
                 variants={variants}
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.25 }}
+                transition={{ duration: 0.3 }}
                 className="f4-flashcard-content"
               >
-                {(currentSlide.data?.parrafos || readingData.parrafos || []).map((p: string, idx: number) => (
+                {readingData.parrafos.map((p, idx) => (
                   <p key={idx} className="f4-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
                 ))}
 
-                {(currentSlide.data === null || currentSlide.data?.mostrarDiccionario) && readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
+                {readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
                   <div className="f4-reading-dictionary">
-                    <h3>🔍 DICCIONARIO MATEMÁTICO:</h3>
+                    <h3>📖 EL DICCIONARIO DEL NIVEL:</h3>
                     <div className="f4-dict-grid">
                       {Object.entries(readingData.diccionario).map(([termino, definicion], idx) => (
-                        <div key={idx} className="f4-dict-card" style={{ borderColor: `${moduleColor}33` }}>
+                        <div key={idx} className="f4-dict-card" style={{ borderColor: `${moduleColor}55` }}>
                           <div className="f4-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
                           <div className="f4-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion as string) }} />
                         </div>
@@ -511,237 +249,33 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.25 }}
+                transition={{ duration: 0.3 }}
                 className="f4-flashcard-content"
               >
                 {currentSlide.data.length > 0 ? (
                   <div className="f4-reading-examples">
-                    <h3>📐 EJEMPLOS ILUSTRADOS:</h3>
-                    {currentSlide.data.map((ex: any, idx: number) => {
-                      let fractionVisualizer = null;
-                      let hideEnunciadoSvg = false;
-                      if (readingData.modulo_id === 1) {
-                         const textToSearch = ex.enunciado + " " + (ex.pasos ? ex.pasos.map((p: any) => p.texto).join(" ") : "") + " " + (ex.respuesta || "");
-                         const matches = Array.from(textToSearch.matchAll(/(\d+)\/(\d+)/g));
-                         const uniqueFractions: { num: number; den: number }[] = [];
-                         const seen = new Set<string>();
-                         
-                         for (const match of matches) {
-                            const num = parseInt(match[1], 10);
-                            const den = parseInt(match[2], 10);
-                            const key = `${num}/${den}`;
-                            if (!seen.has(key) && num <= den && den <= 20) {
-                               seen.add(key);
-                               uniqueFractions.push({ num, den });
-                            }
-                         }
-                         
-                         const shape = getDeterministicShape(ex.enunciado);
-                         
-                         if (uniqueFractions.length >= 2) {
-                            // Equivalency mode: side-by-side with an "=" sign
-                            fractionVisualizer = (
-                               <div className="flex items-center justify-center gap-4 my-2 scale-[0.8] origin-top">
-                                  <div className="flex flex-col items-center">
-                                     <PizzaFractionVisualizer slices={uniqueFractions[0].den} initialSombreados={Array.from({ length: uniqueFractions[0].num }, (_, i) => i)} color={moduleColor} interactive={false} hideText={true} shape={shape} size={90} />
-                                     <span className="text-slate-300 font-black text-lg">{uniqueFractions[0].num}/{uniqueFractions[0].den}</span>
-                                  </div>
-                                  <div className="text-4xl font-black text-purple-400" style={{ color: moduleColor }}>=</div>
-                                  <div className="flex flex-col items-center">
-                                     <PizzaFractionVisualizer slices={uniqueFractions[1].den} initialSombreados={Array.from({ length: uniqueFractions[1].num }, (_, i) => i)} color={moduleColor} interactive={false} hideText={true} shape={shape} size={90} />
-                                     <span className="text-slate-300 font-black text-lg">{uniqueFractions[1].num}/{uniqueFractions[1].den}</span>
-                                  </div>
-                               </div>
-                            );
-                         } else if (uniqueFractions.length === 1) {
-                            fractionVisualizer = (
-                               <div className="flex flex-col items-center justify-center my-2 scale-[0.8] origin-top">
-                                  <PizzaFractionVisualizer slices={uniqueFractions[0].den} initialSombreados={Array.from({ length: uniqueFractions[0].num }, (_, i) => i)} color={moduleColor} interactive={false} hideText={true} shape={shape} size={90} />
-                                  <span className="text-slate-300 font-black text-lg">{uniqueFractions[0].num}/{uniqueFractions[0].den}</span>
-                                </div>
-                            );
-                         }
-                      } else if (readingData.modulo_id === 2) {
-                         const cleanEnunciado = ex.enunciado.replace(/<[^>]*>?/gm, '');
-                         const fractionMatch = cleanEnunciado.match(/(\d+)\/(\d+)/);
-                         const allNumbers = cleanEnunciado.match(/\b(\d+)\b/g);
-                         
-                         let num = 0, den = 0, qty = 0;
-                         if (fractionMatch) {
-                            num = parseInt(fractionMatch[1], 10);
-                            den = parseInt(fractionMatch[2], 10);
-                            
-                            if (allNumbers) {
-                               const numbers = allNumbers.map((n: string) => parseInt(n, 10));
-                               const foundQty = numbers.find((n: number) => n !== num && n !== den && n % den === 0);
-                               if (foundQty) {
-                                 qty = foundQty;
-                               } else {
-                                 const anyNum = numbers.find((n: number) => n !== num && n !== den);
-                                 if (anyNum) qty = anyNum;
-                               }
-                            }
-                         }
-                         
-                         if (num > 0 && den > 0 && qty > 0) {
-                            fractionVisualizer = (
-                               <div className="flex flex-col items-center justify-center my-2 scale-[0.8] origin-top w-full">
-                                  <FractionPercentageVisualizer
-                                     percentage={0}
-                                     total={qty}
-                                     color={moduleColor}
-                                     interactive={false}
-                                     respuestaNum={num.toString()}
-                                     respuestaDen={den.toString()}
-                                  />
-                               </div>
-                            );
-                         }
-                      } else if (readingData.modulo_id === 3) {
-                         const isRemaining = ex.enunciado.toLowerCase().includes('resto') && 
-                                             (ex.enunciado.toLowerCase().includes('¿qué porcentaje') || ex.enunciado.toLowerCase().includes('qué porcentaje'));
-                         
-                         if (isRemaining) {
-                            hideEnunciadoSvg = true;
-                            const cleanEnunciado = ex.enunciado.replace(/<[^>]*>/g, ' ');
-                            const matches = Array.from(cleanEnunciado.matchAll(/(\d+)%\s+(?:prefiere\s+|son\s+)?([a-z\u00E0-\u00FC]+)/gi));
-                            
-                            let pctA = 40, pctB = 35, pctC = 25;
-                            let catA = 'Fútbol', catB = 'Básquet', catC = 'Vóley';
-                            
-                            if (matches.length >= 2) {
-                               pctA = parseInt(matches[0][1], 10);
-                               catA = matches[0][2].charAt(0).toUpperCase() + matches[0][2].slice(1);
-                               
-                               pctB = parseInt(matches[1][1], 10);
-                               catB = matches[1][2].charAt(0).toUpperCase() + matches[1][2].slice(1);
-                               
-                               pctC = 100 - pctA - pctB;
-                            }
-                            
-                            const restoMatch = cleanEnunciado.match(/resto\s+([a-z\u00E0-\u00FC]+)/i);
-                            if (restoMatch) {
-                               catC = restoMatch[1].charAt(0).toUpperCase() + restoMatch[1].slice(1);
-                            }
-                            
-                            fractionVisualizer = (
-                               <div className="flex flex-col items-center justify-center my-2 scale-[0.9] origin-top w-full mb-4">
-                                  <PieChartVisualizer
-                                     pctA={pctA}
-                                     pctB={pctB}
-                                     pctC={pctC}
-                                     categorias={[catA, catB, catC]}
-                                     interactive={false}
-                                     color={moduleColor}
-                                  />
-                                  <div 
-                                    className="mt-4 flex items-center justify-center gap-2 px-3 py-2 bg-slate-900/40 border border-white/10 rounded-xl text-white text-base font-black font-sans relative"
-                                    style={{ borderColor: `${moduleColor}40`, boxShadow: `0 0 15px ${moduleColor}10` }}
-                                  >
-                                    {/* Checkmark de completado/teoría */}
-                                    <div 
-                                      className="absolute -top-3 -right-3 w-8 h-8 rounded-full flex items-center justify-center text-white text-lg animate-bounce shadow-lg"
-                                      style={{ backgroundColor: '#F97316' }}
-                                    >
-                                      ✓
-                                    </div>
-                                    <span>100%</span>
-                                    <span className="text-slate-500">-</span>
-                                    <span style={{ color: '#A855F7' }}>{pctA}%</span>
-                                    <span className="text-slate-500">-</span>
-                                    <span style={{ color: '#7C3AED' }}>{pctB}%</span>
-                                    <span className="text-slate-500">=</span>
-                                    <span style={{ color: '#10B981' }}>{pctC}%</span>
-                                  </div>
-                               </div>
-                            );
-                         } else {
-                            const cleanEnunciado = stripHtmlAndComments(ex.enunciado || '');
-                            const cleanRespuesta = stripHtmlAndComments(ex.respuesta || '');
-                            const cleanText = cleanEnunciado + " " + cleanRespuesta;
-                            const match = cleanText.match(/(\d+)%/);
-                            const allNumbers = cleanEnunciado.match(/\b(\d+)\b/g);
-                            if (match) {
-                               const pct = parseInt(match[1], 10);
-                               let total = 100;
-                               if (allNumbers) {
-                                  const numbers = allNumbers.map((n: string) => parseInt(n, 10));
-                                  const foundTotal = numbers.find((n: number) => n !== pct && n > 0);
-                                  if (foundTotal) total = foundTotal;
-                               }
-                               const { slices, sombreados } = getFractionForPercentage(pct);
-                               const num = sombreados.length;
-                               const den = slices;
-                               
-                               fractionVisualizer = (
-                                  <div className="flex flex-col items-center justify-center my-2 scale-[0.8] origin-top w-full">
-                                     <FractionPercentageVisualizer
-                                        percentage={pct}
-                                        total={total}
-                                        color={moduleColor}
-                                        interactive={false}
-                                        respuestaNum={num.toString()}
-                                        respuestaDen={den.toString()}
-                                     />
-                                  </div>
-                               );
-                            }
-                         }
-                      }
-                      
-                      const { svg: exSvg, texto: exTexto } = extraerSvgYTexto(ex.enunciado);
-                      const finalHideEnunciadoSvg = hideEnunciadoSvg || !!fractionVisualizer;
-                      const tieneVisuals = !!fractionVisualizer || (!!exSvg && !finalHideEnunciadoSvg);
-                      
-                      return (
-                        <div key={idx} className="f4-example-box" style={{ borderLeftColor: moduleColor }}>
-                          {tieneVisuals ? (
-                            <div className="f4-example-box-layout flex-col items-stretch">
-                              <div className="f4-example-details">
-                                <div className="f4-ex-q" dangerouslySetInnerHTML={{ __html: exTexto }} />
-                                {ex.pasos ? (
-                                  <div className="f4-ex-steps">
-                                    {ex.pasos.map((paso: any) => (
-                                      <div key={paso.orden} className="f4-ex-step">
-                                        <span className="f4-ex-step-num" style={{ color: moduleColor, backgroundColor: `${moduleColor}12` }}>{paso.orden}</span>
-                                        <span className="f4-ex-step-text" dangerouslySetInnerHTML={{ __html: paso.texto }} />
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                   <div className="f4-ex-legacy">Respuesta → <span style={{ color: moduleColor, fontWeight: 800 }} dangerouslySetInnerHTML={{ __html: ex.respuesta }} /></div>
-                                )}
+                    <h3>EJEMPLOS GUIADOS:</h3>
+                    {currentSlide.data.map((ex: any, idx: number) => (
+                      <div key={idx} className="f4-example-box">
+                        <div className="f4-ex-q" dangerouslySetInnerHTML={{ __html: formatContent(ex.enunciado) }} />
+                        {ex.pasos ? (
+                          <div className="f4-ex-steps">
+                            {ex.pasos.map((paso: any) => (
+                              <div key={paso.orden} className="f4-ex-step">
+                                <span className="f4-ex-step-num">{paso.orden}</span>
+                                <span dangerouslySetInnerHTML={{ __html: formatContent(paso.texto) }} />
                               </div>
-                              <div className="f4-example-visuals-row mt-4">
-                                {fractionVisualizer}
-                                {exSvg && !finalHideEnunciadoSvg && <div dangerouslySetInnerHTML={{ __html: exSvg }} />}
-                              </div>
-                            </div>
-                          ) : (
-                            <>
-                              <div className="f4-ex-q" dangerouslySetInnerHTML={{ __html: formatContent(ex.enunciado) }} />
-                              {ex.pasos ? (
-                                <div className="f4-ex-steps">
-                                  {ex.pasos.map((paso: any) => (
-                                    <div key={paso.orden} className="f4-ex-step">
-                                      <span className="f4-ex-step-num" style={{ color: moduleColor, backgroundColor: `${moduleColor}12` }}>{paso.orden}</span>
-                                      <span className="f4-ex-step-text" dangerouslySetInnerHTML={{ __html: formatContent(paso.texto) }} />
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                 <div className="f4-ex-legacy">Respuesta → <span style={{ color: moduleColor, fontWeight: 800 }} dangerouslySetInnerHTML={{ __html: formatContent(ex.respuesta) }} /></div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      );
-                    })}
+                            ))}
+                          </div>
+                        ) : (
+                           <div className="f4-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(ex.respuesta) }} /></div>
+                        )}
+                      </div>
+                    ))}
                   </div>
+
                 ) : (
-                  <div className="f4-reading-p text-center opacity-70">
-                    Sigue adelante para repasar conceptos prácticos e interactivos.
-                  </div>
+                  <div className="f4-reading-p">No hay ejemplos para este nivel. Avanza al siguiente paso.</div>
                 )}
               </motion.div>
             )}
@@ -754,11 +288,11 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.25 }}
+                transition={{ duration: 0.3 }}
                 className="f4-flashcard-content"
               >
                 <div className="f4-reading-interactive">
-                  <h3>🎯 ENTRENAMIENTO RÁPIDO: Completa para avanzar</h3>
+                  <h3>¡Tu turno! Completa los ejercicios:</h3>
                   {currentSlide.data.map((int: any, localIdx: number) => {
                     const idx = int.globalIndex;
                     const qText = int.enunciado || int.pregunta;
@@ -774,14 +308,27 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                         <div 
                           className="f4-int-q"
                           style={isLocked ? { filter: 'blur(5px)', opacity: 0.3, pointerEvents: 'none', userSelect: 'none' } : {}}
-                        >
-                          {qText}
-                        </div>
+                          dangerouslySetInnerHTML={{ __html: qText }}
+                        />
                         
                         {isLocked ? (
-                          <div className="f4-interactive-locked-overlay">
-                            <span>🔒</span>
-                            <span>Completa el ejercicio anterior para desbloquear</span>
+                          <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'rgba(19, 25, 41, 0.85)',
+                            zIndex: 10,
+                            borderRadius: '12px',
+                            gap: '8px',
+                            border: '1px dashed rgba(255, 255, 255, 0.15)'
+                          }}>
+                            <span style={{ fontSize: '1.4rem' }}>🔒</span>
+                            <span style={{ fontSize: '0.85rem', color: '#8a9bbf', fontWeight: 650 }}>
+                              Completa el ejercicio anterior para desbloquear
+                            </span>
                           </div>
                         ) : (
                           <>
@@ -793,11 +340,11 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                                     const parts = paso.texto.split("= ?");
                                     return (
                                       <div key={paso.orden} className="f4-ex-step input-step">
-                                        <span className="f4-ex-step-num" style={{ color: moduleColor, backgroundColor: `${moduleColor}12` }}>{paso.orden}</span>
-                                        <span className="f4-ex-step-text">{parts[0]} = </span>
+                                        <span className="f4-ex-step-num">{paso.orden}</span>
+                                        <span>{parts[0]} = </span>
                                         <div className="f4-int-input-group">
                                           <input 
-                                            type="text" 
+                                            type="number" 
                                             className="f4-int-input"
                                             value={answers[idx] || ''}
                                             onChange={(e) => handleAnswerChange(idx, e.target.value)}
@@ -805,12 +352,11 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                                             onKeyDown={(e) => {
                                               if (e.key === 'Enter') handleVerify(idx, int.respuesta, int.feedback_acierto, int.feedback_error);
                                             }}
-                                            autoComplete="off"
                                           />
                                           {!isCorrect && (
                                             <button 
                                               className="f4-int-verify"
-                                              style={{ background: moduleColor }}
+                                              style={{ backgroundColor: moduleColor }}
                                               onClick={() => handleVerify(idx, int.respuesta, int.feedback_acierto, int.feedback_error)}
                                             >
                                               Verificar
@@ -822,51 +368,100 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                                   }
                                   return (
                                     <div key={paso.orden} className="f4-ex-step">
-                                      <span className="f4-ex-step-num" style={{ color: moduleColor, backgroundColor: `${moduleColor}12` }}>{paso.orden}</span>
-                                      <span className="f4-ex-step-text">{paso.texto}</span>
+                                      <span className="f4-ex-step-num">{paso.orden}</span>
+                                      <span>{paso.texto}</span>
                                     </div>
                                   );
                                 })}
                               </div>
                             )}
-                            {!int.pasos && (
-                              <div className="f4-int-input-group legacy">
-                                <input 
-                                  type="text" 
-                                  className="f4-int-input"
-                                  value={answers[idx] || ''}
-                                  onChange={(e) => handleAnswerChange(idx, e.target.value)}
-                                  disabled={isCorrect}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleVerify(idx, int.respuesta, int.feedback_acierto, int.feedback_error);
-                                  }}
-                                  autoComplete="off"
-                                />
-                                {!isCorrect && (
-                                  <button 
-                                    className="f4-int-verify"
-                                    style={{ background: moduleColor }}
-                                    onClick={() => handleVerify(idx, int.respuesta, int.feedback_acierto, int.feedback_error)}
-                                  >
-                                    Verificar
-                                  </button>
+                            {int.opciones && int.opciones.length > 0 ? (
+                              <div className="f4-choice-step-container mt-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                  {int.opciones.map((opt: any) => {
+                                    const isSelected = answers[idx] === opt.id || answers[idx] === opt.texto;
+                                    const isOptCorrect = opt.id === int.respuesta || opt.texto === int.respuesta;
+                                    const hasChosen = !!answers[idx];
+                                    return (
+                                      <button
+                                        key={opt.id}
+                                        disabled={hasChosen && (int.modo_compromiso || int.tipo === 'eleccion_guiada')}
+                                        onClick={() => {
+                                          handleAnswerChange(idx, opt.id);
+                                          const isRight = opt.id === int.respuesta || opt.texto === int.respuesta;
+                                          setFeedback(prev => ({
+                                            ...prev,
+                                            [idx]: {
+                                              isCorrect: isRight,
+                                              message: isRight ? int.feedback_acierto : int.feedback_error
+                                            }
+                                          }));
+                                        }}
+                                        className={`p-3 rounded-xl border text-left transition-all font-semibold ${
+                                          isSelected
+                                            ? (isOptCorrect ? 'bg-green-500/20 border-green-500 text-green-300' : 'bg-red-500/20 border-red-500 text-red-300')
+                                            : (hasChosen && isOptCorrect ? 'bg-green-500/10 border-green-500/50 text-green-200' : 'bg-white/5 border-white/10 text-white hover:bg-white/10')
+                                        }`}
+                                      >
+                                        {opt.texto}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                                {answers[idx] && (
+                                  <div className="f4-revelation-card p-4 rounded-xl bg-white/5 border border-white/10 mt-3">
+                                    <div className="font-bold text-sm text-yellow-400 mb-2 flex items-center gap-2">
+                                      <span>💡 Explicación pedagógica de la revelación:</span>
+                                    </div>
+                                    {int.explicacion_opciones ? (
+                                      <div className="flex flex-col gap-2 text-xs text-white/90">
+                                        {Object.entries(int.explicacion_opciones).map(([k, exp]: [string, any]) => (
+                                          <div key={k} className="p-2 rounded bg-black/20 border border-white/5">
+                                            <strong style={{ color: moduleColor }}>{k}:</strong> {exp}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="text-sm text-white/90">
+                                        {feedback[idx]?.message || int.feedback_acierto}
+                                      </div>
+                                    )}
+                                  </div>
                                 )}
                               </div>
+                            ) : (
+                              <>
+                                {!int.pasos && (
+                                  <div className="f4-int-input-group legacy">
+                                    <input 
+                                      type="text" 
+                                      className="f4-int-input"
+                                      value={answers[idx] || ''}
+                                      onChange={(e) => handleAnswerChange(idx, e.target.value)}
+                                      disabled={isCorrect}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') handleVerify(idx, int.respuesta, int.feedback_acierto, int.feedback_error);
+                                      }}
+                                    />
+                                    {!isCorrect && (
+                                      <button 
+                                        className="f4-int-verify"
+                                        style={{ backgroundColor: moduleColor }}
+                                        onClick={() => handleVerify(idx, int.respuesta, int.feedback_acierto, int.feedback_error)}
+                                      >
+                                        Verificar
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </>
                             )}
                             
-                            {feedback[idx] && (
+                            {feedback[idx] && !int.opciones && (
                               <div className={`f4-int-feedback ${feedback[idx].isCorrect ? 'success' : 'error'}`}>
                                 {feedback[idx].isCorrect ? <CheckCircle size={18} /> : <XCircle size={18} />}
                                 <span>{feedback[idx].message}</span>
                               </div>
-                            )}
-
-                            {readingData.modulo_id === 3 && readingData.nivel_id === 3 && (
-                              renderInteractiveBarChart(idx)
-                            )}
-
-                            {readingData.modulo_id === 3 && readingData.nivel_id === 4 && (
-                              renderAverageInteractiveChart(idx)
                             )}
                           </>
                         )}
@@ -885,15 +480,15 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.25 }}
+                transition={{ duration: 0.3 }}
                 className="f4-flashcard-content"
               >
                 <div className="f4-reading-tip highlighted">
-                  <div className="f4-tip-title-box">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#f59e0b', fontWeight: 800, fontSize: '1.05rem' }}>
                     <span style={{ fontSize: '1.25rem' }}>⚠️</span>
-                    <span>¡ANÁLISIS DE MISIÓN ADVERSA!</span>
+                    <span>¡CONSEJO IMPORTANTE!</span>
                   </div>
-                  <div className="f4-tip-text">
+                  <div style={{ fontSize: '1.05rem', color: '#fffbeb', lineHeight: 1.5 }}>
                     {currentSlide.data}
                   </div>
                 </div>
@@ -902,8 +497,8 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                   <motion.div 
                     className="f4-ready-rocket"
                     animate={{ 
-                      y: [0, -12, 0],
-                      rotate: [0, 4, -4, 0]
+                      y: [0, -15, 0],
+                      rotate: [0, 5, -5, 0]
                     }}
                     transition={{ 
                       duration: 3, 
@@ -914,8 +509,8 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                     🚀
                   </motion.div>
                   <div className="f4-ready-msg">
-                    ¡Excelente preparación!<br />
-                    El sistema de fracciones está listo. ¡Es hora de jugar!
+                    ¡Excelente trabajo!<br />
+                    Estás listo para la práctica libre.
                   </div>
                   <div className="f4-ready-stars">
                     {[...Array(5)].map((_, i) => (
@@ -923,7 +518,7 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                         key={i}
                         className="f4-ready-star"
                         animate={{ opacity: [0.2, 1, 0.2], scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1.8 + i * 0.4, repeat: Infinity }}
+                        transition={{ duration: 2 + i * 0.5, repeat: Infinity }}
                       >
                         ✨
                       </motion.span>
@@ -944,21 +539,10 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
             <ArrowLeft size={18} /> Atrás
           </button>
           
-          {isEvaluatorMode && (
-            <button
-              className="f4-nav-btn evaluator-skip-theory"
-              style={{ background: '#eab308', color: '#fff', border: 'none', borderRadius: '12px', padding: '10px 18px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto', marginRight: '10px' }}
-              onClick={onClose}
-              title="Avanzar directamente a la práctica (Modo Evaluador)"
-            >
-              <span>Avanzar a Práctica ⏭️</span>
-            </button>
-          )}
-          
           {currentStep < totalSteps - 1 ? (
             <button 
               className="f4-nav-btn primary" 
-              style={{ background: moduleColor, opacity: canGoNext ? 1 : 0.5, marginLeft: isEvaluatorMode ? '0' : 'auto' }}
+              style={{ backgroundColor: moduleColor, opacity: canGoNext ? 1 : 0.5 }}
               disabled={!canGoNext}
               onClick={() => goToStep(currentStep + 1)}
             >
@@ -967,7 +551,7 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
           ) : (
             <button 
               className="f4-reading-close-btn"
-              style={{ background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`, marginLeft: isEvaluatorMode ? '0' : 'auto' }}
+              style={{ background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})` }}
               onClick={onClose}
             >
               ¡Entendido, empezar!

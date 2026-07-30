@@ -87,13 +87,13 @@ const Fase6RescateModal: React.FC<{
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="f5-feedback-overlay"
+      className="f6-feedback-overlay"
       style={{ zIndex: 1000 }}
     >
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="f5-feedback-card rescate glass-card"
+        className="f6-feedback-card rescate glass-card"
         style={{ 
           maxWidth: '550px', 
           width: '90%', 
@@ -101,7 +101,7 @@ const Fase6RescateModal: React.FC<{
           borderTop: `6px solid ${moduleColor}`
         }}
       >
-        <div className="f5-feedback-emoji" style={{ fontSize: '3rem', marginBottom: '20px' }}>💡</div>
+        <div className="f6-feedback-emoji" style={{ fontSize: '3rem', marginBottom: '20px' }}>💡</div>
         <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '10px' }}>
           {explicacion.titulo || '¡Vamos a repasar!'}
         </h2>
@@ -109,7 +109,7 @@ const Fase6RescateModal: React.FC<{
           No te preocupes, el Bucle Espejo está aquí para ayudarte a entender el concepto.
         </p>
 
-        <div className="f5-rescate-pasos" style={{ textAlign: 'left', marginBottom: '40px' }}>
+        <div className="f6-rescate-pasos" style={{ textAlign: 'left', marginBottom: '40px' }}>
           {explicacion.pasos?.map((p: any, idx: number) => (
             <div key={idx} style={{ 
               display: 'flex', 
@@ -127,7 +127,7 @@ const Fase6RescateModal: React.FC<{
         </div>
 
         <button
-          className="f5-submit-btn"
+          className="f6-submit-btn"
           onClick={onClose}
           style={{
             display: 'block',
@@ -172,13 +172,13 @@ const Fase6EarlyExitModal: React.FC<{
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="f5-feedback-overlay"
+      className="f6-feedback-overlay"
       style={{ zIndex: 1000 }}
     >
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="f5-feedback-card early-exit glass-card"
+        className="f6-feedback-card early-exit glass-card"
         style={{ 
           maxWidth: '500px', 
           width: '90%', 
@@ -187,7 +187,7 @@ const Fase6EarlyExitModal: React.FC<{
           textAlign: 'center'
         }}
       >
-        <div className="f5-feedback-emoji" style={{ fontSize: '3.5rem', marginBottom: '24px' }}>🛡️</div>
+        <div className="f6-feedback-emoji" style={{ fontSize: '3.5rem', marginBottom: '24px' }}>🛡️</div>
         <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '16px' }}>
           ¡Desafío Incompleto!
         </h2>
@@ -228,7 +228,7 @@ const Fase6EarlyExitModal: React.FC<{
         </p>
 
         <button
-          className="f5-submit-btn"
+          className="f6-submit-btn"
           onClick={onClose}
           style={{
             display: 'flex',
@@ -333,14 +333,14 @@ const Fase6CompletionModal: React.FC<{
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="f5-feedback-overlay"
+      className="f6-feedback-overlay"
       style={{ zIndex: 1100 }}
     >
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="f5-feedback-card completion glass-card"
+        className="f6-feedback-card completion glass-card"
         style={{ 
           maxWidth: '550px', 
           width: '92%', 
@@ -354,7 +354,7 @@ const Fase6CompletionModal: React.FC<{
           variants={itemVariants}
           animate={{ rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.1, 1.1, 1] }}
           transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 3 }}
-          className="f5-feedback-emoji" 
+          className="f6-feedback-emoji" 
           style={{ fontSize: '4.5rem', marginBottom: '20px' }}
         >
           🏆
@@ -425,7 +425,7 @@ const Fase6CompletionModal: React.FC<{
         {/* Botón de Continuación */}
         <motion.button
           variants={itemVariants}
-          className="f5-submit-btn"
+          className="f6-submit-btn"
           onClick={onClose}
           style={{
             display: 'flex',
@@ -477,14 +477,14 @@ const Fase6PhaseGraduationModal: React.FC<{
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="f5-feedback-overlay"
+      className="f6-feedback-overlay"
       style={{ zIndex: 1200, background: 'rgba(7, 11, 20, 0.95)' }}
     >
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="f5-feedback-card graduation glass-card"
+        className="f6-feedback-card graduation glass-card"
         style={{ 
           maxWidth: '650px', 
           width: '92%', 
@@ -500,7 +500,7 @@ const Fase6PhaseGraduationModal: React.FC<{
           variants={itemVariants}
           animate={{ scale: [1, 1.2, 1], rotate: [0, 360, 360] }}
           transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3 }}
-          className="f5-feedback-emoji" 
+          className="f6-feedback-emoji" 
           style={{ fontSize: '5rem', marginBottom: '20px' }}
         >
           👑
@@ -629,7 +629,7 @@ const Fase6PhaseGraduationModal: React.FC<{
         {/* Botón de Lanzamiento de Fase 6 */}
         <motion.button
           variants={itemVariants}
-          className="f5-submit-btn"
+          className="f6-submit-btn"
           onClick={onClose}
           style={{
             display: 'flex',
@@ -1101,7 +1101,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   // ────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="f5-game-screen">
+    <div className="f6-game-screen">
       {/* SplashScreen */}
       <AnimatePresence>
         {showSplash && (
@@ -1110,7 +1110,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0, scale: 1.05, filter: 'blur(8px)' }}
             transition={{ duration: 0.3 }}
-            className="f5-start-splash-overlay" 
+            className="f6-start-splash-overlay" 
             onClick={() => setShowSplash(false)}
           >
             {isChallenge ? (
@@ -1118,52 +1118,52 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 initial={{ y: 30, opacity: 0 }} 
                 animate={{ y: 0, opacity: 1 }} 
                 transition={{ delay: 0.1, type: "spring", stiffness: 100, damping: 15 }} 
-                className="f5-splash-container-premium"
+                className="f6-splash-container-premium"
               >
-                <div className="f5-splash-badge-premium" style={{ color: moduleColor }}>
+                <div className="f6-splash-badge-premium" style={{ color: moduleColor }}>
                   ¡Desafío Especial!
                 </div>
-                <h1 className="f5-splash-title-premium">{challengeName}</h1>
+                <h1 className="f6-splash-title-premium">{challengeName}</h1>
                 
                 {/* Metadatos en cuadrícula premium */}
-                <div className="f5-splash-metadata-grid">
-                  <div className="f5-splash-meta-card">
-                    <div className="f5-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
+                <div className="f6-splash-metadata-grid">
+                  <div className="f6-splash-meta-card">
+                    <div className="f6-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
                       {moduloId === 99 ? (
                         <Trophy size={22} style={{ color: '#F59E0B' }} />
                       ) : (
                         <Compass size={22} style={{ color: moduleColor }} />
                       )}
                     </div>
-                    <span className="f5-splash-meta-label">Módulo</span>
-                    <span className="f5-splash-meta-value">{displayModuleName}</span>
+                    <span className="f6-splash-meta-label">Módulo</span>
+                    <span className="f6-splash-meta-value">{displayModuleName}</span>
                   </div>
 
-                  <div className="f5-splash-meta-card">
-                    <div className="f5-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
+                  <div className="f6-splash-meta-card">
+                    <div className="f6-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
                       <Target size={22} style={{ color: moduleColor }} />
                     </div>
-                    <span className="f5-splash-meta-label">Preguntas</span>
-                    <span className="f5-splash-meta-value">{displayQuestionsCount} a superar</span>
+                    <span className="f6-splash-meta-label">Preguntas</span>
+                    <span className="f6-splash-meta-value">{displayQuestionsCount} a superar</span>
                   </div>
 
                   {displayTimeLimit !== "Sin límite" && (
-                    <div className="f5-splash-meta-card">
-                      <div className="f5-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
+                    <div className="f6-splash-meta-card">
+                      <div className="f6-splash-meta-icon" style={{ background: `${moduleColor}15` }}>
                         <Clock size={22} style={{ color: moduleColor }} />
                       </div>
-                      <span className="f5-splash-meta-label">Tiempo</span>
-                      <span className="f5-splash-meta-value">{displayTimeLimit}</span>
+                      <span className="f6-splash-meta-label">Tiempo</span>
+                      <span className="f6-splash-meta-value">{displayTimeLimit}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Animación de cuenta regresiva circular */}
-                <div className="f5-splash-countdown-wrapper">
-                  <svg className="f5-splash-countdown-svg" viewBox="0 0 100 100">
-                    <circle className="f5-splash-countdown-bg" cx="50" cy="50" r="45" />
+                <div className="f6-splash-countdown-wrapper">
+                  <svg className="f6-splash-countdown-svg" viewBox="0 0 100 100">
+                    <circle className="f6-splash-countdown-bg" cx="50" cy="50" r="45" />
                     <motion.circle 
-                      className="f5-splash-countdown-progress" 
+                      className="f6-splash-countdown-progress" 
                       cx="50" cy="50" r="45"
                       initial={{ pathLength: 1 }}
                       animate={{ pathLength: 0 }}
@@ -1171,10 +1171,10 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                       style={{ stroke: moduleColor }}
                     />
                   </svg>
-                  <div className="f5-splash-countdown-number">{countdown}</div>
+                  <div className="f6-splash-countdown-number">{countdown}</div>
                 </div>
 
-                <div className="f5-splash-hint-premium mt-4">
+                <div className="f6-splash-hint-premium mt-4">
                   Haz clic o presiona cualquier tecla para comenzar ahora
                 </div>
               </motion.div>
@@ -1183,19 +1183,19 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 initial={{ y: 20, opacity: 0 }} 
                 animate={{ y: 0, opacity: 1 }} 
                 transition={{ delay: 0.2 }} 
-                className="f5-splash-content"
+                className="f6-splash-content"
               >
-                <div className="f5-splash-badge" style={{ color: moduleColor }}>
+                <div className="f6-splash-badge" style={{ color: moduleColor }}>
                   ENTRENAMIENTO LIBRE
                 </div>
-                <h1 className="f5-splash-title">{moduleName}</h1>
-                <div className="f5-splash-level" style={{ background: `${moduleColor}20`, borderColor: `${moduleColor}40` }}>
+                <h1 className="f6-splash-title">{moduleName}</h1>
+                <div className="f6-splash-level" style={{ background: `${moduleColor}20`, borderColor: `${moduleColor}40` }}>
                   {`NIVEL ${nivelId}`}
                 </div>
                 <motion.div 
                   animate={{ scale: [1, 1.05, 1], opacity: [0.7, 1, 0.7] }} 
                   transition={{ duration: 1.5, repeat: Infinity }} 
-                  className="f5-splash-hint"
+                  className="f6-splash-hint"
                 >
                   Toca para comenzar
                 </motion.div>
@@ -1206,12 +1206,12 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
       </AnimatePresence>
 
       {loading ? (
-        <div className="f5-loading">
-          <div className="f5-spinner" style={{ borderTopColor: moduleColor }} />
+        <div className="f6-loading">
+          <div className="f6-spinner" style={{ borderTopColor: moduleColor }} />
           <span>Cargando pregunta…</span>
         </div>
       ) : error ? (
-        <div className="f5-loading">
+        <div className="f6-loading">
           <span style={{ color: '#ef4444', fontWeight: 'bold', marginBottom: '16px' }}>{error}</span>
           <button
             onClick={() => {
@@ -1232,8 +1232,8 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
           </button>
         </div>
       ) : !pregunta && !showMirrorModal && !showReading ? (
-        <div className="f5-loading">
-          <div className="f5-spinner" style={{ borderTopColor: moduleColor }} />
+        <div className="f6-loading">
+          <div className="f6-spinner" style={{ borderTopColor: moduleColor }} />
           <span>Preparando siguiente desafío…</span>
         </div>
       ) : pregunta ? (
@@ -1241,17 +1241,17 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
           <AnimatePresence>
             {feedback.visible && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className={`f5-ambient-glow ${feedback.esCorrecta ? 'correct' : 'incorrect'}`}
+                className={`f6-ambient-glow ${feedback.esCorrecta ? 'correct' : 'incorrect'}`}
               />
             )}
           </AnimatePresence>
 
-          <header className="f5-game-header-modern">
-            <button className="f5-header-abort-btn" onClick={onBack} title="Salir del nivel"><IconArrowLeft /></button>
-            <div className="f5-header-right-group">
+          <header className="f6-game-header-modern">
+            <button className="f6-header-abort-btn" onClick={onBack} title="Salir del nivel"><IconArrowLeft /></button>
+            <div className="f6-header-right-group">
               {isEvaluatorMode && (
                 <button 
-                  className="f5-view-theory-btn-modern" 
+                  className="f6-view-theory-btn-modern" 
                   onClick={handleEvaluatorSkip}
                   title="Saltar pregunta (Modo Evaluador)"
                   style={{ backgroundColor: '#F59E0B', color: 'white', borderColor: '#F59E0B', marginRight: '8px' }}
@@ -1260,66 +1260,66 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 </button>
               )}
               {(!isChallenge || isEvaluatorMode) && (
-                <button className="f5-view-theory-btn-modern" onClick={handleOpenReading} title="Ver teoría">
+                <button className="f6-view-theory-btn-modern" onClick={handleOpenReading} title="Ver teoría">
                   <BookOpen size={14} style={{ marginRight: '4px' }} /><span>Teoría</span>
                 </button>
               )}
-              <div className="f5-header-badge-pill">
-                <span className="f5-badge-module" style={{ color: moduleColor }}>{moduleName.toUpperCase()}</span>
-                <span className="f5-badge-divider">|</span>
-                <span className="f5-badge-level">FASE 5</span>
-                <span className="f5-badge-divider">|</span>
-                <span className="f5-badge-level">MÓDULO {moduloId === 99 ? 'MAESTRÍA' : moduloId}</span>
-                <span className="f5-badge-divider">|</span>
-                <span className="f5-badge-level">NIVEL {nivelId}</span>
-                <span className="f5-badge-divider">|</span>
-                <span className="f5-badge-challenge">{isChallenge ? 'DESAFÍO' : 'PROGRESO'} {progreso.aciertos}/{maxAciertos}</span>
+              <div className="f6-header-badge-pill">
+                <span className="f6-badge-module" style={{ color: moduleColor }}>{moduleName.toUpperCase()}</span>
+                <span className="f6-badge-divider">|</span>
+                <span className="f6-badge-level">FASE 5</span>
+                <span className="f6-badge-divider">|</span>
+                <span className="f6-badge-level">MÓDULO {moduloId === 99 ? 'MAESTRÍA' : moduloId}</span>
+                <span className="f6-badge-divider">|</span>
+                <span className="f6-badge-level">NIVEL {nivelId}</span>
+                <span className="f6-badge-divider">|</span>
+                <span className="f6-badge-challenge">{isChallenge ? 'DESAFÍO' : 'PROGRESO'} {progreso.aciertos}/{maxAciertos}</span>
                 {isChallenge && (
                   <>
-                    <span className="f5-badge-divider">|</span>
-                    <span className="f5-badge-errors animate-pulse" style={{ color: (progreso.intentos - progreso.aciertos) >= maxErroresPermitidos ? '#EF4444' : '#F59E0B', fontWeight: 800 }}>
+                    <span className="f6-badge-divider">|</span>
+                    <span className="f6-badge-errors animate-pulse" style={{ color: (progreso.intentos - progreso.aciertos) >= maxErroresPermitidos ? '#EF4444' : '#F59E0B', fontWeight: 800 }}>
                       ERRORES: {progreso.intentos - progreso.aciertos}/{maxErroresPermitidos}
                     </span>
                   </>
                 )}
                 {timer !== null && (
-                  <><span className="f5-badge-divider">|</span><span className="f5-badge-timer" style={{ color: timer <= 5 ? '#EF4444' : '#ffffff' }}>{timer}S</span></>
+                  <><span className="f6-badge-divider">|</span><span className="f6-badge-timer" style={{ color: timer <= 5 ? '#EF4444' : '#ffffff' }}>{timer}S</span></>
                 )}
               </div>
             </div>
-            <div className="f5-full-width-progress-bar">
-              <div className="f5-full-width-progress-fill" style={{ width: `${barWidth}%`, background: `linear-gradient(90deg, ${moduleColor}80, ${moduleColor})` }} />
+            <div className="f6-full-width-progress-bar">
+              <div className="f6-full-width-progress-fill" style={{ width: `${barWidth}%`, background: `linear-gradient(90deg, ${moduleColor}80, ${moduleColor})` }} />
             </div>
             {timer !== null && (
-              <div className="f5-timer-progress-bar" style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '3px', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
-                <div className="f5-full-width-progress-fill" style={{ width: `${(timer / maxTimer) * 100}%`, background: timer <= 5 ? '#EF4444' : 'linear-gradient(90deg, #3B82F6, #10B981)', height: '100%' }} />
+              <div className="f6-timer-progress-bar" style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '3px', background: 'rgba(255,255,255,0.04)', overflow: 'hidden' }}>
+                <div className="f6-full-width-progress-fill" style={{ width: `${(timer / maxTimer) * 100}%`, background: timer <= 5 ? '#EF4444' : 'linear-gradient(90deg, #3B82F6, #10B981)', height: '100%' }} />
               </div>
             )}
           </header>
 
-          <main className="f5-game-body">
-            <div className="f5-game-layout-wrap">
+          <main className="f6-game-body">
+            <div className="f6-game-layout-wrap">
               <motion.div animate={shaking ? { x: [-8, 8, -6, 6, -4, 4, 0] } : {}} transition={{ duration: 0.4 }}
-                className={`f5-question-card ${shaking ? 'shake-error' : ''}`}
+                className={`f6-question-card ${shaking ? 'shake-error' : ''}`}
                 style={{ boxShadow: feedback.visible ? (feedback.esCorrecta ? '0 0 0 4px rgba(16, 185, 129, 0.5)' : '0 0 0 4px rgba(239, 68, 68, 0.5)') : 'none' }}
               >
                 {/* Contenido adaptativo */}
                 {pregunta.tipo_pregunta === 'respuesta_numerica' && (
                   <div className="flex flex-col h-full justify-between">
-                    <div className="f5-question-text-box">
-                      <div className={(pregunta.enunciado || '').length < 25 ? "f5-question-text short" : "f5-question-text"} dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} />
+                    <div className="f6-question-text-box">
+                      <div className={(pregunta.enunciado || '').length < 25 ? "f6-question-text short" : "f6-question-text"} dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} />
                       {pregunta.datos_numericos?.tipo_visual === 'imagen' && pregunta.datos_numericos.url && (
                         <img src={pregunta.datos_numericos.url} alt="Figura Ilustrativa" className="lk-question-graphic mt-2" />
                       )}
                     </div>
-                    <div className="f5-numeric-input-wrap">
-                      <div className={`f5-custom-input-box ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : 'focused'}`} onClick={() => inputRef.current?.focus()}>
-                        <input ref={inputRef} type="text" value={respuesta} onChange={e => !feedback.visible && /^[0-9,.\-]*$/.test(e.target.value) && setRespuesta(e.target.value)} onKeyDown={handleKeyDown} className="f5-hidden-input" autoFocus autoComplete="off" inputMode="none" />
-                        <span className="f5-input-value-text">{feedback.visible ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) : (respuesta || '?')}</span>
+                    <div className="f6-numeric-input-wrap">
+                      <div className={`f6-custom-input-box ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : 'focused'}`} onClick={() => inputRef.current?.focus()}>
+                        <input ref={inputRef} type="text" value={respuesta} onChange={e => !feedback.visible && /^[0-9,.\-]*$/.test(e.target.value) && setRespuesta(e.target.value)} onKeyDown={handleKeyDown} className="f6-hidden-input" autoFocus autoComplete="off" inputMode="none" />
+                        <span className="f6-input-value-text">{feedback.visible ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) : (respuesta || '?')}</span>
                         {feedback.visible && (
-                          <div className="f5-input-status-elements">
-                            {feedback.esCorrecta ? <div className="f5-status-badge correct"><svg className="f5-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg></div> :
-                              <><span className="f5-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span><div className="f5-status-badge incorrect"><svg className="f5-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></div></>
+                          <div className="f6-input-status-elements">
+                            {feedback.esCorrecta ? <div className="f6-status-badge correct"><svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg></div> :
+                              <><span className="f6-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span><div className="f6-status-badge incorrect"><svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></div></>
                             }
                           </div>
                         )}
@@ -1328,14 +1328,14 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
 
 
 
-                    {!isChallenge && <div className="f5-scores-container"><div className="f5-score-box correct"><span className="f5-score-label">CORRECTAS</span><span className="f5-score-value">{progreso.aciertos}</span></div><div className="f5-score-box incorrect"><span className="f5-score-label">ERRORES</span><span className="f5-score-value">{feedback.resultado?.errores_sesion ?? (progreso.intentos - progreso.aciertos)}</span></div></div>}
+                    {!isChallenge && <div className="f6-scores-container"><div className="f6-score-box correct"><span className="f6-score-label">CORRECTAS</span><span className="f6-score-value">{progreso.aciertos}</span></div><div className="f6-score-box incorrect"><span className="f6-score-label">ERRORES</span><span className="f6-score-value">{feedback.resultado?.errores_sesion ?? (progreso.intentos - progreso.aciertos)}</span></div></div>}
                   </div>
                 )}
                 {/* Otros tipos (constructor, tokens, etc) simplificados para brevedad pero funcionales */}
                 {pregunta.tipo_pregunta === 'multiple_opcion' && (
                   <div className="flex flex-col h-full justify-between">
-                     <div className="f5-question-text-box">
-                       <div className="f5-question-text" dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} />
+                     <div className="f6-question-text-box">
+                       <div className="f6-question-text" dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)} />
                        {pregunta.datos_numericos?.tipo_visual === 'imagen' && pregunta.datos_numericos.url && (
                          <img src={pregunta.datos_numericos.url} alt="Figura Ilustrativa" className="lk-question-graphic mt-2" />
                        )}
@@ -1345,7 +1345,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                          <div className="grid gap-3 mt-6">
                            {pregunta.alternativas.map(alt => (
                              <button key={alt.id} disabled={feedback.visible} onClick={() => setSelectedAltId(alt.id)}
-                               className={`f5-mc-option-btn ${selectedAltId === alt.id ? 'selected' : ''}`}
+                               className={`f6-mc-option-btn ${selectedAltId === alt.id ? 'selected' : ''}`}
                                style={{ padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', background: selectedAltId === alt.id ? `${moduleColor}20` : 'rgba(255,255,255,0.02)', textAlign: 'left', color: '#fff' }}
                              >
                                {alt.texto}
@@ -1353,7 +1353,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                            ))}
                          </div>
                          <button
-                           className="f5-submit-btn mt-6 w-full"
+                           className="f6-submit-btn mt-6 w-full"
                            onClick={handleSubmit}
                            disabled={!feedback.visible && selectedAltId === null}
                            style={{
@@ -1383,8 +1383,8 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 )}
                 {pregunta.tipo_pregunta === 'constructor_soluciones_chained' && (
                   <div className="flex flex-col h-full justify-between gap-4">
-                    <div className="f5-question-text-box">
-                      <div className="f5-question-text" dangerouslySetInnerHTML={safeHtml(cleanEnunciado(pregunta.enunciado))} />
+                    <div className="f6-question-text-box">
+                      <div className="f6-question-text" dangerouslySetInnerHTML={safeHtml(cleanEnunciado(pregunta.enunciado))} />
                       {pregunta.datos_numericos?.tipo_visual === 'imagen' && pregunta.datos_numericos.url && (
                         <img src={pregunta.datos_numericos.url} alt="Figura Ilustrativa" className="lk-question-graphic mt-2" />
                       )}
@@ -1420,30 +1420,30 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                         </p>
                         
                         {paso === 1 ? (
-                          <div className={`f5-custom-input-box focused ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : ''}`} onClick={() => inputRef.current?.focus()}>
+                          <div className={`f6-custom-input-box focused ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : ''}`} onClick={() => inputRef.current?.focus()}>
                             <input 
                               ref={inputRef} 
                               type="text" 
                               value={respuesta} 
                               onChange={e => !feedback.visible && /^[0-9,.\-]*$/.test(e.target.value) && setRespuesta(e.target.value)} 
                               onKeyDown={handleKeyDown} 
-                              className="f5-hidden-input" 
+                              className="f6-hidden-input" 
                               autoFocus 
                               autoComplete="off" 
                               inputMode="none" 
                             />
-                            <span className="f5-input-value-text">{feedback.visible ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) : (respuesta || '?')}</span>
+                            <span className="f6-input-value-text">{feedback.visible ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) : (respuesta || '?')}</span>
                             {feedback.visible && (
-                              <div className="f5-input-status-elements">
+                              <div className="f6-input-status-elements">
                                 {feedback.esCorrecta ? (
-                                  <div className="f5-status-badge correct">
-                                    <svg className="f5-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
+                                  <div className="f6-status-badge correct">
+                                    <svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
                                   </div>
                                 ) : (
                                   <>
-                                    <span className="f5-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span>
-                                    <div className="f5-status-badge incorrect">
-                                      <svg className="f5-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                    <span className="f6-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span>
+                                    <div className="f6-status-badge incorrect">
+                                      <svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                                     </div>
                                   </>
                                 )}
@@ -1451,11 +1451,11 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                             )}
                           </div>
                         ) : (
-                          <div className="f5-custom-input-box correct opacity-80 pointer-events-none">
-                            <span className="f5-input-value-text">{paso1Valor}</span>
-                            <div className="f5-input-status-elements">
-                              <div className="f5-status-badge correct">
-                                <svg className="f5-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
+                          <div className="f6-custom-input-box correct opacity-80 pointer-events-none">
+                            <span className="f6-input-value-text">{paso1Valor}</span>
+                            <div className="f6-input-status-elements">
+                              <div className="f6-status-badge correct">
+                                <svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
                               </div>
                             </div>
                           </div>
@@ -1476,30 +1476,30 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                             {pregunta.pasos_encadenados?.[1]?.descripcion || 'Resuelve el paso final.'}
                           </p>
 
-                          <div className={`f5-custom-input-box focused ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : ''}`} onClick={() => inputRef.current?.focus()}>
+                          <div className={`f6-custom-input-box focused ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : ''}`} onClick={() => inputRef.current?.focus()}>
                             <input 
                               ref={inputRef} 
                               type="text" 
                               value={respuesta} 
                               onChange={e => !feedback.visible && /^[0-9,.\-]*$/.test(e.target.value) && setRespuesta(e.target.value)} 
                               onKeyDown={handleKeyDown} 
-                              className="f5-hidden-input" 
+                              className="f6-hidden-input" 
                               autoFocus 
                               autoComplete="off" 
                               inputMode="none" 
                             />
-                            <span className="f5-input-value-text">{feedback.visible ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) : (respuesta || '?')}</span>
+                            <span className="f6-input-value-text">{feedback.visible ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) : (respuesta || '?')}</span>
                             {feedback.visible && (
-                              <div className="f5-input-status-elements">
+                              <div className="f6-input-status-elements">
                                 {feedback.esCorrecta ? (
-                                  <div className="f5-status-badge correct">
-                                    <svg className="f5-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
+                                  <div className="f6-status-badge correct">
+                                    <svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
                                   </div>
                                 ) : (
                                   <>
-                                    <span className="f5-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span>
-                                    <div className="f5-status-badge incorrect">
-                                      <svg className="f5-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                    <span className="f6-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span>
+                                    <div className="f6-status-badge incorrect">
+                                      <svg className="f6-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                                     </div>
                                   </>
                                 )}
@@ -1512,7 +1512,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
 
 
 
-                    {!isChallenge && <div className="f5-scores-container"><div className="f5-score-box correct"><span className="f5-score-label">CORRECTAS</span><span className="f5-score-value">{progreso.aciertos}</span></div><div className="f5-score-box incorrect"><span className="f5-score-label">ERRORES</span><span className="f5-score-value">{feedback.resultado?.errores_sesion ?? (progreso.intentos - progreso.aciertos)}</span></div></div>}
+                    {!isChallenge && <div className="f6-scores-container"><div className="f6-score-box correct"><span className="f6-score-label">CORRECTAS</span><span className="f6-score-value">{progreso.aciertos}</span></div><div className="f6-score-box incorrect"><span className="f6-score-label">ERRORES</span><span className="f6-score-value">{feedback.resultado?.errores_sesion ?? (progreso.intentos - progreso.aciertos)}</span></div></div>}
                   </div>
                 )}
                 {/* Fallback */}
@@ -1553,51 +1553,51 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         {showSplash && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="f5-start-splash-overlay" 
+            className="f6-start-splash-overlay" 
             style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(7, 11, 20, 0.95)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={() => setShowSplash(false)}
           >
             {isChallenge ? (
               <div 
-                className="f5-splash-container-premium"
+                className="f6-splash-container-premium"
                 style={{ textAlign: 'center', maxWidth: '600px', width: '90%' }}
               >
-                <div className="f5-splash-badge-premium" style={{ color: moduleColor, fontSize: '1.2rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '10px' }}>
+                <div className="f6-splash-badge-premium" style={{ color: moduleColor, fontSize: '1.2rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '10px' }}>
                   ZONA DE DESAFÍO
                 </div>
-                <h1 className="f5-splash-title-premium" style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff', marginBottom: '30px' }}>{challengeName}</h1>
+                <h1 className="f6-splash-title-premium" style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff', marginBottom: '30px' }}>{challengeName}</h1>
                 
-                <div className="f5-splash-metadata-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '40px' }}>
-                  <div className="f5-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div className="f6-splash-metadata-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '40px' }}>
+                  <div className="f6-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>📚</div>
                     <span style={{ display: 'block', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', fontWeight: 700 }}>Módulo</span>
                     <span style={{ display: 'block', fontSize: '1.1rem', color: '#fff', fontWeight: 800 }}>{displayModuleName}</span>
                   </div>
-                  <div className="f5-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div className="f6-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🎯</div>
                     <span style={{ display: 'block', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', fontWeight: 700 }}>Preguntas</span>
                     <span style={{ display: 'block', fontSize: '1.1rem', color: '#fff', fontWeight: 800 }}>{displayQuestionsCount} a superar</span>
                   </div>
                   {displayTimeLimit !== "Sin límite" && (
-                    <div className="f5-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div className="f6-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
                       <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>⏳</div>
                       <span style={{ display: 'block', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', fontWeight: 700 }}>Tiempo</span>
                       <span style={{ display: 'block', fontSize: '1.1rem', color: '#fff', fontWeight: 800 }}>{displayTimeLimit}</span>
                     </div>
                   )}
-                  <div className="f5-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div className="f6-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🎯</div>
                     <span style={{ display: 'block', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', fontWeight: 700 }}>Preguntas</span>
                     <span style={{ display: 'block', fontSize: '1.1rem', color: '#fff', fontWeight: 800 }}>{displayQuestionsCount} a superar</span>
                   </div>
-                  <div className="f5-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div className="f6-splash-meta-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>⏱️</div>
                     <span style={{ display: 'block', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', fontWeight: 700 }}>Tiempo</span>
                     <span style={{ display: 'block', fontSize: '1.1rem', color: '#fff', fontWeight: 800 }}>{displayTimeLimit}s / pregunta</span>
                   </div>
                 </div>
 
-                <div className="f5-splash-countdown-wrapper" style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto' }}>
+                <div className="f6-splash-countdown-wrapper" style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto' }}>
                   <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
                     <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
                     <circle 
@@ -1617,17 +1617,17 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
               </div>
             ) : (
               <div 
-                className="f5-splash-content"
+                className="f6-splash-content"
                 style={{ textAlign: 'center' }}
               >
-                <div className="f5-splash-badge" style={{ color: moduleColor, fontSize: '1.2rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '15px' }}>
+                <div className="f6-splash-badge" style={{ color: moduleColor, fontSize: '1.2rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '15px' }}>
                   PRÁCTICA LIBRE
                 </div>
-                <h1 className="f5-splash-title" style={{ fontSize: '3rem', fontWeight: 900, color: '#fff', marginBottom: '20px' }}>{moduleName}</h1>
-                <div className="f5-splash-level" style={{ display: 'inline-block', padding: '8px 24px', background: `${moduleColor}20`, border: `1px solid ${moduleColor}40`, borderRadius: '30px', color: moduleColor, fontWeight: 800, fontSize: '1.2rem', marginBottom: '40px' }}>
+                <h1 className="f6-splash-title" style={{ fontSize: '3rem', fontWeight: 900, color: '#fff', marginBottom: '20px' }}>{moduleName}</h1>
+                <div className="f6-splash-level" style={{ display: 'inline-block', padding: '8px 24px', background: `${moduleColor}20`, border: `1px solid ${moduleColor}40`, borderRadius: '30px', color: moduleColor, fontWeight: 800, fontSize: '1.2rem', marginBottom: '40px' }}>
                   Nivel {nivelId}
                 </div>
-                <div className="f5-splash-hint" style={{ opacity: 0.6 }}>
+                <div className="f6-splash-hint" style={{ opacity: 0.6 }}>
                   Preparando el entorno...
                 </div>
               </div>

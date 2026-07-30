@@ -35,11 +35,11 @@ from ..models.sql_models import (
 from ..utils.math_utils import normalize_response, calcular_max_errores
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from .schemas import (
-    fase9Dashboard, fase9ModuloInfo, fase9NivelInfo,
-    fase9PreguntaParaAlumno, fase9Token,
-    fase9ResponderPregunta, fase9ResultadoRespuesta,
-    fase9ContenidoLectura, fase9DesafioInfo,
-    fase9AlternativaOut, fase9CerrarRescate,
+    Fase11Dashboard, Fase11ModuloInfo, Fase11NivelInfo,
+    Fase11PreguntaParaAlumno, Fase11Token,
+    Fase11ResponderPregunta, Fase11ResultadoRespuesta,
+    Fase11ContenidoLectura, Fase11DesafioInfo,
+    Fase11AlternativaOut, Fase11CerrarRescate,
 )
 
 router = APIRouter(prefix="/fase9", tags=["fase9"])
@@ -224,7 +224,7 @@ def _is_nivel_unlocked(progresos: dict, modulo_id: int, nivel_id: int) -> bool:
 # ENDPOINT 1 — Dashboard de la Fase 9 (20 simulacros)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/dashboard", response_model=fase9Dashboard)
+@router.get("/dashboard", response_model=Fase11Dashboard)
 async def get_fase9_dashboard(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
@@ -286,7 +286,7 @@ async def get_fase9_dashboard(
                     estado = "en_progreso" if _is_nivel_unlocked(progresos, mod_id, niv_id) else "bloqueado"
 
             mod_porcentaje_total += porcentaje
-            niveles.append(fase9NivelInfo(
+            niveles.append(Fase11NivelInfo(
                 nivel_id=niv_id,
                 nombre=niv_meta["nombre"],
                 descripcion=niv_meta["descripcion"],
@@ -306,7 +306,7 @@ async def get_fase9_dashboard(
         else:
             estado_modulo = "en_progreso"
 
-        modulos.append(fase9ModuloInfo(
+        modulos.append(Fase11ModuloInfo(
             modulo_id=mod_id,
             nombre=meta["nombre"],
             descripcion=meta["descripcion"],
@@ -326,7 +326,7 @@ async def get_fase9_dashboard(
     desafio_mixto_disponible = (total_niveles_aprobados >= 12)
     desafio_mixto_estado = "completado" if desafio_mixto_disponible else "bloqueado"
 
-    return fase9Dashboard(
+    return Fase11Dashboard(
         alumno_nombre=alumno.nombre,
         puntos_totales=puntos,
         modulos=modulos,
@@ -339,7 +339,7 @@ async def get_fase9_dashboard(
 # ENDPOINT 2 — Contenido de lectura / teoría dinámico
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=fase9ContenidoLectura)
+@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=Fase11ContenidoLectura)
 async def get_lectura_fase9(
     modulo_id: int,
     nivel_id: int,
@@ -364,7 +364,7 @@ async def get_lectura_fase9(
     
     parrafos = [p.strip() for p in theory.texto_descubrimiento.split("\n") if p.strip()]
     
-    return fase9ContenidoLectura(
+    return Fase11ContenidoLectura(
         modulo_id=modulo_id,
         nivel_id=nivel_id,
         titulo=theory.titulo,
@@ -380,7 +380,7 @@ async def get_lectura_fase9(
 # ENDPOINT 3 — Obtener Pregunta (Práctica con Bucle Espejo y Desafíos aleatorios)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=fase9PreguntaParaAlumno)
+@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=Fase11PreguntaParaAlumno)
 async def get_pregunta_fase9(
     modulo_id: int,
     nivel_id: int,
@@ -472,7 +472,7 @@ async def get_pregunta_fase9(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                fase9AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                Fase11AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -500,7 +500,7 @@ async def get_pregunta_fase9(
         if not tiene_crono:
             tiempo_lim = None
 
-        return fase9PreguntaParaAlumno(
+        return Fase11PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
@@ -662,7 +662,7 @@ async def get_pregunta_fase9(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                fase9AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                Fase11AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -691,7 +691,7 @@ async def get_pregunta_fase9(
         if not tiene_crono:
             tiempo_lim = None
 
-        return fase9PreguntaParaAlumno(
+        return Fase11PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
@@ -710,9 +710,9 @@ async def get_pregunta_fase9(
 # ENDPOINT 4 — Responder pregunta (Valida y actualiza progreso)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.post("/responder", response_model=fase9ResultadoRespuesta)
-async def responder_fase9(
-    payload: fase9ResponderPregunta,
+@router.post("/responder", response_model=Fase11ResultadoRespuesta)
+async def responder_fase11(
+    payload: Fase11ResponderPregunta,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -965,7 +965,7 @@ async def responder_fase9(
             
             await db.commit()
             
-            return fase9ResultadoRespuesta(
+            return Fase11ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
                 aciertos_acumulados=0,
@@ -1035,7 +1035,7 @@ async def responder_fase9(
 
             await db.commit()
 
-            return fase9ResultadoRespuesta(
+            return Fase11ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
                 aciertos_acumulados=progreso.aciertos_acumulados,
@@ -1145,7 +1145,7 @@ async def responder_fase9(
 
         await db.commit()
 
-        return fase9ResultadoRespuesta(
+        return Fase11ResultadoRespuesta(
             es_correcta=es_correcta,
             respuesta_correcta=respuesta_correcta_str,
             explicacion=pregunta.explicacion_paso_a_paso if (not es_correcta and soporte_avanzado) else None,
@@ -1168,9 +1168,9 @@ async def responder_fase9(
 # ENDPOINT 4.5 — Cerrar Rescate (Bypass sin anti-spam)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.post("/cerrar-rescate", response_model=fase9ResultadoRespuesta)
+@router.post("/cerrar-rescate", response_model=Fase11ResultadoRespuesta)
 async def cerrar_rescate_fase9(
-    payload: fase9CerrarRescate,
+    payload: Fase11CerrarRescate,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -1260,7 +1260,7 @@ async def cerrar_rescate_fase9(
 
     await db.commit()
 
-    return fase9ResultadoRespuesta(
+    return Fase11ResultadoRespuesta(
         es_correcta=False,
         respuesta_correcta=pregunta.respuesta_correcta,
         aciertos_acumulados=progreso.aciertos_acumulados,

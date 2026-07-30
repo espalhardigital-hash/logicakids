@@ -542,8 +542,14 @@ def recta_numerica_decimal(inicio: float, fin: float, paso: float,
 def tabla_datos(filas: list[tuple[str,str]], titulo: str | None = None,
                 color: str = "#F59E0B") -> str:
     """Mini tabla. Datos numericos aqui, NO en la prosa (Decision 10)."""
-    rh=22; cw=90; n=len(filas); th=(n+(1 if titulo else 0))*rh; tw=cw*2
-    x0=(_W-tw)/2; y0=(_H-th)/2
+    for concepto, _ in filas:
+        if len(concepto) > 15:
+            raise ValueError(f"Etiqueta de tabla desbordada: '{concepto}' tiene {len(concepto)} caracteres (máximo 15)")
+    
+    max_label_len = max([len(c) for c, _ in filas] + ([len(titulo)] if titulo else [0]))
+    cw = max(90, max_label_len * 7 + 20)
+    rh = 24; n = len(filas); th = (n + (1 if titulo else 0)) * rh; tw = cw * 2
+    x0 = (_W - tw) / 2; y0 = (_H - th) / 2
     shps = f"<rect x='{x0:.1f}' y='{y0:.1f}' width='{tw:.1f}' height='{th:.1f}' fill='{color}' fill-opacity='0.10' stroke='{_SHP}' stroke-width='1' rx='4'/>"
     txts = ""; ro = 0
     if titulo:

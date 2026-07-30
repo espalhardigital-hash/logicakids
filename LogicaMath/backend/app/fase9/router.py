@@ -35,11 +35,11 @@ from ..models.sql_models import (
 from ..utils.math_utils import normalize_response, calcular_max_errores
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from .schemas import (
-    fase8Dashboard, fase8ModuloInfo, fase8NivelInfo,
-    fase8PreguntaParaAlumno, fase8Token,
-    fase8ResponderPregunta, fase8ResultadoRespuesta,
-    fase8ContenidoLectura, fase8DesafioInfo,
-    fase8AlternativaOut, fase8CerrarRescate,
+    Fase9Dashboard, Fase9ModuloInfo, Fase9NivelInfo,
+    Fase9PreguntaParaAlumno, Fase9Token,
+    Fase9ResponderPregunta, Fase9ResultadoRespuesta,
+    Fase9ContenidoLectura, Fase9DesafioInfo,
+    Fase9AlternativaOut, Fase9CerrarRescate,
 )
 
 router = APIRouter(prefix="/fase9", tags=["fase8"])
@@ -247,7 +247,7 @@ def _is_desafio_unlocked(progresos: dict, modulo_id: int, desafio_id: int, all_p
 # ENDPOINT 1 — Dashboard de la Fase 2 (26 niveles)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/dashboard", response_model=fase8Dashboard)
+@router.get("/dashboard", response_model=Fase9Dashboard)
 async def get_fase8_dashboard(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
@@ -314,7 +314,7 @@ async def get_fase8_dashboard(
                     estado = "en_progreso" if _is_nivel_unlocked(progresos, mod_id, niv_id) else "bloqueado"
 
             mod_porcentaje_total += porcentaje
-            niveles.append(fase8NivelInfo(
+            niveles.append(Fase9NivelInfo(
                 nivel_id=niv_id,
                 nombre=niv_meta["nombre"],
                 descripcion=niv_meta["descripcion"],
@@ -377,7 +377,7 @@ async def get_fase8_dashboard(
             max_errores_dinamico = calcular_max_errores(cantidad_req, porc_aprobacion)
 
             mod_porcentaje_total += porcentaje
-            desafios.append(fase8DesafioInfo(
+            desafios.append(Fase9DesafioInfo(
                 desafio_id=des_id,
                 nombre=d_conf["nombre"],
                 dificultad=d_conf["dificultad"],
@@ -397,7 +397,7 @@ async def get_fase8_dashboard(
         else:
             estado_modulo = "en_progreso"
 
-        modulos.append(fase8ModuloInfo(
+        modulos.append(Fase9ModuloInfo(
             modulo_id=mod_id,
             nombre=meta["nombre"],
             descripcion=meta["descripcion"],
@@ -417,7 +417,7 @@ async def get_fase8_dashboard(
     desafio_mixto_disponible = (total_niveles_aprobados >= 9)
     desafio_mixto_estado = "completado" if desafio_mixto_disponible else "bloqueado"
 
-    return fase8Dashboard(
+    return Fase9Dashboard(
         alumno_nombre=alumno.nombre,
         puntos_totales=puntos,
         modulos=modulos,
@@ -430,7 +430,7 @@ async def get_fase8_dashboard(
 # ENDPOINT 2 — Contenido de lectura / teoría dinámico
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=fase8ContenidoLectura)
+@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=Fase9ContenidoLectura)
 async def get_lectura_fase8(
     modulo_id: int,
     nivel_id: int,
@@ -448,7 +448,7 @@ async def get_lectura_fase8(
     theory = result.scalar_one_or_none()
     
     if not theory:
-        return fase8ContenidoLectura(
+        return Fase9ContenidoLectura(
             modulo_id=modulo_id,
             nivel_id=nivel_id,
             titulo="Teoría Próximamente",
@@ -461,7 +461,7 @@ async def get_lectura_fase8(
     
     parrafos = [p.strip() for p in theory.texto_descubrimiento.split("\n") if p.strip()]
     
-    return fase8ContenidoLectura(
+    return Fase9ContenidoLectura(
         modulo_id=modulo_id,
         nivel_id=nivel_id,
         titulo=theory.titulo,
@@ -477,7 +477,7 @@ async def get_lectura_fase8(
 # ENDPOINT 3 — Obtener Pregunta (Práctica con Bucle Espejo y Desafíos aleatorios)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=fase8PreguntaParaAlumno)
+@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=Fase9PreguntaParaAlumno)
 async def get_pregunta_fase8(
     modulo_id: int,
     nivel_id: int,
@@ -569,7 +569,7 @@ async def get_pregunta_fase8(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                fase8AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                Fase9AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -597,7 +597,7 @@ async def get_pregunta_fase8(
         if not tiene_crono:
             tiempo_lim = None
 
-        return fase8PreguntaParaAlumno(
+        return Fase9PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
@@ -760,7 +760,7 @@ async def get_pregunta_fase8(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                fase8AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                Fase9AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -789,7 +789,7 @@ async def get_pregunta_fase8(
         if not tiene_crono:
             tiempo_lim = None
 
-        return fase8PreguntaParaAlumno(
+        return Fase9PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
@@ -809,9 +809,9 @@ async def get_pregunta_fase8(
 # ENDPOINT 4 — Responder pregunta (Valida y actualiza progreso)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.post("/responder", response_model=fase8ResultadoRespuesta)
-async def responder_fase8(
-    payload: fase8ResponderPregunta,
+@router.post("/responder", response_model=Fase9ResultadoRespuesta)
+async def responder_fase9(
+    payload: Fase9ResponderPregunta,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -1069,7 +1069,7 @@ async def responder_fase8(
             
             await db.commit()
             
-            return fase8ResultadoRespuesta(
+            return Fase9ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
                 aciertos_acumulados=0,
@@ -1139,7 +1139,7 @@ async def responder_fase8(
 
             await db.commit()
 
-            return fase8ResultadoRespuesta(
+            return Fase9ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
                 aciertos_acumulados=progreso.aciertos_acumulados,
@@ -1249,7 +1249,7 @@ async def responder_fase8(
 
         await db.commit()
 
-        return fase8ResultadoRespuesta(
+        return Fase9ResultadoRespuesta(
             es_correcta=es_correcta,
             respuesta_correcta=respuesta_correcta_str,
             explicacion=pregunta.explicacion_paso_a_paso if (not es_correcta and soporte_avanzado) else None,
@@ -1272,9 +1272,9 @@ async def responder_fase8(
 # ENDPOINT 4.5 — Cerrar Rescate (Bypass sin anti-spam)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.post("/cerrar-rescate", response_model=fase8ResultadoRespuesta)
+@router.post("/cerrar-rescate", response_model=Fase9ResultadoRespuesta)
 async def cerrar_rescate_fase8(
-    payload: fase8CerrarRescate,
+    payload: Fase9CerrarRescate,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
@@ -1364,7 +1364,7 @@ async def cerrar_rescate_fase8(
 
     await db.commit()
 
-    return fase8ResultadoRespuesta(
+    return Fase9ResultadoRespuesta(
         es_correcta=False,
         respuesta_correcta=pregunta.respuesta_correcta,
         aciertos_acumulados=progreso.aciertos_acumulados,

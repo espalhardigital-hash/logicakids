@@ -1,1 +1,2 @@
-# Fase 5 Init
+# __init__.py
+from .router import router

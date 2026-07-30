@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import Fase4GameScreen from '../components/fase4/Fase4GameScreen';
+import Fase5GameScreen from '../components/fase5/Fase5GameScreen';
 
 const isDiscreteQuestion = (enunciado: string): boolean => {
   const lowercase = (enunciado || '').toLowerCase();

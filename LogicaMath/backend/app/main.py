@@ -91,7 +91,7 @@ class StripAPIPrefixMiddleware:
 
 from .core.audit_middleware import AuditMiddleware
 
-app = FastAPI(title="LogicaKids Pro API", version="3.0.0", lifespan=lifespan)
+app = FastAPI(title="LogicaKids Pro API", version="0.0.9", lifespan=lifespan)
 
 app.add_middleware(StripAPIPrefixMiddleware)
 app.add_middleware(AuditMiddleware)

@@ -83,14 +83,14 @@ FASES_DATA = [
     },
     {
         "id": 4,
-        "nombre": "Fracciones, Porcentajes y Proporciones",
-        "descripcion": "Romper el pensamiento del número entero; dominar relaciones relacionales complejas de forma visual y análisis estadístico.",
+        "nombre": "Operatoria Decimal y Conversiones",
+        "descripcion": "Dominio de las cuatro operaciones con decimales y su aplicación a medidas de longitud, volumen y superficie.",
         "orden": 4,
     },
     {
         "id": 5,
-        "nombre": "Operatoria Decimal y Conversiones",
-        "descripcion": "Dominio de las cuatro operaciones con decimales y su aplicación a medidas de longitud, volumen y superficie.",
+        "nombre": "Fracciones, Porcentajes y Proporciones",
+        "descripcion": "Romper el pensamiento del número entero; dominar relaciones relacionales complejas de forma visual y análisis estadístico.",
         "orden": 5,
     },
     {

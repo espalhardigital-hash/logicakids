@@ -1,0 +1,245 @@
+[
+  {
+    "id": "conf_m1_01", "modulo_id": 1, "codigo": "sin_alinear_coma",
+    "nombre": "Alinear dígitos por la derecha ignorando la coma",
+    "explicacion": "Sumó o restó los números alineando los últimos dígitos sin alinear la coma decimal."
+  },
+  {
+    "id": "conf_m1_02", "modulo_id": 1, "codigo": "olvido_acarreo_decimal",
+    "nombre": "Olvido del acarreo entre posiciones decimales",
+    "explicacion": "Sumó las décimas o centésimas superando 10 sin trasladar 1 a la posición de la izquierda."
+  },
+  {
+    "id": "conf_m1_03", "modulo_id": 1, "codigo": "sin_completar_ceros",
+    "nombre": "Resta sin completar ceros en el minuendo",
+    "explicacion": "Bajó el dígito del sustraendo directamente en vez de restar de cero (ej. 5,3 - 1,25 = 4,15 en vez de 4,05)."
+  },
+  {
+    "id": "conf_m1_04", "modulo_id": 1, "codigo": "operacion_invertida_suma_resta",
+    "nombre": "Inversión de operación (sumó en vez de restar)",
+    "explicacion": "Sumó las cantidades cuando el enunciado requería calcular una diferencia o vuelto."
+  },
+  {
+    "id": "conf_m1_05", "modulo_id": 1, "codigo": "resta_al_reves",
+    "nombre": "Restar el mayor del menor cifra a cifra",
+    "explicacion": "Restó el dígito menor del mayor sin pedir prestado a la posición izquierda."
+  },
+  {
+    "id": "conf_m1_06", "modulo_id": 1, "codigo": "coma_mal_ubicada_suma",
+    "nombre": "Ubicación errónea de la coma en el resultado",
+    "explicacion": "Desplazó la coma decimal una posición a la derecha o a la izquierda en el resultado final."
+  },
+  {
+    "id": "conf_m1_07", "modulo_id": 1, "codigo": "ignorar_parte_entera",
+    "nombre": "Sumar solo la parte decimal ignorando enteros",
+    "explicacion": "Calculó la suma de la parte decimal pero olvidó sumar las unidades enteras."
+  },
+  {
+    "id": "conf_m1_08", "modulo_id": 1, "codigo": "confundir_centésima_décima",
+    "nombre": "Confundir décimas con centésimas",
+    "explicacion": "Trató 0,5 como 0,05 o viceversa al alinear los sumandos."
+  },
+  {
+    "id": "conf_m1_09", "modulo_id": 1, "codigo": "error_prestado_cero",
+    "nombre": "Error al pedir prestado a un cero decimal",
+    "explicacion": "No transformó correctamente el 0 en 9 al pedir prestado en el minuelo decimal."
+  },
+  {
+    "id": "conf_m1_10", "modulo_id": 1, "codigo": "suma_en_vez_de_diferencia",
+    "nombre": "Sumar el total al valor inicial",
+    "explicacion": "Agregó el importe final a la cantidad gastada en lugar de calcular la diferencia disponible."
+  },
+  {
+    "id": "conf_m1_11", "modulo_id": 1, "codigo": "omitir_ultimo_sumando",
+    "nombre": "Omitir uno de los sumandos en operaciones de 3 datos",
+    "explicacion": "Sumó únicamente dos de las tres cantidades dadas en el enunciado."
+  },
+  {
+    "id": "conf_m1_12", "modulo_id": 1, "codigo": "incluir_dato_irrelevante",
+    "nombre": "Sumar el dato de ruido",
+    "explicacion": "Incluyó la cifra de contexto no requerida en la operación de suma."
+  },
+
+  {
+    "id": "conf_m2_01", "modulo_id": 2, "codigo": "conteo_cifras_decimales_incorrecto",
+    "nombre": "Conteo erróneo de posiciones decimales en el producto",
+    "explicacion": "Colocó la coma contando solo las decimales de un factor en lugar de la suma de ambos."
+  },
+  {
+    "id": "conf_m2_02", "modulo_id": 2, "codigo": "olvido_multiplicar_cero",
+    "nombre": "Ignorar ceros intermedios o finales en la multiplicación",
+    "explicacion": "Omitió multiplicar por ceros posicionales en el algoritmo entero."
+  },
+  {
+    "id": "conf_m2_03", "modulo_id": 2, "codigo": "coma_alineada_multiplicacion",
+    "nombre": "Alinear la coma en multiplicación como si fuera suma",
+    "explicacion": "Mantuvo la coma en la misma columna del primer factor en el resultado."
+  },
+  {
+    "id": "conf_m2_04", "modulo_id": 2, "codigo": "multiplicar_en_vez_de_dividir",
+    "nombre": "Multiplicar cuando el enunciado exigía reparto",
+    "explicacion": "Multiplicó la cantidad total por el número de partes en lugar de dividir."
+  },
+  {
+    "id": "conf_m2_05", "modulo_id": 2, "codigo": "olvido_acarreo_multiplicacion",
+    "nombre": "Olvido del acarreo en el producto parcial",
+    "explicacion": "No sumó el valor llevado al multiplicar el siguiente dígito."
+  },
+  {
+    "id": "conf_m2_06", "modulo_id": 2, "codigo": "multiplicar_solo_enteros",
+    "nombre": "Multiplicar solo la parte entera desechando decimales",
+    "explicacion": "Ignoró las cifras decimales calculando únicamente el producto de los enteros."
+  },
+  {
+    "id": "conf_m2_07", "modulo_id": 2, "codigo": "desplazamiento_coma_derecha",
+    "nombre": "Mover la coma hacia la derecha en vez de la izquierda",
+    "explicacion": "Aumentó el valor del producto en potencias de 10 por error posicional."
+  },
+  {
+    "id": "conf_m2_08", "modulo_id": 2, "codigo": "multiplicar_solo_decimales",
+    "nombre": "Multiplicar la parte decimal e ignorar enteros",
+    "explicacion": "Calculó el producto decimal dejando la parte entera en cero."
+  },
+  {
+    "id": "conf_m2_09", "modulo_id": 2, "codigo": "sumar_factores_en_vez_de_multiplicar",
+    "nombre": "Sumar los factores en lugar de multiplicarlos",
+    "explicacion": "Ejecutó una suma de factores al ver cantidades en el enunciado."
+  },
+  {
+    "id": "conf_m2_10", "modulo_id": 2, "codigo": "cuadruplicar_coma_ambos",
+    "nombre": "Duplicar el número de comas al multiplicar dos decimales",
+    "explicacion": "Sumó dos veces las posiciones decimales de los factores."
+  },
+  {
+    "id": "conf_m2_11", "modulo_id": 2, "codigo": "omitir_cero_decimal_producto",
+    "nombre": "Omitir el cero antes de la coma en productos menores que 1",
+    "explicacion": "Escribió ,45 en lugar de 0,45 como resultado del producto."
+  },
+  {
+    "id": "conf_m2_12", "modulo_id": 2, "codigo": "error_redondeo_producto",
+    "nombre": "Redondear prematuramente el producto parcial",
+    "explicacion": "Truncó los decimales del producto antes de completar el cálculo."
+  },
+
+  {
+    "id": "conf_m3_01", "modulo_id": 3, "codigo": "olvido_desplazar_coma_divisor",
+    "nombre": "No desplazar la coma en el dividendo al moverla en el divisor",
+    "explicacion": "Multiplicó por 10 el divisor pero no el dividendo al eliminar el divisor decimal."
+  },
+  {
+    "id": "conf_m3_02", "modulo_id": 3, "codigo": "desplazar_coma_solo_dividendo",
+    "nombre": "Desplazar la coma en el dividendo e ignorar el divisor",
+    "explicacion": "Eliminó la coma del dividendo sin alterar el divisor decimal."
+  },
+  {
+    "id": "conf_m3_03", "modulo_id": 3, "codigo": "dividir_al_reves",
+    "nombre": "Invertir dividendo y divisor",
+    "explicacion": "Dividió el divisor menor entre el dividendo mayor."
+  },
+  {
+    "id": "conf_m3_04", "modulo_id": 3, "codigo": "cociente_menor_que_uno_sin_cero",
+    "nombre": "Omitir el cero inicial en cocientes menores que 1",
+    "explicacion": "Escribió ,25 en vez de 0,25 al dividir un entero menor entre uno mayor."
+  },
+  {
+    "id": "conf_m3_05", "modulo_id": 3, "codigo": "resto_decimal_mal_ubicado",
+    "nombre": "Ubicación errónea del resto decimal",
+    "explicacion": "No restauró la posición original de la coma en el resto obtenido."
+  },
+  {
+    "id": "conf_m3_06", "modulo_id": 3, "codigo": "dividir_en_vez_de_multiplicar",
+    "nombre": "Dividir cuando el problema requería multiplicar",
+    "explicacion": "Dividió la cantidad unitaria por el número de paquetes."
+  },
+  {
+    "id": "conf_m3_07", "modulo_id": 3, "codigo": "olvido_bajar_cero_resto",
+    "nombre": "Omitir bajar cero para continuar la división decimal",
+    "explicacion": "Se detuvo en la división entera sin continuar tras la coma decimal."
+  },
+  {
+    "id": "conf_m3_08", "modulo_id": 3, "codigo": "coma_cociente_lugar_equivocado",
+    "nombre": "Poner la coma en el cociente a destiempo",
+    "explicacion": "Colocó la coma en el cociente antes de bajar la primera cifra decimal del dividendo."
+  },
+  {
+    "id": "conf_m3_09", "modulo_id": 3, "codigo": "sin_redondeo_contexto_entero",
+    "nombre": "Responder con decimales en contexto que exige enteros (C5.13)",
+    "explicacion": "Respondió 2,4 botellas en vez de redondear hacia arriba a 3 botellas completas."
+  },
+  {
+    "id": "conf_m3_10", "modulo_id": 3, "codigo": "dividir_solo_partes_enteras",
+    "nombre": "Dividir únicamente las partes enteras desechando decimales",
+    "explicacion": "Calculó el cociente entero truncando la parte decimal."
+  },
+  {
+    "id": "conf_m3_11", "modulo_id": 3, "codigo": "desplazamiento_coma_sentido_contrario",
+    "nombre": "Desplazar la coma hacia la izquierda al dividir por potencias de 10",
+    "explicacion": "Invirtió la dirección del desplazamiento decimal en la división."
+  },
+  {
+    "id": "conf_m3_12", "modulo_id": 3, "codigo": "error_paso_intermedio_dos_pasos",
+    "nombre": "Error en el valor intermedio en problemas de dos pasos (C5.12)",
+    "explicacion": "Calculó mal la primera operación intermedia antes de realizar la división final."
+  },
+
+  {
+    "id": "conf_m4_01", "modulo_id": 4, "codigo": "multiplicar_en_vez_de_dividir_conversion",
+    "nombre": "Multiplicar al subir la escalera métrica (menor a mayor)",
+    "explicacion": "Multiplicó por 100 en vez de dividir por 100 al pasar de cm a m."
+  },
+  {
+    "id": "conf_m4_02", "modulo_id": 4, "codigo": "dividir_en_vez_de_multiplicar_conversion",
+    "nombre": "Dividir al bajar la escalera métrica (mayor a menor)",
+    "explicacion": "Dividió por 1000 en vez de multiplicar al pasar de km a m."
+  },
+  {
+    "id": "conf_m4_03", "modulo_id": 4, "codigo": "factor_escalon_incorrecto_10_100",
+    "nombre": "Usar factor 10 en vez de 100 entre m y cm",
+    "explicacion": "Multiplicó o dividió por 10 creyendo que 1 m = 10 cm."
+  },
+  {
+    "id": "conf_m4_04", "modulo_id": 4, "codigo": "factor_escalon_incorrecto_100_1000",
+    "nombre": "Usar factor 100 en vez de 1000 entre km y m",
+    "explicacion": "Usó factor 100 para kilómetros creyendo que 1 km = 100 m."
+  },
+  {
+    "id": "conf_m4_05", "modulo_id": 4, "codigo": "sumar_unidades_distintas_sin_convertir",
+    "nombre": "Sumar directamente m y cm sin convertir a la misma unidad",
+    "explicacion": "Sumó 1,2 m + 80 cm obteniendo 81,2 sin convertir 80 cm a 0,8 m."
+  },
+  {
+    "id": "conf_m4_06", "modulo_id": 4, "codigo": "restar_unidades_distintas_sin_convertir",
+    "nombre": "Restar directamente m y cm sin homogenizar unidades",
+    "explicacion": "Restó 2 m - 50 cm obteniendo -48 en vez de 1,5 m."
+  },
+  {
+    "id": "conf_m4_07", "modulo_id": 4, "codigo": "desplazamiento_coma_error_conteo_ceros",
+    "nombre": "Error en el número de ceros al desplazar la coma",
+    "explicacion": "Desplazó la coma 2 lugares en vez de 3 al convertir km a m."
+  },
+  {
+    "id": "conf_m4_08", "modulo_id": 4, "codigo": "confundir_mm_y_cm",
+    "nombre": "Tratar mm como cm en la conversión a metros",
+    "explicacion": "Dividió por 100 en vez de 1000 al convertir mm a metros."
+  },
+  {
+    "id": "conf_m4_09", "modulo_id": 4, "codigo": "unidad_destino_erronea",
+    "nombre": "Expresar el resultado en la unidad de origen",
+    "explicacion": "Calculó el valor correcto pero le asignó la etiqueta de la unidad inicial."
+  },
+  {
+    "id": "conf_m4_10", "modulo_id": 4, "codigo": "inversion_peldaños_escalera",
+    "nombre": "Invertir los peldaños de la escalera métrica",
+    "explicacion": "Consideró mm como unidad mayor que m en la jerarquía."
+  },
+  {
+    "id": "conf_m4_11", "modulo_id": 4, "codigo": "error_doble_escalon",
+    "nombre": "Omitir un escalón al saltar dos unidades (ej. mm a m)",
+    "explicacion": "Dividió por 100 en lugar de 1000 al saltar de mm a m en dos pasos."
+  },
+  {
+    "id": "conf_m4_12", "modulo_id": 4, "codigo": "conversion_mixta_resultado_unidad_opuesta",
+    "nombre": "Convertir a la unidad contraria a la solicitada en el enunciado",
+    "explicacion": "Convirtió todo a cm cuando el enunciado pedía expresarlo en metros."
+  }
+]

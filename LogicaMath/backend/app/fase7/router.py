@@ -1614,7 +1614,7 @@ async def get_pregunta_fase6(
 
 @router.post("/responder", response_model=Fase7ResultadoRespuesta)
 
-async def responder_fase6(
+async def responder_fase7(
 
     payload: Fase7ResponderPregunta,
 

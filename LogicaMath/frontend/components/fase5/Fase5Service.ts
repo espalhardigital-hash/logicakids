@@ -1,6 +1,6 @@
 /**
- * Servicio API — Fase 5: Operatoria Decimal y Conversiones
- * Capa de comunicación con el backend de Fase 5.
+ * Servicio API — Fase 4: Fracciones, Porcentajes y Proporciones
+ * Capa de comunicación con el backend de Fase 4.
  */
 
 import { fetchWithTimeout } from '../../services/apiHelper';
@@ -10,6 +10,7 @@ import type {
   Fase5AnswerPayload,
   Fase5AnswerResult,
   Fase5Lectura,
+  Fase5CerrarRescate,
 } from './Fase5Types';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -51,10 +52,10 @@ async function fetchDeduplicated<T>(key: string, fetchFn: () => Promise<T>): Pro
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Obtiene el dashboard de Fase 5 con los módulos y su estado.
+ * Obtiene el dashboard de Fase 4 con sus 4 módulos y su estado.
  */
 export async function getFase5Dashboard(): Promise<Fase5Dashboard> {
-  const key = 'dashboard';
+  const key = 'dashboard-f4';
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(`${API_URL}/fase5/dashboard`, {
       headers: getAuthHeaders(),
@@ -67,8 +68,11 @@ export async function getFase5Dashboard(): Promise<Fase5Dashboard> {
  * Obtiene la siguiente pregunta para un módulo y nivel específicos.
  */
 export async function getFase5Question(
-  moduloId: number, nivelId: number, reload: boolean = false): Promise<Fase5Pregunta> {
-  const key = `question-${moduloId}-${nivelId}-${reload}`;
+  moduloId: number,
+  nivelId: number,
+  reload: boolean = false
+): Promise<Fase5Pregunta> {
+  const key = `question-f5-${moduloId}-${nivelId}-${reload}`;
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(
       `${API_URL}/fase5/modulo/${moduloId}/nivel/${nivelId}/pregunta?reload=${reload}`,
@@ -89,29 +93,21 @@ export async function submitFase5Answer(
     headers: getAuthHeaders(),
     body: JSON.stringify(payload),
   });
-  return handleResponse<Fase5AnswerResult>(res);
-}
-
-/**
- * Cierra el bloque de rescate y avanza.
- */
-export async function closeFase5Rescate(
-  moduloId: number, nivelId: number, preguntaId: number
-): Promise<Fase5AnswerResult> {
-  const res = await fetchWithTimeout(`${API_URL}/fase5/cerrar-rescate`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ modulo_id: moduloId, nivel_id: nivelId, pregunta_id: preguntaId }),
-  });
-  return handleResponse<Fase5AnswerResult>(res);
+  const data = await handleResponse<Fase5AnswerResult>(res);
+  if (data && !data.feedback_tutor && data.feedback_error) {
+    data.feedback_tutor = data.feedback_error;
+  }
+  return data;
 }
 
 /**
  * Obtiene el contenido de lectura/teoría de un nivel.
  */
 export async function getFase5Reading(
-  moduloId: number, nivelId: number, reload: boolean = false): Promise<Fase5Lectura> {
-  const key = `reading-${moduloId}-${nivelId}`;
+  moduloId: number,
+  nivelId: number
+): Promise<Fase5Lectura> {
+  const key = `reading-f5-${moduloId}-${nivelId}`;
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(
       `${API_URL}/fase5/lectura/${moduloId}/nivel/${nivelId}`,
@@ -122,7 +118,23 @@ export async function getFase5Reading(
 }
 
 /**
- * Gradúa al alumno de Fase 5 a Fase 6 (requiere todos los módulos dominados).
+ * Cierra de forma segura el bucle de rescate (Mirror Loop).
+ */
+export async function submitFase5CloseRescue(
+  moduloId: number,
+  nivelId: number,
+  preguntaId: number
+): Promise<Fase5CerrarRescate> {
+  const res = await fetchWithTimeout(`${API_URL}/fase5/cerrar-rescate`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ modulo_id: moduloId, nivel_id: nivelId, pregunta_id: preguntaId }),
+  });
+  return handleResponse<Fase5CerrarRescate>(res);
+}
+
+/**
+ * Gradúa al alumno de Fase 4 a Fase 5.
  */
 export async function graduateFase5(): Promise<{
   message: string;

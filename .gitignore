@@ -44,3 +44,4 @@ openspec/
 
 # --- Base de datos / dumps ---
 *.sql
+*.db

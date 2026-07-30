@@ -20,9 +20,9 @@ const WelcomeScreenPhase7 = React.lazy(() => import('./components/fase7/WelcomeS
 const Fase7GameScreen = React.lazy(() => import('./components/fase7/Fase7GameScreen'));
 const WelcomeScreenPhase8 = React.lazy(() => import('./components/fase_generic/WelcomeScreenPhaseGeneric'));
 const Fase8GameScreen = React.lazy(() => import('./components/fase_generic/FaseGenericGameScreen'));
-const WelcomeScreenPhase9 = React.lazy(() => import('./components/fase11/WelcomeScreenPhase9'));
-const Fase9GameScreen = React.lazy(() => import('./components/fase11/Fase9GameScreen').then(m => ({ default: m.Fase9GameScreen })));
-const Fase9ResultsScreen = React.lazy(() => import('./components/fase11/Fase9ResultsScreen').then(m => ({ default: m.Fase9ResultsScreen })));
+const WelcomeScreenPhase9 = React.lazy(() => import('./components/fase11/WelcomeScreenPhase11'));
+const Fase9GameScreen = React.lazy(() => import('./components/fase11/Fase11GameScreen').then(m => ({ default: m.Fase11GameScreen })));
+const Fase9ResultsScreen = React.lazy(() => import('./components/fase11/Fase11ResultsScreen').then(m => ({ default: m.Fase11ResultsScreen })));
 const PhaseMapScreen = React.lazy(() => import('./components/map/PhaseMapScreen'));
 const GameScreen = React.lazy(() => import('./components/fase1/GameScreen'));
 const ResultsScreen = React.lazy(() => import('./components/fase1/ResultsScreen'));
@@ -95,7 +95,13 @@ const Fase4GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
   return (
     <UXFeedbackOverlay fase={4} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
       <div data-component="Fase4GameScreen" style={{ display: 'contents' }}>
-        <Fase4GameScreen isEvaluatorMode={isEvaluatorMode} />
+        <Fase4GameScreen
+          moduloId={parseInt(moduloId as string, 10)}
+          nivelId={parseInt(nivelId as string, 10)}
+          isEvaluatorMode={isEvaluatorMode}
+          onComplete={() => navigate('/welcome-fase4')}
+          onBack={() => navigate('/welcome-fase4')}
+        />
       </div>
     </UXFeedbackOverlay>
   );
@@ -116,13 +122,7 @@ const Fase5GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
   return (
     <UXFeedbackOverlay fase={5} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
       <div data-component="Fase5GameScreen" style={{ display: 'contents' }}>
-        <Fase5GameScreen
-          moduloId={parseInt(moduloId as string, 10)}
-          nivelId={parseInt(nivelId as string, 10)}
-          isEvaluatorMode={isEvaluatorMode}
-          onComplete={() => navigate('/welcome-fase5')}
-          onBack={() => navigate('/welcome-fase5')}
-        />
+        <Fase5GameScreen isEvaluatorMode={isEvaluatorMode} />
       </div>
     </UXFeedbackOverlay>
   );

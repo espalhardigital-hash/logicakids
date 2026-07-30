@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { FractionPercentageVisualizer } from '../components/fase4/FractionPercentageVisualizer';
+import { FractionPercentageVisualizer } from '../components/fase5/FractionPercentageVisualizer';
 
 describe('FractionPercentageVisualizer', () => {
   it('renders progress bar and equation correctly for percentages', () => {

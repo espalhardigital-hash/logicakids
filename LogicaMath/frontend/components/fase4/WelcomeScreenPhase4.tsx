@@ -1,38 +1,43 @@
 /**
  * WelcomeScreenPhase4.tsx
  * ─────────────────────────────────────────────────────────────
- * Hub de selección de módulos para la Fase 4: Fracciones, Porcentajes y Proporciones.
+ * Hub de selección de módulos para la Fase 5: Operatoria Decimal y Conversiones.
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
 import './Fase4Styles.css';
-import '../fase2/Fase2Styles.css';
 import { getFase4Dashboard } from './Fase4Service';
 import type { Fase4Dashboard, Fase4ModuloInfo } from './Fase4Types';
 import { getAvatarUrl } from '../../services/storageService';
 import { motion } from 'framer-motion';
 
-// ── Íconos SVG inline ───────────────────────────────────────────
-
 const Icons: Record<string, React.FC<{ size?: number; color?: string }>> = {
-  'pie-chart': ({ size = 24, color = 'currentColor' }) => (
+  activity: ({ size = 24, color = 'currentColor' }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" />
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
   ),
-  divide: ({ size = 24, color = 'currentColor' }) => (
+  hash: ({ size = 24, color = 'currentColor' }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="6" r="2" /><line x1="5" y1="12" x2="19" y2="12" /><circle cx="12" cy="18" r="2" />
+      <line x1="4" y1="9" x2="20" y2="9" /><line x1="4" y1="15" x2="20" y2="15" />
+      <line x1="10" y1="3" x2="8" y2="21" /><line x1="16" y1="3" x2="14" y2="21" />
     </svg>
   ),
-  percent: ({ size = 24, color = 'currentColor' }) => (
+  'shopping-bag': ({ size = 24, color = 'currentColor' }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="19" y1="5" x2="5" y2="19" /><circle cx="6.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="17.5" r="2.5" />
+      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <path d="M16 10a4 4 0 01-8 0" />
     </svg>
   ),
-  beaker: ({ size = 24, color = 'currentColor' }) => (
+  search: ({ size = 24, color = 'currentColor' }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 3h12" /><path d="M18 3v13a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V3" /><path d="M6 14h12" />
+      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  ),
+  tool: ({ size = 24, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" />
     </svg>
   ),
   check: ({ size = 16, color = 'currentColor' }) => (
@@ -63,11 +68,6 @@ const Icons: Record<string, React.FC<{ size?: number; color?: string }>> = {
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   ),
-  activity: ({ size = 24, color = 'currentColor' }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-    </svg>
-  ),
 };
 
 const ESTADO_LABELS: Record<string, string> = {
@@ -84,7 +84,7 @@ interface Props {
   userRole?: string;
 }
 
-export const WelcomeScreenPhase4: React.FC<Props> = ({
+const WelcomeScreenPhase4: React.FC<Props> = ({
   onModuleSelect,
   onBack,
   studentName = 'Estudiante',
@@ -102,12 +102,11 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
       setError(null);
       let data = await getFase4Dashboard();
       
-      // -- Si es ADMIN, desbloqueamos todo para pruebas de desarrollo
       if (userRole === 'ADMIN') {
         data = {
           ...data,
           desafio_mixto_disponible: true,
-          desafio_mixto_estado: data.desafio_mixto_estado === 'completado' ? 'completado' : 'en_progreso',
+          desafio_mixto_estado: 'completado',
           modulos: data.modulos.map(m => ({
             ...m,
             estado: m.estado === 'bloqueado' ? 'en_progreso' : m.estado,
@@ -121,9 +120,8 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
       
       setDashboard(data);
     } catch (e: unknown) {
-      console.error('[Fase4] Error de red al cargar dashboard:', e);
-      setError('Error de conexión. No se pudo cargar el mapa de misiones.');
-      setDashboard(null);
+      console.error('[Fase4] Error loading dashboard from backend.', e);
+      setError('No se pudo conectar con el servidor. Por favor, verifica tu conexión.');
     } finally {
       setLoading(false);
     }
@@ -138,15 +136,15 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
 
   const handleChallengeClick = () => {
     if (!dashboard?.desafio_mixto_disponible) return;
-    onModuleSelect(99, 99); // 99, 99 = Desafío Mixto
+    onModuleSelect(99, 99);
   };
 
   if (loading) {
     return (
-      <div className="f4-screen-wrapper">
-        <div className="f4-loading-spinner-wrap">
-          <div className="f4-spinner-element" />
-          <span>Cargando Fase 4…</span>
+      <div className="f4-screen">
+        <div className="f4-loading">
+          <div className="f4-spinner" />
+          <span>Cargando Fase 5…</span>
         </div>
       </div>
     );
@@ -154,13 +152,13 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
 
   if (!dashboard) {
     return (
-      <div className="f4-screen-wrapper">
-        <div style={{ textAlign: 'center', padding: '40px 20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', maxWidth: '400px', margin: 'auto' }}>
-          <p className="text-red-400 font-bold mb-4">{error || 'No se pudo cargar el mapa de misiones.'}</p>
+      <div className="f4-screen">
+        <div className="f4-error-box">
+          {error || 'No se pudo cargar el dashboard.'}
+          <br />
           <button
             onClick={loadDashboard}
-            className="f4-challenge-row-btn"
-            style={{ background: '#3B82F6', color: '#ffffff', border: 'none' }}
+            style={{ marginTop: 12, padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer' }}
           >
             Reintentar
           </button>
@@ -172,56 +170,53 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
   const nombre = dashboard.alumno_nombre || studentName;
 
   return (
-    <div className="f4-screen-wrapper">
-      {/* ── Header Premium ── */}
-      <header className="f4-dashboard-header">
-        <div className="f4-header-left-wrap">
+    <div className="f4-screen">
+      <header className="f4-header">
+        <div className="f4-header-left-side">
           <button 
-            className="f4-nav-back-btn" 
+            className="f4-back-btn" 
             onClick={selectedModule ? () => setSelectedModule(null) : onBack} 
             aria-label="Volver"
           >
             <Icons.arrow_left />
           </button>
 
-          <div className="f4-profile-summary">
-            <div className="f4-avatar-badge-wrap">
+          <div className="f4-header-profile">
+            <div className="f4-avatar-container">
               {userAvatar ? (
-                <img src={getAvatarUrl(userAvatar)} alt={nombre} className="f4-avatar-media" />
+                <img src={getAvatarUrl(userAvatar)} alt={nombre} className="f4-avatar-img" />
               ) : (
-                <div className="f4-avatar-media-placeholder">
-                  <Icons.shield color="#3B82F6" size={24} />
+                <div className="f4-avatar-placeholder">
+                  <Icons.shield color="#8B5CF6" size={24} />
                 </div>
               )}
             </div>
-            <div className="f4-header-greetings-box">
-              <div className="f4-greeting-text">
+            <div className="f4-header-user-info">
+              <div className="f4-header-greeting">
                 ¡Hola, {nombre}! <span>👋</span>
               </div>
-              <div className="f4-greeting-subtitle">
-                <span className="f4-phase-indicator">FASE 4</span>
-                <span className="f4-phase-display-name">Fracciones, Porcentajes y Proporciones</span>
+              <div className="f4-header-subtitle">
+                <span className="f4-badge-fase">FASE 5</span>
+                <span className="f4-header-fasename">Operatoria Decimal y Conversiones</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="f4-header-right-wrap">
-          <div className="f4-score-indicator-badge">
-            <span className="f4-score-badge-title">Mi Progreso</span>
-            <div className="f4-score-badge-val">
+        <div className="f4-header-right">
+          <div className="f4-score-badge">
+            <span className="f4-score-label">Mi Progreso</span>
+            <div className="f4-score-value">
               <Icons.trophy size={18} color="#F59E0B" />
-              {dashboard.puntos_totales} pts
+              {dashboard.puntos_totales}
             </div>
           </div>
         </div>
       </header>
 
-      {/* ── Contenido Principal ── */}
-      <main className="f4-dashboard-content">
+      <main className="f4-content">
         {!selectedModule ? (
           <>
-            {/* Grid de los 4 módulos */}
             <div className="f4-modules-grid">
               {dashboard.modulos.map(modulo => (
                 <ModuleCard
@@ -233,21 +228,20 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
               ))}
             </div>
 
-            {/* Banner Desafío Mixto o Progreso General */}
             {dashboard.desafio_mixto_disponible ? (
-              <div className="f4-mixed-challenge-banner active">
-                <div className="f4-mixed-challenge-icon">🏆</div>
-                <div className="f4-mixed-challenge-text">
-                  <div className="f4-mixed-challenge-title">Desafío de Maestría de Fase 4</div>
-                  <div className="f4-mixed-challenge-desc">
-                    ¡Excelente trabajo! Has completado todas las etapas de la Fase 4. Enfrenta el Desafío final para abrir las puertas a la Fase 5.
+              <div className="f4-challenge-banner">
+                <div className="f4-challenge-icon">🏆</div>
+                <div className="f4-challenge-text">
+                  <div className="f4-challenge-title">Desafío Mixto de la Fase 5</div>
+                  <div className="f4-challenge-desc">
+                    ¡Has completado exitosamente todos los módulos! Es momento de resolver el Desafío Mixto y demostrar tu maestría en Operatoria Decimal.
                   </div>
                 </div>
                 <button
-                  className="f4-mixed-challenge-btn"
+                  className="f4-challenge-btn"
                   onClick={handleChallengeClick}
                 >
-                  {dashboard.desafio_mixto_estado === 'completado' ? 'Repetir Desafío' : 'Iniciar Desafío'}
+                  Iniciar Desafío Mixto
                 </button>
               </div>
             ) : (() => {
@@ -264,7 +258,7 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
                       </div>
                       <div>
                         <h3 className="text-xl font-black text-slate-900 dark:text-white mb-1 font-display tracking-tight">
-                          Tu Camino a la Fase 5
+                          Tu Camino a la Fase 6
                         </h3>
                         <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
                           Completa todos los niveles y desafíos en cada módulo para desbloquear el Desafío Mixto y avanzar de fase.
@@ -277,7 +271,6 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
                     </div>
                   </div>
 
-                  {/* General Progress Bar */}
                   <div>
                     <div className="flex justify-between items-center mb-2 font-sans">
                       <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider">PROGRESO GENERAL DE LA FASE</span>
@@ -292,7 +285,6 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
                       />
                     </div>
 
-                    {/* Per-category mini indicators */}
                     <div className="flex justify-between mt-4">
                       {dashboard.modulos.map((m) => {
                         const completedCount = m.niveles.filter(n => n.estado === 'dominado').length + (m.desafios || []).filter(d => d.estado === 'dominado').length;
@@ -320,30 +312,27 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
             })()}
           </>
         ) : (
-          <div className="f2-levels-container">
-            {/* Botón Volver al menú */}
-            <div className="f2-levels-back-wrap">
+          <div className="f4-levels-container">
+            <div className="f4-levels-back-wrap">
               <button 
                 onClick={() => setSelectedModule(null)}
-                className="f2-levels-back-btn"
+                className="f4-levels-back-btn"
               >
                 <Icons.arrow_left />
                 <span>Volver al menú</span>
               </button>
             </div>
 
-            {/* Título de niveles */}
-            <div className="f2-levels-header">
-              <h1 className="f2-levels-title">
+            <div className="f4-levels-header">
+              <h1 className="f4-levels-title">
                 Niveles De {selectedModule.nombre}
               </h1>
-              <p className="f2-levels-subtitle">
+              <p className="f4-levels-subtitle">
                 Completa el <span className="highlight">100%</span> de cada nivel de práctica para desbloquear el siguiente.
               </p>
             </div>
 
-            {/* Grid de Niveles */}
-            <div className="f2-levels-grid">
+            <div className="f4-levels-grid">
               {selectedModule.niveles.map((nivel) => {
                 const isUnlocked = nivel.estado !== 'bloqueado' || userRole === 'ADMIN';
                 const isPassed = nivel.estado === 'dominado';
@@ -353,10 +342,10 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
                     key={nivel.nivel_id}
                     disabled={!isUnlocked}
                     onClick={() => onModuleSelect(selectedModule.modulo_id, nivel.nivel_id)}
-                    className={`f2-level-card ${nivel.estado} ${isUnlocked ? 'unlocked' : 'locked'}`}
+                    className={`f4-level-card ${nivel.estado} ${isUnlocked ? 'unlocked' : 'locked'}`}
                     style={{ ['--level-accent' as string]: selectedModule.color }}
                   >
-                    <div className="f2-level-circle">
+                    <div className="f4-level-circle">
                       {isPassed ? (
                         <Icons.check size={24} color="#ffffff" />
                       ) : !isUnlocked ? (
@@ -365,12 +354,12 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
                         nivel.nivel_id
                       )}
                     </div>
-                    <span className="f2-level-title">Nivel {nivel.nivel_id}</span>
+                    <span className="f4-level-title">Nivel {nivel.nivel_id}</span>
                     
                     {isPassed && (
-                      <span className="f2-level-ping-wrap">
-                        <span className="f2-level-ping-pulse" />
-                        <span className="f2-level-ping-dot" />
+                      <span className="f4-level-ping-wrap">
+                        <span className="f4-level-ping-pulse" />
+                        <span className="f4-level-ping-dot" />
                       </span>
                     )}
                   </button>
@@ -378,19 +367,18 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
               })}
             </div>
 
-            {/* Zona de Desafíos */}
-            <div className="f2-challenge-zone">
-              <div className="f2-challenge-zone-title-wrapper">
+            <div className="f4-challenge-zone">
+              <div className="f4-challenge-zone-title-wrapper">
                 <Icons.trophy size={22} color="#F59E0B" />
-                <h2 className="f2-challenge-zone-title">
+                <h2 className="f4-challenge-zone-title">
                   ZONA DE DESAFÍOS
                 </h2>
               </div>
-              <p className="f2-challenge-zone-subtitle">
+              <p className="f4-challenge-zone-subtitle">
                 Pon a prueba tu velocidad y precisión. Completa todos los niveles de práctica para desbloquear la evaluación.
               </p>
               
-              <div className="f2-challenge-zone-list">
+              <div className="f4-challenge-zone-list">
                 {(selectedModule.desafios || []).map((desafio) => {
                   const allLevelsDominated = selectedModule.niveles.every(n => n.estado === 'dominado');
                   let isDesafioUnlocked = false;
@@ -421,37 +409,34 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
                   return (
                     <div
                       key={desafio.desafio_id}
-                      className={`f2-challenge-bar ${desafio.estado} ${isDesafioUnlocked ? 'unlocked' : 'locked'}`}
+                      className={`f4-challenge-bar ${desafio.estado} ${isDesafioUnlocked ? 'unlocked' : 'locked'}`}
                       style={{
                         ['--challenge-color' as any]: selectedModule.color,
                         background: bgGradient,
                       }}
                     >
-                      {/* Left: Icon */}
-                      <div className="f2-challenge-bar-icon">
+                      <div className="f4-challenge-bar-icon">
                         {isPassed ? '✅' : desafio.dificultad === 'maestria' ? '🏆' : desafio.dificultad === 'avanzada' ? '⚡' : '🎯'}
                       </div>
 
-                      {/* Middle: Content info */}
-                      <div className="f2-challenge-bar-text">
-                        <div className="f2-challenge-bar-title-row">
-                          <h3 className="f2-challenge-bar-title">
+                      <div className="f4-challenge-bar-text">
+                        <div className="f4-challenge-bar-title-row">
+                          <h3 className="f4-challenge-bar-title">
                             {desafio.nombre}
                           </h3>
-                          <span className={`f2-challenge-bar-badge ${desafio.dificultad}`}>
+                          <span className={`f4-challenge-bar-badge ${desafio.dificultad}`}>
                             {desafio.dificultad}
                           </span>
                         </div>
-                        <div className="f2-challenge-bar-meta">
+                        <div className="f4-challenge-bar-meta">
                           <span>⏱️ Límite: {desafio.tiempo_limite}s</span>
                           <span>❌ Errores máx: {desafio.max_errores}</span>
                           {isPassed && <span style={{ color: '#a7f3d0', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>✓ Dominado</span>}
                         </div>
                       </div>
 
-                      {/* Right: Button */}
                       <button
-                        className="f2-challenge-bar-btn"
+                        className="f4-challenge-bar-btn"
                         disabled={!isDesafioUnlocked}
                         onClick={() => onModuleSelect(selectedModule.modulo_id, desafio.desafio_id)}
                       >
@@ -470,13 +455,7 @@ export const WelcomeScreenPhase4: React.FC<Props> = ({
   );
 };
 
-interface ModuleCardProps {
-  modulo: Fase4ModuloInfo;
-  onClick: () => void;
-  userRole?: string;
-}
-
-const ModuleCard: React.FC<ModuleCardProps> = ({
+const ModuleCard: React.FC<{ modulo: Fase4ModuloInfo; onClick: () => void; userRole?: string }> = ({
   modulo,
   onClick,
   userRole,
@@ -487,37 +466,36 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
 
   return (
     <article
-      className={`f4-module-card-item ${modulo.estado}`}
-      style={{ ['--module-card-color' as string]: modulo.color }}
+      className={`f4-module-card ${modulo.estado} ${userRole === 'ADMIN' ? 'admin-unlocked' : ''}`}
+      style={{ ['--card-color' as string]: modulo.color }}
       onClick={onClick}
       role={!isLocked ? 'button' : undefined}
+      tabIndex={!isLocked ? 0 : undefined}
+      onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && !isLocked) onClick(); }}
+      aria-label={`${modulo.nombre} — ${ESTADO_LABELS[modulo.estado]}`}
     >
       <div
-        className="f4-module-card-icon-box"
-        style={{ background: isLocked ? 'rgba(255, 255, 255, 0.02)' : `${modulo.color}18` }}
+        className="f4-module-icon"
+        style={{ background: isLocked ? 'rgba(255, 255, 255, 0.02)' : `${modulo.color}22` }}
       >
         {isLocked ? (
-          <Icons.lock size={26} color="#475569" />
+          <Icons.lock size={26} color="#6b7280" />
         ) : (
           <IconComp size={26} color={modulo.color} />
         )}
       </div>
 
-      <div className="f4-module-card-title">{modulo.nombre}</div>
-      <div className="f4-module-card-desc">{modulo.descripcion}</div>
+      <div className="f4-module-name">{modulo.nombre}</div>
+      <div className="f4-module-desc">{modulo.descripcion}</div>
 
-      <div className={`f4-module-card-status-badge ${modulo.estado}`}>
-        {isLocked ? '🔒 BLOQUEADO' : modulo.estado === 'dominado' ? '🏆 DOMINADO' : '⚡ EN PROGRESO'}
-      </div>
-
-      <div className="f4-module-card-progress-wrap">
-        <div className="f4-module-card-progress-label">
-          <span>PROGRESO GLOBAL</span>
+      <div className="f4-module-progress-section">
+        <div className="f4-module-progress-label">
+          <span>PROGRESO</span>
           <span>{porcentaje}%</span>
         </div>
-        <div className="f4-module-card-progress-track">
+        <div className="f4-progress-bar-track">
           <div
-            className="f4-module-card-progress-fill"
+            className="f4-progress-bar-fill"
             style={{
               width: `${porcentaje}%`,
               background: `linear-gradient(90deg, ${modulo.color}cc, ${modulo.color})`,

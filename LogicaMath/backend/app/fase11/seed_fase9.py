@@ -11,11 +11,11 @@ from app.models.sql_models import (
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 
-FASE9_ID = 9
+FASE11_ID = 9
 
 async def clear_fase9_data(session: AsyncSession):
     print("Purging existing Fase 9 data...")
-    result = await session.execute(select(Pregunta.id).where(Pregunta.fase_id == FASE9_ID))
+    result = await session.execute(select(Pregunta.id).where(Pregunta.fase_id == FASE11_ID))
     pregunta_ids_list = result.scalars().all()
     
     if pregunta_ids_list:
@@ -29,11 +29,11 @@ async def clear_fase9_data(session: AsyncSession):
         await session.execute(delete(Intento).where(Intento.pregunta_id.in_(pregunta_ids_list)))
         await session.execute(delete(PoolAsignadoAlumno).where(PoolAsignadoAlumno.pregunta_id.in_(pregunta_ids_list)))
         
-    await session.execute(delete(Intento).where(Intento.fase_id == FASE9_ID))
-    await session.execute(delete(PoolAsignadoAlumno).where(PoolAsignadoAlumno.fase_id == FASE9_ID))
-    await session.execute(delete(Pregunta).where(Pregunta.fase_id == FASE9_ID))
-    await session.execute(delete(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == FASE9_ID))
-    await session.execute(delete(NivelTeoria).where(NivelTeoria.fase_id == FASE9_ID))
+    await session.execute(delete(Intento).where(Intento.fase_id == FASE11_ID))
+    await session.execute(delete(PoolAsignadoAlumno).where(PoolAsignadoAlumno.fase_id == FASE11_ID))
+    await session.execute(delete(Pregunta).where(Pregunta.fase_id == FASE11_ID))
+    await session.execute(delete(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == FASE11_ID))
+    await session.execute(delete(NivelTeoria).where(NivelTeoria.fase_id == FASE11_ID))
     await session.commit()
     print("Fase 9 data purged.")
 async def seed_teoria_niveles_fase9(session: AsyncSession):
@@ -80,7 +80,7 @@ async def seed_teoria_niveles_fase9(session: AsyncSession):
         })
 
     for data in niveles_teoria:
-        nt = NivelTeoria(fase_id=FASE9_ID, **data)
+        nt = NivelTeoria(fase_id=FASE11_ID, **data)
         session.add(nt)
     await session.commit()
 
@@ -102,7 +102,7 @@ async def inject_pedro_ii_history(session: AsyncSession):
     for mod_id, lvl_id in sections:
         seccion_id = mod_id * 100 + lvl_id
         for i in range(10): # 10 questions per exam!
-            rng = random.Random(FASE9_ID * 100000 + seccion_id * 1000 + i)
+            rng = random.Random(FASE11_ID * 100000 + seccion_id * 1000 + i)
             tipo_q = rng.choice(["hist", "calc", "log"])
             
             if tipo_q == "hist":
@@ -124,7 +124,7 @@ async def inject_pedro_ii_history(session: AsyncSession):
             }
             
             p = Pregunta(
-                fase_id=FASE9_ID, seccion=seccion_id, operacion=OperacionEnum.MIXTA,
+                fase_id=FASE11_ID, seccion=seccion_id, operacion=OperacionEnum.MIXTA,
                 tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=f"[Q{i}] {enunciado}",
                 respuesta_correcta=ans, 
                 datos_numericos=payload,
@@ -144,9 +144,9 @@ async def run_fase9_seed():
     print("=" * 60)
     print("Iniciando inyección de datos semilla de FASE 9...")
     async with AsyncSessionLocal() as session:
-        fase = await session.get(Fase, FASE9_ID)
+        fase = await session.get(Fase, FASE11_ID)
         if not fase:
-            fase = Fase(id=FASE9_ID, nombre="Simulados Colegio Pedro II", descripcion="Fase 9", orden=9, icono="🎓")
+            fase = Fase(id=FASE11_ID, nombre="Simulados Colegio Pedro II", descripcion="Fase 9", orden=9, icono="🎓")
             session.add(fase)
             await session.commit()
             

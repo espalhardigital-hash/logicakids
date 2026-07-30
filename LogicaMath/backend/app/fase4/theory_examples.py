@@ -1,810 +1,673 @@
 # theory_examples.py
 # ─────────────────────────────────────────────────────────────
-# Base de ejemplos extendidos y formateados premium para Fase 4.
-# Proporciona los ejemplos estructurados para cada módulo y nivel de Fase 4 con gráficos SVG y explicaciones amigables.
+# Base de ejemplos guiados estructurados para Fase 4 (Decimales).
+# Cumple con C2.2, C2.4, C3 y §4.3 de reestructuracion.md.
+# Exactly 4 guided examples per level (3 calculation + 1 TJS 5-step with active commitment on step 3).
 
-def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
+from app.utils.svg_figuras import tabla_datos, comparador_opciones, escalera_unidades, color_modulo
+
+def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
     ejemplos_db = {
-        # --- MÓDULO 1: LA FRACCIÓN VISUAL ---
-        # Nivel 1: Lectura y modelado de numerador/denominador en polígonos simétricos
+        # =========================================================================
+        # MÓDULO 1: Suma y Resta de Decimales
+        # =========================================================================
         (1, 1): [
             {
-                "enunciado": "Una pizza está cortada en <span class=\"keyword-highlight\">8 pedazos iguales</span>. Si te comes <span class=\"keyword-highlight\">3 pedazos</span>, ¿qué fracción representa?<br/>"
-                             "<svg width='120' height='120' viewBox='0 0 100 100' style='margin:10px auto; display:block; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));'>"
-                             "  <circle cx='50' cy='50' r='42' fill='#FDE047' stroke='#D97706' stroke-width='3'/>"
-                             "  <!-- 3 porciones rojas (comidas / seleccionadas) -->"
-                             "  <path d='M50,50 L50,8 A42,42 0 0,1 79.7,20.3 Z' fill='#EF4444' stroke='#D97706' stroke-width='1.5'/>"
-                             "  <path d='M50,50 L79.7,20.3 A42,42 0 0,1 92,50 Z' fill='#EF4444' stroke='#D97706' stroke-width='1.5'/>"
-                             "  <path d='M50,50 L92,50 A42,42 0 0,1 79.7,79.7 Z' fill='#EF4444' stroke='#D97706' stroke-width='1.5'/>"
-                             "  <!-- Líneas divisorias para el resto -->"
-                             "  <line x1='50' y1='50' x2='50' y2='92' stroke='#D97706' stroke-width='2'/>"
-                             "  <line x1='50' y1='50' x2='8' y2='50' stroke='#D97706' stroke-width='2'/>"
-                             "  <line x1='50' y1='50' x2='20.3' y2='20.3' stroke='#D97706' stroke-width='2'/>"
-                             "  <line x1='50' y1='50' x2='20.3' y2='79.7' stroke='#D97706' stroke-width='2'/>"
-                             "</svg>",
+                "enunciado": "Mía compra un libreta por R$ 3,25 y un lápiz por R$ 1,40. ¿Cuánto pagó en total?<br/>" +
+                             tabla_datos([("Libreta", "R$ 3,25"), ("Lápiz", "R$ 1,40")], color=color_modulo(1,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "Contamos las porciones totales de la pizza (abajo): <span class=\"keyword-highlight\">8</span>."},
-                    {"orden": 2, "texto": "Contamos las porciones pintadas de color rojo (arriba): <span class=\"keyword-highlight\">3</span>."},
-                    {"orden": 3, "texto": "Escribimos la fracción mágica: <span class=\"keyword-highlight\">3/8</span> (¡tres octavos!)."}
+                    {"orden": 1, "texto": "Alineamos los números haciendo coincidir la coma vertical: 3,25 + 1,40."},
+                    {"orden": 2, "texto": "Sumamos centésimas (5+0=5), décimas (2+4=6) y unidades (3+1=4)."},
+                    {"orden": 3, "texto": "Resultado final: Mía pagó R$ 4,65 en total."}
                 ]
             },
             {
-                "enunciado": "Una barra de chocolate tiene <span class=\"keyword-highlight\">4 cuadrados idénticos</span>. Te comes <span class=\"keyword-highlight\">1 cuadrado</span>. ¿Qué fracción queda?",
+                "enunciado": "Hugo compró jugo por R$ 4,50 y galletas por R$ 2,30. ¿Cuánto gastó?<br/>" +
+                             tabla_datos([("Jugo", "R$ 4,50"), ("Galletas", "R$ 2,30")], color=color_modulo(1,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "El chocolate entero se dividió en <span class=\"keyword-highlight\">4</span> partes iguales. El total va abajo: 4."},
-                    {"orden": 2, "texto": "Si comes 1, te quedan: <span class=\"keyword-highlight\">4 - 1 = 3</span> cuadrados deliciosos (Numerador = 3)."},
-                    {"orden": 3, "texto": "La fracción restante es: <span class=\"keyword-highlight\">3/4</span>."}
+                    {"orden": 1, "texto": "Alineamos por la coma decimal: 4,50 + 2,30."},
+                    {"orden": 2, "texto": "Sumamos columna por columna de derecha a izquierda."},
+                    {"orden": 3, "texto": "Resultado: Hugo gastó R$ 6,80."}
                 ]
             },
             {
-                "enunciado": "Una bandera está dividida en <span class=\"keyword-highlight\">3 franjas verticales iguales</span>. Hay <span class=\"keyword-highlight\">2 franjas de color rojo</span>. ¿Qué fracción es roja?",
+                "enunciado": "Leo junta R$ 5,30 el lunes y R$ 2,45 el martes. ¿Cuánto ahorró?<br/>" +
+                             tabla_datos([("Lunes", "R$ 5,30"), ("Martes", "R$ 2,45")], color=color_modulo(1,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "El total de franjas es <span class=\"keyword-highlight\">3</span>. Va en el denominador (abajo)."},
-                    {"orden": 2, "texto": "Las rojas son <span class=\"keyword-highlight\">2</span>. Va en el numerador (arriba)."},
-                    {"orden": 3, "texto": "La fracción resultante es: <span class=\"keyword-highlight\">2/3</span>."}
+                    {"orden": 1, "texto": "Comprobamos que ambos números tienen dos cifras tras la coma."},
+                    {"orden": 2, "texto": "Sumamos: 30 + 45 = 75 centésimas, 5 + 2 = 7 unidades."},
+                    {"orden": 3, "texto": "Ahorro total: R$ 7,75."}
                 ]
             },
             {
-                "enunciado": "Una ventana tiene <span class=\"keyword-highlight\">6 cristales iguales</span>. Si <span class=\"keyword-highlight\">5 cristales</span> están limpios, ¿qué fracción representa?",
+                "enunciado": "Mía lleva R$ 10,00 a la tienda. Quiere una carpeta de R$ 6,25 y un sacapuntas de R$ 3,90. ¿Le alcanza el dinero o le falta?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Total de divisiones = <span class=\"keyword-highlight\">6</span> (Denominador)."},
-                    {"orden": 2, "texto": "Porción de cristales limpios = <span class=\"keyword-highlight\">5</span> (Numerador)."},
-                    {"orden": 3, "texto": "La fracción es: <span class=\"keyword-highlight\">5/6</span> de la ventana limpia."}
+                    {"orden": 1, "texto": "Leemos el caso: Mía tiene R$ 10,00 y los artículos cuestan R$ 6,25 y R$ 3,90."},
+                    {"orden": 2, "texto": "Debemos evaluar un juicio situacional: calcular el costo total y comparar con el presupuesto de R$ 10,00."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Qué conclusión es la correcta para Mía?",
+                        "opciones": [
+                            "Le falta dinero (el total es R$ 10,15)",
+                            "Le alcanza justo y no le sobra nada",
+                            "Le sobra dinero (el total es R$ 9,15)"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! R$ 6,25 + R$ 3,90 = R$ 10,15. Le faltan R$ 0,15.",
+                            "1": "Atención: no alcanza justo porque 6,25 + 3,90 se pasa de 10,00.",
+                            "2": "Cuidado: sumar 25 + 90 tienta a olvidar el acarreo de 1 unidad."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: Sumamos 6,25 + 3,90 = 10,15. Como 10,15 > 10,00, a Mía le faltan R$ 0,15."},
+                    {"orden": 5, "texto": "Análisis de trampas: El distractor de R$ 9,15 ocurre al olvidar sumar el acarreo (2 décimas + 9 décimas = 11 décimas)."}
                 ]
             }
         ],
-        # Nivel 2: Construcción de equivalencias
         (1, 2): [
             {
-                "enunciado": "Si dividimos una figura en <span class=\"keyword-highlight\">4 veces más partes iguales</span>, necesitaremos colorear <span class=\"keyword-highlight\">4 veces más partes</span> para representar la misma porción del total.<br/>"
-                             "<div style='display:flex; justify-content:center; align-items:center; gap:30px; margin:15px auto;'>"
-                             "  <div style='text-align:center;'>"
-                             "    <svg width='120' height='120' viewBox='0 0 120 120' style='border:2px solid #FFFFFF; background:#1F2937; border-radius:8px;'>"
-                             "      <rect x='0' y='0' width='40' height='120' fill='#374151'/>"
-                             "      <rect x='40' y='0' width='40' height='120' fill='#8B5CF6'/>"
-                             "      <rect x='80' y='0' width='40' height='120' fill='#374151'/>"
-                             "      <line x1='40' y1='0' x2='40' y2='120' stroke='#FFFFFF' stroke-width='2'/>"
-                             "      <line x1='80' y1='0' x2='80' y2='120' stroke='#FFFFFF' stroke-width='2'/>"
-                             "    </svg>"
-                             "    <div style='font-size:0.9rem; color:#8B5CF6; font-weight:bold; margin-top:6px;'>1/3</div>"
-                             "  </div>"
-                             "  <div style='font-size:2rem; color:#FFFFFF; font-weight:bold;'>=</div>"
-                             "  <div style='text-align:center;'>"
-                             "    <svg width='120' height='120' viewBox='0 0 120 120' style='border:2px solid #FFFFFF; background:#1F2937; border-radius:8px;'>"
-                             "      <polygon points='0,0 40,0 0,60' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='0,60 40,0 40,60' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='0,60 40,60 0,120' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='0,120 40,60 40,120' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='40,0 80,0 40,60' fill='#8B5CF6' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='40,60 80,0 80,60' fill='#8B5CF6' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='40,60 80,60 40,120' fill='#8B5CF6' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='40,120 80,60 80,120' fill='#8B5CF6' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='80,0 120,0 80,60' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='80,60 120,0 120,60' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='80,60 120,60 80,120' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <polygon points='80,120 120,60 120,120' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='40' y1='0' x2='40' y2='120' stroke='#FFFFFF' stroke-width='2.5'/>"
-                             "      <line x1='80' y1='0' x2='80' y2='120' stroke='#FFFFFF' stroke-width='2.5'/>"
-                             "      <line x1='0' y1='60' x2='120' y2='60' stroke='#FFFFFF' stroke-width='2.5'/>"
-                             "    </svg>"
-                             "    <div style='font-size:0.9rem; color:#8B5CF6; font-weight:bold; margin-top:6px;'>4/12</div>"
-                             "  </div>"
-                             "</div>"
-                             "<div style='display:flex; justify-content:center; align-items:center; gap:8px; font-size:1.2rem; color:#FFFFFF; margin-bottom:10px;'>"
-                             "  <div style='text-align:center;'>"
-                             "    <div style='border-bottom:2px solid #fff; padding: 0 4px;'>1 × 4</div>"
-                             "    <div>3 × 4</div>"
-                             "  </div>"
-                             "  <div style='font-weight:bold;'>=</div>"
-                             "  <div style='text-align:center; color:#A855F7;'>"
-                             "    <div style='border-bottom:2px solid #A855F7; padding: 0 4px; font-weight:bold;'>4</div>"
-                             "    <div style='font-weight:bold;'>12</div>"
-                             "  </div>"
-                             "</div>",
+                "enunciado": "Leo paga una compra de R$ 3,40 con un billete de R$ 10,00. ¿Cuánto recibe de vuelto?<br/>" +
+                             tabla_datos([("Pago", "R$ 10,00"), ("Costo", "R$ 3,40")], color=color_modulo(1,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "Contamos las partes originales: la figura de la izquierda está dividida en 3 columnas iguales y 1 está coloreada (1/3)."},
-                    {"orden": 2, "texto": "Subdividimos la figura: al cortar cada columna por la mitad y trazar diagonales, obtenemos 4 veces más partes: 3 × 4 = 12."},
-                    {"orden": 3, "texto": "Para mantener el mismo área pintada, la parte morada ahora tiene 4 trozos pequeños (1 × 4 = 4). Así, 1/3 equivale a 4/12."}
+                    {"orden": 1, "texto": "Alineamos por la coma: 10,00 - 3,40."},
+                    {"orden": 2, "texto": "Restamos centésimas (0-0=0) y décimas pidiendo prestado (10-4=6)."},
+                    {"orden": 3, "texto": "Restamos unidades (9-3=6). Vuelto: R$ 6,60."}
                 ]
             },
             {
-                "enunciado": "Escribe una fracción diferente que sea igual a <span class=\"keyword-highlight\">1/2</span> dividiendo un cuadrado en <span class=\"keyword-highlight\">16 partes iguales</span> con un patrón de diamantes y coloreando <span class=\"keyword-highlight\">8 de ellas</span>.<br/>"
-                             "<div style='display:flex; flex-direction:column; align-items:center; gap:10px; margin:15px auto;'>"
-                             "  <svg width='120' height='120' viewBox='0 0 120 120' style='border:2px solid #FFFFFF; background:#1F2937; border-radius:8px;'>"
-                             "    <polygon points='60,0 0,30 60,30' fill='#0D9488'/>"
-                             "    <polygon points='60,60 0,30 60,30' fill='#0D9488'/>"
-                             "    <polygon points='60,0 120,30 60,30' fill='#0D9488'/>"
-                             "    <polygon points='60,60 120,30 60,30' fill='#0D9488'/>"
-                             "    <polygon points='60,60 0,90 60,90' fill='#0D9488'/>"
-                             "    <polygon points='60,120 0,90 60,90' fill='#0D9488'/>"
-                             "    <polygon points='60,60 120,90 60,90' fill='#0D9488'/>"
-                             "    <polygon points='60,120 120,90 60,90' fill='#0D9488'/>"
-                             "    <polygon points='0,0 60,0 0,30' fill='#374151'/>"
-                             "    <polygon points='0,60 60,60 0,30' fill='#374151'/>"
-                             "    <polygon points='120,0 60,0 120,30' fill='#374151'/>"
-                             "    <polygon points='120,60 60,60 120,30' fill='#374151'/>"
-                             "    <polygon points='0,60 60,60 0,90' fill='#374151'/>"
-                             "    <polygon points='0,120 60,120 0,90' fill='#374151'/>"
-                             "    <polygon points='120,60 60,60 120,90' fill='#374151'/>"
-                             "    <polygon points='120,120 60,120 120,90' fill='#374151'/>"
-                             "    <line x1='0' y1='30' x2='60' y2='0' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='0' y1='30' x2='60' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='120' y1='30' x2='60' y2='0' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='120' y1='30' x2='60' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='0' y1='90' x2='60' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='0' y1='90' x2='60' y2='120' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='120' y1='90' x2='60' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='120' y1='90' x2='60' y2='120' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='60' y1='0' x2='60' y2='120' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='0' y1='60' x2='120' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='0' y1='30' x2='120' y2='30' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <line x1='0' y1='90' x2='120' y2='90' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "  </svg>"
-                             "  <div style='display:flex; justify-content:center; align-items:center; gap:8px; font-size:1.2rem; color:#FFFFFF;'>"
-                             "    <div style='text-align:center;'>"
-                             "      <div style='border-bottom:2px solid #fff; padding: 0 4px;'>1</div>"
-                             "      <div>2</div>"
-                             "    </div>"
-                             "    <div style='font-weight:bold;'>=</div>"
-                             "    <div style='text-align:center; color:#0D9488;'>"
-                             "      <div style='border-bottom:2px solid #0D9488; padding: 0 4px; font-weight:bold;'>8</div>"
-                             "      <div style='font-weight:bold;'>16</div>"
-                             "    </div>"
-                             "  </div>"
-                             "</div>",
+                "enunciado": "Zoe tenía 5,5 metros de cinta y cortó 2,25 metros. ¿Cuánta cinta le queda?<br/>" +
+                             tabla_datos([("Cinta inicial", "5,50 m"), ("Cortado", "2,25 m")], color=color_modulo(1,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "Dividimos el cuadrado grande: usando líneas horizontales, verticales y diagonales de diamantes, lo cortamos en exactamente 16 triángulos iguales."},
-                    {"orden": 2, "texto": "Contamos la parte coloreada de turquesa: los dos rombos centrales están formados por 8 triángulos turquesas."},
-                    {"orden": 3, "texto": "Obtenemos la equivalencia: 8 partes de 16 cubren exactamente la mitad del área del cuadrado, por lo que: 1/2 = 8/16."}
+                    {"orden": 1, "texto": "Completamos con cero a 5,50 para tener dos decimales."},
+                    {"orden": 2, "texto": "Restamos 5,50 - 2,25 alineando la coma vertical."},
+                    {"orden": 3, "texto": "Resultado: Le quedan 3,25 metros de cinta."}
                 ]
             },
             {
-                "enunciado": "Al multiplicar el numerador y el denominador de una fracción por el <span class=\"keyword-highlight\">mismo factor</span>, creamos una fracción equivalente idéntica en proporción.<br/>"
-                             "<div style='display:flex; justify-content:center; align-items:center; gap:30px; margin:15px auto;'>"
-                             "  <div style='text-align:center;'>"
-                             "    <svg width='120' height='120' viewBox='0 0 120 120' style='border:2px solid #FFFFFF; background:#1F2937; border-radius:8px;'>"
-                             "      <rect x='0' y='0' width='120' height='120' fill='#374151'/>"
-                             "      <rect x='0' y='0' width='60' height='30' fill='#0D9488'/>"
-                             "      <rect x='60' y='0' width='60' height='30' fill='#0D9488'/>"
-                             "      <rect x='0' y='30' width='60' height='30' fill='#0D9488'/>"
-                             "      <line x1='60' y1='0' x2='60' y2='120' stroke='#FFFFFF' stroke-width='2'/>"
-                             "      <line x1='0' y1='30' x2='120' y2='30' stroke='#FFFFFF' stroke-width='2'/>"
-                             "      <line x1='0' y1='60' x2='120' y2='60' stroke='#FFFFFF' stroke-width='2'/>"
-                             "      <line x1='0' y1='90' x2='120' y2='90' stroke='#FFFFFF' stroke-width='2'/>"
-                             "    </svg>"
-                             "    <div style='font-size:0.9rem; color:#0D9488; font-weight:bold; margin-top:6px;'>3/8</div>"
-                             "  </div>"
-                             "  <div style='font-size:2rem; color:#FFFFFF; font-weight:bold;'>=</div>"
-                             "  <div style='text-align:center;'>"
-                             "    <svg width='120' height='120' viewBox='0 0 120 120' style='border:2px solid #FFFFFF; background:#1F2937; border-radius:8px;'>"
-                             "      <rect x='0' y='0' width='120' height='120' fill='#374151'/>"
-                             "      <rect x='0' y='0' width='60' height='30' fill='#0D9488'/>"
-                             "      <rect x='60' y='0' width='60' height='30' fill='#0D9488'/>"
-                             "      <rect x='0' y='30' width='60' height='30' fill='#0D9488'/>"
-                             "      <line x1='0' y1='30' x2='60' y2='0' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='120' y1='30' x2='60' y2='0' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='0' y1='30' x2='60' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='120' y1='30' x2='60' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='0' y1='90' x2='60' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='120' y1='90' x2='60' y2='60' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='0' y1='90' x2='60' y2='120' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='120' y1='90' x2='60' y2='120' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "      <line x1='60' y1='0' x2='60' y2='120' stroke='#FFFFFF' stroke-width='2.5'/>"
-                             "      <line x1='0' y1='30' x2='120' y2='30' stroke='#FFFFFF' stroke-width='2.5'/>"
-                             "      <line x1='0' y1='60' x2='120' y2='60' stroke='#FFFFFF' stroke-width='2.5'/>"
-                             "      <line x1='0' y1='90' x2='120' y2='90' stroke='#FFFFFF' stroke-width='2.5'/>"
-                             "    </svg>"
-                             "    <div style='font-size:0.9rem; color:#0D9488; font-weight:bold; margin-top:6px;'>6/16</div>"
-                             "  </div>"
-                             "</div>"
-                             "<div style='display:flex; justify-content:center; align-items:center; gap:8px; font-size:1.2rem; color:#FFFFFF; margin-bottom:10px;'>"
-                             "  <div style='text-align:center;'>"
-                             "    <div style='border-bottom:2px solid #fff; padding: 0 4px;'>3 × 2</div>"
-                             "    <div>8 × 2</div>"
-                             "  </div>"
-                             "  <div style='font-weight:bold;'>=</div>"
-                             "  <div style='text-align:center; color:#0D9488;'>"
-                             "    <div style='border-bottom:2px solid #0D9488; padding: 0 4px; font-weight:bold;'>6</div>"
-                             "    <div style='font-weight:bold;'>16</div>"
-                             "  </div>"
-                             "</div>",
+                "enunciado": "Hugo tenía R$ 15,80 y gastó R$ 7,50. ¿Cuánto le sobra?<br/>" +
+                             tabla_datos([("Inicial", "R$ 15,80"), ("Gasto", "R$ 7,50")], color=color_modulo(1,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "Fracción original: la cuadrícula izquierda tiene 8 rectángulos y 3 están coloreados (3/8)."},
-                    {"orden": 2, "texto": "Si dividimos cada rectángulo diagonalmente en 2 partes iguales, duplicamos el total de piezas: 8 × 2 = 16."},
-                    {"orden": 3, "texto": "Los 3 rectángulos turquesas ahora representan 6 triángulos coloreados: 3 × 2 = 6. Obtenemos la fracción equivalente clonada: 6/16."}
+                    {"orden": 1, "texto": "Alineamos 15,80 - 7,50 por la coma."},
+                    {"orden": 2, "texto": "Restamos 80 - 50 = 30 centésimas y 15 - 7 = 8 unidades."},
+                    {"orden": 3, "texto": "Resultado: Le sobra R$ 8,30."}
                 ]
             },
             {
-                "enunciado": "Encuentra una fracción equivalente a <span class=\"keyword-highlight\">1/2</span> pintando exactamente la mitad de un hexágono dividido en <span class=\"keyword-highlight\">12 triángulos iguales</span> formando una estrella o molinillo.<br/>"
-                             "<div style='display:flex; flex-direction:column; align-items:center; gap:10px; margin:15px auto;'>"
-                             "  <svg width='120' height='120' viewBox='0 0 120 120' style='filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));'>"
-                             "    <polygon points='60,10 103.3,35 103.3,85 60,110 16.7,85 16.7,35' fill='#374151' stroke='#FFFFFF' stroke-width='2.5'/>"
-                             "    <polygon points='60,60 60,10 43.35,22.5' fill='#F59E0B' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 16.7,35 16.7,60' fill='#F59E0B' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 16.7,85 43.35,97.5' fill='#F59E0B' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 60,110 81.65,97.5' fill='#F59E0B' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 103.3,85 103.3,60' fill='#F59E0B' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 103.3,35 81.65,22.5' fill='#F59E0B' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 43.35,22.5 16.7,35' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 16.7,60 16.7,85' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 43.35,97.5 60,110' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 81.65,97.5 103.3,85' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 103.3,60 103.3,35' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "    <polygon points='60,60 81.65,22.5 60,10' fill='#374151' stroke='#FFFFFF' stroke-width='1.5'/>"
-                             "  </svg>"
-                             "  <div style='display:flex; justify-content:center; align-items:center; gap:8px; font-size:1.2rem; color:#FFFFFF;'>"
-                             "    <div style='text-align:center;'>"
-                             "      <div style='border-bottom:2px solid #fff; padding: 0 4px;'>1</div>"
-                             "      <div>2</div>"
-                             "    </div>"
-                             "    <div style='font-weight:bold;'>=</div>"
-                             "    <div style='text-align:center; color:#F59E0B;'>"
-                             "      <div style='border-bottom:2px solid #F59E0B; padding: 0 4px; font-weight:bold;'>6</div>"
-                             "      <div style='font-weight:bold;'>12</div>"
-                             "    </div>"
-                             "  </div>"
-                             "</div>",
+                "enunciado": "Sofia tiene R$ 20,00. Compra un libro de R$ 14,30. El vendedor le devuelve R$ 6,70. ¿El vuelto está correcto?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Estudiamos el hexágono: está dividido en exactamente 12 triángulos del mismo tamaño."},
-                    {"orden": 2, "texto": "Contamos las partes del molinillo: hay 6 aspas amarillas, lo que representa la mitad exacta de las 12 porciones totales."},
-                    {"orden": 3, "texto": "Hallamos la equivalencia: al simplificar 6/12 o amplificar 1/2 por 6, comprobamos que 1/2 es equivalente a 6/12."}
+                    {"orden": 1, "texto": "Evaluamos el vuelto entregado a Sofia: pagó R$ 20,00 por R$ 14,30."},
+                    {"orden": 2, "texto": "Debemos juzgar si 20,00 - 14,30 es igual a R$ 6,70 o si hay un error en el cambio."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Qué opción describe el estado del vuelto?",
+                        "opciones": [
+                            "Está equivocado, el vuelto correcto es R$ 5,70",
+                            "Está perfecto, el vuelto correcto es R$ 6,70",
+                            "Está equivocado, el vuelto correcto es R$ 4,70"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! Al pedir prestado 1 unidad de 20, las decenas quedan en 19. 19 - 14 = 5. Vuelto = R$ 5,70.",
+                            "1": "Atención: R$ 6,70 se obtiene si se resta 20 - 14 sin descontar el prestado.",
+                            "2": "Cuidado: R$ 4,70 resta de más en las unidades."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 20,00 - 14,30 = 5,70. El vendedor le dio R$ 1,00 de más por error."},
+                    {"orden": 5, "texto": "Análisis de trampas: 6,70 tienta porque 10 - 3 = 7 y se olvida reducir 20 a 19."}
                 ]
             }
         ],
-        # Nivel 3: Áreas fraccionarias en composiciones geométricas asimétricas
         (1, 3): [
             {
-                "enunciado": "Un cuadrado se dividió en <span class=\"keyword-highlight\">4 partes</span>, pero 2 son el doble de grandes que las otras. ¿Cada parte representa 1/4?<br/>"
-                             "<svg width='100' height='100' viewBox='0 0 100 100' style='margin:10px auto; display:block; border:2px solid #4B5563; background:#1F2937;'>"
-                             "  <!-- 2 partes grandes (33.3% y 33.3%) y 2 pequeñas (16.6% cada una) -->"
-                             "  <rect x='0' y='0' width='33.3' height='100' fill='none' stroke='#9CA3AF' stroke-width='2'/>"
-                             "  <rect x='33.3' y='0' width='33.3' height='100' fill='none' stroke='#9CA3AF' stroke-width='2'/>"
-                             "  <rect x='66.6' y='0' width='16.6' height='100' fill='none' stroke='#9CA3AF' stroke-width='2'/>"
-                             "  <rect x='83.2' y='0' width='16.8' height='100' fill='none' stroke='#9CA3AF' stroke-width='2'/>"
-                             "  <text x='50' y='55' fill='#EF4444' font-size='14' font-weight='bold' text-anchor='middle'>¿Son iguales?</text>"
-                             "</svg>",
+                "enunciado": "Mía ahorra R$ 12,50, recibe R$ 5,00 y gasta R$ 8,25. ¿Cuánto tiene ahora?<br/>" +
+                             tabla_datos([("Ingreso total", "R$ 17,50"), ("Gasto", "R$ 8,25")], color=color_modulo(1,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Recuerda la regla de oro: para representar fracciones directamente, todas las partes deben tener <span class=\"keyword-highlight\">exactamente la misma área</span>."},
-                    {"orden": 2, "texto": "Al mirar el dibujo, vemos que los bloques son desiguales (unos son anchos y otros delgados)."},
-                    {"orden": 3, "texto": "Por lo tanto, la respuesta correcta es: <span class=\"keyword-highlight\">No, porque las partes no son iguales</span>."}
+                    {"orden": 1, "texto": "Sumamos ingresos: 12,50 + 5,00 = 17,50."},
+                    {"orden": 2, "texto": "Restamos el gasto: 17,50 - 8,25."},
+                    {"orden": 3, "texto": "Resultado final: Mía tiene R$ 9,25."}
                 ]
             },
             {
-                "enunciado": "Un rectángulo está cortado por su diagonal en <span class=\"keyword-highlight\">2 triángulos iguales</span>. ¿Qué fracción representa cada uno?",
+                "enunciado": "Hugo tiene R$ 25,00. Compra 2 artículos de R$ 7,50 cada uno. ¿Cuánto vuelto recibe?<br/>" +
+                             tabla_datos([("Dinero", "R$ 25,00"), ("Total gastado", "R$ 15,00")], color=color_modulo(1,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "La diagonal divide la figura en <span class=\"keyword-highlight\">2 porciones simétricas</span> del mismo tamaño."},
-                    {"orden": 2, "texto": "Cada triángulo es una de esas partes de un total de dos."},
-                    {"orden": 3, "texto": "La respuesta es: <span class=\"keyword-highlight\">1/2</span> del rectángulo."}
+                    {"orden": 1, "texto": "Calculamos la suma de compras: 7,50 + 7,50 = 15,00."},
+                    {"orden": 2, "texto": "Restamos del presupuesto: 25,00 - 15,00."},
+                    {"orden": 3, "texto": "Vuelto final: R$ 10,00."}
                 ]
             },
             {
-                "enunciado": "Un círculo tiene una línea que corta una pequeña porción del borde. ¿Es esa porción la mitad (1/2)?",
+                "enunciado": "Zoe lleva R$ 18,00. Compra un estuche de R$ 11,40 y recibe R$ 2,00 que le debían. ¿Cuánto tiene?<br/>" +
+                             tabla_datos([("Dinero neto", "R$ 6,60"), ("Cobro", "R$ 2,00")], color=color_modulo(1,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Para que represente la mitad exacta, la línea de corte debe pasar por el mero centro (diámetro)."},
-                    {"orden": 2, "texto": "Al estar la línea en una orilla, una parte es diminuta y otra gigante."},
-                    {"orden": 3, "texto": "Respuesta: <span class=\"keyword-highlight\">No, porque las partes no son iguales</span>."}
+                    {"orden": 1, "texto": "Restamos la compra: 18,00 - 11,40 = 6,60."},
+                    {"orden": 2, "texto": "Sumamos el cobro: 6,60 + 2,00 = 8,60."},
+                    {"orden": 3, "texto": "Total actual: R$ 8,60."}
                 ]
             },
             {
-                "enunciado": "Una figura especial está dividida en <span class=\"keyword-highlight\">7 porciones de tamaños DISTINTOS</span> que en total suman <span class=\"keyword-highlight\">12 doceavos (12/12)</span>. ¿Cómo puedes saber qué fracción representa cada porción?<br/>"
-                             "<svg width='130' height='100' viewBox='0 0 90 90' style='margin:10px auto; display:block; filter: drop-shadow(0px 4px 8px rgba(99,102,241,0.5));'>"
-                             "  <!-- Col izquierda grande: 4/12 -->"
-                             "  <polygon points='0,0 30,0 30,90 0,90' fill='#4F46E5' opacity='0.85' stroke='#312E81' stroke-width='1.5'/>"
-                             "  <text x='15' y='48' fill='white' font-size='7' font-weight='bold' text-anchor='middle'>4/12</text>"
-                             "  <!-- Col central superior: 2/12 -->"
-                             "  <polygon points='30,0 60,0 60,45 30,45' fill='#7C3AED' opacity='0.8' stroke='#312E81' stroke-width='1.5'/>"
-                             "  <text x='45' y='26' fill='white' font-size='7' font-weight='bold' text-anchor='middle'>2/12</text>"
-                             "  <!-- Col central inferior: 2/12 -->"
-                             "  <polygon points='30,45 60,45 60,90 30,90' fill='#7C3AED' opacity='0.6' stroke='#312E81' stroke-width='1.5'/>"
-                             "  <text x='45' y='70' fill='white' font-size='7' font-weight='bold' text-anchor='middle'>2/12</text>"
-                             "  <!-- Triángulo sup-der: 1/12 -->"
-                             "  <polygon points='60,0 90,0 90,45' fill='#EC4899' opacity='0.75' stroke='#312E81' stroke-width='1.5'/>"
-                             "  <text x='76' y='18' fill='white' font-size='6' font-weight='bold' text-anchor='middle'>1/12</text>"
-                             "  <!-- Triángulo cen-der sup: 1/12 -->"
-                             "  <polygon points='60,0 90,45 60,45' fill='#F43F5E' opacity='0.7' stroke='#312E81' stroke-width='1.5'/>"
-                             "  <text x='71' y='36' fill='white' font-size='6' font-weight='bold' text-anchor='middle'>1/12</text>"
-                             "  <!-- Triángulo cen-der inf: 1/12 -->"
-                             "  <polygon points='60,45 90,45 60,90' fill='#F97316' opacity='0.7' stroke='#312E81' stroke-width='1.5'/>"
-                             "  <text x='71' y='62' fill='white' font-size='6' font-weight='bold' text-anchor='middle'>1/12</text>"
-                             "  <!-- Triángulo inf-der: 1/12 -->"
-                             "  <polygon points='90,45 90,90 60,90' fill='#EAB308' opacity='0.7' stroke='#312E81' stroke-width='1.5'/>"
-                             "  <text x='76' y='78' fill='white' font-size='6' font-weight='bold' text-anchor='middle'>1/12</text>"
-                             "</svg>",
+                "enunciado": "Leo dispone de R$ 30,00. Desea comprar un balón de R$ 18,50 y dos mochilas pequeñas de R$ 6,00 cada una. ¿Le alcanza su dinero?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "La figura está dividida en 7 porciones de <span class=\"keyword-highlight\">tamaños diferentes</span>, pero juntas suman exactamente 1 figura entera (12/12)."},
-                    {"orden": 2, "texto": "La columna izquierda grande vale <span class=\"keyword-highlight\">4/12</span>. Las dos del centro valen <span class=\"keyword-highlight\">2/12 cada una</span>. Y los 4 triángulos de la derecha valen <span class=\"keyword-highlight\">1/12 cada uno</span>."},
-                    {"orden": 3, "texto": "Verificamos: 4 + 2 + 2 + 1 + 1 + 1 + 1 = <span class=\"keyword-highlight\">12/12 ✓</span>. ¡Las áreas distintas no hacen fracciones iguales!"}
-                ]
-            }
-            ,
-            {
-                "enunciado": "Las fracciones se construyen a partir de partes que son iguales en tamaño.<br/>"
-                             "Esta figura no tiene pintada exactamente la tercera parte (1/3). Está dividida en 3 partes, pero no en 3 partes iguales.<br/>"
-                             "<div style='display:flex; justify-content:center; gap:20px; margin:10px auto;'>"
-                             "  <svg width='110' height='110' viewBox='0 0 100 100' style='filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));'>"
-                             "    <rect x='2' y='2' width='96' height='96' fill='#345' stroke='#fff' stroke-width='2'/>"
-                             "    <polygon points='2,98 50,50 98,98' fill='#10B981'/>"
-                             "    <line x1='50' y1='2' x2='50' y2='50' stroke='#fff' stroke-width='2'/>"
-                             "    <line x1='50' y1='50' x2='2' y2='98' stroke='#fff' stroke-width='2'/>"
-                             "    <line x1='50' y1='50' x2='98' y2='98' stroke='#fff' stroke-width='2'/>"
-                             "  </svg>"
-                             "  <svg width='110' height='110' viewBox='0 0 100 100' style='filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));'>"
-                             "    <rect x='2' y='2' width='96' height='96' fill='#345' stroke='#fff' stroke-width='2'/>"
-                             "    <polygon points='2,98 50,50 98,98' fill='#10B981'/>"
-                             "    <line x1='50' y1='2' x2='50' y2='98' stroke='#fff' stroke-width='2'/>"
-                             "    <line x1='2' y1='50' x2='98' y2='50' stroke='#fff' stroke-width='2'/>"
-                             "    <line x1='2' y1='2' x2='98' y2='98' stroke='#fff' stroke-width='2'/>"
-                             "    <line x1='98' y1='2' x2='2' y2='98' stroke='#fff' stroke-width='2'/>"
-                             "  </svg>"
-                             "</div>"
-                             "¿Ves cómo funciona?",
-                "pasos": [
-                    {"orden": 1, "texto": "En la primera figura, las 3 partes tienen <span class=\"keyword-highlight\">formas y tamaños diferentes</span>. Por eso no representa 1/3."},
-                    {"orden": 2, "texto": "En la segunda figura, al subdividirla en <span class=\"keyword-highlight\">8 partes iguales</span>, la misma región representa exactamente 2/8 (o 1/4)."},
-                    {"orden": 3, "texto": "¡Para que sea una fracción directa, las partes divisorias deben ser idénticas!"}
-                ]
-            },
-            {
-                "enunciado": "En resumen, esta es la idea clave:<br/>"
-                             "Identificamos las fracciones de una figura buscando partes iguales.<br/>"
-                             "<svg width='120' height='120' viewBox='0 0 100 100' style='margin:10px auto; display:block; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));'>"
-                             "  <rect x='2' y='2' width='96' height='96' fill='#345' stroke='#fff' stroke-width='2'/>"
-                             "  <polygon points='50,2 75,2 50,25' fill='#8B5CF6'/>"
-                             "  <polygon points='2,25 25,25 2,50' fill='#8B5CF6'/>"
-                             "  <polygon points='98,50 98,75 75,75' fill='#8B5CF6'/>"
-                             "  <polygon points='25,98 50,98 25,75' fill='#8B5CF6'/>"
-                             "  <line x1='25' y1='2' x2='25' y2='98' stroke='#fff' stroke-width='1.5'/>"
-                             "  <line x1='50' y1='2' x2='50' y2='98' stroke='#fff' stroke-width='1.5'/>"
-                             "  <line x1='75' y1='2' x2='75' y2='98' stroke='#fff' stroke-width='1.5'/>"
-                             "  <line x1='2' y1='25' x2='98' y2='25' stroke='#fff' stroke-width='1.5'/>"
-                             "  <line x1='2' y1='50' x2='98' y2='50' stroke='#fff' stroke-width='1.5'/>"
-                             "  <line x1='2' y1='75' x2='98' y2='75' stroke='#fff' stroke-width='1.5'/>"
-                             "  <path d='M2,2L25,25M50,2L25,25M50,2L75,25M98,2L75,25M25,25L2,50M25,25L50,50M75,25L50,50M75,25L98,50M2,50L25,75M50,50L25,75M50,50L75,75M98,50L75,75M25,75L2,98M25,75L50,98M75,75L50,98M75,75L98,98' stroke='#fff' stroke-width='1.5' fill='none'/>"
-                             "</svg>"
-                             "Las partes de igual tamaño son los bloques de construcción de las fracciones.",
-                "pasos": [
-                    {"orden": 1, "texto": "Esta cuadrícula está dividida en <span class=\"keyword-highlight\">32 pequeños triángulos del mismo tamaño</span>."},
-                    {"orden": 2, "texto": "Como hay <span class=\"keyword-highlight\">4 partes coloreadas</span> de morado, representan la fracción 4/32."},
-                    {"orden": 3, "texto": "Simplificando: 4 ÷ 4 = 1, y 32 ÷ 4 = 8. ¡Esto representa exactamente <span class=\"keyword-highlight\">1/8</span> de la figura!"}
+                    {"orden": 1, "texto": "Analizamos las compras de Leo: 1 balón (18,50) + 2 mochilas (6,00 × 2 = 12,00). Presupuesto: 30,00."},
+                    {"orden": 2, "texto": "Debemos sumar todos los costos y contrastar contra R$ 30,00."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Cuál es la situación presupuestaria de Leo?",
+                        "opciones": [
+                            "Le faltan R$ 0,50 para completar la compra",
+                            "Le alcanza exacto y no le sobra nada",
+                            "Le sobran R$ 1,50 tras pagar"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! Costo total: 18,50 + 12,00 = 30,50. Supera el presupuesto en R$ 0,50.",
+                            "1": "Atención: olvidar contar la segunda mochila hace parecer que 18,50 + 6,00 = 24,50 alcanzaba.",
+                            "2": "Cuidado: restar mal 30,50 - 30,00 genera una falsa ganancia."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 18,50 + 12,00 = 30,50. 30,50 - 30,00 = 0,50 faltantes."},
+                    {"orden": 5, "texto": "Análisis de trampas: Omitir el duplicado de la segunda mochila es el error más común."}
                 ]
             }
         ],
 
-
-
-        # --- MÓDULO 2: FRACCIÓN DE CANTIDAD ---
-        # Nivel 1: Cálculo de porciones unitarias (1/n) sobre grupos
+        # =========================================================================
+        # MÓDULO 2: Multiplicación de Decimales
+        # =========================================================================
         (2, 1): [
             {
-                "enunciado": "Calcula <span class=\"keyword-highlight\">1/3 de 15 caramelos</span>.",
+                "enunciado": "Mía compra 3 frascos de pintura a R$ 4,20 cada uno. ¿Cuánto paga?<br/>" +
+                             tabla_datos([("Cantidad", "3"), ("Precio c/u", "R$ 4,20")], color=color_modulo(2,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "El denominador 3 nos ordena repartir los 15 caramelos en <span class=\"keyword-highlight\">3 cajas iguales</span>."},
-                    {"orden": 2, "texto": "Dividimos el total: <span class=\"keyword-highlight\">15 ÷ 3 = 5</span> caramelos por caja."},
-                    {"orden": 3, "texto": "Como buscamos 1/3, tomamos 1 sola caja. El resultado es: <span class=\"keyword-highlight\">5 caramelos</span>."}
+                    {"orden": 1, "texto": "Multiplicamos ignorando la coma: 420 × 3 = 1260."},
+                    {"orden": 2, "texto": "Como 4,20 tiene 2 posiciones decimales, contamos 2 lugares desde la derecha."},
+                    {"orden": 3, "texto": "Resultado: Mía paga R$ 12,60."}
                 ]
             },
             {
-                "enunciado": "Calcula <span class=\"keyword-highlight\">1/4 de 20 monedas</span>.",
+                "enunciado": "Hugo necesita 4 tramos de cable de 2,3 metros. ¿Cuántos metros compra?<br/>" +
+                             tabla_datos([("Tramos", "4"), ("Largo c/u", "2,3 m")], color=color_modulo(2,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "Dividimos las monedas en 4 grupos iguales: <span class=\"keyword-highlight\">20 ÷ 4 = 5</span>."},
-                    {"orden": 2, "texto": "Como la fracción pide 1 de esas pilas, multiplicamos: 5 × 1 = 5."},
-                    {"orden": 3, "texto": "Resultado final: <span class=\"keyword-highlight\">5 monedas</span>."}
+                    {"orden": 1, "texto": "Multiplicamos 23 × 4 = 92."},
+                    {"orden": 2, "texto": "Contamos 1 posición decimal de 2,3."},
+                    {"orden": 3, "texto": "Resultado: Necesita 9,2 metros."}
                 ]
             },
             {
-                "enunciado": "Calcula <span class=\"keyword-highlight\">1/5 de 50 soldados</span>.",
+                "enunciado": "Zoe compra 5 cuadernos de R$ 6,10. ¿Cuánto gasta?<br/>" +
+                             tabla_datos([("Cuadernos", "5"), ("Precio c/u", "R$ 6,10")], color=color_modulo(2,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "Dividimos los 50 soldados en 5 batallones idénticos: <span class=\"keyword-highlight\">50 ÷ 5 = 10</span>."},
-                    {"orden": 2, "texto": "Tomamos un batallón: 10 soldados."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">10 soldados</span>."}
+                    {"orden": 1, "texto": "Multiplicamos 610 × 5 = 3050."},
+                    {"orden": 2, "texto": "Ubicamos 2 cifras decimales desde la derecha."},
+                    {"orden": 3, "texto": "Resultado: Gasta R$ 30,50."}
                 ]
             },
             {
-                "enunciado": "Calcula <span class=\"keyword-highlight\">1/8 de 32 cartas</span>.",
+                "enunciado": "Un comerciante ofrece un pack de 6 botellas de jugo de 1,5 L a R$ 24,00 en total. Por separado, cada botella cuesta R$ 4,20. ¿Qué conviene comprar?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Repartimos las 32 cartas en 8 montones iguales: <span class=\"keyword-highlight\">32 ÷ 8 = 4</span> cartas por montón."},
-                    {"orden": 2, "texto": "Tomamos solo 1 montón: 4 cartas."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">4 cartas</span>."}
+                    {"orden": 1, "texto": "Leemos las alternativas: Comprar el pack de 6 por R$ 24,00 vs comprar 6 sueltas a R$ 4,20 c/u."},
+                    {"orden": 2, "texto": "Calculamos el costo de 6 sueltas: 4,20 × 6 y comparamos con 24,00."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Qué opción le conviene al comprador?",
+                        "opciones": [
+                            "Conviene el pack de 6 (ahorra R$ 1,20)",
+                            "Conviene comprar 6 sueltas (ahorra R$ 1,20)",
+                            "Cuestan exactamente lo mismo"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! 6 × 4,20 = R$ 25,20. El pack ahorra R$ 1,20.",
+                            "1": "Atención: sueltas cuestan 25,20, que es más caro que 24,00.",
+                            "2": "Cuidado: multiplicar 4,20 × 6 sin considerar los 20 centavos da 24,00 engañoso."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 4,20 × 6 = 25,20. 25,20 - 24,00 = 1,20 de ahorro con el pack."},
+                    {"orden": 5, "texto": "Análisis de trampas: Ignorar las décimas (20 centavos × 6 = 1,20) hace creer que salían igual."}
                 ]
             }
         ],
-        # Nivel 2: Operador compuesto (m/n de X) y algoritmo de dos pasos
         (2, 2): [
             {
-                "enunciado": "Calcula <span class=\"keyword-highlight\">3/4 de 20 manzanas</span>.",
+                "enunciado": "Calcula el costo de 4 estuches de R$ 12,15 cada uno.<br/>" +
+                             tabla_datos([("Cantidad", "4"), ("Precio c/u", "R$ 12,15")], color=color_modulo(2,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "<b>Paso 1 (Dividir):</b> Dividimos el total entre el de abajo: <span class=\"keyword-highlight\">20 ÷ 4 = 5</span> manzanas por caja."},
-                    {"orden": 2, "texto": "<b>Paso 2 (Multiplicar):</b> Juntamos las cajas del numerador (arriba): <span class=\"keyword-highlight\">5 × 3 = 15</span> manzanas."},
-                    {"orden": 3, "texto": "Resultado del motor de dos pasos: <span class=\"keyword-highlight\">15 manzanas</span>."}
+                    {"orden": 1, "texto": "Multiplicamos 1215 × 4 = 4860."},
+                    {"orden": 2, "texto": "Colocamos 2 posiciones decimales desde la derecha."},
+                    {"orden": 3, "texto": "Resultado: R$ 48,60."}
                 ]
             },
             {
-                "enunciado": "Calcula <span class=\"keyword-highlight\">2/5 de 50 monedas</span>.",
+                "enunciado": "Se compran 3 listones de madera de 4,25 metros cada uno. ¿Largo total?<br/>" +
+                             tabla_datos([("Listones", "3"), ("Largo c/u", "4,25 m")], color=color_modulo(2,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "Paso 1: Repartimos 50 monedas en 5 montones iguales: <span class=\"keyword-highlight\">50 ÷ 5 = 10</span>."},
-                    {"orden": 2, "texto": "Paso 2: Tomamos los 2 montones que nos pide el numerador: <span class=\"keyword-highlight\">10 × 2 = 20</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">20 monedas</span>."}
+                    {"orden": 1, "texto": "Multiplicamos 425 × 3 = 1275."},
+                    {"orden": 2, "texto": "Contamos 2 cifras tras la coma."},
+                    {"orden": 3, "texto": "Resultado: 12,75 metros."}
                 ]
             },
             {
-                "enunciado": "En una clase de 30 alumnos, <span class=\"keyword-highlight\">2/3</span> llevan gafas. ¿Cuántos alumnos son?",
+                "enunciado": "Una caja contiene 5 paquetes de harina de 1,75 kg cada uno. ¿Peso total?<br/>" +
+                             tabla_datos([("Paquetes", "5"), ("Peso c/u", "1,75 kg")], color=color_modulo(2,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "Paso 1: Dividimos la clase en 3 grupos iguales: <span class=\"keyword-highlight\">30 ÷ 3 = 10</span>."},
-                    {"orden": 2, "texto": "Paso 2: Tomamos 2 de esos grupos: <span class=\"keyword-highlight\">10 × 2 = 20</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">20 alumnos con gafas</span>."}
+                    {"orden": 1, "texto": "Multiplicamos 175 × 5 = 875."},
+                    {"orden": 2, "texto": "Colocamos 2 decimales."},
+                    {"orden": 3, "texto": "Resultado: 8,75 kg."}
                 ]
             },
             {
-                "enunciado": "Calcula <span class=\"keyword-highlight\">5/8 de 40 cartas</span>.",
+                "enunciado": "Una imprenta cobra R$ 0,35 por copia a color. Un alumno necesita 25 copias. Presupuesto disponible: R$ 10,00. ¿Le alcanza?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Paso 1: Dividimos 40 entre el denominador 8: <span class=\"keyword-highlight\">40 ÷ 8 = 5</span>."},
-                    {"orden": 2, "texto": "Paso 2: Multiplicamos por el numerador 5: <span class=\"keyword-highlight\">5 × 5 = 25</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">25 cartas</span>."}
+                    {"orden": 1, "texto": "Datos: 25 copias a R$ 0,35 cada una. Presupuesto R$ 10,00."},
+                    {"orden": 2, "texto": "Multiplicamos 25 × 0,35 para hallar el total y comparar con 10,00."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Qué ocurre con el presupuesto del alumno?",
+                        "opciones": [
+                            "Le alcanza y le sobran R$ 1,25",
+                            "Le falta dinero para pagar las copias",
+                            "Le alcanza justo sin sobrante"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! 25 × 0,35 = R$ 8,75. 10,00 - 8,75 = R$ 1,25 sobrantes.",
+                            "1": "Atención: 8,75 es menor que 10,00, por lo que sí alcanza.",
+                            "2": "Cuidado: 8,75 no es igual a 10,00."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 35 × 25 = 875 $\rightarrow$ R$ 8,75 total. Sobra: 10,00 - 8,75 = R$ 1,25."},
+                    {"orden": 5, "texto": "Análisis de trampas: Confundir las 2 posiciones decimales de 0,35 puede llevar a estimar R$ 87,50 por error."}
                 ]
             }
         ],
-        # Nivel 3: Lógica del complemento y deducción del resto
         (2, 3): [
             {
-                "enunciado": "Si regalas <span class=\"keyword-highlight\">1/4 de tus juguetes</span>, ¿qué fracción de tus juguetes te queda?<br/>"
-                             "<svg width='160' height='40' viewBox='0 0 160 40' style='margin:10px auto; display:block; border:1px solid #4B5563; background:#1F2937;'>"
-                             "  <rect x='0' y='0' width='40' height='40' fill='#EF4444' opacity='0.4'/>"
-                             "  <text x='20' y='25' fill='#EF4444' font-size='10' text-anchor='middle'>Regalado</text>"
-                             "  <rect x='40' y='0' width='120' height='40' fill='#10B981' opacity='0.3'/>"
-                             "  <text x='100' y='25' fill='#10B981' font-size='10' text-anchor='middle'>Te queda (3/4)</text>"
-                             "  <line x1='40' y1='0' x2='40' y2='40' stroke='#9CA3AF' stroke-width='2'/>"
-                             "  <line x1='80' y1='0' x2='80' y2='40' stroke='#9CA3AF' stroke-width='1.5'/>"
-                             "  <line x1='120' y1='0' x2='120' y2='40' stroke='#9CA3AF' stroke-width='1.5'/>"
-                             "</svg>",
+                "enunciado": "Multiplica 1,5 por 0,4 para hallar el área de una tarjeta decorativa de 1,5 m × 0,4 m.<br/>" +
+                             tabla_datos([("Largo", "1,5 m"), ("Ancho", "0,4 m")], color=color_modulo(2,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Tu colección de juguetes total representa la unidad entera: <span class=\"keyword-highlight\">4/4</span>."},
-                    {"orden": 2, "texto": "Le restamos la fracción que regalaste: <span class=\"keyword-highlight\">4/4 - 1/4 = 3/4</span>."},
-                    {"orden": 3, "texto": "Respuesta: Te quedan <span class=\"keyword-highlight\">3/4</span> de tus juguetes."}
+                    {"orden": 1, "texto": "Multiplicamos números enteros: 15 × 4 = 60."},
+                    {"orden": 2, "texto": "Sumamos posiciones decimales: 1,5 (1) + 0,4 (1) = 2 decimales."},
+                    {"orden": 3, "texto": "Contamos 2 lugares desde la derecha: 0,60 m²."}
                 ]
             },
             {
-                "enunciado": "Sofía preparó <span class=\"keyword-highlight\">40 cupcakes</span> y vendió <span class=\"keyword-highlight\">1/4</span> en la feria. ¿Cuántos le quedaron?",
+                "enunciado": "Un frasco tiene 0,25 L de concentrado. ¿Cuánto hay en 0,5 frascos?<br/>" +
+                             tabla_datos([("Frasco entero", "0,25 L"), ("Porción", "0,5")], color=color_modulo(2,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Calculamos la parte vendida: <span class=\"keyword-highlight\">1/4 de 40 = 10</span> cupcakes."},
-                    {"orden": 2, "texto": "Restamos la porción vendida del total inicial: <span class=\"keyword-highlight\">40 - 10 = 30</span> cupcakes."},
-                    {"orden": 3, "texto": "Resultado: Le quedaron <span class=\"keyword-highlight\">30 cupcakes</span>."}
+                    {"orden": 1, "texto": "Multiplicamos 25 × 5 = 125."},
+                    {"orden": 2, "texto": "Sumamos decimales: 0,25 (2) + 0,5 (1) = 3 decimales."},
+                    {"orden": 3, "texto": "Resultado: 0,125 L."}
                 ]
             },
             {
-                "enunciado": "Un tanque de agua de 50 litros se derrama en <span class=\"keyword-highlight\">2/5</span> de su volumen. ¿Cuántos litros quedan?",
+                "enunciado": "Calcula 2,5 × 1,2.<br/>" +
+                             tabla_datos([("Factor A", "2,5"), ("Factor B", "1,2")], color=color_modulo(2,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Calculamos la fracción derramada: <span class=\"keyword-highlight\">2/5 de 50 = 20 litros</span>."},
-                    {"orden": 2, "texto": "Restamos del tanque lleno: <span class=\"keyword-highlight\">50 - 20 = 30 litros</span>."},
-                    {"orden": 3, "texto": "Quedan en el tanque: <span class=\"keyword-highlight\">30 litros</span>."}
+                    {"orden": 1, "texto": "Multiplicamos 25 × 12 = 300."},
+                    {"orden": 2, "texto": "Sumamos decimales: 1 + 1 = 2 posiciones."},
+                    {"orden": 3, "texto": "Resultado: 3,00 (o 3)."}
                 ]
             },
             {
-                "enunciado": "Si gastas <span class=\"keyword-highlight\">3/8 de tus ahorros</span>, ¿qué fracción sigue guardada en el banco?",
+                "enunciado": "Una receta requiere 0,75 kg de harina por torta. Si prepara 1,5 tortas, ¿1 kg de harina será suficiente?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Tus ahorros completos iniciales se representan como <span class=\"keyword-highlight\">8/8</span>."},
-                    {"orden": 2, "texto": "Le restamos los octavos que gastaste: <span class=\"keyword-highlight\">8/8 - 3/8 = 5/8</span>."},
-                    {"orden": 3, "texto": "La fracción guardada es: <span class=\"keyword-highlight\">5/8</span>."}
+                    {"orden": 1, "texto": "Datos: 0,75 kg × 1,5 tortas. Harina disponible: 1,00 kg."},
+                    {"orden": 2, "texto": "Calculamos la harina necesaria multiplicando 0,75 × 1,5."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Le alcanza el kilo de harina?",
+                        "opciones": [
+                            "No alcanza, necesita 1,125 kg en total",
+                            "Sí alcanza, necesita exactamente 0,90 kg",
+                            "Sí alcanza y le sobra medio kilo"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! 0,75 × 1,5 = 1,125 kg. Falta 0,125 kg de harina.",
+                            "1": "Atención: 0,75 + 0,15 da 0,90 por error al sumar en vez de multiplicar.",
+                            "2": "Cuidado: asumir que 1,5 veces 0,75 es menor a 1 es falso."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 75 × 15 = 1125 $\rightarrow$ 3 posiciones decimales = 1,125 kg. Faltan 0,125 kg."},
+                    {"orden": 5, "texto": "Análisis de trampas: Sumar 0,75 + 0,15 engaña creyendo que se necesitaban 0,90 kg."}
                 ]
             }
         ],
 
-        # --- MÓDULO 3: PORCENTAJES RÁPIDOS Y PROMEDIOS ---
-        # Nivel 1: Mapeo de porcentajes intuitivos: 50%, 25%, 10%
+        # =========================================================================
+        # MÓDULO 3: División de Decimales
+        # =========================================================================
         (3, 1): [
             {
-                "enunciado": "Calcula el <span class=\"keyword-highlight\">50% de 60 monedas</span>.",
+                "enunciado": "Divide R$ 8,40 equitativamente entre 2 amigos. ¿Cuánto recibe cada uno?<br/>" +
+                             tabla_datos([("Monto total", "R$ 8,40"), ("Amigos", "2")], color=color_modulo(3,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "El 50% significa exactamente la mitad de un total (50 de cada 100)."},
-                    {"orden": 2, "texto": "Dividimos el total entre 2 para calcular la mitad: <span class=\"keyword-highlight\">60 ÷ 2 = 30</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">30 monedas</span>."}
+                    {"orden": 1, "texto": "Dividimos la parte entera: 8 ÷ 2 = 4."},
+                    {"orden": 2, "texto": "Colocamos la coma en el cociente (4,) y dividimos las décimas: 4 ÷ 2 = 2."},
+                    {"orden": 3, "texto": "Resultado: Cada amigo recibe R$ 4,20."}
                 ]
             },
             {
-                "enunciado": "Calcula el <span class=\"keyword-highlight\">25% de 80 puntos</span>.",
+                "enunciado": "Reparte 9,6 metros de cinta en 3 trozos iguales. ¿Largo de cada trozo?<br/>" +
+                             tabla_datos([("Largo total", "9,6 m"), ("Trozos", "3")], color=color_modulo(3,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "El 25% representa una cuarta parte (1/4) de la unidad."},
-                    {"orden": 2, "texto": "Dividimos el total de puntos entre 4: <span class=\"keyword-highlight\">80 ÷ 4 = 20</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">20 puntos</span>."}
+                    {"orden": 1, "texto": "Dividimos 9 ÷ 3 = 3."},
+                    {"orden": 2, "texto": "Ponemos la coma (3,) y dividimos 6 ÷ 3 = 2."},
+                    {"orden": 3, "texto": "Resultado: 3,2 metros."}
                 ]
             },
             {
-                "enunciado": "Calcula el <span class=\"keyword-highlight\">10% de 350 monedas</span>.",
+                "enunciado": "Divide R$ 6,30 entre 3 niños.<br/>" +
+                             tabla_datos([("Total", "R$ 6,30"), ("Niños", "3")], color=color_modulo(3,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "El 10% representa una décima parte (1/10) del total."},
-                    {"orden": 2, "texto": "Dividimos entre 10 quitando el cero del final: <span class=\"keyword-highlight\">350 ÷ 10 = 35</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">35 monedas</span>."}
+                    {"orden": 1, "texto": "Dividimos 6 ÷ 3 = 2."},
+                    {"orden": 2, "texto": "Ponemos coma y dividimos 3 ÷ 3 = 1."},
+                    {"orden": 3, "texto": "Resultado: R$ 2,10 cada uno."}
                 ]
             },
             {
-                "enunciado": "Un artículo de 20 pesos tiene un descuento del <span class=\"keyword-highlight\">50%</span>. ¿Cuál es el precio final?",
+                "enunciado": "Se desea repartir una soga de 7,5 metros en 5 tramos. El encargado afirma que cada tramo medirá 15 metros. ¿Es correcta su afirmación?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Calculamos el descuento del 50% (la mitad): <span class=\"keyword-highlight\">20 ÷ 2 = 10 pesos</span> de rebaja."},
-                    {"orden": 2, "texto": "Restamos la rebaja del precio original: <span class=\"keyword-highlight\">20 - 10 = 10</span>."},
-                    {"orden": 3, "texto": "Precio final: <span class=\"keyword-highlight\">10 pesos</span>."}
+                    {"orden": 1, "texto": "Datos: 7,5 m ÷ 5 tramos. Afirmación: 15 m por tramo."},
+                    {"orden": 2, "texto": "Evaluamos la lógica: al dividir una soga de 7,5 m en trozos, cada trozo DEBE ser menor que la soga entera."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Qué error cometió el encargado?",
+                        "opciones": [
+                            "Olvidó poner la coma decimal (el resultado es 1,5 m)",
+                            "La afirmación es correcta",
+                            "Multiplicó en vez de sumar"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! 7,5 ÷ 5 = 1,5 m. Olvidó colocar la coma tras la parte entera.",
+                            "1": "Atención: un trozo de 15 m en una soga de 7,5 m es imposible.",
+                            "2": "Cuidado: 75 ÷ 5 es 15, el error fue de escala decimal."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 7 ÷ 5 = 1 (sobra 2). Pasamos la coma $\rightarrow$ 25 ÷ 5 = 5. Resultado = 1,5 m."},
+                    {"orden": 5, "texto": "Análisis de trampas: Omitir la coma convierte 1,5 m en 15 m (10 veces más grande)."}
                 ]
             }
         ],
-        # Nivel 2: Lectura e interpretación de gráficos circulares
         (3, 2): [
             {
-                "enunciado": "En un gráfico circular, el <span class=\"keyword-highlight\">40%</span> prefiere fútbol, el <span class=\"keyword-highlight\">35%</span> básquet y el resto vóley. ¿Qué porcentaje prefiere vóley?<br/>"
-                             "<svg width='100' height='100' viewBox='0 0 100 100' style='margin:10px auto; display:block; filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.4));'>"
-                             "  <circle cx='50' cy='50' r='40' fill='#4B5563'/>"
-                             "  <!-- Fútbol 40% (144 grados): de 0 a 144 -->"
-                             "  <path d='M50,50 L50,10 A40,40 0 0,1 88,37.6 Z' fill='#3B82F6' stroke='#1F2937'/>"
-                             "  <!-- Básquet 35% (126 grados): de 144 a 270 -->"
-                             "  <path d='M50,50 L88,37.6 A40,40 0 0,1 50,90 Z' fill='#F59E0B' stroke='#1F2937'/>"
-                             "  <!-- Vóley 25% (90 grados): de 270 a 360 -->"
-                             "  <path d='M50,50 L50,90 A40,40 0 0,1 10,50 A40,40 0 0,1 50,10 Z' fill='#10B981' stroke='#1F2937'/>"
-                             "  <circle cx='50' cy='50' r='18' fill='#1F2937'/>"
-                             "</svg>",
+                "enunciado": "Divide R$ 12,48 en 4 partes iguales.<br/>" +
+                             tabla_datos([("Total", "R$ 12,48"), ("Partes", "4")], color=color_modulo(3,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "La suma total de todas las rebanadas de un gráfico circular es siempre <span class=\"keyword-highlight\">100%</span>."},
-                    {"orden": 2, "texto": "Sumamos los porcentajes de fútbol y básquet: <span class=\"keyword-highlight\">40% + 35% = 75%</span>."},
-                    {"orden": 3, "texto": "Restamos esa suma del 100% total: <span class=\"keyword-highlight\">100% - 75% = 25%</span> de preferencia por vóley."}
+                    {"orden": 1, "texto": "Dividimos 12 ÷ 4 = 3."},
+                    {"orden": 2, "texto": "Ponemos coma (3,) y bajamos 4 $\rightarrow$ 4 ÷ 4 = 1."},
+                    {"orden": 3, "texto": "Bajamos 8 $\rightarrow$ 8 ÷ 4 = 2. Resultado: R$ 3,12."}
                 ]
             },
             {
-                "enunciado": "De 200 alumnos encuestados, el <span class=\"keyword-highlight\">25%</span> prefiere matemáticas. ¿Cuántos alumnos son?",
+                "enunciado": "Reparte 15,35 kg de alimento en 5 recipientes.<br/>" +
+                             tabla_datos([("Masa total", "15,35 kg"), ("Recipientes", "5")], color=color_modulo(3,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "El 25% equivale a una cuarta parte del grupo entero (1/4)."},
-                    {"orden": 2, "texto": "Dividimos los alumnos totales entre 4: <span class=\"keyword-highlight\">200 ÷ 4 = 50</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">50 alumnos</span>."}
+                    {"orden": 1, "texto": "Dividimos 15 ÷ 5 = 3."},
+                    {"orden": 2, "texto": "Ponemos coma y bajamos 3 (no alcanza $\rightarrow$ 0 en cociente)."},
+                    {"orden": 3, "texto": "Bajamos 5 $\rightarrow$ 35 ÷ 5 = 7. Resultado: 3,07 kg."}
                 ]
             },
             {
-                "enunciado": "En un gráfico sobre mascotas, el 50% son perros, el 30% gatos y el resto peces. ¿Qué porcentaje representan los peces?",
+                "enunciado": "Divide R$ 20,50 entre 5 personas.<br/>" +
+                             tabla_datos([("Total", "R$ 20,50"), ("Personas", "5")], color=color_modulo(3,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "Sumamos perros y gatos: <span class=\"keyword-highlight\">50% + 30% = 80%</span>."},
-                    {"orden": 2, "texto": "Restamos de la unidad total (100%): <span class=\"keyword-highlight\">100% - 80% = 20%</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">20%</span> son peces."}
+                    {"orden": 1, "texto": "Dividimos 20 ÷ 5 = 4."},
+                    {"orden": 2, "texto": "Ponemos coma y dividimos 50 ÷ 5 = 10."},
+                    {"orden": 3, "texto": "Resultado: R$ 4,10."}
                 ]
             },
             {
-                "enunciado": "Si un pastel representa un total de 120 rebanadas, y el 10% son de fresa, ¿cuántas son de fresa?",
+                "enunciado": "Tres socios se reparten R$ 18,09 de ganancias. Uno propone quedarse con R$ 6,30 sosteniendo que es la tercera parte exacta. ¿Es justa la propuesta?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "El 10% equivale a dividir el total entre 10."},
-                    {"orden": 2, "texto": "Dividimos: <span class=\"keyword-highlight\">120 ÷ 10 = 12</span> rebanadas."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">12 rebanadas de fresa</span>."}
+                    {"orden": 1, "texto": "Datos: R$ 18,09 a repartir en 3 partes. Propuesta: R$ 6,30 por socio."},
+                    {"orden": 2, "texto": "Calculamos 18,09 ÷ 3 y comparamos con 6,30."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Es justa la división propuesta?",
+                        "opciones": [
+                            "No es justa: la parte exacta es R$ 6,03",
+                            "Es justa: R$ 6,30 es la tercera parte",
+                            "No es justa: la parte exacta es R$ 6,33"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! 18 ÷ 3 = 6. Luego 0 ÷ 3 = 0. Luego 9 ÷ 3 = 3 $\rightarrow$ R$ 6,03.",
+                            "1": "Atención: confundir 09 centésimas con 90 centésimas da 6,30 erróneo.",
+                            "2": "Cuidado: el 0 en las décimas debe respetarse."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 18,09 ÷ 3 = 6,03. El socio pedía 27 centavos de más por persona."},
+                    {"orden": 5, "texto": "Análisis de trampas: Omitir poner 0 en la posición de las décimas (0 ÷ 3 = 0) confunde 6,03 con 6,30."}
                 ]
             }
         ],
-        # Nivel 3: Comparación de tasas en gráficos de barras
         (3, 3): [
             {
-                "enunciado": "Un gráfico de barras muestra: Región A = <span class=\"keyword-highlight\">450</span>, Región B = <span class=\"keyword-highlight\">320</span>, Región C = <span class=\"keyword-highlight\">530</span>. ¿Cuántas empresas hay en total?<br/>"
-                             "<svg width='180' height='100' viewBox='0 0 180 100' style='margin:10px auto; display:block; background:#1F2937; border-radius:10px; padding:5px;'>"
-                             "  <!-- Barra A (altura 60%) -->"
-                             "  <rect x='20' y='30' width='25' height='55' fill='#EF4444' rx='3'/>"
-                             "  <text x='32.5' y='95' fill='#FFF' font-size='9' text-anchor='middle'>A</text>"
-                             "  <text x='32.5' y='25' fill='#EF4444' font-size='9' font-weight='bold' text-anchor='middle'>450</text>"
-                             "  "
-                             "  <!-- Barra B (altura 40%) -->"
-                             "  <rect x='70' y='45' width='25' height='40' fill='#F59E0B' rx='3'/>"
-                             "  <text x='82.5' y='95' fill='#FFF' font-size='9' text-anchor='middle'>B</text>"
-                             "  <text x='82.5' y='40' fill='#F59E0B' font-size='9' font-weight='bold' text-anchor='middle'>320</text>"
-                             "  "
-                             "  <!-- Barra C (altura 70%) -->"
-                             "  <rect x='120' y='20' width='25' height='65' fill='#3B82F6' rx='3'/>"
-                             "  <text x='132.5' y='95' fill='#FFF' font-size='9' text-anchor='middle'>C</text>"
-                             "  <text x='132.5' y='15' fill='#3B82F6' font-size='9' font-weight='bold' text-anchor='middle'>530</text>"
-                             "  <line x1='10' y1='85' x2='170' y2='85' stroke='#4B5563' stroke-width='2'/>"
-                             "</svg>",
+                "enunciado": "Divide 6 ÷ 1,5 desplando la coma decimal.<br/>" +
+                             tabla_datos([("Dividendo", "6,0"), ("Divisor", "1,5")], color=color_modulo(3,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Para hallar el total, sumamos la altura y valor representado por cada barra."},
-                    {"orden": 2, "texto": "Sumamos los tres valores: <span class=\"keyword-highlight\">450 + 320 + 530</span>."},
-                    {"orden": 3, "texto": "Resultado acumulado: <span class=\"keyword-highlight\">1300 empresas</span>."}
+                    {"orden": 1, "texto": "Multiplicamos ambos por 10 para eliminar la coma del divisor: 60 ÷ 15."},
+                    {"orden": 2, "texto": "Dividimos 60 ÷ 15 = 4."},
+                    {"orden": 3, "texto": "Resultado final: 4."}
                 ]
             },
             {
-                "enunciado": "Usando el gráfico anterior, ¿cuántas empresas más tiene la Región C que la Región B?",
+                "enunciado": "Divide 4,5 ÷ 0,5.<br/>" +
+                             tabla_datos([("Dividendo", "4,5"), ("Divisor", "0,5")], color=color_modulo(3,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Buscamos los valores correspondientes: Región C = 530, Región B = 320."},
-                    {"orden": 2, "texto": "Restamos el menor del mayor para hallar la diferencia: <span class=\"keyword-highlight\">530 - 320 = 210</span>."},
-                    {"orden": 3, "texto": "La Región C tiene <span class=\"keyword-highlight\">210 empresas más</span>."}
+                    {"orden": 1, "texto": "Multiplicamos por 10 ambos lados: 45 ÷ 5."},
+                    {"orden": 2, "texto": "Dividimos 45 ÷ 5 = 9."},
+                    {"orden": 3, "texto": "Resultado: 9."}
                 ]
             },
             {
-                "enunciado": "Las barras indican ventas: Enero = 150, Febrero = 200, Marzo = 120. ¿Cuál fue el mes con mayor volumen y cuánto vendió?",
+                "enunciado": "Divide 8,4 ÷ 1,2.<br/>" +
+                             tabla_datos([("Dividendo", "8,4"), ("Divisor", "1,2")], color=color_modulo(3,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Identificamos la barra con mayor altura en el gráfico: Febrero."},
-                    {"orden": 2, "texto": "Leemos el valor numérico en la escala: 200 unidades."},
-                    {"orden": 3, "texto": "El mes mayor es <span class=\"keyword-highlight\">Febrero con 200</span>."}
+                    {"orden": 1, "texto": "Desplazamos la coma 1 lugar: 84 ÷ 12."},
+                    {"orden": 2, "texto": "Dividimos 84 ÷ 12 = 7."},
+                    {"orden": 3, "texto": "Resultado: 7."}
                 ]
             },
             {
-                "enunciado": "Si en la Región A hay 450 y en la B 320, ¿cuál es la suma combinada de ambas regiones?",
+                "enunciado": "Hugo necesita 2,2 litros de jugo para una reunión. Las botellas en la tienda vienen únicamente de 1,0 litro. ¿Cuántas botellas debe comprar?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Planteamos la suma simple: A + B = <span class=\"keyword-highlight\">450 + 320</span>."},
-                    {"orden": 2, "texto": "Resolvemos la suma: 770."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">770</span>."}
-                ]
-            }
-        ],
-        # Nivel 4: El Punto de Equilibrio - Media Aritmética
-        (3, 4): [
-            {
-                "enunciado": "Calcula el promedio de libros leídos por tres niños: <span class=\"keyword-highlight\">3, 7 y 5 libros</span>.<br/>"
-                             "<svg width='300' height='120' viewBox='0 0 200 80' style='margin:10px auto; display:block;'>"
-                             "  <!-- Tres torres de 3, 7, 5 bloques -->"
-                             "  <text x='25' y='75' fill='#FFF' font-size='10' text-anchor='middle'>3</text>"
-                             "  <rect x='15' y='50' width='20' height='10' fill='#F59E0B' stroke='#78350F'/>"
-                             "  <rect x='15' y='60' width='20' height='10' fill='#F59E0B' stroke='#78350F'/>"
-                             "  "
-                             "  <text x='75' y='75' fill='#FFF' font-size='10' text-anchor='middle'>7</text>"
-                             "  <rect x='65' y='10' width='20' height='10' fill='#EC4899' stroke='#5B21B6'/>"
-                             "  <rect x='65' y='20' width='20' height='10' fill='#EC4899' stroke='#5B21B6'/>"
-                             "  <rect x='65' y='30' width='20' height='10' fill='#EC4899' stroke='#5B21B6'/>"
-                             "  <rect x='65' y='40' width='20' height='10' fill='#EC4899' stroke='#5B21B6'/>"
-                             "  <rect x='65' y='50' width='20' height='10' fill='#EC4899' stroke='#5B21B6'/>"
-                             "  <rect x='65' y='60' width='20' height='10' fill='#EC4899' stroke='#5B21B6'/>"
-                             "  "
-                             "  <text x='125' y='75' fill='#FFF' font-size='10' text-anchor='middle'>5</text>"
-                             "  <rect x='115' y='30' width='20' height='10' fill='#10B981' stroke='#064E3B'/>"
-                             "  <rect x='115' y='40' width='20' height='10' fill='#10B981' stroke='#064E3B'/>"
-                             "  <rect x='115' y='50' width='20' height='10' fill='#10B981' stroke='#064E3B'/>"
-                             "  <rect x='115' y='60' width='20' height='10' fill='#10B981' stroke='#064E3B'/>"
-                             "  "
-
-                             "</svg>",
-                "pasos": [
-                    {"orden": 1, "texto": "<b>Paso 1 (Sumar):</b> Juntamos todos los libros en una sola gran pila: <span class=\"keyword-highlight\">3 + 7 + 5 = 15</span> libros."},
-                    {"orden": 2, "texto": "<b>Paso 2 (Dividir):</b> Repartimos la pila entre la cantidad de niños (3): <span class=\"keyword-highlight\">15 ÷ 3 = 5</span> libros."},
-                    {"orden": 3, "texto": "Resultado: El promedio equilibrado es <span class=\"keyword-highlight\">5 libros</span>."}
-                ]
-            },
-            {
-                "enunciado": "Calcula el promedio de edad entre dos hermanos de <span class=\"keyword-highlight\">10 y 20 años</span>.",
-                "pasos": [
-                    {"orden": 1, "texto": "Paso 1: Sumamos las edades de ambos: <span class=\"keyword-highlight\">10 + 20 = 30</span>."},
-                    {"orden": 2, "texto": "Paso 2: Dividimos la suma entre los 2 hermanos: <span class=\"keyword-highlight\">30 ÷ 2 = 15</span>."},
-                    {"orden": 3, "texto": "Resultado: El promedio es <span class=\"keyword-highlight\">15 años</span>."}
-                ]
-            },
-            {
-                "enunciado": "Calcula el promedio de las siguientes cuatro notas: <span class=\"keyword-highlight\">2, 4, 6 y 8</span>.",
-                "pasos": [
-                    {"orden": 1, "texto": "Sumamos las cuatro notas obtenidas: <span class=\"keyword-highlight\">2 + 4 + 6 + 8 = 20</span>."},
-                    {"orden": 2, "texto": "Dividimos el total entre las 4 notas: <span class=\"keyword-highlight\">20 ÷ 4 = 5</span>."},
-                    {"orden": 3, "texto": "Resultado: El promedio es <span class=\"keyword-highlight\">5</span>."}
-                ]
-            },
-            {
-                "enunciado": "Si tienes tres bolsas con dulces: 6, 8 y 10. ¿Cuál es el promedio de dulces por bolsa?",
-                "pasos": [
-                    {"orden": 1, "texto": "Sumamos los dulces de las tres bolsas: <span class=\"keyword-highlight\">6 + 8 + 10 = 24</span>."},
-                    {"orden": 2, "texto": "Dividimos la suma entre las 3 bolsas: <span class=\"keyword-highlight\">24 ÷ 3 = 8</span>."},
-                    {"orden": 3, "texto": "El promedio de dulces es: <span class=\"keyword-highlight\">8 dulces</span>."}
+                    {"orden": 1, "texto": "Situación: Hugo necesita 2,2 L. Botellas de 1,0 L. La tienda no vende fracciones de botella."},
+                    {"orden": 2, "texto": "Juicio práctico: 2,2 ÷ 1,0 = 2,2. Pero no se pueden comprar 0,2 botellas. Si compra 2 botellas, tiene 2,0 L y le faltan 0,2 L."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Cuántas botellas completas debe comprar Hugo?",
+                        "opciones": [
+                            "Debe comprar 3 botellas completas",
+                            "Debe comprar 2 botellas completas",
+                            "Debe comprar 2,2 botellas"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! Regla de redondeo en contexto: con 2 botellas solo obtiene 2,0 L (le faltaría jugo). Necesita 3.",
+                            "1": "Atención: con 2 botellas solo junta 2,0 L y la reunión queda corta por 0,2 L.",
+                            "2": "Cuidado: la tienda no vende botellas abiertas ni cortadas."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: Aunque 2,2 está más cerca de 2 en matemática pura, el contexto real exige cubrir todo el sobrante. Se sube al entero 3."},
+                    {"orden": 5, "texto": "Análisis de trampas: Aplicar redondeo matemático estándar (2,2 $\rightarrow$ 2) deja la necesidad sin cubrir."}
                 ]
             }
         ],
 
-        # --- MÓDULO 4: RAZÓN Y MEZCLAS ---
-        # Nivel 1: Razones simples (a:b) y proporcionalidad directa
+        # =========================================================================
+        # MÓDULO 4: Conversiones Métricas y Unidades
+        # =========================================================================
         (4, 1): [
             {
-                "enunciado": "La receta de limonada exige <span class=\"keyword-highlight\">3 tazas de agua por 1 de limón</span> (3:1). Si pones <span class=\"keyword-highlight\">2 de limón</span>, ¿cuánta agua necesitas?<br/>"
-                             "<svg width='240' height='135' viewBox='0 0 160 90' style='margin:10px auto; display:block;'>\n"
-                             "  <!-- Receta base vs receta duplicada -->\n"
-                             "  <text x='10' y='20' fill='#FFE082' font-size='9' font-weight='bold'>Base (3:1)</text>\n"
-                             "  <rect x='10' y='30' width='12' height='12' fill='#FBBF24' rx='2'/><rect x='25' y='30' width='12' height='12' fill='#3B82F6' rx='2'/><rect x='40' y='30' width='12' height='12' fill='#3B82F6' rx='2'/><rect x='55' y='30' width='12' height='12' fill='#3B82F6' rx='2'/>\n"
-                             "  \n"
-                             "  <text x='90' y='20' fill='#A855F7' font-size='9' font-weight='bold'>Duplicado (6:2)</text>\n"
-                             "  <rect x='90' y='30' width='12' height='12' fill='#FBBF24' rx='2'/><rect x='105' y='30' width='12' height='12' fill='#FBBF24' rx='2'/>\n"
-                             "  <rect x='90' y='45' width='12' height='12' fill='#3B82F6' rx='2'/><rect x='105' y='45' width='12' height='12' fill='#3B82F6' rx='2'/><rect x='120' y='45' width='12' height='12' fill='#3B82F6' rx='2'/>\n"
-                             "  <rect x='135' y='45' width='12' height='12' fill='#3B82F6' rx='2'/><rect x='120' y='30' width='12' height='12' fill='#3B82F6' rx='2'/><rect x='135' y='30' width='12' height='12' fill='#3B82F6' rx='2'/>\n"
-                             "  \n"
-                             "  <!-- Leyenda de ingredientes -->\n"
-                             "  <rect x='30' y='75' width='8' height='8' fill='#FBBF24' rx='1'/><text x='42' y='81' fill='#94a3b8' font-size='7' font-weight='bold'>Limón</text>\n"
-                             "  <rect x='90' y='75' width='8' height='8' fill='#3B82F6' rx='1'/><text x='102' y='81' fill='#94a3b8' font-size='7' font-weight='bold'>Agua</text>\n"
-                             "</svg>",
+                "enunciado": "Convierte 2,5 metros a centímetros bajando la escalera métrica.<br/>" +
+                             escalera_unidades("longitud", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "m", "cm", 2.5, color_modulo(4,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "Identificamos la escala: la receta original pide 1 de limón y ahora usamos 2. La receta se duplicó (×2)."},
-                    {"orden": 2, "texto": "Multiplicamos la cantidad original de agua por 2: <span class=\"keyword-highlight\">3 × 2 = 6</span> tazas."},
-                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">6 tazas de agua</span>."}
+                    {"orden": 1, "texto": "De m a cm bajamos 2 escalones (m $\rightarrow$ dm $\rightarrow$ cm), lo que significa multiplicar por 100."},
+                    {"orden": 2, "texto": "Desplazamos la coma 2 lugares a la derecha: 2,5 × 100 = 250."},
+                    {"orden": 3, "texto": "Resultado: 2,5 m = 250 cm."}
                 ]
             },
             {
-                "enunciado": "Una pared se pinta combinando <span class=\"keyword-highlight\">2 litros de rojo y 3 de blanco</span> (2:3). Si compras <span class=\"keyword-highlight\">6 litros de rojo</span>, ¿cuántos de blanco necesitas?",
+                "enunciado": "Convierte 1,8 kilómetros a metros.<br/>" +
+                             escalera_unidades("longitud", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "km", "m", 1.8, color_modulo(4,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "Hallamos el factor multiplicador: el rojo pasó de 2 a 6. Esto es el triple: <span class=\"keyword-highlight\">6 ÷ 2 = 3</span> veces."},
-                    {"orden": 2, "texto": "Multiplicamos el blanco por el mismo factor de 3: <span class=\"keyword-highlight\">3 × 3 = 9</span> litros."},
-                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">9 litros de blanco</span>."}
+                    {"orden": 1, "texto": "De km a m bajamos 3 escalones (×1000)."},
+                    {"orden": 2, "texto": "Desplazamos la coma 3 lugares a la derecha: 1,8 × 1000 = 1800."},
+                    {"orden": 3, "texto": "Resultado: 1,8 km = 1800 m."}
                 ]
             },
             {
-                "enunciado": "Para preparar cemento se usa <span class=\"keyword-highlight\">1 porción de cemento por 4 de arena</span>. Si usas <span class=\"keyword-highlight\">2 de cemento</span>, ¿cuánta arena aportas?",
+                "enunciado": "Convierte 3,5 litros a mililitros.<br/>" +
+                             escalera_unidades("capacidad", ["kL", "hL", "daL", "L", "dL", "cL", "mL"], "L", "mL", 3.5, color_modulo(4,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "El cemento se duplicó (de 1 a 2)."},
-                    {"orden": 2, "texto": "Multiplicamos la arena por 2: <span class=\"keyword-highlight\">4 × 2 = 8</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">8 porciones de arena</span>."}
+                    {"orden": 1, "texto": "De L a mL bajamos 3 escalones (×1000)."},
+                    {"orden": 2, "texto": "Multiplicamos 3,5 × 1000 = 3500."},
+                    {"orden": 3, "texto": "Resultado: 3,5 L = 3500 mL."}
                 ]
             },
             {
-                "enunciado": "La masa de galletas requiere <span class=\"keyword-highlight\">1 vaso de leche por 2 de harina</span> (1:2). Si pones <span class=\"keyword-highlight\">4 vasos de harina</span>, ¿cuántos de leche usarás?",
+                "enunciado": "Un atleta recorre 1,5 km. Su compañero afirma que 1,5 km son 150 metros. ¿Es correcta la afirmación?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "La harina requerida aumentó de 2 a 4 vasos (se duplicó)."},
-                    {"orden": 2, "texto": "Para balancear, dividimos la harina entre 2 para saber la leche: <span class=\"keyword-highlight\">4 ÷ 2 = 2</span>."},
-                    {"orden": 3, "texto": "Resultado: Usarás <span class=\"keyword-highlight\">2 vasos de leche</span>."}
+                    {"orden": 1, "texto": "Datos: 1,5 km a metros. Afirmación del compañero: 150 m."},
+                    {"orden": 2, "texto": "Evaluamos el factor de conversión: 1 km = 1000 m. Para pasar km $\rightarrow$ m se multiplica por 1000."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Es correcta la afirmación del compañero?",
+                        "opciones": [
+                            "Es incorrecta: 1,5 km equivalen a 1500 metros",
+                            "Es correcta: 1,5 km equivalen a 150 metros",
+                            "Es incorrecta: 1,5 km equivalen a 15 metros"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! 1,5 × 1000 = 1500 m. El compañero solo multiplicó por 100.",
+                            "1": "Atención: multiplicar por 100 da 150 m, pero de km a m se baja 3 escalones (×1000).",
+                            "2": "Cuidado: 15 m resultaría de multiplicar por 10."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: De km a m hay 3 escalones. 1,5 × 1000 = 1500 m."},
+                    {"orden": 5, "texto": "Análisis de trampas: Mover la coma solo 2 lugares en vez de 3 es el error típico."}
                 ]
             }
         ],
-        # Nivel 2: Reparto proporcional de volúmenes macro
         (4, 2): [
             {
-                "enunciado": "Para hacer pintura verde mezclas <span class=\"keyword-highlight\">2 litros de azul y 3 de amarillo</span> (haciendo 5 litros en total). Si quieres <span class=\"keyword-highlight\">30 litros de verde</span>, ¿cuántos de azul usas?<br/>"
-                             "<svg width='180' height='60' viewBox='0 0 180 60' style='margin:10px auto; display:block;'>"
-                             "  <!-- Tubo medidor con azul y amarillo -->"
-                             "  <rect x='10' y='10' width='160' height='25' fill='none' stroke='#FFF' stroke-width='2' rx='5'/>"
-                             "  <rect x='11' y='11' width='64' height='23' fill='#3B82F6' rx='4'/>"
-                             "  <rect x='75' y='11' width='94' height='23' fill='#FBBF24' rx='4'/>"
-                             "  <text x='43' y='26' fill='#FFF' font-size='9' font-weight='black' text-anchor='middle'>Azul (12L)</text>"
-                             "  <text x='122' y='26' fill='#111827' font-size='9' font-weight='black' text-anchor='middle'>Amarillo (18L)</text>"
-                             "  <text x='90' y='50' fill='#FFF' font-size='10' text-anchor='middle'>Verde total = 30 Litros</text>"
-                             "</svg>",
+                "enunciado": "Convierte 450 centímetros a metros subiendo la escalera métrica.<br/>" +
+                             escalera_unidades("longitud", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "cm", "m", 450, color_modulo(4,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "<b>Paso 1 (Escala):</b> Dividimos la cantidad total deseada entre la receta base: <span class=\"keyword-highlight\">30 ÷ 5 = 6 veces</span> la receta."},
-                    {"orden": 2, "texto": "<b>Paso 2 (Multiplicar):</b> Escalamos el ingrediente azul por el factor 6: <span class=\"keyword-highlight\">2 × 6 = 12</span> litros."},
-                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">12 litros de azul</span>."}
+                    {"orden": 1, "texto": "De cm a m subimos 2 escalones (÷100)."},
+                    {"orden": 2, "texto": "Desplazamos la coma 2 lugares a la izquierda: 450,0 ÷ 100 = 4,50."},
+                    {"orden": 3, "texto": "Resultado: 450 cm = 4,5 m."}
                 ]
             },
             {
-                "enunciado": "Haces pintura rosa con <span class=\"keyword-highlight\">1 litro de rojo y 4 de blanco</span> (5 litros total). Para un lote de <span class=\"keyword-highlight\">50 litros</span>, ¿cuánto blanco comprarás?",
+                "enunciado": "Convierte 2500 gramos a kilogramos.<br/>" +
+                             escalera_unidades("masa", ["kg", "hg", "dag", "g", "dg", "cg", "mg"], "g", "kg", 2500, color_modulo(4,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "Escala de la mezcla: dividimos el total entre la receta base: <span class=\"keyword-highlight\">50 ÷ 5 = 10 lotes</span>."},
-                    {"orden": 2, "texto": "Multiplicamos el ingrediente blanco por 10: <span class=\"keyword-highlight\">4 × 10 = 40</span>."},
-                    {"orden": 3, "texto": "Resultado: Comprarás <span class=\"keyword-highlight\">40 litros de blanco</span>."}
+                    {"orden": 1, "texto": "De g a kg subimos 3 escalones (÷1000)."},
+                    {"orden": 2, "texto": "Desplazamos la coma 3 lugares a la izquierda: 2500 ÷ 1000 = 2,5."},
+                    {"orden": 3, "texto": "Resultado: 2500 g = 2,5 kg."}
                 ]
             },
             {
-                "enunciado": "Una mezcla de concreto tiene <span class=\"keyword-highlight\">3 paladas de arena y 7 de grava</span> (10 en total). Si necesitas <span class=\"keyword-highlight\">40 paladas</span> de mezcla total, ¿cuántas son de arena?",
+                "enunciado": "Convierte 750 mililitros a litros.<br/>" +
+                             escalera_unidades("capacidad", ["kL", "hL", "daL", "L", "dL", "cL", "mL"], "mL", "L", 750, color_modulo(4,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "Escala de mezcla: dividimos el total deseado entre la base: <span class=\"keyword-highlight\">40 ÷ 10 = 4 veces</span>."},
-                    {"orden": 2, "texto": "Multiplicamos la arena por 4: <span class=\"keyword-highlight\">3 × 4 = 12</span> paladas."},
-                    {"orden": 3, "texto": "Resultado: Aportarás <span class=\"keyword-highlight\">12 paladas de arena</span>."}
+                    {"orden": 1, "texto": "De mL a L subimos 3 escalones (÷1000)."},
+                    {"orden": 2, "texto": "Desplazamos la coma 3 lugares a la izquierda: 750 ÷ 1000 = 0,75."},
+                    {"orden": 3, "texto": "Resultado: 750 mL = 0,75 L."}
                 ]
             },
             {
-                "enunciado": "Un jarabe se hace con <span class=\"keyword-highlight\">1 taza de agua y 1 de jugo concentrado de fruta</span> (2 en total). Si quieres hacer <span class=\"keyword-highlight\">20 litros</span> de jarabe, ¿cuánto concentrado lleva?",
+                "enunciado": "Un paquete pesa 800 gramos. Para enviarlo por correo se requiere registrar el peso en kg. El empleado anota 8,0 kg. ¿Anotó el peso correcto?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Escala de la mezcla: dividimos los litros finales entre la base: <span class=\"keyword-highlight\">20 ÷ 2 = 10 veces</span>."},
-                    {"orden": 2, "texto": "Multiplicamos el jugo concentrado por 10: <span class=\"keyword-highlight\">1 × 10 = 10</span>."},
-                    {"orden": 3, "texto": "Resultado: Lleva <span class=\"keyword-highlight\">10 litros de concentrado</span>."}
+                    {"orden": 1, "texto": "Datos: 800 g a kg. Registro del empleado: 8,0 kg."},
+                    {"orden": 2, "texto": "Evaluamos: 1 kg = 1000 g. Pasar g $\rightarrow$ kg requiere subir 3 escalones (÷1000)."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Qué error cometió el empleado?",
+                        "opciones": [
+                            "Dividió entre 100 en vez de 1000 (el peso real es 0,8 kg)",
+                            "Anotó el peso correcto",
+                            "Multiplicó por 1000 en vez de dividir"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! 800 ÷ 1000 = 0,8 kg. Anotar 8,0 kg es 10 veces más pesado.",
+                            "1": "Atención: 8,0 kg equivale a 8000 gramos, no 800.",
+                            "2": "Cuidado: la división por 100 movió 2 comas en lugar de 3."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 800 ÷ 1000 = 0,8 kg."},
+                    {"orden": 5, "texto": "Análisis de trampas: Olvidar un cero al dividir entre 1000 deja el número en 8,0 kg por error."}
                 ]
             }
         ],
-        # Nivel 3: Homogeneización de mezclas complejas
         (4, 3): [
             {
-                "enunciado": "Un frasco de perfume mezcla <span class=\"keyword-highlight\">1 parte de esencia por 4 partes de alcohol</span> (1:4). ¿Qué porcentaje representa la esencia?",
+                "enunciado": "Zoe tiene una jarra con 1,5 L de agua y agrega 500 mL más. ¿Cuántos litros tiene en total?<br/>" +
+                             tabla_datos([("Inicial", "1,5 L"), ("Agregado", "500 mL = 0,5 L")], color=color_modulo(4,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Sumamos todas las partes de la mezcla: <span class=\"keyword-highlight\">1 + 4 = 5 partes en total</span>."},
-                    {"orden": 2, "texto": "La esencia representa 1 de esas 5 partes, es decir, la fracción: <span class=\"keyword-highlight\">1/5</span>."},
-                    {"orden": 3, "texto": "Convertimos 1/5 a porcentaje: (1 ÷ 5) × 100 = <span class=\"keyword-highlight\">20%</span>. Resultado: <span class=\"keyword-highlight\">20%</span>."}
+                    {"orden": 1, "texto": "Convertimos 500 mL a litros: 500 ÷ 1000 = 0,5 L."},
+                    {"orden": 2, "texto": "Sumamos ambas cantidades en litros: 1,5 + 0,5 = 2,0 L."},
+                    {"orden": 3, "texto": "Resultado: Tiene 2,0 litros en total."}
                 ]
             },
             {
-                "enunciado": "Si tienes una bebida de 300 ml que contiene <span class=\"keyword-highlight\">10% de jugo real</span>, ¿cuántos ml de jugo real tiene?",
+                "enunciado": "Hugo camina 1,2 km por la mañana y 800 m por la tarde. ¿Distancia total en km?<br/>" +
+                             tabla_datos([("Mañana", "1,2 km"), ("Tarde", "800 m = 0,8 km")], color=color_modulo(4,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "El 10% representa una décima parte del líquido total (dividir entre 10)."},
-                    {"orden": 2, "texto": "Dividimos el total de la bebida: <span class=\"keyword-highlight\">300 ÷ 10 = 30</span>."},
-                    {"orden": 3, "texto": "Resultado: Tiene <span class=\"keyword-highlight\">30 ml</span> de jugo real."}
+                    {"orden": 1, "texto": "Convertimos 800 m a km: 800 ÷ 1000 = 0,8 km."},
+                    {"orden": 2, "texto": "Sumamos en km: 1,2 + 0,8 = 2,0 km."},
+                    {"orden": 3, "texto": "Resultado: Caminó 2,0 km."}
                 ]
             },
             {
-                "enunciado": "En una aleación de oro y cobre de 100 gramos, el 75% es oro. ¿Cuántos gramos de cobre hay?",
+                "enunciado": "Un paquete de 2,5 kg de arroz se reparte en 5 bolsas de 500 g cada una. ¿Sobra arroz?<br/>" +
+                             tabla_datos([("Total", "2,5 kg = 2500 g"), ("Bolsas", "5 × 500 g = 2500 g")], color=color_modulo(4,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Si el 75% es oro, el cobre restante es: <span class=\"keyword-highlight\">100% - 75% = 25%</span> (un cuarto)."},
-                    {"orden": 2, "texto": "Calculamos el 25% de 100 gramos: <span class=\"keyword-highlight\">100 ÷ 4 = 25</span> gramos."},
-                    {"orden": 3, "texto": "Resultado: Hay <span class=\"keyword-highlight\">25 gramos de cobre</span>."}
+                    {"orden": 1, "texto": "Convertimos 2,5 kg a g: 2,5 × 1000 = 2500 g."},
+                    {"orden": 2, "texto": "Calculamos las bolsas: 5 × 500 g = 2500 g."},
+                    {"orden": 3, "texto": "Resultado: 2500 g - 2500 g = 0. No sobra nada."}
                 ]
             },
             {
-                "enunciado": "Una mezcla de agua salada de 80 gramos contiene <span class=\"keyword-highlight\">10% de sal</span>. Si se evaporan 30 gramos de agua pura, ¿cuánta sal queda?",
+                "enunciado": "Mía prepara un jugo con 1,2 L de agua y 400 mL de jarabe. Dispone de una jarra de 1,5 L de capacidad. ¿Entrará toda la mezcla en la jarra?",
+                "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "La sal no se evapora, solo el agua pura. Así que la sal sigue siendo la misma masa."},
-                    {"orden": 2, "texto": "Calculamos la sal inicial: 10% de 80 g = <span class=\"keyword-highlight\">8 gramos</span> de sal."},
-                    {"orden": 3, "texto": "Resultado final: Quedan exactamente <span class=\"keyword-highlight\">8 gramos de sal</span>."}
+                    {"orden": 1, "texto": "Datos: Agua = 1,2 L; Jarabe = 400 mL; Jarra = 1,5 L."},
+                    {"orden": 2, "texto": "Convertimos 400 mL a litros (400 ÷ 1000 = 0,4 L) y sumamos el volumen total de la mezcla."},
+                    {
+                        "orden": 3,
+                        "texto": "¿Qué sucederá al verter la mezcla en la jarra?",
+                        "opciones": [
+                            "Se desbordará: la mezcla suma 1,6 L y la jarra es de 1,5 L",
+                            "Entrará exacto sin sobrante",
+                            "Entrará y quedará espacio libre para 0,5 L"
+                        ],
+                        "opcion_correcta": 0,
+                        "explicacion_opciones": {
+                            "0": "¡Correcto! 1,2 L + 0,4 L = 1,6 L. Supera la capacidad de 1,5 L por 0,1 L.",
+                            "1": "Atención: 1,2 + 0,4 = 1,6, no 1,5.",
+                            "2": "Cuidado: sumar 1,2 + 400 sin convertir unidades es un error grave de escala."
+                        }
+                    },
+                    {"orden": 4, "texto": "Resolución: 400 mL = 0,4 L. Mezcla = 1,2 + 0,4 = 1,6 L. Como 1,6 L > 1,5 L, la jarra se desborda por 0,1 L."},
+                    {"orden": 5, "texto": "Análisis de trampas: Sumar 1,2 + 400 directamente daría 401,2 (error de unidades)." }
                 ]
             }
         ]

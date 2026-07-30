@@ -2,9 +2,9 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ContextualPercentageVisualizer } from '../components/fase4/ContextualPercentageVisualizer';
-import { Fase4VisualizerEngine } from '../components/fase4/Fase4VisualizerEngine';
-import type { Fase4Pregunta } from '../components/fase4/Fase4Types';
+import { ContextualPercentageVisualizer } from '../components/fase5/ContextualPercentageVisualizer';
+import { Fase5VisualizerEngine } from '../components/fase5/Fase5VisualizerEngine';
+import type { Fase5Pregunta } from '../components/fase5/Fase5Types';
 
 describe('ContextualPercentageVisualizer Component', () => {
   it('debe renderizar correctamente el tema de bateria', () => {
@@ -49,9 +49,9 @@ describe('ContextualPercentageVisualizer Component', () => {
   });
 });
 
-describe('Fase4VisualizerEngine Integration with contextual_bar', () => {
+describe('Fase5VisualizerEngine Integration with contextual_bar', () => {
   it('debe renderizar la visualizacion contextual y la caja de ecuacion', () => {
-    const mockPregunta: Fase4Pregunta = {
+    const mockPregunta: Fase5Pregunta = {
       id: 1,
       enunciado: '¿Cuántos minutos quedan?',
       tipo_pregunta: 'multiple_opcion',
@@ -66,7 +66,7 @@ describe('Fase4VisualizerEngine Integration with contextual_bar', () => {
     };
 
     render(
-      <Fase4VisualizerEngine
+      <Fase5VisualizerEngine
         pregunta={mockPregunta}
         moduleColor="#10b981"
         moduloId={3}
