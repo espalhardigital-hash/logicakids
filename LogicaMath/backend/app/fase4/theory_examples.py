@@ -280,7 +280,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                             "2": "Cuidado: 8,75 no es igual a 10,00."
                         }
                     },
-                    {"orden": 4, "texto": "Resolución: 35 × 25 = 875 $\rightarrow$ R$ 8,75 total. Sobra: 10,00 - 8,75 = R$ 1,25."},
+                    {"orden": 4, "texto": "Resolución: 35 × 25 = 875 → R$ 8,75 total. Sobra: 10,00 - 8,75 = R$ 1,25."},
                     {"orden": 5, "texto": "Análisis de trampas: Confundir las 2 posiciones decimales de 0,35 puede llevar a estimar R$ 87,50 por error."}
                 ]
             }
@@ -334,7 +334,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                             "2": "Cuidado: asumir que 1,5 veces 0,75 es menor a 1 es falso."
                         }
                     },
-                    {"orden": 4, "texto": "Resolución: 75 × 15 = 1125 $\rightarrow$ 3 posiciones decimales = 1,125 kg. Faltan 0,125 kg."},
+                    {"orden": 4, "texto": "Resolución: 75 × 15 = 1125 → 3 posiciones decimales = 1,125 kg. Faltan 0,125 kg."},
                     {"orden": 5, "texto": "Análisis de trampas: Sumar 0,75 + 0,15 engaña creyendo que se necesitaban 0,90 kg."}
                 ]
             }
@@ -392,7 +392,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                             "2": "Cuidado: 75 ÷ 5 es 15, el error fue de escala decimal."
                         }
                     },
-                    {"orden": 4, "texto": "Resolución: 7 ÷ 5 = 1 (sobra 2). Pasamos la coma $\rightarrow$ 25 ÷ 5 = 5. Resultado = 1,5 m."},
+                    {"orden": 4, "texto": "Resolución: 7 ÷ 5 = 1 (sobra 2). Pasamos la coma → 25 ÷ 5 = 5. Resultado = 1,5 m."},
                     {"orden": 5, "texto": "Análisis de trampas: Omitir la coma convierte 1,5 m en 15 m (10 veces más grande)."}
                 ]
             }
@@ -403,8 +403,8 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                              tabla_datos([("Total", "R$ 12,48"), ("Partes", "4")], color=color_modulo(3,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Dividimos 12 ÷ 4 = 3."},
-                    {"orden": 2, "texto": "Ponemos coma (3,) y bajamos 4 $\rightarrow$ 4 ÷ 4 = 1."},
-                    {"orden": 3, "texto": "Bajamos 8 $\rightarrow$ 8 ÷ 4 = 2. Resultado: R$ 3,12."}
+                    {"orden": 2, "texto": "Ponemos coma (3,) y bajamos 4 → 4 ÷ 4 = 1."},
+                    {"orden": 3, "texto": "Bajamos 8 → 8 ÷ 4 = 2. Resultado: R$ 3,12."}
                 ]
             },
             {
@@ -412,8 +412,8 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                              tabla_datos([("Masa total", "15,35 kg"), ("Recipientes", "5")], color=color_modulo(3,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Dividimos 15 ÷ 5 = 3."},
-                    {"orden": 2, "texto": "Ponemos coma y bajamos 3 (no alcanza $\rightarrow$ 0 en cociente)."},
-                    {"orden": 3, "texto": "Bajamos 5 $\rightarrow$ 35 ÷ 5 = 7. Resultado: 3,07 kg."}
+                    {"orden": 2, "texto": "Ponemos coma y bajamos 3 (no alcanza → 0 en cociente)."},
+                    {"orden": 3, "texto": "Bajamos 5 → 35 ÷ 5 = 7. Resultado: 3,07 kg."}
                 ]
             },
             {
@@ -441,7 +441,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                         ],
                         "opcion_correcta": 0,
                         "explicacion_opciones": {
-                            "0": "¡Correcto! 18 ÷ 3 = 6. Luego 0 ÷ 3 = 0. Luego 9 ÷ 3 = 3 $\rightarrow$ R$ 6,03.",
+                            "0": "¡Correcto! 18 ÷ 3 = 6. Luego 0 ÷ 3 = 0. Luego 9 ÷ 3 = 3 → R$ 6,03.",
                             "1": "Atención: confundir 09 centésimas con 90 centésimas da 6,30 erróneo.",
                             "2": "Cuidado: el 0 en las décimas debe respetarse."
                         }
@@ -501,7 +501,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                         }
                     },
                     {"orden": 4, "texto": "Resolución: Aunque 2,2 está más cerca de 2 en matemática pura, el contexto real exige cubrir todo el sobrante. Se sube al entero 3."},
-                    {"orden": 5, "texto": "Análisis de trampas: Aplicar redondeo matemático estándar (2,2 $\rightarrow$ 2) deja la necesidad sin cubrir."}
+                    {"orden": 5, "texto": "Análisis de trampas: Aplicar redondeo matemático estándar (2,2 → 2) deja la necesidad sin cubrir."}
                 ]
             }
         ],
@@ -514,7 +514,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 "enunciado": "Convierte 2,5 metros a centímetros bajando la escalera métrica.<br/>" +
                              escalera_unidades("longitud", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "m", "cm", 2.5, color_modulo(4,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "De m a cm bajamos 2 escalones (m $\rightarrow$ dm $\rightarrow$ cm), lo que significa multiplicar por 100."},
+                    {"orden": 1, "texto": "De m a cm bajamos 2 escalones (m → dm → cm), lo que significa multiplicar por 100."},
                     {"orden": 2, "texto": "Desplazamos la coma 2 lugares a la derecha: 2,5 × 100 = 250."},
                     {"orden": 3, "texto": "Resultado: 2,5 m = 250 cm."}
                 ]
@@ -542,7 +542,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 "es_tjs": True,
                 "pasos": [
                     {"orden": 1, "texto": "Datos: 1,5 km a metros. Afirmación del compañero: 150 m."},
-                    {"orden": 2, "texto": "Evaluamos el factor de conversión: 1 km = 1000 m. Para pasar km $\rightarrow$ m se multiplica por 1000."},
+                    {"orden": 2, "texto": "Evaluamos el factor de conversión: 1 km = 1000 m. Para pasar km → m se multiplica por 1000."},
                     {
                         "orden": 3,
                         "texto": "¿Es correcta la afirmación del compañero?",

@@ -18,6 +18,14 @@ interface Fase4TheoryModalProps {
 
 const MAX_THEORY_CHARACTERS_PER_SLIDE = 560;
 
+const formatFase4Content = (text: string) => {
+  const normalizedText = text
+    .replace(/\$\s*ightarrow\$/g, '→')
+    .replace(/\$\\\\rightarrow\$/g, '→');
+
+  return formatContent(normalizedText);
+};
+
 const groupTheoryParagraphs = (paragraphs: string[]) => {
   const nonEmptyParagraphs = paragraphs.filter(Boolean);
   const [intro, ...procedure] = nonEmptyParagraphs;
@@ -41,6 +49,158 @@ const groupTheoryParagraphs = (paragraphs: string[]) => {
   if (currentGroup.length > 0) groups.push(currentGroup);
 
   return { intro, groups };
+};
+
+type TheoryIllustrationKind = 'stack' | 'positions' | 'division' | 'ladder';
+
+interface TheoryIllustrationConfig {
+  kind: TheoryIllustrationKind;
+  label: string;
+  note: string;
+  rows?: string[];
+  steps?: string[];
+  units?: string[];
+  direction?: 'down' | 'up' | 'mixed';
+}
+
+const THEORY_ILLUSTRATIONS: Record<string, TheoryIllustrationConfig> = {
+  '1-1': {
+    kind: 'stack',
+    label: 'Comas en la misma columna',
+    rows: ['12,40', '+ 3,05', '15,45'],
+    note: 'La coma baja por una linea vertical.'
+  },
+  '1-2': {
+    kind: 'stack',
+    label: 'Ceros auxiliares',
+    rows: ['10,00', '- 3,45', ' 6,55'],
+    note: 'Los ceros llenan casilleros antes de restar.'
+  },
+  '1-3': {
+    kind: 'stack',
+    label: 'Dinero ordenado',
+    rows: ['50,00', '-18,75', '31,25'],
+    note: 'Primero se ordena el gasto, despues el vuelto.'
+  },
+  '2-1': {
+    kind: 'positions',
+    label: 'Una posicion decimal',
+    steps: ['42 x 3', '126', '12,6'],
+    note: 'El producto recupera 1 lugar decimal.'
+  },
+  '2-2': {
+    kind: 'positions',
+    label: 'Dos posiciones decimales',
+    steps: ['215 x 4', '860', '8,60'],
+    note: 'Se cuentan 2 lugares desde la derecha.'
+  },
+  '2-3': {
+    kind: 'positions',
+    label: 'Suma de posiciones',
+    steps: ['15 x 3', '45', '0,45'],
+    note: '1 lugar + 1 lugar = 2 lugares decimales.'
+  },
+  '3-1': {
+    kind: 'division',
+    label: 'La coma cruza al cociente',
+    steps: ['8,4 / 2', '4,2'],
+    note: 'Al bajar decimales, la coma aparece arriba.'
+  },
+  '3-2': {
+    kind: 'division',
+    label: 'Hasta las centesimas',
+    steps: ['12,48 / 4', '3,12'],
+    note: 'Se sigue dividiendo cifra por cifra.'
+  },
+  '3-3': {
+    kind: 'division',
+    label: 'Divisor entero y contexto',
+    steps: ['6 / 1,5', '60 / 15', '4'],
+    note: 'Primero mueve la coma; luego decide segun el problema.'
+  },
+  '4-1': {
+    kind: 'ladder',
+    label: 'Bajar aumenta la cantidad',
+    units: ['km', 'm', 'cm', 'mm'],
+    direction: 'down',
+    note: 'Cada escalon hacia abajo multiplica por 10.'
+  },
+  '4-2': {
+    kind: 'ladder',
+    label: 'Subir reduce la cantidad',
+    units: ['mm', 'cm', 'm', 'km'],
+    direction: 'up',
+    note: 'Cada escalon hacia arriba divide entre 10.'
+  },
+  '4-3': {
+    kind: 'ladder',
+    label: 'Una unidad comun',
+    units: ['L', 'mL', 'g', 'kg'],
+    direction: 'mixed',
+    note: 'Convierte primero; despues compara o calcula.'
+  }
+};
+
+const Fase4TheoryIllustration: React.FC<{
+  moduloId: number;
+  nivelId: number;
+  moduleColor: string;
+}> = ({ moduloId, nivelId, moduleColor }) => {
+  const config = THEORY_ILLUSTRATIONS[`${moduloId}-${nivelId}`];
+  if (!config) return null;
+
+  return (
+    <div
+      className={`f4-theory-illustration f4-theory-illustration-${config.kind}`}
+      style={{ ['--f4-illustration-color' as string]: moduleColor }}
+      aria-hidden="true"
+    >
+      <div className="f4-illustration-label">{config.label}</div>
+
+      {config.kind === 'stack' && (
+        <div className="f4-illustration-stack">
+          {config.rows?.map((row, idx) => (
+            <div key={`${row}-${idx}`} className={`f4-stack-row ${idx === (config.rows?.length || 0) - 1 ? 'result' : ''}`}>
+              {row}
+            </div>
+          ))}
+          <div className="f4-stack-comma-guide" />
+        </div>
+      )}
+
+      {config.kind === 'positions' && (
+        <div className="f4-position-flow">
+          {config.steps?.map((step, idx) => (
+            <React.Fragment key={`${step}-${idx}`}>
+              <span className={idx === (config.steps?.length || 0) - 1 ? 'final' : ''}>{step}</span>
+              {idx < (config.steps?.length || 0) - 1 && <span className="f4-flow-arrow">&rarr;</span>}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+
+      {config.kind === 'division' && (
+        <div className="f4-division-flow">
+          {config.steps?.map((step, idx) => (
+            <React.Fragment key={`${step}-${idx}`}>
+              <span className={idx === (config.steps?.length || 0) - 1 ? 'final' : ''}>{step}</span>
+              {idx < (config.steps?.length || 0) - 1 && <span className="f4-flow-arrow">&rarr;</span>}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
+
+      {config.kind === 'ladder' && (
+        <div className={`f4-unit-ladder ${config.direction || 'down'}`}>
+          {config.units?.map((unit, idx) => (
+            <span key={`${unit}-${idx}`} className="f4-unit-step">{unit}</span>
+          ))}
+        </div>
+      )}
+
+      <div className="f4-illustration-note">{config.note}</div>
+    </div>
+  );
 };
 
 export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
@@ -263,8 +423,16 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                 transition={{ duration: 0.3 }}
                 className={`f4-flashcard-content ${currentSlide.centered ? 'centered-theory' : ''}`}
               >
+                {currentSlide.centered && (
+                  <Fase4TheoryIllustration
+                    moduloId={readingData.modulo_id}
+                    nivelId={readingData.nivel_id}
+                    moduleColor={moduleColor}
+                  />
+                )}
+
                 {(currentSlide.data || readingData.parrafos).map((p: string, idx: number) => (
-                  <p key={idx} className="f4-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
+                  <p key={idx} className="f4-reading-p" dangerouslySetInnerHTML={{ __html: formatFase4Content(p) }} />
                 ))}
 
               </motion.div>
@@ -286,8 +454,8 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                   <div className="f4-dict-grid">
                     {currentSlide.data.map(([termino, definicion]: [string, string], idx: number) => (
                       <div key={`${termino}-${idx}`} className="f4-dict-card" style={{ borderColor: `${moduleColor}55` }}>
-                        <div className="f4-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
-                        <div className="f4-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion) }} />
+                        <div className="f4-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatFase4Content(termino) }} />
+                        <div className="f4-dict-def" dangerouslySetInnerHTML={{ __html: formatFase4Content(definicion) }} />
                       </div>
                     ))}
                   </div>
@@ -311,18 +479,18 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                     <h3>EJEMPLOS GUIADOS:</h3>
                     {currentSlide.data.map((ex: any, idx: number) => (
                       <div key={idx} className="f4-example-box">
-                        <div className="f4-ex-q" dangerouslySetInnerHTML={{ __html: formatContent(ex.enunciado) }} />
+                        <div className="f4-ex-q" dangerouslySetInnerHTML={{ __html: formatFase4Content(ex.enunciado) }} />
                         {ex.pasos ? (
                           <div className="f4-ex-steps">
                             {ex.pasos.map((paso: any) => (
                               <div key={paso.orden} className="f4-ex-step">
                                 <span className="f4-ex-step-num">{paso.orden}</span>
-                                <span dangerouslySetInnerHTML={{ __html: formatContent(paso.texto) }} />
+                                <span dangerouslySetInnerHTML={{ __html: formatFase4Content(paso.texto) }} />
                               </div>
                             ))}
                           </div>
                         ) : (
-                           <div className="f4-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(ex.respuesta) }} /></div>
+                           <div className="f4-ex-legacy">→ <span style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatFase4Content(ex.respuesta) }} /></div>
                         )}
                       </div>
                     ))}

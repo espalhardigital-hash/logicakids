@@ -130,7 +130,7 @@ FASE4_TEORIA_DATA = [
             "Procedimiento con 2 cifras decimales:\n"
             "1. Opera los números enteros: 215 × 4 = 860.\n"
             "2. El factor 2,15 tiene 2 cifras decimales.\n"
-            "3. Cuenta 2 lugares desde la derecha en 860 $\rightarrow$ 8,60."
+            "3. Cuenta 2 lugares desde la derecha en 860 → 8,60."
         ),
         "advertencia": (
             "Si el resultado termina en cero (como 8,60), conserva la coma 2 lugares antes de simplificar ceros al final."
@@ -150,7 +150,7 @@ FASE4_TEORIA_DATA = [
             "Regla suma de posiciones decimales:\n"
             "1. Multiplica 15 × 3 = 45.\n"
             "2. Suma decimales: 1,5 (1 cifra) + 0,3 (1 cifra) = 2 cifras decimales.\n"
-            "3. Cuenta 2 lugares desde la derecha en 45 $\rightarrow$ 0,45 (añade 0 si faltan cifras)."
+            "3. Cuenta 2 lugares desde la derecha en 45 → 0,45 (añade 0 si faltan cifras)."
         ),
         "advertencia": (
             "Si el producto tiene menos dígitos que las posiciones decimales requeridas (ej. 3 × 2 = 6 con 2 decimales), "
@@ -175,7 +175,7 @@ FASE4_TEORIA_DATA = [
             "Pasos para dividir dividendo decimal:\n"
             "1. Divide la parte entera (8 ÷ 2 = 4).\n"
             "2. Pon la coma en el cociente justo al bajar la primera cifra decimal.\n"
-            "3. Divide la parte decimal (4 ÷ 2 = 2) $\rightarrow$ Resultado: 4,2."
+            "3. Divide la parte decimal (4 ÷ 2 = 2) → Resultado: 4,2."
         ),
         "advertencia": (
             "No olvides poner la coma en el resultado al cruzar la frontera decimal del dividendo."
@@ -197,7 +197,7 @@ FASE4_TEORIA_DATA = [
             "Pasos con dos cifras decimales:\n"
             "1. Divide 12 ÷ 4 = 3.\n"
             "2. Pon la coma en el cociente (3,).\n"
-            "3. Baja 4 y divide 4 ÷ 4 = 1. Baja 8 y divide 8 ÷ 4 = 2 $\rightarrow$ Resultado: 3,12."
+            "3. Baja 4 y divide 4 ÷ 4 = 1. Baja 8 y divide 8 ÷ 4 = 2 → Resultado: 3,12."
         ),
         "advertencia": (
             "Si una cifra decimal no alcanza para el divisor, coloca un 0 en el cociente antes de bajar la siguiente cifra."
@@ -238,7 +238,7 @@ FASE4_TEORIA_DATA = [
         "modulo_id": 4, "nivel_id": 1, "seccion": 401,
         "titulo": "Bajar la escalera métrica",
         "texto_descubrimiento": (
-            "Para pasar de una unidad mayor a una menor en la escalera métrica (km $\rightarrow$ m, m $\rightarrow$ cm, kg $\rightarrow$ g, L $\rightarrow$ mL), "
+            "Para pasar de una unidad mayor a una menor en la escalera métrica (km → m, m → cm, kg → g, L → mL), "
             "bajas escalones. Cada escalón hacia abajo multiplica por 10, desplazando la coma decimal a la derecha."
         ),
         "cuerpo_teoria": (
@@ -259,7 +259,7 @@ FASE4_TEORIA_DATA = [
         "modulo_id": 4, "nivel_id": 2, "seccion": 402,
         "titulo": "Subir la escalera métrica",
         "texto_descubrimiento": (
-            "Para pasar de una unidad menor a una mayor (cm $\rightarrow$ m, g $\rightarrow$ kg, mL $\rightarrow$ L), "
+            "Para pasar de una unidad menor a una mayor (cm → m, g → kg, mL → L), "
             "subes escalones. Cada escalón hacia arriba divide entre 10, desplazando la coma decimal a la izquierda."
         ),
         "cuerpo_teoria": (
