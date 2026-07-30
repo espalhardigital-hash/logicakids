@@ -25,6 +25,14 @@ from app.fase8.router import responder_fase8
 from app.fase8.schemas import Fase8ResponderPregunta
 
 
+def _modulo_nivel_desde_seccion(seccion: int) -> tuple[int, int]:
+    if seccion == 99099:
+        return 99, 99
+    if seccion >= 1000:
+        return seccion // 1000, seccion % 100
+    return seccion // 100, seccion % 100
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fase_id,responder_fn,schema_cls", [
     (2, responder_fase2, Fase2ResponderPregunta),
@@ -49,16 +57,19 @@ async def test_fases_responder_contract(db_session, fase_id, responder_fn, schem
     if not pregunta:
         pytest.skip(f"No hay preguntas de Fase {fase_id} en la BD")
 
+    modulo_id, nivel_id = _modulo_nivel_desde_seccion(pregunta.seccion)
     payload = schema_cls(
+        modulo_id=modulo_id,
+        nivel_id=nivel_id,
         pregunta_id=pregunta.id,
         respuesta_dada=pregunta.respuesta_correcta or "1",
-        tiempo_segundos=5
+        tiempo_respuesta_segundos=5
     )
 
     respuesta = await responder_fn(
         payload=payload,
         db=db_session,
-        current_user={"alumno_id": alumno.id, "id": alumno.user_id, "role": "USER", "alumno_obj": alumno}
+        alumno=alumno
     )
 
     assert respuesta is not None, f"responder_fase{fase_id} devolvió None (error de indentación o rama inalcanzable)"

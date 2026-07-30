@@ -40,7 +40,15 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
 
   const slides = useMemo(() => {
     const s: { type: string; data: any }[] = [];
+    const isModuleOne = readingData.modulo_id === 1;
+    const dictionaryEntries = Object.entries(readingData.diccionario || {});
+
     s.push({ type: 'intro', data: null });
+
+    if (isModuleOne && dictionaryEntries.length > 0) {
+      const chunks = chunkArray(dictionaryEntries, 2);
+      chunks.forEach(c => s.push({ type: 'dictionary', data: c }));
+    }
     
     if (readingData.ejemplos && readingData.ejemplos.length > 0) {
       const chunks = chunkArray(readingData.ejemplos, 1);
@@ -74,6 +82,7 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
 
     let typeName = 'Teoría';
     if (currentType === 'examples') typeName = 'Ejemplo';
+    else if (currentType === 'dictionary') typeName = 'Diccionario';
     else if (currentType === 'interactives') typeName = 'Tu turno';
     else if (currentType === 'tip') typeName = 'Consejo';
 
@@ -225,7 +234,7 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                   <p key={idx} className="f4-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
                 ))}
 
-                {readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
+                {readingData.modulo_id !== 1 && readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
                   <div className="f4-reading-dictionary">
                     <h3>📖 EL DICCIONARIO DEL NIVEL:</h3>
                     <div className="f4-dict-grid">
@@ -238,6 +247,31 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                     </div>
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {currentSlide?.type === 'dictionary' && (
+              <motion.div
+                key={`dictionary-${currentStep}`}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="f4-flashcard-content"
+              >
+                <div className="f4-reading-dictionary standalone">
+                  <h3>📖 EL DICCIONARIO DEL NIVEL:</h3>
+                  <div className="f4-dict-grid">
+                    {currentSlide.data.map(([termino, definicion]: [string, string], idx: number) => (
+                      <div key={`${termino}-${idx}`} className="f4-dict-card" style={{ borderColor: `${moduleColor}55` }}>
+                        <div className="f4-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
+                        <div className="f4-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion) }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             )}
 

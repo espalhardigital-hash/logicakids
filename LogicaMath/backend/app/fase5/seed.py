@@ -71,8 +71,8 @@ class NivelTeoriaSeederSchema(BaseModel):
     ejemplos: List[Dict[str, Any]]
     interactivos: List[Dict[str, Any]] = Field(..., min_items=3, max_items=3)
 
-async def clear_fase4_data(session: AsyncSession):
-    print("Purging existing Fase 4 data for quick iteration (Overwrite)...")
+async def clear_fase5_data(session: AsyncSession):
+    print("Purging existing Fase 5 data for quick iteration (Overwrite)...")
     
     # Get all question IDs for Phase 4
     result = await session.execute(select(Pregunta.id).where(Pregunta.fase_id == FASE5_ID))
@@ -99,7 +99,12 @@ async def clear_fase4_data(session: AsyncSession):
     await session.execute(delete(NivelTeoria).where(NivelTeoria.fase_id == FASE5_ID))
     
     await session.commit()
-    print("Fase 4 data purged.")
+    print("Fase 5 data purged.")
+
+
+# Backward-compatible alias for historical local scripts. The function deletes
+# only rows with fase_id=5 through FASE5_ID; keep the alias until Fase 5 is audited.
+clear_fase4_data = clear_fase5_data
 
 async def seed_teoria_niveles(session: AsyncSession):
     print("Sembrando NivelTeoria para Fase 4...")
@@ -1929,11 +1934,11 @@ async def seed_preguntas_desafios(session: AsyncSession):
     await session.commit()
     print("Pool de Desafíos de Fase 4 insertado.")
 
-async def run_fase4_seed():
+async def run_fase5_seed():
     print("Iniciando inyección de Fase 4 en base de datos...")
     async with AsyncSessionLocal() as session:
         # Clear existing Fase 4 entries to prevent duplicates
-        await clear_fase4_data(session)
+        await clear_fase5_data(session)
         
         # 1. Seed Theory content
         await seed_teoria_niveles(session)
@@ -1949,6 +1954,9 @@ async def run_fase4_seed():
         
     print("Fase 4 seeded successfully!")
 
+# Backward-compatible alias for older callers that still use the crossed name.
+run_fase4_seed = run_fase5_seed
+
 if __name__ == "__main__":
-    asyncio.run(run_fase4_seed())
+    asyncio.run(run_fase5_seed())
 

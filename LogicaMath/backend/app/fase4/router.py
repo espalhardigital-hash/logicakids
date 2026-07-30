@@ -1174,9 +1174,9 @@ async def responder_fase4(
                     Intento.pregunta_id == pregunta.id,
                     Intento.es_correcta == True,
                     Intento.id != intento.id
-                ))
+                )).limit(1)
             )
-            if result_previo.scalar_one_or_none():
+            if result_previo.scalar_one_or_none() is not None:
                 ya_resuelta = True
 
         if es_correcta and not ya_resuelta:

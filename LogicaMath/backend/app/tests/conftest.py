@@ -9,7 +9,7 @@ Fixture `db_session`:
 
 import pytest
 import pytest_asyncio
-from app.db.session import AsyncSessionLocal
+from app.db.session import AsyncSessionLocal, engine
 
 
 @pytest_asyncio.fixture
@@ -24,3 +24,4 @@ async def db_session():
             yield session
         finally:
             await session.rollback()
+            await engine.dispose()

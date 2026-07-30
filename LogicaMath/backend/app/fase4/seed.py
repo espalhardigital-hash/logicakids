@@ -6,7 +6,7 @@ Volumetría:
   - 12 niveles en niveles_teoria_pool (NivelTeoria) — 4 módulos × 3 niveles.
   - 3.456 preguntas de práctica (4 módulos × 3 niveles × 72 familias × 4 variantes: 1 original + 3 espejo).
   - 1.950 preguntas de desafíos (13 bloques × 150 preguntas; 12 de módulo + 1 mixto 99099).
-  - 16 filas en configuracion_progreso (4 módulos × 4 config por módulo).
+  - 26 filas en configuracion_progreso: 1 práctica libre, 12 niveles, 12 desafíos y 1 mixta.
 
 Reglas duras (Fase 4):
   - Cero vocabulario de fracciones (décimas = partes de 10, centésimas = partes de 100).
@@ -186,7 +186,7 @@ async def seed_teoria_niveles(session: AsyncSession):
     await session.commit()
     print("12 niveles teóricos sembrados con éxito.")
 
-# ── 3. GENERADOR DE PRÁCTICA (7.200 preguntas = 15 niveles x 120 fam x 4) ─────
+# ── 3. GENERADOR DE PRÁCTICA (3.456 preguntas = 4 módulos x 3 niveles x 72 fam x 4) ─────
 
 _OP_ENUM_POR_NOMBRE = {
     "sumar": OperacionEnum.SUMA,
@@ -250,6 +250,21 @@ def _con_unidad(valor: str, unidad: str) -> str:
 
 
 # Operación que un alumno aplica cuando confunde el sentido del problema.
+def _svg_altura(svg: str, altura_px: int) -> str:
+    svg = re.sub(r"height='\d+'", f"height='{altura_px}'", svg, count=1)
+    return svg.replace(
+        "style='",
+        f"style='max-height:{altura_px}px; ",
+        1,
+    )
+
+
+def _enunciado_con_svg(enunciado: str, figura_svg: str | None, altura_px: int) -> str:
+    if not figura_svg:
+        return enunciado
+    return f"{enunciado}<br/>{_svg_altura(figura_svg, altura_px)}"
+
+
 _OP_INVERSA = {"sumar": "restar", "restar": "sumar",
                "multiplicar": "dividir", "dividir": "multiplicar"}
 
@@ -368,7 +383,7 @@ def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var
     )
     confusiones_mod = [c for c in _COMPOSITOR.confusiones if c["modulo_id"] == modulo_id]
 
-    enunciado_final = comp["enunciado"]
+    enunciado_final = _enunciado_con_svg(comp["enunciado"], comp.get("figura_svg"), 200)
     ans_str = comp["respuesta_correcta"]
     op_enum = _OP_ENUM_POR_NOMBRE.get(comp["operacion_correcta"], OperacionEnum.MIXTA)
     explicacion = _explicacion_desde_compositor(comp)
@@ -471,7 +486,7 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
         comp = comp_d1 = _COMPOSITOR.componer_pregunta_practica(
             real_mod, nivel_d1, q_idx % 12, q_idx % 4, seed_val
         )
-        enunciado = comp["enunciado"]
+        enunciado = _enunciado_con_svg(comp["enunciado"], comp.get("figura_svg"), 140)
         ans_str = comp["respuesta_correcta"]
         esc = next((e for e in _COMPOSITOR.escenarios
                     if e["id"] == comp["escenario_id"]), esc)
@@ -640,7 +655,9 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                 _fmt_money(round(billete - item1, 2)): "Falta restar el segundo producto comprado."
             }
 
-    words = enunciado.split()
+    enunciado_prosa = re.sub(r"<svg.*?</svg>", "", enunciado, flags=re.DOTALL | re.IGNORECASE)
+    enunciado_prosa = re.sub(r"<[^>]+>", " ", enunciado_prosa)
+    words = enunciado_prosa.split()
     if len(words) > 40:
         raise ValueError(f"Enunciado excede el límite duro de 40 palabras ({len(words)} palabras): '{enunciado}'")
 
@@ -727,10 +744,10 @@ async def seed_preguntas_desafios(session: AsyncSession):
 
     print(f"Desafíos sembrados: {total_q} preguntas.")
 
-# ── 5. SIEMBRA DE CONFIGURACIÓN DE PROGRESO (32 filas) ───────────────────────
+# ── 5. SIEMBRA DE CONFIGURACIÓN DE PROGRESO (26 filas) ───────────────────────
 
 async def seed_configuracion_progreso(session: AsyncSession):
-    print("Sembrando 32 filas en configuracion_progreso...")
+    print("Sembrando 26 filas en configuracion_progreso...")
     await session.execute(delete(ConfiguracionProgreso).where(ConfiguracionProgreso.fase_id == FASE_DECIMALES_ID))
 
     cfg_0 = ConfiguracionProgreso(
@@ -812,7 +829,7 @@ async def seed_configuracion_progreso(session: AsyncSession):
     )
     session.add(cfg_mix)
     await session.commit()
-    print("32 filas de `configuracion_progreso` sembradas.")
+    print("26 filas de `configuracion_progreso` sembradas.")
 
 # ── 6. RUNNER PRINCIPAL DE SIEMBRA FASE 4 ────────────────────────────────────────────
 
@@ -828,7 +845,7 @@ async def run_fase4_seed():
         await seed_preguntas_desafios(session)
         await seed_configuracion_progreso(session)
     print("=" * 60)
-    print("SIEMBRA DE FASE 5 FINALIZADA CON ÉXITO")
+    print("SIEMBRA DE FASE 4 FINALIZADA CON ÉXITO")
     print("=" * 60)
 
 if __name__ == "__main__":

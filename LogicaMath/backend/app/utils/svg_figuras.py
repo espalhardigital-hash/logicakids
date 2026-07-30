@@ -499,7 +499,8 @@ def fig_inscrita(externa: str, interna: str, dims: dict,
 # --- Figuras de conversion y decimales (Fase 5) ------------------------------
 
 def escalera_unidades(tipo: str, unidades: list[str], origen: str, destino: str,
-                      valor: float | None = None, color: str = "#F59E0B") -> str:
+                      valor: float | None = None, color: str = "#F59E0B",
+                      mostrar_factor: bool = True) -> str:
     """Escalera de conversion. Anti-revelacion: NO escribe el resultado."""
     fac = {"lineal":"x10/div10","cuadrada":"x100/div100","cubica":"x1000/div1000"}.get(tipo,"x?")
     n=len(unidades); sw=min(int(_INNER/max(n,1)),30); sh=20
@@ -511,7 +512,10 @@ def escalera_unidades(tipo: str, unidades: list[str], origen: str, destino: str,
         op="0.5" if u in (origen,destino) else "0.25"
         shps += (f"<rect x='{bx:.1f}' y='{by-sh:.1f}' width='{sw:.1f}' height='{sh:.1f}' fill='{fill}' fill-opacity='{op}' stroke='{_SHP}' stroke-width='1'/>"
                  f"<text x='{bx+sw/2:.1f}' y='{by-sh/2+4:.1f}' fill='{_LBL}' font-size='10' font-weight='bold' text-anchor='middle'>{u}</text>")
-    fc = f"<text x='{x0+tw/2:.1f}' y='{y0-th-10:.1f}' fill='{color}' font-size='12' font-weight='bold' text-anchor='middle'>{fac}</text>"
+    fc = (
+        f"<text x='{x0+tw/2:.1f}' y='{y0-th-10:.1f}' fill='{color}' font-size='12' font-weight='bold' text-anchor='middle'>{fac}</text>"
+        if mostrar_factor else ""
+    )
     vb = f"{x0-15:.0f} {y0-th-25:.0f} {tw+30:.0f} {th+40:.0f}"
     return _svg_container(shps+fc, border_color=color, viewbox=vb, grid=False, leyenda=None)
 

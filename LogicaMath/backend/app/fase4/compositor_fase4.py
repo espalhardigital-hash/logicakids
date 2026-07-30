@@ -8,6 +8,8 @@ import os
 import random
 from typing import Dict, Any, List
 
+from app.utils.svg_figuras import escalera_unidades, tabla_datos
+
 class CompositorFase4:
     def __init__(self, data_dir: str | None = None):
         if not data_dir:
@@ -200,11 +202,95 @@ class CompositorFase4:
             "resultado_num": resultado,
             "respuesta_correcta": fmt_res,
             "unidad": unit,
+            "figura_svg": self._figura_svg(plantilla, vals, unit),
         }
 
     # Operadores permitidos en las fórmulas de plantillas_fase4.json.
     # No se usa eval() sobre entrada arbitraria: la fórmula es dato del repo,
     # y aun así se restringe a nombres conocidos (deep_analise_pro §15.2).
+    _COLOR_MODULO = {
+        1: "#10B981",
+        2: "#8B5CF6",
+        3: "#F59E0B",
+        4: "#3B82F6",
+    }
+
+    def _figura_svg(self, plantilla: dict, vals: dict, unidad: str) -> str | None:
+        modulo_id = plantilla["modulo_id"]
+        color = self._COLOR_MODULO.get(modulo_id, "#A855F7")
+
+        if modulo_id == 4:
+            origen_destino = self._unidades_conversion(plantilla)
+            if not origen_destino:
+                return None
+            origen, destino = origen_destino
+            return escalera_unidades(
+                "lineal",
+                ["km", "m", "dm", "cm", "mm"],
+                origen,
+                destino,
+                color=color,
+                mostrar_factor=False,
+            )
+
+        if int(plantilla.get("n_datos", 0)) < 2:
+            return None
+
+        filas = self._filas_datos_svg(plantilla, vals, unidad)
+        if len(filas) < 2:
+            return None
+        return tabla_datos(filas, titulo="Datos", color=color)
+
+    def _unidades_conversion(self, plantilla: dict) -> tuple[str, str] | None:
+        pid = plantilla.get("id", "")
+        formula = plantilla.get("formula", "")
+
+        if "_m_cm" in pid or formula == "a*100" or formula == "a*n_cant*100":
+            return "m", "cm"
+        if "_km_m" in pid or formula in ("a*1000", "a*1000+b", "a*1000-b"):
+            return "km", "m"
+        if "_cm_mm" in pid or formula in ("a*10", "a+b/10"):
+            return "cm", "mm"
+        if "_cm_m" in pid or formula in ("a/100", "total/100", "a*n_cant/100", "a+b/100", "a-b/100", "a+b/100+c/100"):
+            return "cm", "m"
+        if "_m_km" in pid or formula in ("a/1000", "total/1000"):
+            return "m", "km"
+        if "_mm_cm" in pid or formula == "a/10":
+            return "mm", "cm"
+        return None
+
+    def _filas_datos_svg(self, plantilla: dict, vals: dict, unidad: str) -> list[tuple[str, str]]:
+        import re as _re
+
+        etiquetas = {
+            "a": "Dato A",
+            "b": "Dato B",
+            "c": "Dato C",
+            "total": "Total",
+            "n_cant": "Cantidad",
+        }
+        tokens = []
+        for token in _re.findall(r"[A-Za-z_]+", plantilla.get("formula", "")):
+            if token in etiquetas and token not in tokens:
+                tokens.append(token)
+
+        filas = []
+        for token in tokens:
+            valor = vals[token]
+            if token == "n_cant":
+                texto_valor = f"{int(valor)} unidades"
+            elif unidad in ("R$", "$", "EUR"):
+                texto_valor = f"{unidad} {self._fmt_visual(valor)}"
+            else:
+                texto_valor = f"{self._fmt_visual(valor)} {unidad}"
+            filas.append((etiquetas[token], texto_valor))
+        return filas
+
+    def _fmt_visual(self, valor: float) -> str:
+        if abs(valor - round(valor)) < 1e-9:
+            return str(int(round(valor)))
+        return f"{valor:.2f}".replace(".", ",")
+
     _NOMBRES_FORMULA = {"a", "b", "c", "total", "n_cant"}
 
     # Contracciones obligatorias del español. Los escenarios traen el artículo

@@ -14,15 +14,7 @@ por cada defecto detectado en la auditoría:
 """
 
 import re
-import sys
-from unittest.mock import MagicMock
-
 import pytest
-
-# El compositor no toca la base de datos, pero el paquete arrastra modelos SQLAlchemy.
-for _mod in ('app.db', 'app.db.session', 'app.models', 'app.models.sql_models',
-             'app.fase2.models', 'app.fase4.router'):
-    sys.modules.setdefault(_mod, MagicMock())
 
 from app.fase4.compositor_fase4 import CompositorFase4
 

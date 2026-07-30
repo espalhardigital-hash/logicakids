@@ -2004,6 +2004,12 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.f4-reading-dictionary.standalone {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
 .f4-reading-dictionary h3 {
   font-size: 0.9rem;
   font-weight: 750;
