@@ -1710,6 +1710,13 @@
   padding-right: 1rem;
 }
 
+.f4-flashcard-content.centered-theory {
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .f4-reading-footer {
   display: flex;
   justify-content: space-between;

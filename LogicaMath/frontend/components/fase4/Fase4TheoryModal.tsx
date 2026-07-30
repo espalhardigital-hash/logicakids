@@ -16,6 +16,33 @@ interface Fase4TheoryModalProps {
   isEvaluatorMode?: boolean;
 }
 
+const MAX_THEORY_CHARACTERS_PER_SLIDE = 560;
+
+const groupTheoryParagraphs = (paragraphs: string[]) => {
+  const nonEmptyParagraphs = paragraphs.filter(Boolean);
+  const [intro, ...procedure] = nonEmptyParagraphs;
+  const groups: string[][] = [];
+  let currentGroup: string[] = [];
+  let currentLength = 0;
+
+  procedure.forEach((paragraph) => {
+    const nextLength = currentLength + paragraph.length;
+    if (currentGroup.length > 0 && nextLength > MAX_THEORY_CHARACTERS_PER_SLIDE) {
+      groups.push(currentGroup);
+      currentGroup = [paragraph];
+      currentLength = paragraph.length;
+      return;
+    }
+
+    currentGroup.push(paragraph);
+    currentLength = nextLength;
+  });
+
+  if (currentGroup.length > 0) groups.push(currentGroup);
+
+  return { intro, groups };
+};
+
 export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
   readingData,
   moduleColor,
@@ -39,14 +66,20 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
   };
 
   const slides = useMemo(() => {
-    const s: { type: string; data: any }[] = [];
-    const isModuleOne = readingData.modulo_id === 1;
+    const s: { type: string; data: any; centered?: boolean }[] = [];
     const dictionaryEntries = Object.entries(readingData.diccionario || {});
+    const { intro, groups } = groupTheoryParagraphs(readingData.parrafos);
 
-    s.push({ type: 'intro', data: null });
+    if (intro) {
+      s.push({ type: 'intro', data: [intro], centered: true });
+    }
+    groups.forEach((group) => s.push({ type: 'intro', data: group }));
+    if (!intro && groups.length === 0) {
+      s.push({ type: 'intro', data: null });
+    }
 
-    if (isModuleOne && dictionaryEntries.length > 0) {
-      const chunks = chunkArray(dictionaryEntries, 2);
+    if (dictionaryEntries.length > 0) {
+      const chunks = chunkArray(dictionaryEntries, 4);
       chunks.forEach(c => s.push({ type: 'dictionary', data: c }));
     }
     
@@ -228,25 +261,12 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="f4-flashcard-content"
+                className={`f4-flashcard-content ${currentSlide.centered ? 'centered-theory' : ''}`}
               >
-                {readingData.parrafos.map((p, idx) => (
+                {(currentSlide.data || readingData.parrafos).map((p: string, idx: number) => (
                   <p key={idx} className="f4-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
                 ))}
 
-                {readingData.modulo_id !== 1 && readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
-                  <div className="f4-reading-dictionary">
-                    <h3>📖 EL DICCIONARIO DEL NIVEL:</h3>
-                    <div className="f4-dict-grid">
-                      {Object.entries(readingData.diccionario).map(([termino, definicion], idx) => (
-                        <div key={idx} className="f4-dict-card" style={{ borderColor: `${moduleColor}55` }}>
-                          <div className="f4-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
-                          <div className="f4-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion as string) }} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </motion.div>
             )}
 
