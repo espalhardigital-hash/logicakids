@@ -547,7 +547,17 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
         else:
             val_m = round(1.5 + (q_idx % 4) * 0.5, 1)
             val_cm_err = val_m * 10
-            enunciado = f"{personaje} convirtió {_fmt_dec(val_m)} m a cm y obtuvo {_fmt_dec(val_cm_err)} cm. ¿Dónde cometió el error?"
+            enunciado = _enunciado_con_svg(
+                f"{personaje} convirtió {_fmt_dec(val_m)} m a cm y obtuvo {_fmt_dec(val_cm_err)} cm. ¿Dónde cometió el error?",
+                tabla_datos(
+                    [
+                        ("Dato inicial", f"{_fmt_dec(val_m)} m"),
+                        ("Resultado dado", f"{_fmt_dec(val_cm_err)} cm"),
+                    ],
+                    color=color_modulo(4, 4),
+                ),
+                125,
+            )
             correct_alt = "Multiplicó por 10 en lugar de multiplicar por 100"
             alts = [
                 {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
@@ -577,7 +587,41 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
         is_two_step = (q_idx % 7 == 0)
         is_context_rounding = (q_idx % 5 == 0)
 
-        if is_context_rounding:
+        if real_mod == 4:
+            tramo_m = round(1.2 + (q_idx % 5) * 0.3, 1)
+            tramo_cm = 35 + (q_idx % 4) * 15
+            hora_salida = 8 + (q_idx % 3)
+            ans_num = round(tramo_m * 100 + tramo_cm, 2)
+            ans_str = _fmt_dec(ans_num)
+
+            enunciado = _enunciado_con_svg(
+                f"{personaje} unió dos tramos de una ruta. ¿Cuántos centímetros mide la ruta completa?",
+                tabla_datos(
+                    [
+                        ("Tramo A", f"{_fmt_dec(tramo_m)} m"),
+                        ("Tramo B", f"{tramo_cm} cm"),
+                        ("Hora de salida", f"{hora_salida}:00"),
+                    ],
+                    color=color_modulo(4, 4),
+                ),
+                145,
+            )
+            explicacion = {
+                "titulo": "Resolución",
+                "pasos": [
+                    {"orden": 1, "texto": f"Dato irrelevante: la hora de salida ({hora_salida}:00) no cambia la longitud."},
+                    {"orden": 2, "texto": f"Convertimos el tramo A: {_fmt_dec(tramo_m)} m × 100 = {_fmt_dec(tramo_m * 100)} cm."},
+                    {"orden": 3, "texto": f"Sumamos ambos tramos: {_fmt_dec(tramo_m * 100)} + {tramo_cm} = {ans_str} cm."},
+                ],
+                "pista": {"texto": "Expresa los dos tramos en centímetros antes de sumarlos.", "penalizacion_segundos": 5},
+            }
+            err_dict = {
+                _fmt_dec(round(tramo_m * 100, 2)): "Convertiste el primer tramo, pero falta sumar el tramo B.",
+                _fmt_dec(round(tramo_m + tramo_cm, 2)): "No puedes sumar metros y centímetros sin unificar las unidades.",
+                _fmt_dec(round(tramo_m * 10 + tramo_cm, 2)): "De metros a centímetros se multiplica por 100, no por 10.",
+            }
+
+        elif is_context_rounding:
             # C6.5: la Fase 4 trabaja longitud y dinero. El volumen (L) pasó a la
             # fase de geometría 3D, así que el redondeo al alza se plantea con
             # listones, no con botellas.
@@ -608,17 +652,17 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             cant = 3
             precio_unit = round(3.50 + (q_idx % 3) * 0.50, 2)
             billete = 20.0
-            irrel_mochila = round(45.0 + (q_idx % 4) * 5.0, 2)
+            hora_compra = 14 + (q_idx % 4)
             total_gastado = round(cant * precio_unit, 2)
             ans_num = round(billete - total_gastado, 2)
             ans_str = _fmt_money(ans_num)
 
-            enunciado = f"{personaje} llevó R$ {_fmt_money(billete)}. Compró {cant} cuadernos de R$ {_fmt_money(precio_unit)} cada uno y miró una mochila de R$ {_fmt_money(irrel_mochila)}. ¿Cuánto le devolvieron?"
+            enunciado = f"{personaje} llevó R$ {_fmt_money(billete)}. Compró {cant} cuadernos de R$ {_fmt_money(precio_unit)} cada uno. La compra fue a las {hora_compra}:00. ¿Cuánto le devolvieron?"
 
             explicacion = {
                 "titulo": "Resolución",
                 "pasos": [
-                    {"orden": 1, "texto": f"Dato irrelevante: la mochila de R$ {_fmt_money(irrel_mochila)}."},
+                    {"orden": 1, "texto": f"Dato irrelevante: la hora de la compra ({hora_compra}:00)."},
                     {"orden": 2, "texto": f"Paso 1 (inferido): {cant} × {_fmt_money(precio_unit)} = R$ {_fmt_money(total_gastado)}."},
                     {"orden": 3, "texto": f"Paso 2: R$ {_fmt_money(billete)} − R$ {_fmt_money(total_gastado)} = R$ {ans_str}."}
                 ],
@@ -627,24 +671,24 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             err_dict = {
                 _fmt_money(total_gastado): "Calculaste el costo total de los cuadernos, pero falta restar del billete para hallar el vuelto.",
                 _fmt_money(round(billete - precio_unit, 2)): "Compró 3 cuadernos, no uno solo. Debes multiplicar primero.",
-                _fmt_money(round(billete - total_gastado - irrel_mochila, 2)): "La mochila solo la miró, es un dato irrelevante."
+                _fmt_money(billete): "Ese es el dinero inicial. Aún falta restar el costo total de los cuadernos."
             }
 
         else:
             billete = round(20.0 + (q_idx % 3) * 10.0, 2)
             item1 = round(3.50 + (q_idx % 5) * 0.80, 2)
             item2 = round(8.50 + (q_idx % 4) * 0.60, 2)
-            irrel = round(35.00 + (q_idx % 3) * 10.0, 2)
+            hora_compra = 15 + (q_idx % 3)
             total = round(item1 + item2, 2)
             ans_num = round(billete - total, 2)
             ans_str = _fmt_money(ans_num)
 
-            enunciado = f"{personaje} llevó R$ {_fmt_money(billete)}. Compró un cuaderno de R$ {_fmt_money(item1)}, un lápiz de R$ {_fmt_money(item2)} y miró una mochila de R$ {_fmt_money(irrel)}. ¿Cuánto le sobró?"
+            enunciado = f"{personaje} llevó R$ {_fmt_money(billete)}. Compró un cuaderno de R$ {_fmt_money(item1)}, un lápiz de R$ {_fmt_money(item2)}. La compra fue a las {hora_compra}:00. ¿Cuánto dinero le sobró?"
 
             explicacion = {
                 "titulo": "Resolución",
                 "pasos": [
-                    {"orden": 1, "texto": f"Dato irrelevante: la mochila de R$ {_fmt_money(irrel)}."},
+                    {"orden": 1, "texto": f"Dato irrelevante: la hora de la compra ({hora_compra}:00)."},
                     {"orden": 2, "texto": f"Paso 1: R$ {_fmt_money(item1)} + R$ {_fmt_money(item2)} = R$ {_fmt_money(total)}."},
                     {"orden": 3, "texto": f"Paso 2: R$ {_fmt_money(billete)} − R$ {_fmt_money(total)} = R$ {ans_str}."}
                 ],
@@ -652,7 +696,8 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             }
             err_dict = {
                 _fmt_money(total): "Ese es el costo total gastado. Te piden cuánto le sobró del billete.",
-                _fmt_money(round(billete - item1, 2)): "Falta restar el segundo producto comprado."
+                _fmt_money(round(billete - item1, 2)): "Falta restar el segundo producto comprado.",
+                _fmt_money(billete): "Ese es el dinero inicial. Todavía falta descontar las compras."
             }
 
     enunciado_prosa = re.sub(r"<svg.*?</svg>", "", enunciado, flags=re.DOTALL | re.IGNORECASE)
@@ -678,6 +723,8 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             "escenario_id": comp_d1["escenario_id"],
             "formula": comp_d1["formula"],
             "nivel_origen": comp_d1["nivel_id"],
+            "valores": comp_d1["valores"],
+            "unidad": comp_d1["unidad"],
         })
 
     return {

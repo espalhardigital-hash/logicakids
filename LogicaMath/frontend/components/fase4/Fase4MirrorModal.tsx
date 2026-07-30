@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Delete, ArrowRight, X } from 'lucide-react';
 import type { Fase4Pregunta, Fase4AnswerResult } from './Fase4Types';
 import { submitFase4Answer } from './Fase4Service';
+import { safeHtml } from '../../services/textService';
 
 interface Props {
   pregunta: Fase4Pregunta;
@@ -138,9 +139,10 @@ export const Fase4MirrorModal: React.FC<Props> = ({
               animate={shaking ? { x: [-8, 8, -6, 6, -4, 4, 0] } : {}}
               className="bg-white/5 border border-white/10 rounded-[2rem] p-6"
             >
-              <h2 className="text-center text-xl md:text-2xl font-black text-white mb-6 leading-tight">
-                {pregunta.enunciado}
-              </h2>
+              <div
+                className="f4-mirror-question-text text-center text-xl md:text-2xl font-black text-white mb-6 leading-tight"
+                dangerouslySetInnerHTML={safeHtml(pregunta.enunciado)}
+              />
 
               <div className="f4-numeric-input-wrap mb-4">
                 <div 

@@ -1928,11 +1928,40 @@
 
 .f4-ex-q svg,
 .f4-question-text svg,
-.f4-question-text.short svg {
+.f4-question-text.short svg,
+.f4-mirror-question-text svg {
   max-width: 100%;
   height: auto !important;
-  box-sizing: content-box;
+  box-sizing: border-box;
   -webkit-text-fill-color: initial;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.f4-ex-q svg text,
+.f4-question-text svg text,
+.f4-question-text.short svg text,
+.f4-mirror-question-text svg text {
+  fill: #f1f5f9 !important;
+}
+
+.f4-question-text svg,
+.f4-question-text.short svg {
+  width: min(100%, 400px) !important;
+  max-height: 230px;
+  margin: 8px auto 0 !important;
+}
+
+.f4-ex-q:not(.f4-ex-q-compact) svg {
+  width: min(100%, 400px) !important;
+  max-height: 210px;
+}
+
+.f4-mirror-question-text svg {
+  width: min(100%, 380px) !important;
+  max-height: 170px;
+  margin: 8px auto 0 !important;
 }
 
 .f4-ex-steps {

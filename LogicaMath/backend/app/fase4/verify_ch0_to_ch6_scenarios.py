@@ -547,7 +547,7 @@ async def main():
         print(f"  Comando: Inspeccionar pregunta DF id={df_sample.id}")
         print(f"  Salida Enunciado: '{df_sample.enunciado}'")
         print(f"  Tipo: {df_sample.tipo_pregunta}")
-        has_irrel = "miró" in df_sample.enunciado or "balde" in df_sample.enunciado or "mochila" in df_sample.enunciado
+        has_irrel = any(marker in df_sample.enunciado for marker in ("miró", "mochila", "balde", ":00"))
         if df_sample.tipo_pregunta == TipoPreguntaEnum.RESPUESTA_NUMERICA and has_irrel:
             print("  [PASS] DF es RESPUESTA_NUMERICA con dato irrelevante en enunciado.")
             passed_scenarios += 1

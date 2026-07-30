@@ -8,7 +8,7 @@ import os
 import random
 from typing import Dict, Any, List
 
-from app.utils.svg_figuras import escalera_unidades, tabla_datos
+from app.utils.svg_figuras import diagrama_conversion, tabla_datos
 
 class CompositorFase4:
     def __init__(self, data_dir: str | None = None):
@@ -212,7 +212,7 @@ class CompositorFase4:
         1: "#10B981",
         2: "#8B5CF6",
         3: "#F59E0B",
-        4: "#3B82F6",
+        4: "#EC4899",
     }
 
     def _figura_svg(self, plantilla: dict, vals: dict, unidad: str) -> str | None:
@@ -224,14 +224,18 @@ class CompositorFase4:
             if not origen_destino:
                 return None
             origen, destino = origen_destino
-            return escalera_unidades(
-                "lineal",
-                ["km", "m", "dm", "cm", "mm"],
-                origen,
-                destino,
-                color=color,
-                mostrar_factor=False,
-            )
+            tokens = self._tokens_formula(plantilla)
+            if len(tokens) == 1:
+                token = tokens[0]
+                return diagrama_conversion(
+                    origen,
+                    destino,
+                    vals[token],
+                    color=color,
+                )
+
+            filas = self._filas_conversion_svg(plantilla, vals)
+            return tabla_datos(filas, titulo="Datos a unificar", color=color)
 
         if int(plantilla.get("n_datos", 0)) < 2:
             return None
@@ -260,8 +264,6 @@ class CompositorFase4:
         return None
 
     def _filas_datos_svg(self, plantilla: dict, vals: dict, unidad: str) -> list[tuple[str, str]]:
-        import re as _re
-
         etiquetas = {
             "a": "Dato A",
             "b": "Dato B",
@@ -269,10 +271,7 @@ class CompositorFase4:
             "total": "Total",
             "n_cant": "Cantidad",
         }
-        tokens = []
-        for token in _re.findall(r"[A-Za-z_]+", plantilla.get("formula", "")):
-            if token in etiquetas and token not in tokens:
-                tokens.append(token)
+        tokens = self._tokens_formula(plantilla)
 
         filas = []
         for token in tokens:
@@ -283,6 +282,47 @@ class CompositorFase4:
                 texto_valor = f"{unidad} {self._fmt_visual(valor)}"
             else:
                 texto_valor = f"{self._fmt_visual(valor)} {unidad}"
+            filas.append((etiquetas[token], texto_valor))
+        return filas
+
+    def _tokens_formula(self, plantilla: dict) -> list[str]:
+        import re as _re
+
+        permitidos = {"a", "b", "c", "total", "n_cant"}
+        tokens = []
+        for token in _re.findall(r"[A-Za-z_]+", plantilla.get("formula", "")):
+            if token in permitidos and token not in tokens:
+                tokens.append(token)
+        return tokens
+
+    def _filas_conversion_svg(self, plantilla: dict, vals: dict) -> list[tuple[str, str]]:
+        formula = plantilla.get("formula", "")
+        unidades_por_formula = {
+            "a*n_cant*100": {"a": "m", "n_cant": "unidades"},
+            "a*n_cant/100": {"a": "cm", "n_cant": "unidades"},
+            "a+b/100": {"a": "m", "b": "cm"},
+            "a*1000+b": {"a": "km", "b": "m"},
+            "a-b/100": {"a": "m", "b": "cm"},
+            "a+b/10": {"a": "cm", "b": "mm"},
+            "a*1000-b": {"a": "km", "b": "m"},
+            "a+b/100+c/100": {"a": "m", "b": "cm", "c": "cm"},
+        }
+        etiquetas = {
+            "a": "Medida A",
+            "b": "Medida B",
+            "c": "Medida C",
+            "total": "Medida total",
+            "n_cant": "Cantidad",
+        }
+        unidades = unidades_por_formula.get(formula, {})
+        filas = []
+        for token in self._tokens_formula(plantilla):
+            valor = vals[token]
+            if token == "n_cant":
+                texto_valor = f"{int(valor)} unidades"
+            else:
+                unidad_token = unidades.get(token, "")
+                texto_valor = f"{self._fmt_visual(valor)} {unidad_token}".strip()
             filas.append((etiquetas[token], texto_valor))
         return filas
 

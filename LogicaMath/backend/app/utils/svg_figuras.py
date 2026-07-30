@@ -41,6 +41,10 @@ _GRID_PATH = (
 
 # Colores de modulo (Decision 6, s11.2.3)
 MODULE_COLORS: dict[tuple[int, int], str] = {
+    (4, 1): "#10B981",  # F4-M1 Suma/Resta
+    (4, 2): "#8B5CF6",  # F4-M2 Multiplicacion
+    (4, 3): "#F59E0B",  # F4-M3 Division
+    (4, 4): "#EC4899",  # F4-M4 Conversion de unidades
     (5, 1): "#10B981",  # F5-M1 Suma/Resta Decimales
     (5, 2): "#8B5CF6",  # F5-M2 Multiplicacion/Division
     (5, 3): "#F59E0B",  # F5-M3 Longitud
@@ -518,6 +522,53 @@ def escalera_unidades(tipo: str, unidades: list[str], origen: str, destino: str,
     )
     vb = f"{x0-15:.0f} {y0-th-25:.0f} {tw+30:.0f} {th+40:.0f}"
     return _svg_container(shps+fc, border_color=color, viewbox=vb, grid=False, leyenda=None)
+
+
+def diagrama_conversion(origen: str, destino: str, valor: float | str | None = None,
+                        color: str = "#3B82F6",
+                        valor_destino: float | str | None = None) -> str:
+    """Ruta de conversion legible sin ejecutar el calculo por el estudiante."""
+    def _fmt(value: float | str) -> str:
+        if isinstance(value, str):
+            return value
+        if abs(value - round(value)) < 1e-9:
+            return str(int(round(value)))
+        return f"{value:.2f}".rstrip("0").rstrip(".").replace(".", ",")
+
+    origen_texto = origen if valor is None else f"{_fmt(valor)} {origen}"
+    destino_texto = f"? {destino}" if valor_destino is None else f"{_fmt(valor_destino)} {destino}"
+
+    content = (
+        "<g data-visual='conversion-route'>"
+        f"<rect x='18' y='28' width='112' height='66' rx='8' fill='{color}' fill-opacity='0.14' "
+        f"stroke='{color}' stroke-width='2'/>"
+        f"<text x='74' y='51' fill='#94A3B8' font-size='11' font-weight='bold' "
+        "text-anchor='middle'>MEDIDA INICIAL</text>"
+        f"<text x='74' y='77' fill='#FFFFFF' font-size='18' font-weight='bold' "
+        f"text-anchor='middle'>{origen_texto}</text>"
+        "<line x1='145' y1='61' x2='215' y2='61' stroke='#94A3B8' stroke-width='3' "
+        "stroke-linecap='round'/>"
+        "<polyline points='204,50 216,61 204,72' fill='none' stroke='#94A3B8' "
+        "stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/>"
+        "<text x='180' y='44' fill='#94A3B8' font-size='10' font-weight='bold' "
+        "text-anchor='middle'>CONVERTIR A</text>"
+        f"<rect x='230' y='28' width='112' height='66' rx='8' fill='{color}' fill-opacity='0.08' "
+        f"stroke='{color}' stroke-width='2' stroke-dasharray='6,4'/>"
+        f"<text x='286' y='51' fill='#94A3B8' font-size='11' font-weight='bold' "
+        "text-anchor='middle'>UNIDAD DESTINO</text>"
+        f"<text x='286' y='77' fill='#FFFFFF' font-size='18' font-weight='bold' "
+        f"text-anchor='middle'>{destino_texto}</text>"
+        "</g>"
+    )
+    return _svg_container(
+        content,
+        border_color=color,
+        w=390,
+        h=145,
+        viewbox="0 0 360 122",
+        grid=False,
+        leyenda=None,
+    )
 
 
 def recta_numerica_decimal(inicio: float, fin: float, paso: float,

@@ -4,7 +4,7 @@
 # Cumple con C2.2, C2.4, C3 y §4.3 de reestructuracion.md.
 # Exactly 4 guided examples per level (3 calculation + 1 TJS 5-step with active commitment on step 3).
 
-from app.utils.svg_figuras import tabla_datos, comparador_opciones, escalera_unidades, color_modulo
+from app.utils.svg_figuras import tabla_datos, comparador_opciones, diagrama_conversion, color_modulo
 
 def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
     ejemplos_db = {
@@ -512,7 +512,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         (4, 1): [
             {
                 "enunciado": "Convierte 2,5 metros a centímetros bajando la escalera métrica.<br/>" +
-                             escalera_unidades("longitud", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "m", "cm", 2.5, color_modulo(4,1)),
+                             diagrama_conversion("m", "cm", 2.5, color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "De m a cm bajamos 2 escalones (m → dm → cm), lo que significa multiplicar por 100."},
                     {"orden": 2, "texto": "Desplazamos la coma 2 lugares a la derecha: 2,5 × 100 = 250."},
@@ -521,7 +521,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
             },
             {
                 "enunciado": "Convierte 1,8 kilómetros a metros.<br/>" +
-                             escalera_unidades("longitud", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "km", "m", 1.8, color_modulo(4,1)),
+                             diagrama_conversion("km", "m", 1.8, color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "De km a m bajamos 3 escalones (×1000)."},
                     {"orden": 2, "texto": "Desplazamos la coma 3 lugares a la derecha: 1,8 × 1000 = 1800."},
@@ -530,7 +530,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
             },
             {
                 "enunciado": "Convierte 3,5 metros a milímetros.<br/>" +
-                             escalera_unidades("lineal", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "m", "mm", 3.5, color_modulo(4,1)),
+                             diagrama_conversion("m", "mm", 3.5, color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "De m a mm bajamos 3 escalones (×1000)."},
                     {"orden": 2, "texto": "Multiplicamos 3,5 × 1000 = 3500."},
@@ -566,7 +566,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         (4, 2): [
             {
                 "enunciado": "Convierte 450 centímetros a metros subiendo la escalera métrica.<br/>" +
-                             escalera_unidades("longitud", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "cm", "m", 450, color_modulo(4,2)),
+                             diagrama_conversion("cm", "m", 450, color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "De cm a m subimos 2 escalones (÷100)."},
                     {"orden": 2, "texto": "Desplazamos la coma 2 lugares a la izquierda: 450,0 ÷ 100 = 4,50."},
@@ -575,7 +575,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
             },
             {
                 "enunciado": "Convierte 2500 metros a kilómetros.<br/>" +
-                             escalera_unidades("lineal", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "m", "km", 2500, color_modulo(4,2)),
+                             diagrama_conversion("m", "km", 2500, color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "De m a km subimos 3 escalones (÷1000)."},
                     {"orden": 2, "texto": "Desplazamos la coma 3 lugares a la izquierda: 2500 ÷ 1000 = 2,5."},
@@ -584,7 +584,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
             },
             {
                 "enunciado": "Convierte 750 milímetros a metros.<br/>" +
-                             escalera_unidades("lineal", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "mm", "m", 750, color_modulo(4,2)),
+                             diagrama_conversion("mm", "m", 750, color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "De mm a m subimos 3 escalones (÷1000)."},
                     {"orden": 2, "texto": "Desplazamos la coma 3 lugares a la izquierda: 750 ÷ 1000 = 0,75."},
@@ -620,7 +620,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         (4, 3): [
             {
                 "enunciado": "Zoe tiene una cinta y le añade otro trozo. ¿Cuántos metros mide en total?<br/>" +
-                             tabla_datos([("Cinta inicial", "1,5 m"), ("Añadido", "50 cm")], color=color_modulo(4,3)),
+                             tabla_datos([("Cinta inicial", "1,5 m"), ("Añadido", "50 cm")], color=color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "Convertimos 50 cm a metros: 50 ÷ 100 = 0,5 m."},
                     {"orden": 2, "texto": "Sumamos ambas cantidades en metros: 1,5 + 0,5 = 2,0 m."},
@@ -629,7 +629,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
             },
             {
                 "enunciado": "Hugo camina por la mañana y por la tarde. ¿Distancia total en km?<br/>" +
-                             tabla_datos([("Mañana", "1,2 km"), ("Tarde", "800 m")], color=color_modulo(4,3)),
+                             tabla_datos([("Mañana", "1,2 km"), ("Tarde", "800 m")], color=color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "Convertimos 800 m a km: 800 ÷ 1000 = 0,8 km."},
                     {"orden": 2, "texto": "Sumamos en km: 1,2 + 0,8 = 2,0 km."},
@@ -638,7 +638,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
             },
             {
                 "enunciado": "Un rollo de cordón se corta en trozos iguales. ¿Sobra cordón?<br/>" +
-                             tabla_datos([("Rollo", "2,5 m"), ("Trozos", "5"), ("Cada trozo", "50 cm")], color=color_modulo(4,3)),
+                             tabla_datos([("Rollo", "2,5 m"), ("Trozos", "5"), ("Cada trozo", "50 cm")], color=color_modulo(4,4)),
                 "pasos": [
                     {"orden": 1, "texto": "Convertimos el rollo a centímetros: 2,5 × 100 = 250 cm."},
                     {"orden": 2, "texto": "Calculamos lo que ocupan los trozos: 5 × 50 cm = 250 cm."},

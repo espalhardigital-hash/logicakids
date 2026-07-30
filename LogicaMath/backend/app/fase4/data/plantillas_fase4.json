@@ -201,7 +201,7 @@
       "objetos"
     ],
     "marco": "{personaje} llevaba {total} {unidad} al ir a {lugar}. Compró {objetos_0} por {unidad} {a} y {objetos_1} por {unidad} {b}.",
-    "pregunta": "¿Cuánto vuelto le sobró al finalizar sus compras?",
+    "pregunta": "¿Cuánto dinero le sobró al finalizar sus compras?",
     "operacion_correcta": "restar",
     "incognita": "resto",
     "n_datos": 3,

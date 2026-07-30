@@ -15,6 +15,7 @@ Responsabilidades:
 """
 
 import random
+import re
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
@@ -34,6 +35,8 @@ from ..models.sql_models import (
 )
 from ..utils.math_utils import normalize_response, calcular_max_errores
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
+from .compositor_fase4 import CompositorFase4
+from .theory_examples import obtener_ejemplos_expandidos_fase4
 from .schemas import (
     Fase5Dashboard, Fase5ModuloInfo, Fase5NivelInfo,
     Fase5PreguntaParaAlumno, Fase5Token,
@@ -46,6 +49,47 @@ router = APIRouter(prefix="/fase4", tags=["fase4"])
 
 FASE_DECIMALES_ID = 4
 MAX_ESPEJO = 3  # Intentos máximos en Bucle Espejo
+_COMPOSITOR_VISUAL = CompositorFase4()
+
+
+def _enunciado_con_visual_actual(pregunta: Pregunta) -> str:
+    """Renueva solo el SVG de M4 sin alterar la pregunta almacenada ni su respuesta."""
+    datos = pregunta.datos_numericos or {}
+    plantilla_id = datos.get("plantilla_id")
+    valores = datos.get("valores")
+    if not isinstance(valores, dict):
+        valores = {
+            key: datos[key]
+            for key in ("a", "b", "c", "total", "n_cant")
+            if key in datos
+        }
+    if not plantilla_id or not valores:
+        return pregunta.enunciado
+
+    plantilla = next(
+        (item for item in _COMPOSITOR_VISUAL.plantillas if item.get("id") == plantilla_id),
+        None,
+    )
+    if not plantilla or plantilla.get("modulo_id") != 4:
+        return pregunta.enunciado
+
+    figura = _COMPOSITOR_VISUAL._figura_svg(
+        plantilla,
+        valores,
+        datos.get("unidad", ""),
+    )
+    if not figura:
+        return pregunta.enunciado
+
+    enunciado_base = re.sub(
+        r"\s*<br\s*/?>\s*<svg\b.*?</svg>",
+        "",
+        pregunta.enunciado,
+        count=1,
+        flags=re.DOTALL | re.IGNORECASE,
+    ).strip()
+    figura = re.sub(r"height='\d+'", "height='200'", figura, count=1)
+    return f"{enunciado_base}<br/>{figura}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # HELPER DE SINCRONIZACIÓN CON CONFIGURACIONES HEREDADAS (unlockedLevels)
@@ -475,7 +519,11 @@ async def get_lectura_fase4(
         fase_nombre=FASE_NOMBRE,
         titulo=theory.titulo,
         parrafos=parrafos,
-        ejemplos=theory.ejemplos,
+        ejemplos=(
+            obtener_ejemplos_expandidos_fase4(modulo_id, nivel_id)
+            if modulo_id == 4
+            else theory.ejemplos
+        ),
         tip_pedagogico=theory.advertencia,
         diccionario=getattr(theory, 'diccionario', None),
         interactivos=theory.interactivos,
@@ -610,7 +658,7 @@ async def get_pregunta_fase4(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
-            enunciado=pregunta_elex.enunciado,
+            enunciado=_enunciado_con_visual_actual(pregunta_elex),
             tipo_pregunta=pregunta_elex.tipo_pregunta.value,
             tiene_cronometro=tiene_crono,
             tiempo_limite_segundos=tiempo_lim,
@@ -801,7 +849,7 @@ async def get_pregunta_fase4(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
-            enunciado=pregunta_elex.enunciado,
+            enunciado=_enunciado_con_visual_actual(pregunta_elex),
             tipo_pregunta=pregunta_elex.tipo_pregunta.value,
             tiene_cronometro=tiene_crono,
             tiempo_limite_segundos=tiempo_lim,
