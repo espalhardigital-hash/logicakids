@@ -1,6 +1,6 @@
 /**
  * Servicio API — Fase 4: Operatoria Decimal y Conversiones
- * Capa de comunicación con el backend de Fase 5.
+ * Capa de comunicación con el backend de Fase 4.
  */
 
 import { fetchWithTimeout } from '../../services/apiHelper';
@@ -51,7 +51,7 @@ async function fetchDeduplicated<T>(key: string, fetchFn: () => Promise<T>): Pro
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Obtiene el dashboard de Fase 5 con los módulos y su estado.
+ * Obtiene el dashboard de Fase 4 con los módulos y su estado.
  */
 export async function getFase4Dashboard(): Promise<Fase4Dashboard> {
   const key = 'dashboard';
@@ -122,7 +122,7 @@ export async function getFase4Reading(
 }
 
 /**
- * Gradúa al alumno de Fase 5 a Fase 6 (requiere todos los módulos dominados).
+ * Gradúa al alumno de Fase 4 a Fase 5 (requiere todos los módulos dominados).
  */
 export async function graduateFase4(): Promise<{
   message: string;

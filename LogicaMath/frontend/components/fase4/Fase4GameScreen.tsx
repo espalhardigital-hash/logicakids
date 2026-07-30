@@ -1,7 +1,7 @@
 /**
  * Fase4GameScreen.tsx
  * ─────────────────────────────────────────────────────────────
- * Pantalla de juego adaptativa para los 5 módulos de Fase 5.
+ * Pantalla de juego adaptativa para los 4 módulos de Fase 4.
  *   - Módulos 1-3: Entrada numérica
  *   - Módulo  4  : Selección de tokens (subrayador)
  *   - Módulo  5  : Pasos encadenados (paso 1 → congelado → paso 2)
@@ -270,9 +270,9 @@ const Fase4CompletionModal: React.FC<{
   const rec = useMemo(() => {
     if (moduloId === 99) {
       return {
-        titulo: '¡Héroe de la Fase 5! 🎉',
-        mensaje: '¡Has dominado por completo todos los desafíos de la Fase 5! Tu agilidad de cálculo y razonamiento numérico son extraordinarios. ¡Prepárate para la Fase 6!',
-        accion: 'Avanzar a Fase 6 🚀'
+        titulo: '¡Héroe de la Fase 4! 🎉',
+        mensaje: '¡Has dominado por completo todos los desafíos de la Fase 4! Tu agilidad de cálculo y razonamiento numérico son extraordinarios. ¡Prepárate para la Fase 4 siguiente!',
+        accion: 'Avanzar a la siguiente Fase 🚀'
       };
     }
     
@@ -517,10 +517,10 @@ const Fase4PhaseGraduationModal: React.FC<{
           variants={itemVariants}
           style={{ fontSize: '1.15rem', color: 'rgba(255, 255, 255, 0.75)', marginBottom: '35px', maxWidth: '500px', margin: '0 auto 35px' }}
         >
-          ¡Has completado y dominado con éxito toda la **Fase 5: Geometría Plana y Medidas**! Eres oficialmente un héroe matemático de LogicaKids Pro. 🛡️✨
+          ¡Has completado y dominado con éxito toda la **Fase 4: Operatoria Decimal y Conversiones**! Eres oficialmente un héroe matemático de LogicaKids Pro. 🛡️✨
         </motion.p>
 
-        {/* Infografía: El Gran Viaje de Fase 5 */}
+        {/* Infografía: El Gran Viaje de Fase 4 */}
         <motion.div 
           variants={itemVariants}
           style={{ 
@@ -626,7 +626,7 @@ const Fase4PhaseGraduationModal: React.FC<{
           </div>
         </motion.div>
 
-        {/* Botón de Lanzamiento de Fase 6 */}
+        {/* Botón de Lanzamiento de la siguiente Fase */}
         <motion.button
           variants={itemVariants}
           className="f4-submit-btn"
@@ -648,7 +648,7 @@ const Fase4PhaseGraduationModal: React.FC<{
             gap: '10px'
           }}
         >
-          ¡Avanzar al Siguiente Nivel / Fase 6! 🚀
+          ¡Avanzar al Siguiente Nivel / siguiente Fase! 🚀
         </motion.button>
       </motion.div>
     </motion.div>
@@ -728,7 +728,7 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   }, [moduloId, nivelId]);
 
   const displayModuleName = useMemo(() => {
-    if (moduloId === 99) return "Desafío Mixto de la Fase 5";
+    if (moduloId === 99) return "Desafío Mixto de la Fase 4";
     return MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`;
   }, [moduloId]);
 
@@ -1272,7 +1272,7 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
               <div className="f4-header-badge-pill">
                 <span className="f4-badge-module" style={{ color: moduleColor }}>{moduleName.toUpperCase()}</span>
                 <span className="f4-badge-divider">|</span>
-                <span className="f4-badge-level">FASE 5</span>
+                <span className="f4-badge-level">FASE 4</span>
                 <span className="f4-badge-divider">|</span>
                 <span className="f4-badge-level">MÓDULO {moduloId === 99 ? 'MAESTRÍA' : moduloId}</span>
                 <span className="f4-badge-divider">|</span>

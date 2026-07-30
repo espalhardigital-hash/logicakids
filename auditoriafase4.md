@@ -1402,3 +1402,32 @@ Resultado obtenido:
 4. La implementación visual quedó aprobada en pruebas reales dentro del sitio local.
 
 En síntesis: la reestructuración no cambió la lógica pedagógica del contenido, sino su forma de presentación. El resultado es una Fase 4 más ordenada, más visual y más fácil de leer para el alumno, sin romper las restricciones de diseño ya resueltas en esta fase.
+
+----------------------------------------
+
+PARTE 7
+AmpliaciÃ³n de la reestructuraciÃ³n visual a los ejemplos guiados de la Fase 4
+
+Se extendiÃ³ el mismo principio aplicado a la teorÃ­a a los ejemplos guiados de toda la Fase 4. La meta fue eliminar la fragmentaciÃ³n innecesaria, evitar el uso de scroll y aprovechar mejor el espacio disponible en cada flashcard para mostrar mÃ¡s informaciÃ³n pedagÃ³gica sin cortar contenido.
+
+QuÃ© se ajustÃ³:
+
+1. Se reemplazÃ³ la lÃ³gica limitada al primer ejemplo de un nivel por una agrupaciÃ³n general para todos los ejemplos guiados de la Fase 4.
+2. Se compactaron los ejemplos cortos para que puedan mostrarse en una sola flashcard cuando el contenido entra sin desbordes.
+3. Se mantuvo la divisiÃ³n en varias flashcards solo cuando el contenido realmente excede el presupuesto visual disponible.
+4. Se quitÃ³ el texto redundante de cabecera en los ejemplos guiados y tambiÃ©n el indicador interno de parte, porque ya existÃ­a una etiqueta superior con la informaciÃ³n del ejemplo.
+5. Se ajustÃ³ el umbral de compactaciÃ³n para que los primeros ejemplos de cada nivel, que ahora tienen mÃ¡s espacio libre, puedan verse completos en una sola tarjeta.
+
+QuÃ© problema resolviÃ³:
+
+1. El primer ejemplo guiado ya no queda dividido en dos flashcards cuando su contenido cabe en una sola.
+2. Los ejemplos guiados dejan de repetir etiquetas que consumÃ­an espacio sin aportar pedagogÃ­a real.
+3. La pantalla aprovecha mejor el Ã¡rea libre para incluir enunciado, datos y pasos de resoluciÃ³n de forma mÃ¡s clara.
+4. Se respeta la regla central de la Fase 4: nunca usar scroll vertical ni presentar informaciÃ³n cortada.
+
+Resultado:
+
+1. Los ejemplos guiados quedaron mÃ¡s densos, mÃ¡s limpios y menos fragmentados.
+2. La presentaciÃ³n ahora se adapta al tamaÃ±o real del contenido y no a un esquema fijo de una tarjeta por paso.
+3. La experiencia visual es mÃ¡s pedagÃ³gica, porque cada flashcard muestra una unidad de aprendizaje mÃ¡s completa.
+4. La reestructuraciÃ³n aprobada en el ejemplo piloto se convirtiÃ³ en una regla aplicable a toda la Fase 4.

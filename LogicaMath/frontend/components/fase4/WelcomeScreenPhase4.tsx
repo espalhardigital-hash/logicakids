@@ -144,7 +144,7 @@ const WelcomeScreenPhase4: React.FC<Props> = ({
       <div className="f4-screen">
         <div className="f4-loading">
           <div className="f4-spinner" />
-          <span>Cargando Fase 5…</span>
+          <span>Cargando Fase 4…</span>
         </div>
       </div>
     );
@@ -196,7 +196,7 @@ const WelcomeScreenPhase4: React.FC<Props> = ({
                 ¡Hola, {nombre}! <span>👋</span>
               </div>
               <div className="f4-header-subtitle">
-                <span className="f4-badge-fase">FASE 5</span>
+                <span className="f4-badge-fase">FASE 4</span>
                 <span className="f4-header-fasename">Operatoria Decimal y Conversiones</span>
               </div>
             </div>
@@ -232,7 +232,7 @@ const WelcomeScreenPhase4: React.FC<Props> = ({
               <div className="f4-challenge-banner">
                 <div className="f4-challenge-icon">🏆</div>
                 <div className="f4-challenge-text">
-                  <div className="f4-challenge-title">Desafío Mixto de la Fase 5</div>
+                  <div className="f4-challenge-title">Desafío Mixto de la Fase 4</div>
                   <div className="f4-challenge-desc">
                     ¡Has completado exitosamente todos los módulos! Es momento de resolver el Desafío Mixto y demostrar tu maestría en Operatoria Decimal.
                   </div>
@@ -258,7 +258,7 @@ const WelcomeScreenPhase4: React.FC<Props> = ({
                       </div>
                       <div>
                         <h3 className="text-xl font-black text-slate-900 dark:text-white mb-1 font-display tracking-tight">
-                          Tu Camino a la Fase 6
+                          Tu Camino a la Fase 4
                         </h3>
                         <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
                           Completa todos los niveles y desafíos en cada módulo para desbloquear el Desafío Mixto y avanzar de fase.
