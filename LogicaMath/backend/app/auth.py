@@ -162,7 +162,7 @@ async def create_user(db: AsyncSession, username: str, email: str, password: str
     """
     Create a new user with hashed password.
     Also creates the Alumno profile linked to the user,
-    with fase_actual_id set to Fase 0 (orden=0).
+    with fase_actual_id set to the first active pedagogical phase.
     Special logic: for eloisa@gmail.com and joaquin@gmail.com,
     set addition level to 6, phase to Fase 1, and approve Suma in ProgresoMaestria.
     """
@@ -202,8 +202,8 @@ async def create_user(db: AsyncSession, username: str, email: str, password: str
     db.add(new_user)
     await db.flush()  # Flush to get the user ID before creating alumno
     
-    # Find active target phase (Fase 1 for special students, Fase 0 otherwise)
-    target_order = 1 if is_special_student else 0
+    # Find active target phase. Both regular and special students now start in Fase 1.
+    target_order = 1
     result = await db.execute(select(Fase).where(Fase.orden == target_order))
     target_fase = result.scalar_one_or_none()
     

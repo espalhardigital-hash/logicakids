@@ -58,12 +58,6 @@ DEFAULT_PEDAGOGY_CONFIG = {
 # ============================================================
 FASES_DATA = [
     {
-        "id": 0,
-        "nombre": "Operaciones Elementales",
-        "descripcion": "Fase inicial: Sumas y restas básicas para calentar motores.",
-        "orden": 0,
-    },
-    {
         "id": 1,
         "nombre": "Aritmética Básica",
         "descripcion": "Sumas, restas, multiplicaciones y divisiones. ¡Calentamiento mental!",
@@ -696,17 +690,17 @@ async def create_admin_user(session: AsyncSessionLocal) -> str:
     )
     existing_alumno = result.scalar_one_or_none()
     if not existing_alumno:
-        # Find Fase 0
-        result = await session.execute(select(Fase).where(Fase.orden == 0))
-        fase_cero = result.scalar_one_or_none()
-        if not fase_cero:
+        # Vincular el perfil auxiliar del administrador a la primera fase activa real.
+        result = await session.execute(select(Fase).where(Fase.orden == 1))
+        fase_inicial = result.scalar_one_or_none()
+        if not fase_inicial:
             result = await session.execute(select(Fase).order_by(Fase.orden.asc()).limit(1))
-            fase_cero = result.scalar_one_or_none()
+            fase_inicial = result.scalar_one_or_none()
             
         alumno = Alumno(
             user_id=admin_user.id,
             nombre=admin_user.username,
-            fase_actual_id=fase_cero.id if fase_cero else None,
+            fase_actual_id=fase_inicial.id if fase_inicial else None,
         )
         session.add(alumno)
         print("  Perfil Alumno creado para Administrador.")
@@ -975,4 +969,3 @@ async def run_seed():
 
 if __name__ == "__main__":
     asyncio.run(run_seed())
-

@@ -7,8 +7,8 @@ from .enums import StatusEnum
 class Fase(Base):
     """
     Etapas generales del plan de estudio.
-    Fase 0: Operaciones elementales (generacion dinamica, mathService.ts)
-    Fase 1+: Operaciones basicas con preguntas en BD
+    Todas las fases activas del sistema viven en la tabla `fases`.
+    La numeración vigente empieza en la Fase 1.
     """
     __tablename__ = "fases"
 

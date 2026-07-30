@@ -9223,3 +9223,74 @@ Estas cuatro ya no se preguntan. Se ejecutan literalmente como quedan fijadas aq
 El trabajo actual se concentra en el entorno **local**. Estas decisiones se retoman explícitamente cuando llegue el momento de desplegar a la VPS — no se improvisan entonces, se abre esta misma sección y se resuelven antes de escribir en producción.
 
 1. **Alcance exacto de la sincronización a la VPS (Etapa 11).** Sigue en pie la recomendación de este documento: subir **por partes** y no en una sola operación — primero la renumeración sola y verificada, después las Fases 5 y 6 sembradas, y al final, como paso separado y deliberado, la migración de la Fase 4 (la más delicada, porque toca progreso de alumnos activos). Cada parte con su propio pre-vuelo de `bd_minio.md` y su propia confirmación humana. **Pendiente de decisión final del dueño del producto cuando se acerque el despliegue**, no de este documento.
+
+---
+
+## 15. Anexo de cierre de implementación — Fase 4
+
+> Este anexo se agrega **sin reescribir** el cuerpo histórico del documento.
+> Las secciones anteriores conservan el plan original tal como fue acordado.
+> Lo que sigue registra, a posteriori, qué quedó implementado en la Fase 4 y qué ajustes finales de consistencia se realizaron al cierre.
+
+### 15.1. Criterio documental adoptado
+
+- `docs/reestructuraciondefases.md` se conserva como **prueba del planeamiento**.
+- El cierre se documenta como **anexo histórico**, para no borrar la trazabilidad entre decisión e implementación.
+- Las diferencias menores entre lo planeado y lo afinado en ejecución se registran aquí, no se sobrescriben en el plan original.
+
+### 15.2. Estado de implementación al cierre
+
+Fecha de cierre técnico: **2026-07-30**.
+
+Resultado general:
+
+1. La **nueva Fase 4** quedó implementada como `Operatoria Decimal y Conversiones`.
+2. La **Fase 5** quedó reposicionada como `Fracciones, Porcentajes y Proporciones`.
+3. La Fase 4 activa quedó consolidada en **4 módulos × 3 niveles**.
+4. La práctica libre quedó regenerada con **respuesta numérica**, familias estructuradas y variantes espejo.
+5. Los desafíos quedaron recalibrados al esquema **D1 contexto / D2 TJS / DF numérico / DM mixto**.
+6. La teoría y los ejemplos guiados quedaron adaptados al principio de **cero scroll**, con división por pasos, diccionario fragmentado y ejemplos compactos.
+7. La fase quedó normalizada para usar **SVG inline** en lugar de depender de imágenes externas en el flujo principal.
+
+### 15.3. Decisiones implementadas que sí quedaron visibles en código
+
+1. Intercambio efectivo de identidad pedagógica entre Fase 4 y Fase 5.
+2. Nombre, servicio, router y seed de Fase 4 alineados con `fase_id = 4`.
+3. Corrección de referencias literales a “Fase 5” dentro de la experiencia visible de la Fase 4.
+4. Reestructuración de teoría:
+   teoría en múltiples flashcards cuando el contenido no cabe;
+   diccionario separado por pasos;
+   primera flashcard teórica con ilustración contextual discreta.
+5. Reestructuración de ejemplos guiados:
+   primer ejemplo compactado cuando cabe en una sola flashcard;
+   eliminación de encabezados redundantes;
+   resolución visible sin scroll;
+   marca visual discreta de problema resuelto.
+6. Mejora de visuales del módulo 4:
+   figuras más legibles;
+   retiro de bordes decorativos que robaban espacio;
+   texto interno unificado a color legible;
+   ajuste de diagramas y tablas para batería, espejo y desafíos.
+7. Correcciones de lógica pedagógica en enunciados ambiguos o contradictorios.
+
+### 15.4. Ajustes finales de consistencia realizados al cierre
+
+1. Barrido de nombres visibles que todavía mostraban etiquetas antiguas de Fase 4/Fase 5.
+2. Corrección de textos auxiliares en vistas administrativas y simuladores locales.
+3. Normalización de mensajes de graduación y progreso entre Fase 4 y Fase 5.
+4. Actualización de un script auxiliar de auditoría para que refleje la volumetría y nomenclatura reales de la Fase 4 actual.
+
+### 15.5. Observación importante sobre el alcance
+
+1. Este cierre **no replica** automáticamente las reglas T3/T4 al resto de fases.
+2. La Fase 4 queda como **fase piloto validada**.
+3. Las demás fases mantienen su estado actual hasta una planeación específica posterior.
+
+### 15.6. Cierre
+
+Con este anexo, el documento conserva las dos capas necesarias:
+
+1. **planeamiento original**, para auditar qué se acordó;
+2. **cierre implementado**, para auditar qué se construyó realmente.
+
+La reestructuración funcional de la **Fase 4** queda cerrada con este registro.

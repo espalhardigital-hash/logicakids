@@ -106,8 +106,8 @@ async def create_users():
                 from sqlalchemy.orm.attributes import flag_modified
                 flag_modified(user, "settings")
 
-        # Buscar la fase inicial (Fase 0 o de orden menor)
-        result = await session.execute(select(Fase).where(Fase.orden == 0))
+        # Buscar la primera fase pedagógica activa real.
+        result = await session.execute(select(Fase).where(Fase.orden == 1))
         fase_cero = result.scalar_one_or_none()
         if not fase_cero:
             result = await session.execute(select(Fase).order_by(Fase.orden.asc()).limit(1))
@@ -118,7 +118,7 @@ async def create_users():
             print("⚠️ No se encontraron fases en la base de datos. Inyectando fases iniciales...")
             await seed_fases(session)
             await session.flush()
-            result = await session.execute(select(Fase).where(Fase.orden == 0))
+            result = await session.execute(select(Fase).where(Fase.orden == 1))
             fase_cero = result.scalar_one_or_none()
 
         if fase_cero:

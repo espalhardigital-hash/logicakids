@@ -244,9 +244,9 @@ const Fase5CompletionModal: React.FC<{
   const rec = useMemo(() => {
     if (moduloId === 99) {
       return {
-        titulo: '¡Héroe de la Fase 4! 🎉',
-        mensaje: '¡Has dominado todos los desafíos de la Fase 4 de Fracciones! Tu razonamiento cuantitativo y velocidad de cálculo son excepcionales. ¡Listo para brillar!',
-        accion: 'Completar Fase 4 🚀'
+        titulo: '¡Héroe de la Fase 5! 🎉',
+        mensaje: '¡Has dominado todos los desafíos de la Fase 5 de Fracciones! Tu razonamiento cuantitativo y velocidad de cálculo son excepcionales. ¡Listo para brillar!',
+        accion: 'Completar Fase 5 🚀'
       };
     }
     
@@ -475,10 +475,10 @@ const Fase5PhaseGraduationModal: React.FC<{
           variants={itemVariants}
           style={{ fontSize: '1.15rem', color: 'rgba(255, 255, 255, 0.75)', marginBottom: '35px', maxWidth: '500px', margin: '0 auto 35px' }}
         >
-          ¡Has completado y dominado con éxito toda la **Fase 4: Fracciones y Razones**! Eres oficialmente un maestro de las proporciones en LogicaKids. 🛡️✨
+          ¡Has completado y dominado con éxito toda la **Fase 5: Fracciones, Porcentajes y Proporciones**! Eres oficialmente un maestro de las proporciones en LogicaKids. 🛡️✨
         </motion.p>
 
-        {/* Infografía: El Gran Viaje de Fase 4 */}
+        {/* Infografía: El Gran Viaje de Fase 5 */}
         <motion.div 
           variants={itemVariants}
           style={{ 
@@ -492,7 +492,7 @@ const Fase5PhaseGraduationModal: React.FC<{
         >
           <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.1rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
             <Compass size={20} style={{ color: '#10B981' }} />
-            Tu Mapa de Ruta Conquistado - Fase 4
+            Tu Mapa de Ruta Conquistado - Fase 5
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', padding: '0 10px' }}>
@@ -674,7 +674,7 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
   }, [moduloId, nivelId]);
 
   const displayModuleName = useMemo(() => {
-    if (moduloId === 99) return "Desafío Mixto de la Fase 4";
+    if (moduloId === 99) return "Desafío Mixto de la Fase 5";
     return MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`;
   }, [moduloId]);
 
@@ -1309,7 +1309,7 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
               {moduleName.toUpperCase()}
             </span>
             <span className="f5-badge-divider">|</span>
-            <span className="f5-badge-level">FASE 4</span>
+            <span className="f5-badge-level">FASE 5</span>
             <span className="f5-badge-divider">|</span>
             <span className="f5-badge-challenge">
               {isChallenge ? 'DESAFÍO' : 'PROGRESO'} {progreso.aciertos}/{maxAciertos}

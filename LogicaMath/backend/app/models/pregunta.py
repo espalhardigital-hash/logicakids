@@ -7,8 +7,7 @@ from .enums import StatusEnum, OperacionEnum, TipoPreguntaEnum, TipoErrorEnum
 
 class Pregunta(Base):
     """
-    Banco principal de ejercicios. Solo para Fases 1+.
-    (Fase 0 usa generacion dinamica en mathService.ts)
+    Banco principal de ejercicios para las fases activas del sistema.
 
     Soporta: calculo directo, problemas narrativos, problemas mixtos,
     multiple opcion y respuesta numerica.

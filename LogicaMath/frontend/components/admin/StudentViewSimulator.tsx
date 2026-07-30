@@ -656,8 +656,8 @@ const PHASE_MAPS = [
   { id: 1, name: "Fase 1: Primeros Pasos" },
   { id: 2, name: "Fase 2: Multiplicación" },
   { id: 3, name: "Fase 3: Geometría e Imágenes" },
-  { id: 4, name: "Fase 4: Fracciones y Diseños" },
-  { id: 5, name: "Fase 5: Perímetros y Áreas" },
+  { id: 4, name: "Fase 4: Operatoria Decimal y Conversiones" },
+  { id: 5, name: "Fase 5: Fracciones, Porcentajes y Proporciones" },
   { id: 6, name: "Fase 6: Volúmenes y Escalas" },
   { id: 7, name: "Fase 7: Tiempo y Planos" },
   { id: 8, name: "Fase 8: Probabilidad y Arreglos" }

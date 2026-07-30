@@ -271,8 +271,8 @@ const Fase4CompletionModal: React.FC<{
     if (moduloId === 99) {
       return {
         titulo: '¡Héroe de la Fase 4! 🎉',
-        mensaje: '¡Has dominado por completo todos los desafíos de la Fase 4! Tu agilidad de cálculo y razonamiento numérico son extraordinarios. ¡Prepárate para la Fase 4 siguiente!',
-        accion: 'Avanzar a la siguiente Fase 🚀'
+        mensaje: '¡Has dominado por completo todos los desafíos de la Fase 4! Tu agilidad de cálculo y razonamiento numérico son extraordinarios. ¡Prepárate para avanzar a la Fase 5!',
+        accion: 'Avanzar a la Fase 5 🚀'
       };
     }
     

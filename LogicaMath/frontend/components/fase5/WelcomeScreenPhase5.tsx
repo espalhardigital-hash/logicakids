@@ -146,7 +146,7 @@ export const WelcomeScreenPhase5: React.FC<Props> = ({
       <div className="f5-screen-wrapper">
         <div className="f5-loading-spinner-wrap">
           <div className="f5-spinner-element" />
-          <span>Cargando Fase 4…</span>
+          <span>Cargando Fase 5…</span>
         </div>
       </div>
     );
@@ -199,7 +199,7 @@ export const WelcomeScreenPhase5: React.FC<Props> = ({
                 ¡Hola, {nombre}! <span>👋</span>
               </div>
               <div className="f5-greeting-subtitle">
-                <span className="f5-phase-indicator">FASE 4</span>
+                <span className="f5-phase-indicator">FASE 5</span>
                 <span className="f5-phase-display-name">Fracciones, Porcentajes y Proporciones</span>
               </div>
             </div>
@@ -238,9 +238,9 @@ export const WelcomeScreenPhase5: React.FC<Props> = ({
               <div className="f5-mixed-challenge-banner active">
                 <div className="f5-mixed-challenge-icon">🏆</div>
                 <div className="f5-mixed-challenge-text">
-                  <div className="f5-mixed-challenge-title">Desafío de Maestría de Fase 4</div>
+                  <div className="f5-mixed-challenge-title">Desafío de Maestría de Fase 5</div>
                   <div className="f5-mixed-challenge-desc">
-                    ¡Excelente trabajo! Has completado todas las etapas de la Fase 4. Enfrenta el Desafío final para abrir las puertas a la Fase 5.
+                    ¡Excelente trabajo! Has completado todas las etapas de la Fase 5. Enfrenta el Desafío final para abrir las puertas a la Fase 6.
                   </div>
                 </div>
                 <button

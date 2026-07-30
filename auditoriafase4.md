@@ -1431,3 +1431,51 @@ Resultado:
 2. La presentaciÃ³n ahora se adapta al tamaÃ±o real del contenido y no a un esquema fijo de una tarjeta por paso.
 3. La experiencia visual es mÃ¡s pedagÃ³gica, porque cada flashcard muestra una unidad de aprendizaje mÃ¡s completa.
 4. La reestructuraciÃ³n aprobada en el ejemplo piloto se convirtiÃ³ en una regla aplicable a toda la Fase 4.
+----------------------------------------
+
+PARTE 8
+Cierre de implementaciones complementarias y ajustes finales de la Fase 4
+
+DespuÃ©s de cerrar la reestructuraciÃ³n visual de la teorÃ­a y de los ejemplos guiados, todavÃ­a quedaban varias implementaciones de consistencia, pedagogÃ­a y soporte que no estaban completamente registradas en esta auditorÃ­a. Esta parte documenta esas correcciones finales realizadas directamente sobre la Fase 4 hasta dejarla lista para considerarse cerrada a nivel funcional.
+
+QuÃ© se implementÃ³ adicionalmente:
+
+1. Se corrigiÃ³ la numeraciÃ³n y la identidad visible de la fase para que la experiencia del alumno quedara alineada con el intercambio real entre la nueva Fase 4 y la Fase 5.
+2. Se limpiaron referencias textuales antiguas que todavÃ­a mostraban nombres de fracciones donde ya debÃ­a aparecer Operatoria Decimal y Conversiones.
+3. Se ajustaron mensajes de progreso, graduaciÃ³n y cierre para que el paso de Fase 4 a Fase 5 fuera coherente con la estructura nueva.
+4. Se revisaron preguntas de la fase buscando contradicciones lÃ³gicas o pedagÃ³gicas que pudieran confundir al alumno.
+5. Se reforzÃ³ la presentaciÃ³n visual de figuras y recuadros en preguntas, desafÃ­os, baterÃ­as y espejo, eliminando bordes decorativos innecesarios y mejorando el uso del espacio.
+
+Correcciones pedagÃ³gicas relevantes:
+
+1. Se detectaron enunciados donde un dato irrelevante monetario podÃ­a ser interpretado como parte del gasto real.
+2. Ese patrÃ³n se corrigiÃ³ en la generaciÃ³n de preguntas reemplazando el distractor ambiguo por datos irrelevantes neutros, como la hora de compra.
+3. TambiÃ©n se corrigieron formulaciones poco naturales, por ejemplo expresiones como "cuÃ¡nto vuelto le sobrÃ³", reemplazÃ¡ndolas por versiones mÃ¡s claras y matemÃ¡ticamente consistentes.
+4. Con esto se evitÃ³ inducir errores de lectura que no provenÃ­an del cÃ¡lculo, sino de una redacciÃ³n confusa.
+
+Correcciones visuales finales:
+
+1. Se eliminaron recuadros de color alrededor de figuras SVG que no aportaban a la pedagogÃ­a y robaban espacio Ãºtil.
+2. Se unificÃ³ el color del texto interno de varias figuras para que quedara en tonos legibles y consistentes con el resto del enunciado.
+3. En el mÃ³dulo 4 se revisÃ³ el uso de la escalera mÃ©trica y de otras figuras visuales para volverlas mÃ¡s legibles dentro del espacio fijo de la fase.
+4. Se mantuvo la regla central de toda esta reestructuraciÃ³n: cero scroll vertical y cero contenido cortado.
+
+Correcciones de soporte y consistencia:
+
+1. Se actualizaron archivos auxiliares y vistas de apoyo que aÃºn conservaban nombres antiguos de Fase 4 y Fase 5.
+2. Se ajustaron simuladores y paneles administrativos para que reflejaran la fase correcta.
+3. Se actualizÃ³ un script auxiliar de auditorÃ­a de base de datos que seguÃ­a midiendo una estructura vieja de 5 mÃ³dulos y una volumetrÃ­a ya obsoleta.
+4. Esto no cambiÃ³ la experiencia principal del alumno, pero sÃ­ dejÃ³ mÃ¡s consistente la capa de soporte tÃ©cnico de la Fase 4.
+
+ActualizaciÃ³n documental:
+
+1. No se reescribiÃ³ el documento maestro de planeaciÃ³n para no perder la trazabilidad de lo que se habÃ­a planeado originalmente.
+2. En su lugar, se agregÃ³ un anexo de cierre en el documento histÃ³rico de reestructuraciÃ³n para dejar constancia de lo que sÃ­ se implementÃ³ realmente.
+3. Con este criterio se preservÃ³ la diferencia entre plan y ejecuciÃ³n, que era importante como evidencia del proceso de trabajo.
+
+Resultado final:
+
+1. La Fase 4 quedÃ³ cerrada no solo en su contenido principal, sino tambiÃ©n en su consistencia visual, lÃ³gica y documental.
+2. La teorÃ­a, los ejemplos guiados, las preguntas, los desafÃ­os y los visuales quedaron alineados bajo un mismo criterio pedagÃ³gico.
+3. Se eliminaron ambigÃ¼edades que podÃ­an confundir al alumno incluso cuando el cÃ¡lculo interno de la pregunta era correcto.
+4. La documentaciÃ³n de auditorÃ­a ahora deja constancia de que el cierre de la Fase 4 no fue solo una reestructuraciÃ³n de contenido, sino tambiÃ©n una etapa de afinado final de UX, consistencia y claridad pedagÃ³gica.

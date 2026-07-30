@@ -207,8 +207,8 @@ const STATIC_PHASES: StaticPhase[] = [
   },
   {
     id: 4,
-    name: "Fase 4: Fracciones y Proporciones",
-    description: "Comprensión visual y numérica de fracciones, áreas y asimetrías.",
+    name: "Fase 4: Operatoria Decimal y Conversiones",
+    description: "Suma, resta, multiplicación, división con decimales y conversiones métricas.",
     modules: [
       {
         seccion: 1, modulo_id: 1, operacion: "mixta", name: "Módulo 1: La Fracción Visual",
