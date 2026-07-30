@@ -43,7 +43,7 @@ from sqlalchemy import select, func
 from app.db.base import Base
 from app.db.session import engine, AsyncSessionLocal
 from app.models.sql_models import Pregunta, Alternativa, ConfiguracionProgreso, TipoPreguntaEnum
-from app.fase5.seed import (
+from app.fase4.seed import (
     upsert_fila_fases,
     seed_preguntas_desafios, seed_configuracion_progreso,
     FASE_DECIMALES_ID

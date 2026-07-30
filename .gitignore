@@ -28,7 +28,7 @@ build/
 # --- Documentación interna (solo local, no necesaria para deploy) ---
 /AGENTS.md
 /RULES AGENTES/
-/docs/
+/docs/historico/
 /coelgiomilitar.md
 /instalcion_clonador_voz.md
 /patch_theme.ps1

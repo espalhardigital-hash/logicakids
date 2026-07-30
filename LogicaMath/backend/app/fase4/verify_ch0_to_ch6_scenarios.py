@@ -39,12 +39,12 @@ from app.models.sql_models import (
     Pregunta, Alternativa, ConfiguracionProgreso,
     TipoPreguntaEnum, Fase, Alumno, ProgresoMaestria, Intento
 )
-from app.fase5.seed import (
+from app.fase4.seed import (
     upsert_fila_fases, seed_practica_pool,
     seed_preguntas_desafios, seed_configuracion_progreso,
     FASE_DECIMALES_ID
 )
-from app.fase5.compositor_fase4 import CompositorFase4
+from app.fase4.compositor_fase4 import CompositorFase4
 
 repo_root = "d:/Antigravity/APP_Logica_Matematicas_kids"
 
@@ -315,11 +315,11 @@ async def main():
 
     # Scenario CH-3.3: Límite de 800 caracteres por paso de teoría
     print("\n[Scenario CH-3.3] WHEN un paso de teoría supera 800 caracteres:")
-    from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
+    from app.fase4.theory_examples import obtener_ejemplos_expandidos_fase4
     max_char_step = 0
     for m in range(1, 5):
         for n in range(1, 4):
-            e_list = obtener_ejemplos_expandidos_fase5(m, n)
+            e_list = obtener_ejemplos_expandidos_fase4(m, n)
             for eg in e_list:
                 for step in eg.get("pasos", []):
                     txt_len = len(step.get("texto", ""))
@@ -604,12 +604,12 @@ async def main():
     print("CH-7 — TEORÍA Y EJEMPLOS GUIADOS")
     print("-" * 80)
 
-    from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
-    from app.fase5.theory_data import FASE5_TEORIA_DATA
+    from app.fase4.theory_examples import obtener_ejemplos_expandidos_fase4
+    from app.fase4.theory_data import FASE4_TEORIA_DATA
 
     # Scenario CH-7.1: 4 ejemplos guiados por nivel
     print("\n[Scenario CH-7.1] WHEN se cuentan los ejemplos guiados de un nivel:")
-    eg_cnts = [len(obtener_ejemplos_expandidos_fase5(m, n)) for m in range(1, 5) for n in range(1, 4)]
+    eg_cnts = [len(obtener_ejemplos_expandidos_fase4(m, n)) for m in range(1, 5) for n in range(1, 4)]
     print(f"  Comando: Conteo de ejemplos guiados en los 12 niveles")
     print(f"  Salida Conteos: {set(eg_cnts)}")
     if set(eg_cnts) == {4}:
@@ -625,7 +625,7 @@ async def main():
     has_opts_step3 = []
     for m in range(1, 5):
         for n in range(1, 4):
-            egs = obtener_ejemplos_expandidos_fase5(m, n)
+            egs = obtener_ejemplos_expandidos_fase4(m, n)
             tjs_item = egs[3]
             tjs_pasos.append(len(tjs_item.get("pasos", [])))
             has_opts_step3.append("opciones" in tjs_item["pasos"][2])
@@ -641,7 +641,7 @@ async def main():
 
     # Scenario CH-7.3: Interactivo de evocación presenta datos fuera de la prosa
     print("\n[Scenario CH-7.3] WHEN un interactivo de evocación presenta datos:")
-    has_svg_evoc = any("<br/>" in eg["enunciado"] or "tabla" in eg["enunciado"] or "svg" in eg["enunciado"] for m in range(1, 5) for n in range(1, 4) for eg in obtener_ejemplos_expandidos_fase5(m, n)[:3])
+    has_svg_evoc = any("<br/>" in eg["enunciado"] or "tabla" in eg["enunciado"] or "svg" in eg["enunciado"] for m in range(1, 5) for n in range(1, 4) for eg in obtener_ejemplos_expandidos_fase4(m, n)[:3])
     print(f"  Comando: Verificar inclusión de generadores SVG en enunciados de evocación")
     print(f"  Salida: {has_svg_evoc}")
     if has_svg_evoc:
@@ -675,7 +675,7 @@ async def main():
     # Scenario CH-7.6: Teoría menciona décimas/centésimas sin vocabulario de fracciones
     print("\n[Scenario CH-7.6] WHEN la teoría menciona décimas o centésimas:")
     frac_found = False
-    for t_data in FASE5_TEORIA_DATA:
+    for t_data in FASE4_TEORIA_DATA:
         full_text = t_data.get("texto_descubrimiento", "") + " " + t_data.get("cuerpo_teoria", "")
         for term in ["fracción", "fracciones", "un décimo", "¹/₁₀"]:
             if term in full_text.lower():

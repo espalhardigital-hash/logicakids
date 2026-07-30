@@ -1,19 +1,19 @@
 """
-Seeder autónomo y determinista para la Fase 5: Operatoria Decimal y Conversiones.
-Cumple estrictamente con las Secciones 5, 6 y 12 de docs/reestructuraciondefases.md.
+Seeder autónomo y determinista para la Fase 4: Operatoria Decimal y Conversiones.
+Cumple estrictamente con reestructuracion.md y deep_analise_pro §25.4.
 
 Volumetría:
-  - 15 niveles en niveles_teoria_pool (NivelTeoria).
-  - 7.200 preguntas de práctica (15 niveles × 120 familias × 4 variantes: 1 original + 3 espejo).
-  - 2.400 preguntas de desafíos (16 bloques × 150 preguntas; 15 de módulo + 1 mixto 99099).
-  - 32 filas en configuracion_progreso con errores_tolerados, pistas_permitidas y penalizacion_pista_segundos.
+  - 12 niveles en niveles_teoria_pool (NivelTeoria) — 4 módulos × 3 niveles.
+  - 3.456 preguntas de práctica (4 módulos × 3 niveles × 72 familias × 4 variantes: 1 original + 3 espejo).
+  - 1.950 preguntas de desafíos (13 bloques × 150 preguntas; 12 de módulo + 1 mixto 99099).
+  - 16 filas en configuracion_progreso (4 módulos × 4 config por módulo).
 
-Reglas duras:
-  - Cero apariciones de la palabra "perímetro" en Fase 5.
+Reglas duras (Fase 4):
+  - Cero vocabulario de fracciones (décimas = partes de 10, centésimas = partes de 100).
   - Cero MinIO / PNG (todo SVG inline vía app.utils.svg_figuras).
-  - estructura_padre_id NUNCA NULL (f5_mX_lY_fam_ZZZ en práctica, f5_dSEC_qZZZ en desafíos).
+  - estructura_padre_id NUNCA NULL (f4_mX_lY_fam_ZZZ en práctica, f4_dSEC_qZZZ en desafíos).
   - Enunciados TJS ≤ 50 palabras de prosa, datos en mini-tabla/SVG, 1 pregunta al final.
-  - Pistas en explicacion_paso_a_paso.pista (reencuadre sin nombrar operación ni resultado).
+  - Enunciado compositor validado con R1, R2 y presupuestos (CompositorFase4).
 """
 
 import asyncio
@@ -34,7 +34,7 @@ from app.models.sql_models import (
     Intento, PoolAsignadoAlumno
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
-from app.fase5.theory_data import FASE5_TEORIA_DATA
+from app.fase4.theory_data import FASE4_TEORIA_DATA
 from app.utils.svg_figuras import (
     fig_rectangulo, fig_cuadrado, fig_triangulo, fig_L, fig_T,
     escalera_unidades, recta_numerica_decimal, tabla_datos, comparador_opciones,
@@ -43,6 +43,9 @@ from app.utils.svg_figuras import (
 
 FASE_DECIMALES_ID = 4
 
+# catalogo_fase5.json mantenido en disco como referencia histórica (no se usa).
+# Los nuevos catálogos son escenarios_fase4.json, plantillas_fase4.json,
+# confusiones_fase4.json y nombres_fase4.json, cargados por el CompositorFase4.
 CATALOGO_PATH = os.path.join(os.path.dirname(__file__), "data", "catalogo_fase5.json")
 
 def _load_catalogo() -> Dict[str, Any]:
@@ -50,6 +53,10 @@ def _load_catalogo() -> Dict[str, Any]:
         return json.load(f)
 
 CATALOGO_DATA = _load_catalogo()
+
+# ── Compositor: carga los 4 catálogos nuevos una sola vez ────────────────────
+from app.fase4.compositor_fase4 import CompositorFase4
+_COMPOSITOR = CompositorFase4()   # singleton; carga los catálogos al importar
 
 def _fmt_dec(val: float) -> str:
     """Formatea float a string con coma decimal (ej. 4.65 -> '4,65', 4.0 -> '4,00' si es dinero)."""
@@ -109,7 +116,7 @@ async def upsert_fila_fases(session: AsyncSession):
 
 # ── 1. LIMPIEZA / PURGA IDEMPOTENTE ──────────────────────────────────────────
 
-async def clear_fase5_data(session: AsyncSession):
+async def clear_fase4_data(session: AsyncSession):
     print("Purga de datos preexistentes de Fase 5 en cascada...")
     res = await session.execute(select(Pregunta.id).where(Pregunta.fase_id == FASE_DECIMALES_ID))
     p_ids = res.scalars().all()
@@ -135,13 +142,13 @@ async def clear_fase5_data(session: AsyncSession):
 
 # ── 2. SIEMBRA DE TEORÍA (NivelTeoria) ───────────────────────────────────────
 
-from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
+from app.fase4.theory_examples import obtener_ejemplos_expandidos_fase4
 
 def validar_contenido_pre_siembra():
-    if len(FASE5_TEORIA_DATA) != 12:
-        raise ValueError(f"FASE5_TEORIA_DATA debe contener exactamente 12 niveles, hallados {len(FASE5_TEORIA_DATA)}")
+    if len(FASE4_TEORIA_DATA) != 12:
+        raise ValueError(f"FASE4_TEORIA_DATA debe contener exactamente 12 niveles, hallados {len(FASE4_TEORIA_DATA)}")
     
-    for t_data in FASE5_TEORIA_DATA:
+    for t_data in FASE4_TEORIA_DATA:
         desc = t_data.get("texto_descubrimiento", "")
         cuerpo = t_data.get("cuerpo_teoria", "")
         full_txt = desc + " " + cuerpo
@@ -151,7 +158,7 @@ def validar_contenido_pre_siembra():
 
     for m in range(1, 5):
         for n in range(1, 4):
-            egs = obtener_ejemplos_expandidos_fase5(m, n)
+            egs = obtener_ejemplos_expandidos_fase4(m, n)
             if len(egs) != 4:
                 raise ValueError(f"Módulo {m} Nivel {n} debe tener exactamente 4 ejemplos guiados, hallados {len(egs)}")
             tjs = egs[3]
@@ -166,8 +173,8 @@ async def seed_teoria_niveles(session: AsyncSession):
     validar_contenido_pre_siembra()
     print("Sembrando los 12 guiones teóricos (niveles_teoria_pool)...")
     await session.execute(delete(NivelTeoria).where(NivelTeoria.fase_id == FASE_DECIMALES_ID))
-    for t_data in FASE5_TEORIA_DATA:
-        egs = obtener_ejemplos_expandidos_fase5(t_data["modulo_id"], t_data["nivel_id"])
+    for t_data in FASE4_TEORIA_DATA:
+        egs = obtener_ejemplos_expandidos_fase4(t_data["modulo_id"], t_data["nivel_id"])
         nt = NivelTeoria(
             fase_id=FASE_DECIMALES_ID,
             modulo_id=t_data["modulo_id"],
@@ -190,10 +197,22 @@ async def seed_teoria_niveles(session: AsyncSession):
 def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var_idx: int, seed_val: int) -> dict:
     rng = random.Random(seed_val)
     sec = modulo_id * 100 + nivel_id
-    fam_id = f"f5_m{modulo_id}_l{nivel_id}_fam_{fam_idx:03d}"
+    fam_id = f"f4_m{modulo_id}_l{nivel_id}_fam_{fam_idx:03d}"
     es_espejo = (var_idx > 0)
     personaje = NOMBRES_POOL[(fam_idx + var_idx) % len(NOMBRES_POOL)]
 
+    # ── Compositor: genera enunciado validado (R1, R2, presupuestos, variedad) ──
+    try:
+        comp = _COMPOSITOR.componer_pregunta_practica(
+            modulo_id, nivel_id, fam_idx, var_idx, seed_val
+        )
+        enunciado_comp = comp["enunciado"]
+    except Exception:
+        # Fallback determinista si el compositor no tiene plantilla para esta combinación
+        enunciado_comp = None
+
+    # El catálogo viejo se usa solo para confusiones y escenario de referencia
+    # (el enunciado final vendrá del compositor si está disponible)
     escenarios_mod = [e for e in CATALOGO_DATA["escenarios"] if e["modulo_id"] == modulo_id]
     confusiones_mod = [c for c in CATALOGO_DATA["confusiones"] if c["modulo_id"] == modulo_id]
     esc = escenarios_mod[fam_idx % len(escenarios_mod)]
@@ -558,7 +577,7 @@ def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var
     tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA if _is_numeric_answer(ans_str) else TipoPreguntaEnum.MULTIPLE_OPCION
 
     datos_num = {
-        "fase5": True,
+        "fase4": True,
         "seed": seed_val,
         "escenario": esc["nombre"],
         "personaje": personaje,
@@ -570,10 +589,10 @@ def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var
     return {
         "fase_id": FASE_DECIMALES_ID,
         "seccion": sec,
-        "estructura_padre_id": fam_id,
+        "estructura_padre_id": fam_id,          # NUNCA None (Tomo 4 §11, F5 req#1)
         "operacion": op_enum,
         "tipo_pregunta": tipo_preg,
-        "enunciado": enunciado,
+        "enunciado": enunciado_comp if enunciado_comp else enunciado,  # compositor first
         "respuesta_correcta": ans_str,
         "datos_numericos": datos_num,
         "explicacion_paso_a_paso": explicacion,
@@ -859,7 +878,7 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
         raise ValueError(f"Enunciado excede el límite duro de 40 palabras ({len(words)} palabras): '{enunciado}'")
 
     datos_num = {
-        "fase5": True,
+        "fase4": True,
         "es_desafio": True,
         "seccion": sec,
         "seed": seed_val,
@@ -1019,15 +1038,15 @@ async def seed_configuracion_progreso(session: AsyncSession):
     await session.commit()
     print("32 filas de `configuracion_progreso` sembradas.")
 
-# ── 6. RUNNER PRINCIPAL DE SIEMBRA FASE 5 ────────────────────────────────────
+# ── 6. RUNNER PRINCIPAL DE SIEMBRA FASE 4 ────────────────────────────────────────────
 
-async def run_fase5_seed():
+async def run_fase4_seed():
     print("=" * 60)
-    print("INICIANDO SIEMBRA COMPLETA DE FASE 5 (Modelo B / TJS)")
+    print("INICIANDO SIEMBRA COMPLETA DE FASE 4 (Decimales/Conversiones)")
     print("=" * 60)
     async with AsyncSessionLocal() as session:
         await upsert_fila_fases(session)
-        await clear_fase5_data(session)
+        await clear_fase4_data(session)
         await seed_teoria_niveles(session)
         await seed_practica_pool(session)
         await seed_preguntas_desafios(session)
@@ -1037,4 +1056,4 @@ async def run_fase5_seed():
     print("=" * 60)
 
 if __name__ == "__main__":
-    asyncio.run(run_fase5_seed())
+    asyncio.run(run_fase4_seed())

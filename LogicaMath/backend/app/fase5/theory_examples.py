@@ -3,7 +3,7 @@
 # Base de ejemplos extendidos y formateados premium para Fase 4.
 # Proporciona los ejemplos estructurados para cada módulo y nivel de Fase 4 con gráficos SVG y explicaciones amigables.
 
-def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
+def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
     ejemplos_db = {
         # --- MÓDULO 1: LA FRACCIÓN VISUAL ---
         # Nivel 1: Lectura y modelado de numerador/denominador en polígonos simétricos

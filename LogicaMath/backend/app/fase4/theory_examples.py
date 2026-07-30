@@ -6,7 +6,7 @@
 
 from app.utils.svg_figuras import tabla_datos, comparador_opciones, escalera_unidades, color_modulo
 
-def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
+def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
     ejemplos_db = {
         # =========================================================================
         # MÓDULO 1: Suma y Resta de Decimales

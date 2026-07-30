@@ -3,7 +3,7 @@ Guión pedagógico de teoría para los 12 niveles de la Fase 4 (Operatoria Decim
 Cumple con las Secciones 5 y 6 de reestructuracion.md y Criterios C1.3, C2, C3, C5.13, §4.3.
 
 Contiene:
-  - 12 niveles en FASE5_TEORIA_DATA (3 por módulo, M1 a M4).
+  - 12 niveles en FASE4_TEORIA_DATA (3 por módulo, M1 a M4).
   - Texto narrativo por presupuesto (≤ 800 car. narrativa pura, ≤ 400 car. con SVG).
   - Cero vocabulario de fracciones (décimas = partes de 10, centésimas = partes de 100).
   - Regla de las tres capas (Capa 1: enseñanza de redondeo por contexto).
@@ -13,7 +13,7 @@ from app.utils.svg_figuras import (
     escalera_unidades, tabla_datos, comparador_opciones, color_modulo
 )
 
-FASE5_TEORIA_DATA = [
+FASE4_TEORIA_DATA = [
     # =========================================================================
     # MÓDULO 1: Suma y Resta de Decimales (secciones 101, 102, 103)
     # =========================================================================

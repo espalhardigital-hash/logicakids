@@ -1695,7 +1695,7 @@
 .flashcard-body {
   flex: 1;
   position: relative;
-  overflow-y: auto;
+  overflow-y: hidden;  /* T3: nunca scroll en la ventana fija 950×620 */
   overflow-x: hidden;
   padding-bottom: 1rem;
 }

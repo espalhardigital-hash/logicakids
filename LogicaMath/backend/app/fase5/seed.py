@@ -24,7 +24,7 @@ from app.models.sql_models import (
     PoolAsignadoAlumno,
 )
 from app.fase2.models import NivelTeoria
-from app.fase4.theory_examples import obtener_ejemplos_expandidos_fase4
+from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
 
 # ID de la Fase 4 en la base de datos
 FASE5_ID = 5
@@ -117,7 +117,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Denominador": "Número total de partes idénticas en las que se divide el todo."
             },
             "advertencia": "El total de partes (pintadas y no pintadas) va abajo. Si una pizza se corta en 8 rebanadas y tomas 3, la fracción es 3/8, no 3/5.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(1, 1),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(1, 1),
             "interactivos": [
                 {
                     "enunciado": "Un círculo está dividido en 5 partes iguales y 2 están sombreadas. ¿Qué fracción representa? (Escribe en formato N/D)",
@@ -150,7 +150,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Equivalencia": "Fracciones con diferentes términos numéricos que ocupan exactamente la misma área o cantidad del todo."
             },
             "advertencia": "¡Cuidado! Un denominador más grande no significa que comas más. Significa que dividiste la unidad en pedazos más pequeños. ¡Por eso 1/8 es más pequeño que 1/2, aunque el 8 sea mayor que el 2!",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(1, 2),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(1, 2),
             "interactivos": [
                 {
                     "enunciado": "Encuentra la fracción equivalente a 1/2 si multiplicamos arriba y abajo por 3. (Formato N/D)",
@@ -183,7 +183,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Asimetría": "Partes de tamaños diferentes. Requiere subdivisión mental para hallar la fracción real."
             },
             "advertencia": "Si una figura está dividida en 4 y una de las partes es gigante, no puedes decir simplemente que cada porción es 1/4. ¡Primero debes igualar las áreas!",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(1, 3),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(1, 3),
             "interactivos": [
                 {
                     "enunciado": "Un cuadrado se divide en 2 rectángulos iguales por la mitad. ¿Qué fracción representa un rectángulo?",
@@ -218,7 +218,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Porción Unitaria": "El valor de una de las partes en que se divide el conjunto (1/n)."
             },
             "advertencia": "Para hallar 1/n de un número, simplemente divide el número total entre el denominador n.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(2, 1),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(2, 1),
             "interactivos": [
                 {
                     "enunciado": "Calcula 1/4 de 16 caramelos.",
@@ -251,7 +251,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Paso de Multiplicación": "Multiplicar por el numerador para tomar los grupos deseados."
             },
             "advertencia": "Siempre divide primero entre el número de abajo. Si intentas multiplicar primero, obtendrás números gigantescos difíciles de calcular.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(2, 2),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(2, 2),
             "interactivos": [
                 {
                     "enunciado": "Calcula 3/4 de 24 cartas.",
@@ -284,7 +284,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Fracción Restante": "Lo que queda después de restar la porción gastada o perdida."
             },
             "advertencia": "Presta atención a si la pregunta pide 'lo que se gastó' o 'lo que quedó'. ¡Ahí está la trampa!",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(2, 3),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(2, 3),
             "interactivos": [
                 {
                     "enunciado": "Si gastas 3/8 de tu dinero, ¿qué fracción te queda? (Formato N/D)",
@@ -319,7 +319,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Mapeo Rápido": "50% es dividir entre 2, 25% es dividir entre 4, y 10% es dividir entre 10."
             },
             "advertencia": "Para calcular el 10% de un número terminado en cero, simplemente eliminas el último cero.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(3, 1),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(3, 1),
             "interactivos": [
                 {
                     "enunciado": "Calcula el 50% de 80.",
@@ -352,7 +352,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Porcentaje de Sector": "La porción de pastel asignada a cada variable."
             },
             "advertencia": "Lee siempre los porcentajes con cuidado. Si el gráfico completo representa un total de personas, debes aplicar el porcentaje a ese total.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(3, 2),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(3, 2),
             "interactivos": [
                 {
                     "enunciado": "En una encuesta del 100%, 45% prefiere chocolate, 30% vainilla y el resto frutilla. ¿Qué porcentaje prefiere frutilla?",
@@ -385,7 +385,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Eje Y": "La escala numérica vertical que define el valor de cada barra."
             },
             "advertencia": "Asegúrate de mirar bien las etiquetas del eje Y para no confundir las líneas de nivel.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(3, 3),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(3, 3),
             "interactivos": [
                 {
                     "enunciado": "Tres barras marcan: A=100, B=150, C=50. ¿Cuál es el total acumulado entre las tres?",
@@ -418,7 +418,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Pila Única": "La suma acumulativa de todos los datos antes de dividir."
             },
             "advertencia": "No olvides realizar la división final. Si solo sumas los números, habrás completado la pila pero no la nivelación.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(3, 4),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(3, 4),
             "interactivos": [
                 {
                     "enunciado": "Calcula el promedio de las puntuaciones: 4, 8 y 12.",
@@ -453,7 +453,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Factor de Escala": "El multiplicador común por el cual aumentamos o disminuimos proporcionalmente todos los elementos de la mezcla."
             },
             "advertencia": "¡Cuidado! Una proporción se amplía multiplicando, nunca sumando. Si la receta es 3:1 y pasas a 2 de limón, debes multiplicar el agua por 2 (3 × 2 = 6). No le sumes simplemente 1.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(4, 1),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(4, 1),
             "interactivos": [
                 {
                     "enunciado": "La receta es 3 tazas de agua por 1 de limón (3:1). Si pones 3 tazas de limón, ¿cuánta agua necesitas?",
@@ -486,7 +486,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Receta Base": "La suma de las partes iniciales de cada ingrediente, que indica cuánto produce una sola dosis de la mezcla."
             },
             "advertencia": "Suma primero todas las partes de la receta original para saber el total que rinde. Luego divide el volumen macro entre ese total para hallar tu factor de escala.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(4, 2),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(4, 2),
             "interactivos": [
                 {
                     "enunciado": "Mezclas 2 litros de azul y 3 de amarillo (5L verde en total). Para hacer 15 litros de verde, ¿cuántos de azul usas?",
@@ -519,7 +519,7 @@ async def seed_teoria_niveles(session: AsyncSession):
                 "Homogeneidad": "La propiedad por la cual los componentes de una mezcla están distribuidos de forma uniforme en cualquier porción."
             },
             "advertencia": "¡Ojo! La fracción de un ingrediente se calcula dividiendo su porción entre el TOTAL de todas las partes juntas, no entre la cantidad del otro ingrediente.",
-            "ejemplos": obtener_ejemplos_expandidos_fase4(4, 3),
+            "ejemplos": obtener_ejemplos_expandidos_fase5(4, 3),
             "interactivos": [
                 {
                     "enunciado": "Una mezcla tiene 1 parte de concentrado y 9 de agua (10 partes total). ¿Qué porcentaje es de concentrado? (Escribe el número, ej: 10)",
