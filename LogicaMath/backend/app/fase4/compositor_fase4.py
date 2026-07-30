@@ -86,54 +86,184 @@ class CompositorFase4:
         plantilla = plantillas_nivel[fam_idx % len(plantillas_nivel)]
         
         # Filter scenarios matching template magnitude and campos_requeridos
+        escala_req = self._escala_requerida(plantilla)
         escenarios_compatibles = [
-            e for e in self.escenarios 
+            e for e in self.escenarios
             if e["modulo_id"] == modulo_id and e["magnitud"] == plantilla["magnitud"]
             and all(req in e and e[req] for req in plantilla.get("campos_requeridos", []))
+            and (escala_req is None or e.get("escala") == escala_req)
         ]
         if not escenarios_compatibles:
-            raise ValueError(f"No hay escenarios compatibles para plantilla '{plantilla['id']}'")
+            raise ValueError(
+                f"No hay escenarios compatibles para plantilla '{plantilla['id']}'"
+                + (f" con escala '{escala_req}'" if escala_req else "")
+            )
         
         esc = escenarios_compatibles[(fam_idx + var_idx) % len(escenarios_compatibles)]
         
         # Validate R1 & R2 contract
         self.validar_composicion(plantilla, esc)
         
-        # Build text dynamically from template and scenario
+        # ── Generación de valores ────────────────────────────────────────────
+        # 'total' NO es la respuesta: es un dato del enunciado (presupuesto, meta,
+        # billete...). La respuesta se deriva SIEMPRE de plantilla["formula"] sobre
+        # estos mismos valores, para que enunciado y respuesta sean coherentes.
+        n_cant = 2 + (fam_idx % 4)                      # 2..5
         a_val = round(1.20 + (fam_idx * 0.05) + rng.uniform(0.01, 0.05), 2)
         b_val = round(0.85 + (fam_idx * 0.03) + rng.uniform(0.01, 0.05), 2)
         c_val = round(0.50 + rng.uniform(0.01, 0.05), 2)
-        total_val = round(a_val + b_val + c_val, 2)
-        
-        fmt_a = f"{a_val:.2f}".replace('.', ',')
-        fmt_b = f"{b_val:.2f}".replace('.', ',')
-        fmt_c = f"{c_val:.2f}".replace('.', ',')
-        fmt_total = f"{total_val:.2f}".replace('.', ',')
-        
+        # 'total' debe ser mayor que los aportes para que restas y faltantes den > 0
+        total_val = round(a_val + b_val + c_val + 1.0 + rng.uniform(0.05, 0.4), 2)
+
+        # 'factor_faltante' y 'dividendo' exigen un total coherente con a
+        if plantilla["incognita"] == "factor_faltante":
+            total_val = round(a_val * n_cant, 2)
+        # divisor decimal (M3N3): b debe ser menor que a y no trivial
+        if plantilla["formula"] in ("a/b",):
+            b_val = round(max(0.25, min(b_val, a_val / 2)), 2)
+
+        # ── Escala pedagógica de las conversiones ────────────────────────────
+        # Al SUBIR la escalera (dividir por 100/1000) un valor de 1,22 daría
+        # 0,01: el redondeo destruye la respuesta. El operando debe vivir en el
+        # rango de la unidad de partida, no en el rango por defecto.
+        formula = plantilla["formula"]
+        if "/1000" in formula:
+            a_val = round(a_val * 1000, 0) if formula.startswith("a/") else a_val
+            total_val = round(total_val * 1000, 0) if formula.startswith("total/") else total_val
+        elif "/100" in formula:
+            a_val = round(a_val * 100, 0) if formula.startswith("a/") or formula.startswith("a*n_cant/") else a_val
+            total_val = round(total_val * 100, 0) if formula.startswith("total/") else total_val
+        elif "/10" in formula and formula.startswith("a/"):
+            a_val = round(a_val * 10, 0)
+        # Unidades mixtas: el operando menor debe ser una cantidad realista
+        # (una tira de 0,89 cm no existe; 89 cm sí).
+        if "b/100" in formula:
+            b_val = round(b_val * 100, 0)
+        elif "b/10" in formula:
+            b_val = round(b_val * 10, 0)
+        if "c/100" in formula:
+            c_val = round(c_val * 100, 0)
+        # a*1000-b y a*1000+b: 'b' está en la unidad menor (m frente a km)
+        if "a*1000" in formula and ("+b" in formula or "-b" in formula):
+            b_val = round(b_val * 1000, 0)
+            if "-b" in formula and b_val >= a_val * 1000:
+                b_val = round(a_val * 1000 / 2, 0)
+
+        vals = {"a": a_val, "b": b_val, "c": c_val, "total": total_val, "n_cant": n_cant}
+        resultado = self._evaluar_formula(plantilla, vals)
+
+        def fmt(v: float) -> str:
+            """Enteros sin decimales de relleno ('450 cm', no '450,00 cm')."""
+            if abs(v - round(v)) < 1e-9:
+                return str(int(round(v)))
+            return f"{v:.2f}".replace('.', ',')
+
+        fmt_a, fmt_b, fmt_c = fmt(a_val), fmt(b_val), fmt(c_val)
+        fmt_total = fmt(total_val)
+        fmt_res = fmt(resultado)
+
         unit = esc.get("unidad", "R$")
-        obj0 = esc.get("objetos", ["artículo A"])[0]
-        obj1 = esc.get("objetos", ["artículo B"])[1] if len(esc.get("objetos", [])) > 1 else "artículo B"
-        lugar = esc.get("lugar", "el comercio")
-        
-        enunciado = plantilla["marco"].format(
-            personaje=personaje, lugar=lugar,
+        objetos = esc.get("objetos") or ["artículo A", "artículo B"]
+        obj0 = objetos[0]
+        obj1 = objetos[1] if len(objetos) > 1 else "otro artículo"
+
+        campos = dict(
+            personaje=personaje,
+            lugar=esc.get("lugar", "el comercio"),
             objetos_0=obj0, objetos_1=obj1,
             objeto_medible=esc.get("objeto_medible", "el elemento"),
             sujeto_medible=esc.get("sujeto_medible", "el total"),
-            atributo=esc.get("atributo", "el valor"),
-            unidad=unit, a=fmt_a, b=fmt_b, c=fmt_c, total=fmt_total, n_cant=3, ruido=fmt_total
+            atributo=esc.get("atributo", "la medida"),
+            unidad=unit, a=fmt_a, b=fmt_b, c=fmt_c, total=fmt_total,
+            n_cant=n_cant, ruido=fmt_total,
         )
-        pregunta_txt = f"{enunciado} {plantilla['pregunta']}"
-        
+        # El marco Y la pregunta se formatean: dejar la pregunta sin formatear
+        # deja placeholders crudos como "{unidad}" a la vista del alumno.
+        enunciado = plantilla["marco"].format(**campos)
+        pregunta_txt = f"{enunciado} {plantilla['pregunta'].format(**campos)}"
+        pregunta_txt = self._contraer(pregunta_txt)
+
         # Character budget validation
         self.validar_composicion(plantilla, esc, texto_enunciado=pregunta_txt)
-        
+
         return {
             "plantilla_id": plantilla["id"],
             "escenario_id": esc["id"],
+            "personaje": personaje,
             "modulo_id": modulo_id,
             "nivel_id": nivel_id,
             "enunciado": pregunta_txt,
             "operacion_correcta": plantilla["operacion_correcta"],
-            "respuesta_correcta": fmt_total
+            "incognita": plantilla["incognita"],
+            "formula": plantilla["formula"],
+            "valores": vals,
+            "resultado_num": resultado,
+            "respuesta_correcta": fmt_res,
+            "unidad": unit,
         }
+
+    # Operadores permitidos en las fórmulas de plantillas_fase4.json.
+    # No se usa eval() sobre entrada arbitraria: la fórmula es dato del repo,
+    # y aun así se restringe a nombres conocidos (deep_analise_pro §15.2).
+    _NOMBRES_FORMULA = {"a", "b", "c", "total", "n_cant"}
+
+    # Contracciones obligatorias del español. Los escenarios traen el artículo
+    # incorporado ("el libro"), así que un marco con "de {objeto_medible}" produce
+    # "de el libro". Se corrige al componer, no duplicando cada marco por género.
+    _CONTRACCIONES = ((" de el ", " del "), (" a el ", " al "),
+                      ("De el ", "Del "), ("A el ", "Al "))
+
+    def _contraer(self, texto: str) -> str:
+        for origen, destino in self._CONTRACCIONES:
+            texto = texto.replace(origen, destino)
+        # Un marco que abre con {objeto_medible} hereda el artículo en minúscula
+        # ("el libro tiene..."): la frase empieza mal.
+        if texto and texto[0].islower():
+            texto = texto[0].upper() + texto[1:]
+        # "de el." al final de una oración o antes de signo de puntuación
+        import re as _re
+        texto = _re.sub(r"\bde el\b(?=[.,;:?!)])", "del", texto)
+        return texto
+
+    def _escala_requerida(self, plantilla: dict) -> str | None:
+        """Escala física que el marco presupone, derivada del factor de conversión.
+
+        R2b: la magnitud sola no da coherencia. 'longitud' cubre el grosor de una
+        moneda y una maratón, así que un marco de km montado sobre un escenario de
+        espesor produce "recorrió un trayecto en la pila de monedas de 1,57 km".
+        El factor de la fórmula ya identifica el par de unidades en juego.
+        """
+        # Solo el módulo 4 (escalera métrica) tiene escenarios etiquetados: en los
+        # módulos 1-3 un factor 100 es dinero o porcentaje, no un salto de unidad.
+        if plantilla.get("modulo_id") != 4:
+            return None
+        formula = plantilla.get("formula") or ""
+        if "1000" in formula:
+            return "distancia"
+        if "100" in formula:
+            return "objeto"
+        if "10" in formula:
+            return "micro"
+        return None
+
+    def _evaluar_formula(self, plantilla: dict, vals: dict) -> float:
+        formula = plantilla.get("formula")
+        if not formula:
+            raise ValueError(f"Plantilla '{plantilla['id']}' sin campo 'formula': no se puede derivar la respuesta")
+
+        import re as _re
+        usados = set(_re.findall(r"[A-Za-z_]+", formula))
+        desconocidos = usados - self._NOMBRES_FORMULA
+        if desconocidos:
+            raise ValueError(f"Fórmula de '{plantilla['id']}' usa nombres no permitidos: {sorted(desconocidos)}")
+
+        try:
+            res = eval(formula, {"__builtins__": {}}, dict(vals))  # noqa: S307 - fórmula versionada en el repo
+        except ZeroDivisionError as exc:
+            raise ValueError(f"Fórmula de '{plantilla['id']}' divide por cero con {vals}") from exc
+
+        if res is None or res != res or res in (float("inf"), float("-inf")):
+            raise ValueError(f"Fórmula de '{plantilla['id']}' produjo un resultado no finito con {vals}")
+        if res <= 0:
+            raise ValueError(f"Fórmula de '{plantilla['id']}' produjo un resultado no positivo ({res}) con {vals}")
+        return round(float(res), 2)

@@ -1,275 +1,166 @@
+"""Invariantes de contenido de la Fase 4 (Operatoria Decimal y Conversiones).
+
+Este archivo probaba el vocabulario de la ANTIGUA Fase 4 (fracciones: OBJETOS_FRACC,
+BEBIDAS, PINTURAS) y tras el intercambio de fases quedó importando símbolos
+inexistentes, lo que rompía la colección de TODA la suite. Además recorría el nivel
+(3, 4), que ya no existe. Ahora cubre la Fase 4 vigente, con un test de regresión
+por cada defecto detectado en la auditoría:
+
+  - enunciado y respuesta derivados de la MISMA fórmula y los MISMOS números
+  - toda plantilla con al menos un escenario compatible (R1 + R2 + escala)
+  - pureza de magnitud C6.5: sin volumen ni superficie
+  - coma decimal, sin placeholders crudos, sin "de el"
+  - variedad estructural real (firmas, no reformulaciones)
+"""
+
+import re
 import sys
 from unittest.mock import MagicMock
 
-# Mockear base de datos, modelos y router de Fase 4 para evitar importaciones pesadas y fallos de psycopg2
-sys.modules['app.db'] = MagicMock()
-sys.modules['app.db.session'] = MagicMock()
-sys.modules['app.models'] = MagicMock()
-sys.modules['app.models.sql_models'] = MagicMock()
-sys.modules['app.fase2.models'] = MagicMock()
-sys.modules['app.fase4.router'] = MagicMock()
-sys.modules['sqlalchemy'] = MagicMock()
-sys.modules['sqlalchemy.orm'] = MagicMock()
-sys.modules['sqlalchemy.ext'] = MagicMock()
-sys.modules['sqlalchemy.ext.asyncio'] = MagicMock()
+import pytest
 
-from app.fase4.seed import (
-    NOMBRES,
-    OBJETOS_FRACC,
-    COLECCIONES,
-    BEBIDAS,
-    PINTURAS,
-    COLORES,
-    generate_practice_question_fase4
-)
+# El compositor no toca la base de datos, pero el paquete arrastra modelos SQLAlchemy.
+for _mod in ('app.db', 'app.db.session', 'app.models', 'app.models.sql_models',
+             'app.fase2.models', 'app.fase4.router'):
+    sys.modules.setdefault(_mod, MagicMock())
 
-def test_vocabulario_min_lengths():
-    """1.T1: Validar que los diccionarios tengan las longitudes mínimas esperadas."""
-    assert len(NOMBRES) >= 25, f"Esperado >= 25 nombres, obtenido {len(NOMBRES)}"
-    assert len(OBJETOS_FRACC) >= 15, f"Esperado >= 15 objetos, obtenido {len(OBJETOS_FRACC)}"
-    assert len(COLECCIONES) >= 12, f"Esperado >= 12 colecciones, obtenido {len(COLECCIONES)}"
-    assert len(BEBIDAS) >= 10, f"Esperado >= 10 bebidas, obtenido {len(BEBIDAS)}"
-    assert len(PINTURAS) >= 12, f"Esperado >= 12 pinturas, obtenido {len(PINTURAS)}"
-    assert len(COLORES) >= 10, f"Esperado >= 10 colores, obtenido {len(COLORES)}"
+from app.fase4.compositor_fase4 import CompositorFase4
 
-def test_vocabulario_no_duplicates():
-    """1.T2: Verificar que no haya duplicados en ninguna lista."""
-    lists_to_check = {
-        "NOMBRES": NOMBRES,
-        "OBJETOS_FRACC": OBJETOS_FRACC,
-        "COLECCIONES": COLECCIONES,
-        "BEBIDAS": BEBIDAS,
-        "PINTURAS": PINTURAS,
-        "COLORES": COLORES
-    }
-    for name, lst in lists_to_check.items():
-        assert len(lst) == len(set(lst)), f"Duplicados encontrados en {name}: {[x for x in set(lst) if lst.count(x) > 1]}"
-
-def test_question_generation_name_diversity():
-    """1.T3: Confirmar tasa de repetición de nombres en preguntas consecutivas < 15%."""
-    # Generamos 100 preguntas consecutivas variando la familia e índices
-    nombres_usados = []
-    
-    # Mapeamos combinaciones de modulo y nivel
-    mod_niv_pairs = [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2), (3, 3), (3, 4), (4, 1), (4, 2), (4, 3)]
-    
-    for i in range(100):
-        mod, niv = mod_niv_pairs[i % len(mod_niv_pairs)]
-        fam = (i % 15) + 1
-        var = i % 4
-        q = generate_practice_question_fase4(mod, niv, fam, var)
-        enunciado = q["enunciado"]
-        
-        nombre_detectado = None
-        for nombre in NOMBRES:
-            if nombre in enunciado:
-                nombre_detectado = nombre
-                break
-        
-        if nombre_detectado:
-            nombres_usados.append(nombre_detectado)
-            
-    repeticiones_consecutivas = 0
-    for i in range(len(nombres_usados) - 1):
-        if nombres_usados[i] == nombres_usados[i+1]:
-            repeticiones_consecutivas += 1
-            
-    tasa_repeticion = (repeticiones_consecutivas / (len(nombres_usados) - 1)) * 100 if nombres_usados else 0
-    print(f"\nTasa de repetición consecutiva de nombres: {tasa_repeticion:.2f}%")
-    assert tasa_repeticion < 15.0, f"Tasa de repetición muy alta: {tasa_repeticion:.2f}%"
+COMP = CompositorFase4()
+NIVELES = [(m, n) for m in range(1, 5) for n in range(1, 4)]
 
 
-def test_variantes_espejo_corregidas():
-    """Grupo 2: Validar variantes espejo (no [ESPEJO], respuestas distintas, enunciados distintos)."""
-    mod_niv_pairs = [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2), (3, 3), (3, 4), (4, 1), (4, 2), (4, 3)]
-    
-    # Muestrear 20 familias aleatorias
-    for idx, (mod, niv) in enumerate(mod_niv_pairs * 2):
-        fam = (idx % 15) + 1
-        
-        # Generar las 4 variantes de la familia
-        variantes = [generate_practice_question_fase4(mod, niv, fam, v) for v in range(4)]
-        
-        enunciados = [v["enunciado"] for v in variantes]
-        respuestas = [v["respuesta_correcta"] for v in variantes]
-        
-        # 2.T1: Ninguna debe contener '[ESPEJO]'
-        for e in enunciados:
-            assert "[ESPEJO]" not in e, f"Se encontró prefijo [ESPEJO] en el enunciado: {e}"
-            
-        # 2.T2: Al menos 3 de las 4 variantes por familia deben tener respuestas correctas distintas
-        # (Para asimetría M1L3, al ser Sí/No, hay 2 respuestas posibles, así que relajamos la aserción para ese nivel específico a len(set(respuestas)) >= 2)
-        respuestas_unicas = len(set(respuestas))
-        if mod == 1 and niv == 3:
-            assert respuestas_unicas >= 2, f"Esperado al menos 2 respuestas distintas para Asimetría, obtenido: {respuestas}"
-        else:
-            assert respuestas_unicas >= 3, f"Familia mod={mod} niv={niv} fam={fam} tiene pocas respuestas distintas ({respuestas_unicas}): {respuestas}"
-            
-        # 2.T3: Los enunciados deben ser textualmente diferentes
-        # (No deben ser idénticos entre variantes)
-        assert len(set(enunciados)) == 4, f"Enunciados duplicados en familia mod={mod} niv={niv} fam={fam}: {enunciados}"
+def _componer_todo(fams=12, vars_=4):
+    for m, n in NIVELES:
+        for f in range(fams):
+            for v in range(vars_):
+                yield m, n, COMP.componer_pregunta_practica(m, n, f, v, 9000 + f * 4 + v)
 
 
-def test_rangos_numericos_ampliados():
-    """Grupo 3: Validar rangos numéricos (totales <= 120, enteros positivos, denominadores 2/12 y porcentajes 75%/20%)."""
-    mod_niv_pairs = [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2), (3, 3), (3, 4), (4, 1), (4, 2), (4, 3)]
-    
-    denominadores_detectados = set()
-    porcentajes_detectados = set()
-    
-    # Generar todas las preguntas posibles de práctica (13 niveles x 15 familias x 4 variantes = 780 preguntas)
-    for mod, niv in mod_niv_pairs:
-        for fam in range(1, 16):
-            for var in range(4):
-                q = generate_practice_question_fase4(mod, niv, fam, var)
-                vals = q.get("valores", {})
-                
-                # 3.T1: Ningún total excede 120 y todos los resultados matemáticos son válidos
-                if "total" in vals:
-                    total = vals["total"]
-                    assert total <= 120, f"El total {total} en mod={mod} niv={niv} fam={fam} excede 120"
-                    
-                # Verificar respuesta entera positiva (excepto para fracciones visuales del Módulo 1 y Sí/No)
-                ans = q["respuesta_correcta"]
-                if "/" not in ans and ans not in ["0", "1"]:
-                    assert int(ans) >= 0, f"Respuesta negativa detectada: {ans}"
-                    
-                # Recopilar denominadores usados en M1 y M2
-                if mod in (1, 2):
-                    if "den" in vals:
-                        denominadores_detectados.add(vals["den"])
-                    if "den_base" in vals:
-                        denominadores_detectados.add(vals["den_base"])
-                        
-                # Recopilar porcentajes en M3
-                if mod == 3 and "pct" in vals:
-                    porcentajes_detectados.add(vals["pct"])
-                    
-    # 3.T2: Confirmar que los denominadores 2 y 12 aparecen en el pool
-    assert 2 in denominadores_detectados, "El denominador 2 no se utilizó en ninguna pregunta"
-    assert 12 in denominadores_detectados, "El denominador 12 no se utilizó en ninguna pregunta"
-    
-    # 3.T3: Confirmar que porcentajes 75% y 20% aparecen en M3
-    assert 75 in porcentajes_detectados, "El porcentaje 75% no se utilizó en ninguna pregunta de M3"
-    assert 20 in porcentajes_detectados, "El porcentaje 20% no se utilizó en ninguna pregunta de M3"
+# ── Catálogos ────────────────────────────────────────────────────────────────
+
+def test_plantillas_cubren_los_12_niveles():
+    presentes = {(p["modulo_id"], p["nivel_id"]) for p in COMP.plantillas}
+    assert presentes == set(NIVELES), f"Niveles sin plantillas: {set(NIVELES) - presentes}"
 
 
-def test_enunciados_autoexplicativos():
-    """Grupo 4: Validar enunciados autoexplicativos para interactivas."""
-    mod_niv_pairs = [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2), (3, 3), (3, 4), (4, 1), (4, 2), (4, 3)]
-    
-    for mod, niv in mod_niv_pairs:
-        for fam in range(1, 16):
-            for var in range(4):
-                q = generate_practice_question_fase4(mod, niv, fam, var)
-                vals = q.get("valores", {})
-                enunciado = q["enunciado"]
-                
-                # 4.T1: Si es interactivo, el enunciado debe tener suficiente longitud descriptiva
-                if vals.get("es_interactivo"):
-                    palabras = len(enunciado.split())
-                    assert palabras >= 18, f"Enunciado interactivo muy corto ({palabras} palabras) en mod={mod} niv={niv} fam={fam}: {enunciado}"
-                    
-                    # 4.T2: Si es M3 interactivo (gráficos circulares), deben constar los datos numéricos en el texto
-                    if mod == 3 and niv == 2:
-                        assert str(vals["pct_a"]) in enunciado, f"Enunciado interactivo de gráfico circular no menciona pct_a ({vals['pct_a']})"
-                        assert str(vals["pct_b"]) in enunciado, f"Enunciado interactivo de gráfico circular no menciona pct_b ({vals['pct_b']})"
-                        
-                    # 4.T3: Si es M4 interactivo (beaker), debe constar la relación en el texto
-                    if mod == 4 and niv == 2:
-                        assert str(vals["azul"]) in enunciado, f"Enunciado interactivo de probeta no menciona partes del primer ingrediente ({vals['azul']})"
-                        assert str(vals["amarillo"]) in enunciado, f"Enunciado interactivo de probeta no menciona partes del segundo ingrediente ({vals['amarillo']})"
-                        assert str(vals["pedido"]) in enunciado, f"Enunciado interactivo de probeta no menciona el pedido total ({vals['pedido']})"
+def test_toda_plantilla_declara_formula():
+    """Sin 'formula' la respuesta no puede derivarse del enunciado."""
+    sin = [p["id"] for p in COMP.plantillas if not p.get("formula")]
+    assert not sin, f"Plantillas sin fórmula: {sin}"
 
 
-def test_desafios_m3_diversificados():
-    """Grupo 5: Validar diversificación de desafíos M3 (categorías distribuidas y enunciados autoexplicativos)."""
-    from app.fase4.seed import generate_challenge_question_fase4
-    
-    # 5.T1 y 5.T2: Probar para los 3 desafíos del Módulo 3 (11, 12, 13)
-    for desafio_id in (11, 12, 13):
-        categorias_conteo = {0: 0, 1: 0, 2: 0, 3: 0} # 0=pct, 1=circ, 2=barras, 3=promedio
-        
-        # Generar las 30 preguntas del desafío
-        for idx in range(1, 31):
-            q = generate_challenge_question_fase4(modulo_id=3, desafio_id=desafio_id, idx=idx)
-            categoria = idx % 4
-            categorias_conteo[categoria] += 1
-            
-            enunciado = q["enunciado"]
-            vals = q.get("valores", {})
-            
-            # 5.T3: Enunciados autoexplicativos en desafíos
-            if categoria == 0: # porcentajes
-                assert str(vals["pct"]) in enunciado, f"Falta porcentaje en enunciado de desafío porcentajes (idx={idx})"
-                assert str(vals["total"]) in enunciado, f"Falta total en enunciado de desafío porcentajes (idx={idx})"
-            elif categoria == 1: # circulares
-                assert str(vals["pct_a"]) in enunciado, f"Falta pct_a en enunciado de desafío gráficos circulares (idx={idx})"
-                assert str(vals["pct_b"]) in enunciado, f"Falta pct_b en enunciado de desafío gráficos circulares (idx={idx})"
-            elif categoria == 2: # barras
-                assert str(vals["val_a"]) in enunciado, f"Falta val_a en enunciado de desafío barras (idx={idx})"
-                assert str(vals["val_b"]) in enunciado, f"Falta val_b en enunciado de desafío barras (idx={idx})"
-            elif categoria == 3: # promedio
-                assert str(vals["a"]) in enunciado, f"Falta nota a en enunciado de desafío promedio (idx={idx})"
-                assert str(vals["b"]) in enunciado, f"Falta nota b en enunciado de desafío promedio (idx={idx})"
-                assert str(vals["c"]) in enunciado, f"Falta nota c en enunciado de desafío promedio (idx={idx})"
-                
-        # Confirmar que cada una de las 4 categorías tiene al menos 5 preguntas por desafío (deben tener 7 u 8)
-        for cat, conteo in categorias_conteo.items():
-            assert conteo >= 5, f"Pocas preguntas ({conteo}) para categoría {cat} en desafío M3 {desafio_id}"
+def test_toda_plantilla_tiene_escenario_compatible():
+    """Regresión: 4 plantillas declaraban magnitudes sin ningún escenario disponible."""
+    huerfanas = []
+    for p in COMP.plantillas:
+        escala = COMP._escala_requerida(p)
+        compatibles = [
+            e for e in COMP.escenarios
+            if e["modulo_id"] == p["modulo_id"] and e["magnitud"] == p["magnitud"]
+            and all(req in e and e[req] for req in p.get("campos_requeridos", []))
+            and (escala is None or e.get("escala") == escala)
+        ]
+        if not compatibles:
+            huerfanas.append((p["id"], p["magnitud"], escala))
+    assert not huerfanas, f"Plantillas sin escenario compatible: {huerfanas}"
 
 
-def test_distractores_opcion_multiple():
-    """Grupo 6: Validar distractores mejorados (múltiple opción con retroalimentación específica)."""
-    from app.fase4.seed import generate_challenge_question_fase4
-    
-    # Desafíos de opción múltiple son el 11 y 12
-    for mod in range(1, 5):
-        for desafio_id in (11, 12):
-            for idx in range(1, 15): # Muestrear las primeras 15 preguntas
-                q = generate_challenge_question_fase4(modulo_id=mod, desafio_id=desafio_id, idx=idx)
-                
-                # 6.T2: Verificar que ningún distractor tiene el mismo valor que la respuesta correcta
-                ans = q["respuesta_correcta"]
-                errores = q.get("errores_previstos", {})
-                
-                assert ans not in errores, f"La respuesta correcta {ans} está listada como un error previsto en mod={mod} des={desafio_id} idx={idx}"
-                
-                # 6.T1: Al menos 2 de los 3 distractores deben tener un mensaje específico
-                # (El pool del seed inyecta alternativas basadas en errores_previstos)
-                assert len(errores) >= 2, f"Pocos errores previstos específicos ({len(errores)}) en mod={mod} des={desafio_id} idx={idx}"
+def test_escenarios_modulo4_declaran_escala():
+    """La magnitud 'longitud' abarca el grosor de una moneda y una maratón: hace
+    falta la escala para que un marco en km no caiga en un escenario de espesor."""
+    sin = [e["id"] for e in COMP.escenarios
+           if e["modulo_id"] == 4 and e.get("escala") not in ("micro", "objeto", "distancia")]
+    assert not sin, f"Escenarios del módulo 4 sin escala válida: {sin}"
 
 
-def test_auditoria_volumen_y_prefijos():
-    """Grupo 7: Auditar volumen total de preguntas y ausencia del prefijo [ESPEJO]."""
-    from app.fase4.seed import generate_practice_question_fase4, generate_challenge_question_fase4
+# ── Coherencia enunciado ↔ respuesta ─────────────────────────────────────────
 
-    # 7.2 y 7.4: Generar y auditar todo el pool de práctica libre (~780 preguntas)
-    conteo_practica = 0
-    modulos_niveles = {1: 3, 2: 3, 3: 4, 4: 3}
-    for modulo_id, max_niv in modulos_niveles.items():
-        for nivel_id in range(1, max_niv + 1):
-            for fam in range(1, 16):
-                for var in range(4):
-                    q = generate_practice_question_fase4(modulo_id, nivel_id, fam, var)
-                    conteo_practica += 1
-                    # Verificar que no contenga [ESPEJO]
-                    assert "[ESPEJO]" not in q["enunciado"], f"Encontrado prefijo [ESPEJO] en práctica mod={modulo_id} niv={nivel_id} fam={fam} var={var}"
+def test_respuesta_deriva_de_la_formula_del_enunciado():
+    """Regresión del defecto crítico: la respuesta era siempre a+b+c mientras el
+    enunciado venía de otra plantilla, así que NINGUNA pregunta era correcta."""
+    for m, n, c in _componer_todo(fams=6, vars_=2):
+        esperado = COMP._evaluar_formula({"id": c["plantilla_id"], "formula": c["formula"]},
+                                         c["valores"])
+        assert abs(esperado - c["resultado_num"]) < 0.005, (
+            f"M{m}N{n} {c['plantilla_id']}: la fórmula {c['formula']} da {esperado} "
+            f"pero se publicó {c['resultado_num']}")
 
-    # 7.2 y 7.4: Generar y auditar todo el pool de desafíos (~360 preguntas)
-    conteo_desafios = 0
-    for modulo_id in range(1, 5):
-        for desafio_id in (11, 12, 13):
-            for idx in range(1, 31):
-                q = generate_challenge_question_fase4(modulo_id, desafio_id, idx)
-                conteo_desafios += 1
-                # Verificar que no contenga [ESPEJO]
-                assert "[ESPEJO]" not in q["enunciado"], f"Encontrado prefijo [ESPEJO] en desafío mod={modulo_id} des={desafio_id} idx={idx}"
 
-    total_preguntas = conteo_practica + conteo_desafios
-    print(f"\nAuditoría de volumen: Práctica={conteo_practica}, Desafíos={conteo_desafios}, Total={total_preguntas}")
-    
-    assert conteo_practica == 780, f"Se esperaban 780 preguntas de práctica, pero se generaron {conteo_practica}"
-    assert conteo_desafios == 360, f"Se esperaban 360 preguntas de desafíos, pero se generaron {conteo_desafios}"
-    assert total_preguntas == 1140, f"Volumen total incorrecto: {total_preguntas}"
+def test_formula_solo_usa_nombres_permitidos():
+    for p in COMP.plantillas:
+        usados = set(re.findall(r"[A-Za-z_]+", p["formula"]))
+        assert usados <= COMP._NOMBRES_FORMULA, (
+            f"{p['id']} usa nombres no permitidos: {usados - COMP._NOMBRES_FORMULA}")
 
+
+# ── Presentación ─────────────────────────────────────────────────────────────
+
+def test_enunciados_sin_placeholders_ni_defectos_gramaticales():
+    """Regresión: solo se formateaba 'marco', así que 'pregunta' mostraba
+    "{unidad}" crudo; y los escenarios traen artículo, produciendo "de el libro"."""
+    for m, n, c in _componer_todo(fams=12, vars_=4):
+        e = c["enunciado"]
+        assert "{" not in e and "}" not in e, f"M{m}N{n}: placeholder crudo en {e!r}"
+        assert " de el " not in e and " a el " not in e, f"M{m}N{n}: falta contracción en {e!r}"
+        assert not e[:1].islower(), f"M{m}N{n}: minúscula inicial en {e!r}"
+        assert not re.search(r"\d\.\d", e), f"M{m}N{n}: punto decimal en {e!r}"
+
+
+def test_presupuesto_de_caracteres():
+    for m, n, c in _componer_todo(fams=12, vars_=4):
+        assert len(c["enunciado"]) <= 250, f"M{m}N{n}: {len(c['enunciado'])} caracteres"
+
+
+# ── C6.5: pureza de magnitud ─────────────────────────────────────────────────
+
+PROHIBIDO_C65 = ("litro", "mililitro", "dm³", "m³", "m²", "dm²", "cm²",
+                 "volumen", "superficie", "botella")
+
+
+def test_sin_volumen_ni_superficie():
+    """El volumen pasó a geometría 3D y la superficie a geometría plana."""
+    for m, n, c in _componer_todo(fams=12, vars_=4):
+        bajo = c["enunciado"].lower()
+        hallados = [t for t in PROHIBIDO_C65 if t in bajo]
+        assert not hallados, f"M{m}N{n}: magnitud ajena a la Fase 4 {hallados} en {c['enunciado']!r}"
+
+
+def test_sin_vocabulario_de_fracciones():
+    for m, n, c in _componer_todo(fams=12, vars_=4):
+        bajo = c["enunciado"].lower()
+        for t in ("fracción", "fracciones", "numerador", "denominador"):
+            assert t not in bajo, f"M{m}N{n}: '{t}' pertenece a la Fase 5"
+
+
+# ── Variedad estructural ─────────────────────────────────────────────────────
+
+def test_variedad_estructural_por_nivel():
+    """Firma = (operación, incógnita, nº de campos). Seis reformulaciones de una
+    misma estructura satisfacían el conteo de esquemas sin dar variedad real."""
+    por_id = {p["id"]: p for p in COMP.plantillas}
+    for m, n in NIVELES:
+        pool = [COMP.componer_pregunta_practica(m, n, f, v, 9000 + f * 4 + v)
+                for f in range(12) for v in range(4)]
+        firmas = {(por_id[c["plantilla_id"]]["operacion_correcta"],
+                   por_id[c["plantilla_id"]]["incognita"],
+                   len(por_id[c["plantilla_id"]].get("campos_requeridos", [])))
+                  for c in pool}
+        assert len(firmas) >= 3, f"M{m}N{n}: solo {len(firmas)} firmas estructurales"
+
+
+def test_determinismo():
+    """La misma semilla debe dar la misma pregunta: la siembra es reproducible."""
+    a = COMP.componer_pregunta_practica(3, 2, 4, 1, 4242)
+    b = COMP.componer_pregunta_practica(3, 2, 4, 1, 4242)
+    assert a == b
+
+
+def test_r2_rechaza_magnitudes_incompatibles():
+    """'No puedes sumar peras con manzanas': el contrato debe fallar, no adaptar."""
+    p = next(p for p in COMP.plantillas if p["magnitud"] == "longitud")
+    e = next((e for e in COMP.escenarios if e["magnitud"] != "longitud"), None)
+    if e is None:
+        pytest.skip("todos los escenarios son de longitud")
+    with pytest.raises(ValueError, match="R2"):
+        COMP.validar_composicion(p, e)

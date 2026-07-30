@@ -234,7 +234,14 @@ const FASE_3: FaseMetadata = {
   ]
 };
 
-// ── FASE 4: Fracciones, Porcentajes y Proporciones ──────────────
+// ⚠️ DESACTUALIZADO TRAS LA REESTRUCTURACIÓN — NO ES FUENTE DE VERDAD.
+// Con el intercambio de fases, la Fase 4 es "Operatoria Decimal y Conversiones"
+// (fracciones y porcentajes pasaron a la Fase 5). Estos datos describen el orden
+// anterior y siguen aquí solo porque son inalcanzables: getFaseMetadata() se
+// consume únicamente desde las fases 8 y 9, y la Fase 4 tiene su propia pantalla
+// (WelcomeScreenPhase4 en la ruta /welcome-fase4) alimentada por el backend.
+// La fuente de verdad del nombre es la tabla `fases` y app/fase4/router.py.
+// Corregir estas entradas al reestructurar la Fase 5.
 
 const FASE_4: FaseMetadata = {
   faseId: 4,

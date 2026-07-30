@@ -13,7 +13,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         # =========================================================================
         (1, 1): [
             {
-                "enunciado": "Mía compra un libreta por R$ 3,25 y un lápiz por R$ 1,40. ¿Cuánto pagó en total?<br/>" +
+                "enunciado": "Mía compra una libreta y un lápiz. ¿Cuánto pagó en total?<br/>" +
                              tabla_datos([("Libreta", "R$ 3,25"), ("Lápiz", "R$ 1,40")], color=color_modulo(1,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Alineamos los números haciendo coincidir la coma vertical: 3,25 + 1,40."},
@@ -22,7 +22,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Hugo compró jugo por R$ 4,50 y galletas por R$ 2,30. ¿Cuánto gastó?<br/>" +
+                "enunciado": "Hugo compró jugo y galletas. ¿Cuánto gastó?<br/>" +
                              tabla_datos([("Jugo", "R$ 4,50"), ("Galletas", "R$ 2,30")], color=color_modulo(1,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Alineamos por la coma decimal: 4,50 + 2,30."},
@@ -31,7 +31,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Leo junta R$ 5,30 el lunes y R$ 2,45 el martes. ¿Cuánto ahorró?<br/>" +
+                "enunciado": "Leo junta dinero el lunes y el martes. ¿Cuánto ahorró?<br/>" +
                              tabla_datos([("Lunes", "R$ 5,30"), ("Martes", "R$ 2,45")], color=color_modulo(1,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Comprobamos que ambos números tienen dos cifras tras la coma."},
@@ -67,7 +67,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         ],
         (1, 2): [
             {
-                "enunciado": "Leo paga una compra de R$ 3,40 con un billete de R$ 10,00. ¿Cuánto recibe de vuelto?<br/>" +
+                "enunciado": "Leo paga una compra con un billete. ¿Cuánto recibe de vuelto?<br/>" +
                              tabla_datos([("Pago", "R$ 10,00"), ("Costo", "R$ 3,40")], color=color_modulo(1,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Alineamos por la coma: 10,00 - 3,40."},
@@ -76,7 +76,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Zoe tenía 5,5 metros de cinta y cortó 2,25 metros. ¿Cuánta cinta le queda?<br/>" +
+                "enunciado": "Zoe tenía una cinta y cortó un trozo. ¿Cuánta cinta le queda?<br/>" +
                              tabla_datos([("Cinta inicial", "5,50 m"), ("Cortado", "2,25 m")], color=color_modulo(1,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Completamos con cero a 5,50 para tener dos decimales."},
@@ -85,7 +85,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Hugo tenía R$ 15,80 y gastó R$ 7,50. ¿Cuánto le sobra?<br/>" +
+                "enunciado": "Hugo tenía un ahorro y gastó una parte. ¿Cuánto le sobra?<br/>" +
                              tabla_datos([("Inicial", "R$ 15,80"), ("Gasto", "R$ 7,50")], color=color_modulo(1,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Alineamos 15,80 - 7,50 por la coma."},
@@ -121,8 +121,8 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         ],
         (1, 3): [
             {
-                "enunciado": "Mía ahorra R$ 12,50, recibe R$ 5,00 y gasta R$ 8,25. ¿Cuánto tiene ahora?<br/>" +
-                             tabla_datos([("Ingreso total", "R$ 17,50"), ("Gasto", "R$ 8,25")], color=color_modulo(1,3)),
+                "enunciado": "Mía ahorra, recibe un pago y gasta una parte. ¿Cuánto tiene ahora?<br/>" +
+                             tabla_datos([("Ahorro", "R$ 12,50"), ("Recibe", "R$ 5,00"), ("Gasto", "R$ 8,25")], color=color_modulo(1,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Sumamos ingresos: 12,50 + 5,00 = 17,50."},
                     {"orden": 2, "texto": "Restamos el gasto: 17,50 - 8,25."},
@@ -130,8 +130,8 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Hugo tiene R$ 25,00. Compra 2 artículos de R$ 7,50 cada uno. ¿Cuánto vuelto recibe?<br/>" +
-                             tabla_datos([("Dinero", "R$ 25,00"), ("Total gastado", "R$ 15,00")], color=color_modulo(1,3)),
+                "enunciado": "Hugo tiene dinero y compra dos artículos iguales. ¿Cuánto vuelto recibe?<br/>" +
+                             tabla_datos([("Dinero", "R$ 25,00"), ("Artículos", "2"), ("Precio c/u", "R$ 7,50")], color=color_modulo(1,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Calculamos la suma de compras: 7,50 + 7,50 = 15,00."},
                     {"orden": 2, "texto": "Restamos del presupuesto: 25,00 - 15,00."},
@@ -139,8 +139,8 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Zoe lleva R$ 18,00. Compra un estuche de R$ 11,40 y recibe R$ 2,00 que le debían. ¿Cuánto tiene?<br/>" +
-                             tabla_datos([("Dinero neto", "R$ 6,60"), ("Cobro", "R$ 2,00")], color=color_modulo(1,3)),
+                "enunciado": "Zoe lleva dinero, compra un estuche y recibe un pago que le debían. ¿Cuánto tiene?<br/>" +
+                             tabla_datos([("Lleva", "R$ 18,00"), ("Estuche", "R$ 11,40"), ("Cobro", "R$ 2,00")], color=color_modulo(1,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Restamos la compra: 18,00 - 11,40 = 6,60."},
                     {"orden": 2, "texto": "Sumamos el cobro: 6,60 + 2,00 = 8,60."},
@@ -179,7 +179,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         # =========================================================================
         (2, 1): [
             {
-                "enunciado": "Mía compra 3 frascos de pintura a R$ 4,20 cada uno. ¿Cuánto paga?<br/>" +
+                "enunciado": "Mía compra varios frascos de pintura del mismo precio. ¿Cuánto paga?<br/>" +
                              tabla_datos([("Cantidad", "3"), ("Precio c/u", "R$ 4,20")], color=color_modulo(2,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos ignorando la coma: 420 × 3 = 1260."},
@@ -188,7 +188,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Hugo necesita 4 tramos de cable de 2,3 metros. ¿Cuántos metros compra?<br/>" +
+                "enunciado": "Hugo necesita varios tramos de cable del mismo largo. ¿Cuántos metros compra?<br/>" +
                              tabla_datos([("Tramos", "4"), ("Largo c/u", "2,3 m")], color=color_modulo(2,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos 23 × 4 = 92."},
@@ -197,7 +197,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Zoe compra 5 cuadernos de R$ 6,10. ¿Cuánto gasta?<br/>" +
+                "enunciado": "Zoe compra varios cuadernos del mismo precio. ¿Cuánto gasta?<br/>" +
                              tabla_datos([("Cuadernos", "5"), ("Precio c/u", "R$ 6,10")], color=color_modulo(2,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos 610 × 5 = 3050."},
@@ -233,7 +233,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         ],
         (2, 2): [
             {
-                "enunciado": "Calcula el costo de 4 estuches de R$ 12,15 cada uno.<br/>" +
+                "enunciado": "Calcula el costo total de los estuches.<br/>" +
                              tabla_datos([("Cantidad", "4"), ("Precio c/u", "R$ 12,15")], color=color_modulo(2,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos 1215 × 4 = 4860."},
@@ -242,7 +242,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Se compran 3 listones de madera de 4,25 metros cada uno. ¿Largo total?<br/>" +
+                "enunciado": "Se compran varios listones de madera del mismo largo. ¿Largo total?<br/>" +
                              tabla_datos([("Listones", "3"), ("Largo c/u", "4,25 m")], color=color_modulo(2,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos 425 × 3 = 1275."},
@@ -251,7 +251,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Una caja contiene 5 paquetes de harina de 1,75 kg cada uno. ¿Peso total?<br/>" +
+                "enunciado": "Una caja contiene varios paquetes de harina del mismo peso. ¿Peso total?<br/>" +
                              tabla_datos([("Paquetes", "5"), ("Peso c/u", "1,75 kg")], color=color_modulo(2,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos 175 × 5 = 875."},
@@ -287,7 +287,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         ],
         (2, 3): [
             {
-                "enunciado": "Multiplica 1,5 por 0,4 para hallar el área de una tarjeta decorativa de 1,5 m × 0,4 m.<br/>" +
+                "enunciado": "Halla el área de una tarjeta decorativa rectangular.<br/>" +
                              tabla_datos([("Largo", "1,5 m"), ("Ancho", "0,4 m")], color=color_modulo(2,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos números enteros: 15 × 4 = 60."},
@@ -296,7 +296,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Un frasco tiene 0,25 L de concentrado. ¿Cuánto hay en 0,5 frascos?<br/>" +
+                "enunciado": "Un frasco entero tiene concentrado. ¿Cuánto hay en la porción indicada?<br/>" +
                              tabla_datos([("Frasco entero", "0,25 L"), ("Porción", "0,5")], color=color_modulo(2,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos 25 × 5 = 125."},
@@ -305,7 +305,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Calcula 2,5 × 1,2.<br/>" +
+                "enunciado": "Calcula el producto de los dos factores.<br/>" +
                              tabla_datos([("Factor A", "2,5"), ("Factor B", "1,2")], color=color_modulo(2,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos 25 × 12 = 300."},
@@ -345,7 +345,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         # =========================================================================
         (3, 1): [
             {
-                "enunciado": "Divide R$ 8,40 equitativamente entre 2 amigos. ¿Cuánto recibe cada uno?<br/>" +
+                "enunciado": "Reparte el monto equitativamente entre los amigos. ¿Cuánto recibe cada uno?<br/>" +
                              tabla_datos([("Monto total", "R$ 8,40"), ("Amigos", "2")], color=color_modulo(3,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Dividimos la parte entera: 8 ÷ 2 = 4."},
@@ -354,7 +354,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Reparte 9,6 metros de cinta en 3 trozos iguales. ¿Largo de cada trozo?<br/>" +
+                "enunciado": "Reparte la cinta en trozos iguales. ¿Largo de cada trozo?<br/>" +
                              tabla_datos([("Largo total", "9,6 m"), ("Trozos", "3")], color=color_modulo(3,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Dividimos 9 ÷ 3 = 3."},
@@ -363,7 +363,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Divide R$ 6,30 entre 3 niños.<br/>" +
+                "enunciado": "Reparte el total entre los niños en partes iguales.<br/>" +
                              tabla_datos([("Total", "R$ 6,30"), ("Niños", "3")], color=color_modulo(3,1)),
                 "pasos": [
                     {"orden": 1, "texto": "Dividimos 6 ÷ 3 = 2."},
@@ -399,7 +399,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         ],
         (3, 2): [
             {
-                "enunciado": "Divide R$ 12,48 en 4 partes iguales.<br/>" +
+                "enunciado": "Reparte el total en partes iguales.<br/>" +
                              tabla_datos([("Total", "R$ 12,48"), ("Partes", "4")], color=color_modulo(3,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Dividimos 12 ÷ 4 = 3."},
@@ -408,7 +408,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Reparte 15,35 kg de alimento en 5 recipientes.<br/>" +
+                "enunciado": "Reparte el alimento entre los recipientes en partes iguales.<br/>" +
                              tabla_datos([("Masa total", "15,35 kg"), ("Recipientes", "5")], color=color_modulo(3,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Dividimos 15 ÷ 5 = 3."},
@@ -417,7 +417,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Divide R$ 20,50 entre 5 personas.<br/>" +
+                "enunciado": "Reparte el total entre las personas en partes iguales.<br/>" +
                              tabla_datos([("Total", "R$ 20,50"), ("Personas", "5")], color=color_modulo(3,2)),
                 "pasos": [
                     {"orden": 1, "texto": "Dividimos 20 ÷ 5 = 4."},
@@ -453,7 +453,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         ],
         (3, 3): [
             {
-                "enunciado": "Divide 6 ÷ 1,5 desplando la coma decimal.<br/>" +
+                "enunciado": "Calcula el cociente desplazando la coma decimal.<br/>" +
                              tabla_datos([("Dividendo", "6,0"), ("Divisor", "1,5")], color=color_modulo(3,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos ambos por 10 para eliminar la coma del divisor: 60 ÷ 15."},
@@ -462,7 +462,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Divide 4,5 ÷ 0,5.<br/>" +
+                "enunciado": "Calcula el cociente.<br/>" +
                              tabla_datos([("Dividendo", "4,5"), ("Divisor", "0,5")], color=color_modulo(3,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos por 10 ambos lados: 45 ÷ 5."},
@@ -471,7 +471,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Divide 8,4 ÷ 1,2.<br/>" +
+                "enunciado": "Calcula el cociente.<br/>" +
                              tabla_datos([("Dividendo", "8,4"), ("Divisor", "1,2")], color=color_modulo(3,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Desplazamos la coma 1 lugar: 84 ÷ 12."},
@@ -529,12 +529,12 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Convierte 3,5 litros a mililitros.<br/>" +
-                             escalera_unidades("capacidad", ["kL", "hL", "daL", "L", "dL", "cL", "mL"], "L", "mL", 3.5, color_modulo(4,1)),
+                "enunciado": "Convierte 3,5 metros a milímetros.<br/>" +
+                             escalera_unidades("lineal", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "m", "mm", 3.5, color_modulo(4,1)),
                 "pasos": [
-                    {"orden": 1, "texto": "De L a mL bajamos 3 escalones (×1000)."},
+                    {"orden": 1, "texto": "De m a mm bajamos 3 escalones (×1000)."},
                     {"orden": 2, "texto": "Multiplicamos 3,5 × 1000 = 3500."},
-                    {"orden": 3, "texto": "Resultado: 3,5 L = 3500 mL."}
+                    {"orden": 3, "texto": "Resultado: 3,5 m = 3500 mm."}
                 ]
             },
             {
@@ -574,62 +574,62 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Convierte 2500 gramos a kilogramos.<br/>" +
-                             escalera_unidades("masa", ["kg", "hg", "dag", "g", "dg", "cg", "mg"], "g", "kg", 2500, color_modulo(4,2)),
+                "enunciado": "Convierte 2500 metros a kilómetros.<br/>" +
+                             escalera_unidades("lineal", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "m", "km", 2500, color_modulo(4,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "De g a kg subimos 3 escalones (÷1000)."},
+                    {"orden": 1, "texto": "De m a km subimos 3 escalones (÷1000)."},
                     {"orden": 2, "texto": "Desplazamos la coma 3 lugares a la izquierda: 2500 ÷ 1000 = 2,5."},
-                    {"orden": 3, "texto": "Resultado: 2500 g = 2,5 kg."}
+                    {"orden": 3, "texto": "Resultado: 2500 m = 2,5 km."}
                 ]
             },
             {
-                "enunciado": "Convierte 750 mililitros a litros.<br/>" +
-                             escalera_unidades("capacidad", ["kL", "hL", "daL", "L", "dL", "cL", "mL"], "mL", "L", 750, color_modulo(4,2)),
+                "enunciado": "Convierte 750 milímetros a metros.<br/>" +
+                             escalera_unidades("lineal", ["km", "hm", "dam", "m", "dm", "cm", "mm"], "mm", "m", 750, color_modulo(4,2)),
                 "pasos": [
-                    {"orden": 1, "texto": "De mL a L subimos 3 escalones (÷1000)."},
+                    {"orden": 1, "texto": "De mm a m subimos 3 escalones (÷1000)."},
                     {"orden": 2, "texto": "Desplazamos la coma 3 lugares a la izquierda: 750 ÷ 1000 = 0,75."},
-                    {"orden": 3, "texto": "Resultado: 750 mL = 0,75 L."}
+                    {"orden": 3, "texto": "Resultado: 750 mm = 0,75 m."}
                 ]
             },
             {
-                "enunciado": "Un paquete pesa 800 gramos. Para enviarlo por correo se requiere registrar el peso en kg. El empleado anota 8,0 kg. ¿Anotó el peso correcto?",
+                "enunciado": "Una pista mide 800 metros. Para el cartel hay que registrar la distancia en km. El encargado anota 8,0 km. ¿Anotó la distancia correcta?",
                 "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Datos: 800 g a kg. Registro del empleado: 8,0 kg."},
-                    {"orden": 2, "texto": "Evaluamos: 1 kg = 1000 g. Pasar g $\rightarrow$ kg requiere subir 3 escalones (÷1000)."},
+                    {"orden": 1, "texto": "Datos: 800 m a km. Registro del encargado: 8,0 km."},
+                    {"orden": 2, "texto": "Evaluamos: 1 km = 1000 m. Pasar de m a km requiere subir 3 escalones (÷1000)."},
                     {
                         "orden": 3,
-                        "texto": "¿Qué error cometió el empleado?",
+                        "texto": "¿Qué error cometió el encargado?",
                         "opciones": [
-                            "Dividió entre 100 en vez de 1000 (el peso real es 0,8 kg)",
-                            "Anotó el peso correcto",
+                            "Dividió entre 100 en vez de 1000 (la distancia real es 0,8 km)",
+                            "Anotó la distancia correcta",
                             "Multiplicó por 1000 en vez de dividir"
                         ],
                         "opcion_correcta": 0,
                         "explicacion_opciones": {
-                            "0": "¡Correcto! 800 ÷ 1000 = 0,8 kg. Anotar 8,0 kg es 10 veces más pesado.",
-                            "1": "Atención: 8,0 kg equivale a 8000 gramos, no 800.",
+                            "0": "¡Correcto! 800 ÷ 1000 = 0,8 km. Anotar 8,0 km es 10 veces más largo.",
+                            "1": "Atención: 8,0 km equivale a 8000 metros, no 800.",
                             "2": "Cuidado: la división por 100 movió 2 comas en lugar de 3."
                         }
                     },
-                    {"orden": 4, "texto": "Resolución: 800 ÷ 1000 = 0,8 kg."},
-                    {"orden": 5, "texto": "Análisis de trampas: Olvidar un cero al dividir entre 1000 deja el número en 8,0 kg por error."}
+                    {"orden": 4, "texto": "Resolución: 800 ÷ 1000 = 0,8 km."},
+                    {"orden": 5, "texto": "Análisis de trampas: Olvidar un cero al dividir entre 1000 deja el número en 8,0 km por error."}
                 ]
             }
         ],
         (4, 3): [
             {
-                "enunciado": "Zoe tiene una jarra con 1,5 L de agua y agrega 500 mL más. ¿Cuántos litros tiene en total?<br/>" +
-                             tabla_datos([("Inicial", "1,5 L"), ("Agregado", "500 mL = 0,5 L")], color=color_modulo(4,3)),
+                "enunciado": "Zoe tiene una cinta y le añade otro trozo. ¿Cuántos metros mide en total?<br/>" +
+                             tabla_datos([("Cinta inicial", "1,5 m"), ("Añadido", "50 cm")], color=color_modulo(4,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Convertimos 500 mL a litros: 500 ÷ 1000 = 0,5 L."},
-                    {"orden": 2, "texto": "Sumamos ambas cantidades en litros: 1,5 + 0,5 = 2,0 L."},
-                    {"orden": 3, "texto": "Resultado: Tiene 2,0 litros en total."}
+                    {"orden": 1, "texto": "Convertimos 50 cm a metros: 50 ÷ 100 = 0,5 m."},
+                    {"orden": 2, "texto": "Sumamos ambas cantidades en metros: 1,5 + 0,5 = 2,0 m."},
+                    {"orden": 3, "texto": "Resultado: La cinta mide 2,0 metros en total."}
                 ]
             },
             {
-                "enunciado": "Hugo camina 1,2 km por la mañana y 800 m por la tarde. ¿Distancia total en km?<br/>" +
-                             tabla_datos([("Mañana", "1,2 km"), ("Tarde", "800 m = 0,8 km")], color=color_modulo(4,3)),
+                "enunciado": "Hugo camina por la mañana y por la tarde. ¿Distancia total en km?<br/>" +
+                             tabla_datos([("Mañana", "1,2 km"), ("Tarde", "800 m")], color=color_modulo(4,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Convertimos 800 m a km: 800 ÷ 1000 = 0,8 km."},
                     {"orden": 2, "texto": "Sumamos en km: 1,2 + 0,8 = 2,0 km."},
@@ -637,37 +637,37 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Un paquete de 2,5 kg de arroz se reparte en 5 bolsas de 500 g cada una. ¿Sobra arroz?<br/>" +
-                             tabla_datos([("Total", "2,5 kg = 2500 g"), ("Bolsas", "5 × 500 g = 2500 g")], color=color_modulo(4,3)),
+                "enunciado": "Un rollo de cordón se corta en trozos iguales. ¿Sobra cordón?<br/>" +
+                             tabla_datos([("Rollo", "2,5 m"), ("Trozos", "5"), ("Cada trozo", "50 cm")], color=color_modulo(4,3)),
                 "pasos": [
-                    {"orden": 1, "texto": "Convertimos 2,5 kg a g: 2,5 × 1000 = 2500 g."},
-                    {"orden": 2, "texto": "Calculamos las bolsas: 5 × 500 g = 2500 g."},
-                    {"orden": 3, "texto": "Resultado: 2500 g - 2500 g = 0. No sobra nada."}
+                    {"orden": 1, "texto": "Convertimos el rollo a centímetros: 2,5 × 100 = 250 cm."},
+                    {"orden": 2, "texto": "Calculamos lo que ocupan los trozos: 5 × 50 cm = 250 cm."},
+                    {"orden": 3, "texto": "Resultado: 250 cm − 250 cm = 0. No sobra nada."}
                 ]
             },
             {
-                "enunciado": "Mía prepara un jugo con 1,2 L de agua y 400 mL de jarabe. Dispone de una jarra de 1,5 L de capacidad. ¿Entrará toda la mezcla en la jarra?",
+                "enunciado": "Mía une dos cintas para bordear un cuadro. El borde del cuadro mide 1,5 m. ¿Alcanzarán las cintas para cubrirlo?",
                 "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Datos: Agua = 1,2 L; Jarabe = 400 mL; Jarra = 1,5 L."},
-                    {"orden": 2, "texto": "Convertimos 400 mL a litros (400 ÷ 1000 = 0,4 L) y sumamos el volumen total de la mezcla."},
+                    {"orden": 1, "texto": "Datos: Cinta A = 1,2 m; Cinta B = 40 cm; Borde del cuadro = 1,5 m."},
+                    {"orden": 2, "texto": "No basta con sumar: primero hay que expresar ambas cintas en la misma unidad y después comparar con el borde."},
                     {
                         "orden": 3,
-                        "texto": "¿Qué sucederá al verter la mezcla en la jarra?",
+                        "texto": "¿Qué ocurrirá al colocar las cintas en el borde?",
                         "opciones": [
-                            "Se desbordará: la mezcla suma 1,6 L y la jarra es de 1,5 L",
-                            "Entrará exacto sin sobrante",
-                            "Entrará y quedará espacio libre para 0,5 L"
+                            "Sobrará cinta: las dos suman 1,6 m y el borde mide 1,5 m",
+                            "Alcanzará exacto, sin sobrante",
+                            "Faltará cinta para cubrir el borde"
                         ],
                         "opcion_correcta": 0,
                         "explicacion_opciones": {
-                            "0": "¡Correcto! 1,2 L + 0,4 L = 1,6 L. Supera la capacidad de 1,5 L por 0,1 L.",
-                            "1": "Atención: 1,2 + 0,4 = 1,6, no 1,5.",
-                            "2": "Cuidado: sumar 1,2 + 400 sin convertir unidades es un error grave de escala."
+                            "0": "¡Correcto! 1,2 m + 0,4 m = 1,6 m. Supera el borde de 1,5 m en 0,1 m (10 cm).",
+                            "1": "Atención: 1,2 + 0,4 = 1,6, no 1,5. Sobran 10 cm.",
+                            "2": "Cuidado: sumar 1,2 + 40 sin convertir unidades es un error grave de escala."
                         }
                     },
-                    {"orden": 4, "texto": "Resolución: 400 mL = 0,4 L. Mezcla = 1,2 + 0,4 = 1,6 L. Como 1,6 L > 1,5 L, la jarra se desborda por 0,1 L."},
-                    {"orden": 5, "texto": "Análisis de trampas: Sumar 1,2 + 400 directamente daría 401,2 (error de unidades)." }
+                    {"orden": 4, "texto": "Resolución: 40 cm = 0,4 m. Total = 1,2 + 0,4 = 1,6 m. Como 1,6 m > 1,5 m, sobran 0,1 m."},
+                    {"orden": 5, "texto": "Análisis de trampas: Sumar 1,2 + 40 directamente daría 41,2 (error de unidades)." }
                 ]
             }
         ]

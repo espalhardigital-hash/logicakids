@@ -1,7 +1,7 @@
 /**
  * WelcomeScreenPhase4.tsx
  * ─────────────────────────────────────────────────────────────
- * Hub de selección de módulos para la Fase 5: Operatoria Decimal y Conversiones.
+ * Hub de selección de módulos para la Fase 4: Operatoria Decimal y Conversiones.
  */
 
 import React, { useEffect, useState, useCallback } from 'react';

@@ -171,7 +171,7 @@ export const Fase4TheoryModal: React.FC<Fase4TheoryModalProps> = ({
               letterSpacing: '1.2px',
               marginBottom: '2px'
             }}>
-              Módulo {readingData.modulo_id}: {readingData.modulo_nombre || 'Operatoria'} • Nivel {readingData.nivel_id}
+              {readingData.fase_nombre || 'Operatoria Decimal y Conversiones'} • Módulo {readingData.modulo_id}: {readingData.modulo_nombre || `Módulo ${readingData.modulo_id}`} • Nivel {readingData.nivel_id}
             </div>
             <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: 0, fontSize: '1.4rem', fontWeight: 800 }}>
                ✨ {fixEncoding(readingData.titulo)}

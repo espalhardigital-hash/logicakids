@@ -12,7 +12,8 @@
     "pregunta": "¿Cuánto paga en total?",
     "operacion_correcta": "sumar",
     "incognita": "total",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a+b"
   },
   {
     "id": "m1_n1_esq2_parte_faltante",
@@ -27,7 +28,8 @@
     "pregunta": "¿Cuánto dinero le falta aportar?",
     "operacion_correcta": "restar",
     "incognita": "parte",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "total-a"
   },
   {
     "id": "m1_n1_esq3_sobrante_resto",
@@ -42,7 +44,8 @@
     "pregunta": "¿Cuánto dinero le queda disponible?",
     "operacion_correcta": "restar",
     "incognita": "resto",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "total-a-b"
   },
   {
     "id": "m1_n1_esq4_corregir_errado",
@@ -57,7 +60,8 @@
     "pregunta": "¿Cuál es la suma real exacta que debía figurar?",
     "operacion_correcta": "sumar",
     "incognita": "total",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a+b"
   },
   {
     "id": "m1_n1_esq5_tres_datos",
@@ -72,7 +76,8 @@
     "pregunta": "¿Cuánto gastó en total por los tres artículos?",
     "operacion_correcta": "sumar",
     "incognita": "total",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "a+b+c"
   },
   {
     "id": "m1_n1_esq6_filtro_ruido",
@@ -87,7 +92,8 @@
     "pregunta": "¿Cuánto gastó en la compra total de ambos objetos?",
     "operacion_correcta": "sumar",
     "incognita": "total",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a+b"
   },
   {
     "id": "m1_n2_esq1_resta_completar_ceros",
@@ -102,7 +108,8 @@
     "pregunta": "¿Cuántos {unidad} de {objetos_0} quedan en la reserva?",
     "operacion_correcta": "restar",
     "incognita": "resto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a-b"
   },
   {
     "id": "m1_n2_esq2_diferencia_pesos",
@@ -117,7 +124,8 @@
     "pregunta": "¿Cuántos {unidad} más pesa el primer paquete respecto al segundo?",
     "operacion_correcta": "restar",
     "incognita": "diferencia",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a-b"
   },
   {
     "id": "m1_n2_esq3_completar_peso_meta",
@@ -132,7 +140,8 @@
     "pregunta": "¿Cuánta masa en {unidad} falta para alcanzar la meta?",
     "operacion_correcta": "restar",
     "incognita": "parte",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "total-a"
   },
   {
     "id": "m1_n2_esq4_suma_ceros_distintos",
@@ -147,7 +156,8 @@
     "pregunta": "¿Cuál es la masa total combinada en {unidad}?",
     "operacion_correcta": "sumar",
     "incognita": "total",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a+b"
   },
   {
     "id": "m1_n2_esq5_sobrante_tres_pesos",
@@ -162,7 +172,8 @@
     "pregunta": "¿Cuánta harina en {unidad} le queda disponible?",
     "operacion_correcta": "restar",
     "incognita": "resto",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "total-a-b"
   },
   {
     "id": "m1_n2_esq6_comparar_pesos_faltantes",
@@ -177,7 +188,8 @@
     "pregunta": "¿Cuántos {unidad} de {objetos_0} le quedan por comprar?",
     "operacion_correcta": "restar",
     "incognita": "parte",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "total-a"
   },
   {
     "id": "m1_n3_esq1_combinadas_encadenadas",
@@ -192,7 +204,8 @@
     "pregunta": "¿Cuánto vuelto le sobró al finalizar sus compras?",
     "operacion_correcta": "restar",
     "incognita": "resto",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "total-a-b"
   },
   {
     "id": "m1_n3_esq2_ingreso_egreso",
@@ -207,7 +220,8 @@
     "pregunta": "¿Cuál es su saldo final disponible en {unidad}?",
     "operacion_correcta": "sumar",
     "incognita": "total",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "a+b-c"
   },
   {
     "id": "m1_n3_esq3_temperatura_variacion",
@@ -222,7 +236,8 @@
     "pregunta": "¿Cuál es la temperatura final en {unidad}?",
     "operacion_correcta": "sumar",
     "incognita": "total",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "a+b-c"
   },
   {
     "id": "m1_n3_esq4_longitud_tramos",
@@ -237,7 +252,8 @@
     "pregunta": "¿Cuántos {unidad} le faltan recorridos para llegar al destino?",
     "operacion_correcta": "restar",
     "incognita": "resto",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "total-a-b"
   },
   {
     "id": "m1_n3_esq5_vuelto_pago_billete",
@@ -252,7 +268,8 @@
     "pregunta": "¿Cuánto vuelto total le deben entregar?",
     "operacion_correcta": "restar",
     "incognita": "vuelto",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "total-a-b"
   },
   {
     "id": "m1_n3_esq6_meta_tres_aportes",
@@ -267,7 +284,8 @@
     "pregunta": "¿Cuánto dinero falta aportar para alcanzar la meta exacta?",
     "operacion_correcta": "restar",
     "incognita": "falta",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "total-a-b"
   },
   {
     "id": "m2_n1_esq1_mult_simple",
@@ -282,7 +300,8 @@
     "pregunta": "¿Cuánto pagó en total por los {n_cant} paquetes?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n1_esq2_mult_peso_unitario",
@@ -297,7 +316,8 @@
     "pregunta": "¿Cuál es la masa total en {unidad} del cargamento?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n1_esq3_mult_longitud_repetida",
@@ -312,7 +332,8 @@
     "pregunta": "¿Cuántos {unidad} de {objeto_medible} usó en total?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n1_esq4_mult_factor",
@@ -328,7 +349,8 @@
       "unidad"
     ],
     "marco": "En {lugar}, {personaje} gastó {total} {unidad} en {objetos_0}. Si cada {objetos_0} cuesta {a} {unidad},",
-    "pregunta": "¿cuántas unidades compró {personaje}?"
+    "pregunta": "¿cuántas unidades compró {personaje}?",
+    "formula": "total/a"
   },
   {
     "id": "m2_n1_esq6_mult_tres_datos",
@@ -344,7 +366,8 @@
       "unidad"
     ],
     "marco": "{personaje} fue a {lugar} y compró {n_cant} paquetes de {objetos_0} a {a} {unidad} cada uno y pagó un costo de envío de {c} {unidad}.",
-    "pregunta": "¿Cuánto pagó {personaje} solo por los paquetes, sin el envío?"
+    "pregunta": "¿Cuánto pagó {personaje} solo por los paquetes, sin el envío?",
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n1_esq6_mult_entradas",
@@ -359,7 +382,8 @@
     "pregunta": "¿Cuánto costaron en total todas las entradas?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n2_esq1_mult_dos_decimales",
@@ -374,7 +398,8 @@
     "pregunta": "¿Cuál es el valor total que debe abonar?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n2_esq2_mult_peso_dos_dec",
@@ -389,7 +414,8 @@
     "pregunta": "¿Cuántos {unidad} pesa en total el lote transportado?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n2_esq3_mult_metros_dos_dec",
@@ -404,7 +430,8 @@
     "pregunta": "¿Cuántos {unidad} de {objeto_medible} obtuvo en total?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n2_esq4_mult_factor",
@@ -420,7 +447,8 @@
       "unidad"
     ],
     "marco": "En {lugar}, un cargamento de {objetos_0} pesa {total} {unidad} en total. Si cada caja pesa {a} {unidad},",
-    "pregunta": "¿cuántas cajas hay en el cargamento?"
+    "pregunta": "¿cuántas cajas hay en el cargamento?",
+    "formula": "total/a"
   },
   {
     "id": "m2_n2_esq6_mult_tres_datos",
@@ -436,7 +464,8 @@
       "unidad"
     ],
     "marco": "{personaje} recoge {n_cant} cestas de {objetos_0} en {lugar}. Cada cesta pesa {a} {unidad}. También lleva una bolsa de {c} {unidad}.",
-    "pregunta": "¿Cuánto pesan solo las {n_cant} cestas de {objetos_0}?"
+    "pregunta": "¿Cuánto pesan solo las {n_cant} cestas de {objetos_0}?",
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n2_esq6_mult_cajas_embalaje",
@@ -451,7 +480,8 @@
     "pregunta": "¿Cuántos {unidad} de tira necesita en total?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n3_esq1_ambos_factores_dec",
@@ -466,7 +496,8 @@
     "pregunta": "¿Cuánto pagó exactamente por los {a} kg comprados?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*b"
   },
   {
     "id": "m2_n3_esq2_peso_por_factor_decimal",
@@ -477,11 +508,12 @@
       "lugar",
       "objetos"
     ],
-    "marco": "Un recipiente con {a} litros de {objetos_0} en {lugar} pesa {b} {unidad} por cada litro.",
-    "pregunta": "¿Cuál es la masa total en {unidad} del contenido?",
+    "marco": "En {lugar} hay {a} cajas de {objetos_0} y cada caja pesa {b} {unidad}.",
+    "pregunta": "¿Cuál es la masa total en {unidad}?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*b"
   },
   {
     "id": "m2_n3_esq3_metros_factor_decimal",
@@ -496,7 +528,8 @@
     "pregunta": "¿Cuántos {unidad} de {objeto_medible} precisa en total?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*b"
   },
   {
     "id": "m2_n3_esq4_mult_factor",
@@ -512,7 +545,8 @@
       "unidad"
     ],
     "marco": "En {lugar}, se necesitó un total de {total} {unidad} de {objeto_medible}. Si cada tramo mide {a} {unidad},",
-    "pregunta": "¿cuántos tramos iguales se cortaron?"
+    "pregunta": "¿cuántos tramos iguales se cortaron?",
+    "formula": "total/a"
   },
   {
     "id": "m2_n3_esq6_mult_tres_datos",
@@ -528,7 +562,8 @@
       "unidad"
     ],
     "marco": "{personaje} corta {n_cant} piezas de {objeto_medible} en {lugar}. Cada pieza mide {a} {unidad}. Una pieza extra mide {c} {unidad}.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} necesitó solo para las {n_cant} piezas iguales?"
+    "pregunta": "¿Cuántos {unidad} de {objeto_medible} necesitó solo para las {n_cant} piezas iguales?",
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n3_esq6_lote_telas_ambos_dec",
@@ -543,7 +578,8 @@
     "pregunta": "¿Cuál es el valor final a pagar por la tela?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*b"
   },
   {
     "id": "m3_n1_esq1_div_dividendo_dec",
@@ -554,11 +590,12 @@
       "lugar",
       "objetos"
     ],
-    "marco": "{personaje} y {n_cant} amigos consumieron en {lugar} por un total de {unidad} {a}. Dividieron la cuenta en partes iguales.",
+    "marco": "{n_cant} personas consumieron en {lugar} por un total de {unidad} {a}. Dividieron la cuenta en partes iguales.",
     "pregunta": "¿Cuánto abonó cada persona en partes iguales?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/n_cant"
   },
   {
     "id": "m3_n1_esq2_div_peso_reparto",
@@ -573,7 +610,8 @@
     "pregunta": "¿Cuántos {unidad} pesa cada paquete resultante?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/n_cant"
   },
   {
     "id": "m3_n1_esq3_div_corta_cinta",
@@ -588,7 +626,8 @@
     "pregunta": "¿Cuántos {unidad} mide cada trozo de {objeto_medible}?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/n_cant"
   },
   {
     "id": "m3_n1_esq4_div_dividendo",
@@ -604,7 +643,8 @@
       "unidad"
     ],
     "marco": "{personaje} reparte dinero en {lugar}. Si cada persona recibe {a} {unidad} y hay {n_cant} personas,",
-    "pregunta": "¿cuánto dinero tenía {personaje} en total?"
+    "pregunta": "¿cuánto dinero tenía {personaje} en total?",
+    "formula": "a*n_cant"
   },
   {
     "id": "m3_n1_esq6_div_tres_datos",
@@ -620,7 +660,8 @@
       "unidad"
     ],
     "marco": "{personaje} quiere distribuir {total} {unidad} entre {n_cant} amigos en {lugar}. Ya apartó {c} {unidad} para gastos.",
-    "pregunta": "¿Cuánto recibe cada amigo del dinero restante?"
+    "pregunta": "¿Cuánto recibe cada amigo del dinero restante?",
+    "formula": "(total-c)/n_cant"
   },
   {
     "id": "m3_n1_esq6_div_pesaje_raciones",
@@ -635,7 +676,8 @@
     "pregunta": "¿Cuánta masa en {unidad} contiene cada ración?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/n_cant"
   },
   {
     "id": "m3_n2_esq1_div_dos_decimales",
@@ -650,7 +692,8 @@
     "pregunta": "¿Cuánto costó cada artículo individual?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/n_cant"
   },
   {
     "id": "m3_n2_esq2_div_peso_dos_dec",
@@ -665,7 +708,8 @@
     "pregunta": "¿Cuál es la masa en {unidad} de una sola porción?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/n_cant"
   },
   {
     "id": "m3_n2_esq3_div_longitud_dos_dec",
@@ -680,7 +724,8 @@
     "pregunta": "¿Cuánto mide en {unidad} cada parte obtenida?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/n_cant"
   },
   {
     "id": "m3_n2_esq4_div_dividendo",
@@ -696,7 +741,8 @@
       "unidad"
     ],
     "marco": "En {lugar}, cada porción de {objetos_0} pesa {a} {unidad}. Se preparan {n_cant} porciones iguales.",
-    "pregunta": "¿Cuántos {unidad} de {objetos_0} se usaron en total?"
+    "pregunta": "¿Cuántos {unidad} de {objetos_0} se usaron en total?",
+    "formula": "a*n_cant"
   },
   {
     "id": "m3_n2_esq6_div_tres_datos",
@@ -712,7 +758,8 @@
       "unidad"
     ],
     "marco": "{personaje} tiene {total} {unidad} de {objetos_0} en {lugar} y ya separó {c} {unidad}. Quiere repartir el resto entre {n_cant} personas.",
-    "pregunta": "¿Cuántos {unidad} recibe cada persona?"
+    "pregunta": "¿Cuántos {unidad} recibe cada persona?",
+    "formula": "(total-c)/n_cant"
   },
   {
     "id": "m3_n2_esq6_div_tramos_cancha",
@@ -727,7 +774,8 @@
     "pregunta": "¿Cuál es el ancho de cada panel en {unidad}?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/n_cant"
   },
   {
     "id": "m3_n3_esq1_divisor_decimal",
@@ -742,7 +790,8 @@
     "pregunta": "¿Cuántos kilos de {objetos_0} compró en total?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/b"
   },
   {
     "id": "m3_n3_esq2_div_peso_divisor_dec",
@@ -757,7 +806,8 @@
     "pregunta": "¿Cuántas bolsas completas logró armar?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/b"
   },
   {
     "id": "m3_n3_esq3_div_longitud_divisor_dec",
@@ -772,13 +822,14 @@
     "pregunta": "¿Cuántas varillas iguales puede obtener en total?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/b"
   },
   {
     "id": "m3_n3_esq4_div_dividendo",
     "modulo_id": 3,
     "nivel_id": 3,
-    "magnitud": "volumen",
+    "magnitud": "masa",
     "operacion_correcta": "dividir",
     "incognita": "dividendo",
     "n_datos": 2,
@@ -787,14 +838,15 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "En {lugar}, se llenan {n_cant} recipientes iguales de {objeto_medible}. Cada uno contiene {a} {unidad}.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} se distribuyeron en total?"
+    "marco": "En {lugar}, se llenan {n_cant} paquetes iguales de {objeto_medible}. Cada uno contiene {a} {unidad}.",
+    "pregunta": "¿Cuántos {unidad} de {objeto_medible} se distribuyeron en total?",
+    "formula": "a*n_cant"
   },
   {
     "id": "m3_n3_esq6_div_tres_datos",
     "modulo_id": 3,
     "nivel_id": 3,
-    "magnitud": "volumen",
+    "magnitud": "masa",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 3,
@@ -803,8 +855,9 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "{personaje} tiene {total} {unidad} de {objeto_medible} en {lugar} y reserva {c} {unidad}. Reparte el resto entre {n_cant} envases.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} cabe en cada envase?"
+    "marco": "{personaje} tiene {total} {unidad} de {objeto_medible} en {lugar} y reserva {c} {unidad}. Reparte el resto entre {n_cant} paquetes.",
+    "pregunta": "¿Cuántos {unidad} de {objeto_medible} caben en cada paquete?",
+    "formula": "(total-c)/n_cant"
   },
   {
     "id": "m3_n3_esq6_div_cuotas_decimales",
@@ -819,7 +872,8 @@
     "pregunta": "¿En cuántas cuotas se saldará la compra completa?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a/b"
   },
   {
     "id": "m4_n1_esq1_bajar_m_cm",
@@ -834,7 +888,8 @@
     "pregunta": "¿A cuántos centímetros (cm) equivale esa longitud?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
-    "n_datos": 1
+    "n_datos": 1,
+    "formula": "a*100"
   },
   {
     "id": "m4_n1_esq2_bajar_km_m",
@@ -849,7 +904,8 @@
     "pregunta": "¿Cuántos metros (m) representa esa distancia?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
-    "n_datos": 1
+    "n_datos": 1,
+    "formula": "a*1000"
   },
   {
     "id": "m4_n1_esq3_bajar_cm_mm",
@@ -864,7 +920,8 @@
     "pregunta": "¿Cuántos milímetros (mm) mide de grosor?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
-    "n_datos": 1
+    "n_datos": 1,
+    "formula": "a*10"
   },
   {
     "id": "m4_n1_esq4_conv_doble",
@@ -879,8 +936,9 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "{personaje} mide {n_cant} tablas de {objeto_medible} en {lugar}. Cada tabla mide {a} m.",
-    "pregunta": "¿Cuántos centímetros miden todas las tablas juntas?"
+    "marco": "En {lugar} hay {n_cant} unidades de {objeto_medible}. Cada una mide {a} m.",
+    "pregunta": "¿Cuántos centímetros (cm) miden todas juntas?",
+    "formula": "a*n_cant*100"
   },
   {
     "id": "m4_n1_esq6_conv_inversa",
@@ -895,8 +953,9 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "{personaje} tiene una cuerda de {total} cm de {objeto_medible} en {lugar}.",
-    "pregunta": "¿Cuántos metros mide esa cuerda?"
+    "marco": "{personaje} midió {objeto_medible} en {lugar} y anotó {total} cm.",
+    "pregunta": "¿A cuántos metros (m) equivale esa medida?",
+    "formula": "total/100"
   },
   {
     "id": "m4_n1_esq6_bajar_camino_m",
@@ -911,7 +970,8 @@
     "pregunta": "¿Cuántos metros (m) se han recorrido hasta la señal?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
-    "n_datos": 1
+    "n_datos": 1,
+    "formula": "a*1000"
   },
   {
     "id": "m4_n2_esq1_subir_cm_m",
@@ -926,7 +986,8 @@
     "pregunta": "¿A cuántos metros (m) equivale la medida tomada?",
     "operacion_correcta": "dividir",
     "incognita": "conversion",
-    "n_datos": 1
+    "n_datos": 1,
+    "formula": "a/100"
   },
   {
     "id": "m4_n2_esq2_subir_m_km",
@@ -941,7 +1002,8 @@
     "pregunta": "¿Cuántos kilómetros (km) caminó en total?",
     "operacion_correcta": "dividir",
     "incognita": "conversion",
-    "n_datos": 1
+    "n_datos": 1,
+    "formula": "a/1000"
   },
   {
     "id": "m4_n2_esq3_subir_mm_cm",
@@ -956,14 +1018,15 @@
     "pregunta": "¿Cuántos centímetros (cm) de espesor tiene?",
     "operacion_correcta": "dividir",
     "incognita": "conversion",
-    "n_datos": 1
+    "n_datos": 1,
+    "formula": "a/10"
   },
   {
     "id": "m4_n2_esq4_conv_doble",
     "modulo_id": 4,
     "nivel_id": 2,
-    "magnitud": "masa",
-    "operacion_correcta": "multiplicar",
+    "magnitud": "longitud",
+    "operacion_correcta": "dividir",
     "incognita": "conversion_total",
     "n_datos": 2,
     "campos_requeridos": [
@@ -971,14 +1034,15 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "{personaje} carga {n_cant} sacos de {objeto_medible} en {lugar}. Cada saco pesa {a} kg.",
-    "pregunta": "¿Cuántos gramos pesa el cargamento completo?"
+    "marco": "En {lugar}, {personaje} cuenta {n_cant} unidades de {objeto_medible}. Cada una mide {a} cm.",
+    "pregunta": "¿Cuántos metros (m) miden todas juntas?",
+    "formula": "a*n_cant/100"
   },
   {
     "id": "m4_n2_esq6_conv_inversa",
     "modulo_id": 4,
     "nivel_id": 2,
-    "magnitud": "masa",
+    "magnitud": "longitud",
     "operacion_correcta": "dividir",
     "incognita": "conversion_inversa",
     "n_datos": 2,
@@ -987,8 +1051,9 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "{personaje} registra el peso de {objeto_medible} en {lugar}: {total} g.",
-    "pregunta": "¿Cuántos kilogramos pesa ese {objeto_medible}?"
+    "marco": "{personaje} registra la medida de {objeto_medible} en {lugar}: {total} m.",
+    "pregunta": "¿Cuántos kilómetros (km) mide ese recorrido?",
+    "formula": "total/1000"
   },
   {
     "id": "m4_n2_esq6_subir_maraton_km",
@@ -1003,7 +1068,8 @@
     "pregunta": "¿Cuántos kilómetros (km) representan esos metros?",
     "operacion_correcta": "dividir",
     "incognita": "conversion",
-    "n_datos": 1
+    "n_datos": 1,
+    "formula": "a/1000"
   },
   {
     "id": "m4_n3_esq1_mixtas_m_cm",
@@ -1014,11 +1080,12 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} unió dos tiras de {objeto_medible}. La primera mide {a} m y la segunda {b} cm.",
+    "marco": "{personaje} midió {objeto_medible} en dos partes: la primera de {a} m y la segunda de {b} cm.",
     "pregunta": "¿Cuál es la longitud total combinada expresada en metros (m)?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a+b/100"
   },
   {
     "id": "m4_n3_esq2_mixtas_km_m",
@@ -1033,7 +1100,8 @@
     "pregunta": "¿Cuántos metros (m) recorrió en total considerando ambos tramos?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*1000+b"
   },
   {
     "id": "m4_n3_esq3_mixtas_resta_m_cm",
@@ -1044,11 +1112,12 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} tenía un rollo de {objeto_medible} de {a} m y cortó un trozo de {b} cm.",
-    "pregunta": "¿Cuántos metros (m) de {objeto_medible} le quedan en el rollo?",
+    "marco": "{objeto_medible} medía {a} m de largo y {personaje} le recortó {b} cm.",
+    "pregunta": "¿Cuántos metros (m) mide ahora?",
     "operacion_correcta": "restar",
     "incognita": "resto_convertido",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a-b/100"
   },
   {
     "id": "m4_n3_esq4_mixtas_cm_mm",
@@ -1059,11 +1128,12 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} juntó un listón de {objeto_medible} de {a} cm con otro de {b} mm.",
+    "marco": "{objeto_medible} tiene {a} cm de espesor y {personaje} le añade una capa de {b} mm.",
     "pregunta": "¿Cuál es la medida total expresada en centímetros (cm)?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a+b/10"
   },
   {
     "id": "m4_n3_esq5_mixtas_diferencia_km_m",
@@ -1078,7 +1148,8 @@
     "pregunta": "¿Cuántos metros (m) más largo es el trayecto A respecto al trayecto B?",
     "operacion_correcta": "restar",
     "incognita": "diferencia_convertida",
-    "n_datos": 2
+    "n_datos": 2,
+    "formula": "a*1000-b"
   },
   {
     "id": "m4_n3_esq6_mixtas_tres_unidades",
@@ -1089,10 +1160,11 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} sumó tres cortes de {objeto_medible}: {a} m, {b} cm y {c} cm.",
+    "marco": "{personaje} midió {objeto_medible} en tres secciones: {a} m, {b} cm y {c} cm.",
     "pregunta": "¿Cuál es la extensión total final expresada en metros (m)?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
-    "n_datos": 3
+    "n_datos": 3,
+    "formula": "a+b/100+c/100"
   }
 ]

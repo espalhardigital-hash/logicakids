@@ -1,5 +1,5 @@
 /**
- * Servicio API — Fase 4: Fracciones, Porcentajes y Proporciones
+ * Servicio API — Fase 5: Fracciones, Porcentajes y Proporciones
  * Capa de comunicación con el backend de Fase 4.
  */
 

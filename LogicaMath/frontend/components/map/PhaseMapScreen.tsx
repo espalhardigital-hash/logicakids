@@ -126,16 +126,6 @@ export default function PhaseMapScreen({
     },
     {
       index: 4,
-      title: 'Fracciones, Porcentajes y Proporciones',
-      description: 'Relación parte-todo, proporciones, porcentajes e interpretación de gráficos.',
-      icon: PieChart,
-      color: 'bg-purple-500',
-      textColor: 'text-purple-400',
-      shadow: 'shadow-purple-500/50',
-      ringColor: 'group-hover:border-purple-500/50'
-    },
-    {
-      index: 5,
       title: 'Operatoria Decimal y Conversiones',
       description: 'Operaciones con decimales, conversión de unidades de longitud, volumen y superficie.',
       icon: Calculator,
@@ -143,6 +133,16 @@ export default function PhaseMapScreen({
       textColor: 'text-cyan-400',
       shadow: 'shadow-cyan-500/50',
       ringColor: 'group-hover:border-cyan-500/50'
+    },
+    {
+      index: 5,
+      title: 'Fracciones, Porcentajes y Proporciones',
+      description: 'Relación parte-todo, proporciones, porcentajes e interpretación de gráficos.',
+      icon: PieChart,
+      color: 'bg-purple-500',
+      textColor: 'text-purple-400',
+      shadow: 'shadow-purple-500/50',
+      ringColor: 'group-hover:border-purple-500/50'
     },
     {
       index: 6,

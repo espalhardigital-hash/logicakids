@@ -1,5 +1,5 @@
 /**
- * Servicio API — Fase 5: Operatoria Decimal y Conversiones
+ * Servicio API — Fase 4: Operatoria Decimal y Conversiones
  * Capa de comunicación con el backend de Fase 5.
  */
 

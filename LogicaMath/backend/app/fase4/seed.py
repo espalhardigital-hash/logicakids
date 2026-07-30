@@ -43,16 +43,10 @@ from app.utils.svg_figuras import (
 
 FASE_DECIMALES_ID = 4
 
-# catalogo_fase5.json mantenido en disco como referencia histórica (no se usa).
-# Los nuevos catálogos son escenarios_fase4.json, plantillas_fase4.json,
-# confusiones_fase4.json y nombres_fase4.json, cargados por el CompositorFase4.
-CATALOGO_PATH = os.path.join(os.path.dirname(__file__), "data", "catalogo_fase5.json")
-
-def _load_catalogo() -> Dict[str, Any]:
-    with open(CATALOGO_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-CATALOGO_DATA = _load_catalogo()
+# catalogo_fase5.json ya no se lee. Cargarlo al importar ataba este módulo a un
+# archivo histórico que el barrido de banco de preguntas va a eliminar. Los
+# catálogos vigentes son escenarios_fase4.json, plantillas_fase4.json,
+# confusiones_fase4.json y nombres_fase4.json, todos vía CompositorFase4.
 
 # ── Compositor: carga los 4 catálogos nuevos una sola vez ────────────────────
 from app.fase4.compositor_fase4 import CompositorFase4
@@ -117,7 +111,7 @@ async def upsert_fila_fases(session: AsyncSession):
 # ── 1. LIMPIEZA / PURGA IDEMPOTENTE ──────────────────────────────────────────
 
 async def clear_fase4_data(session: AsyncSession):
-    print("Purga de datos preexistentes de Fase 5 en cascada...")
+    print("Purga de datos preexistentes de Fase 4 en cascada...")
     res = await session.execute(select(Pregunta.id).where(Pregunta.fase_id == FASE_DECIMALES_ID))
     p_ids = res.scalars().all()
 
@@ -194,6 +188,167 @@ async def seed_teoria_niveles(session: AsyncSession):
 
 # ── 3. GENERADOR DE PRÁCTICA (7.200 preguntas = 15 niveles x 120 fam x 4) ─────
 
+_OP_ENUM_POR_NOMBRE = {
+    "sumar": OperacionEnum.SUMA,
+    "restar": OperacionEnum.RESTA,
+    "multiplicar": OperacionEnum.MULTIPLICACION,
+    "dividir": OperacionEnum.DIVISION,
+}
+
+_VERBO_OPERACION = {
+    "sumar": "Sumamos", "restar": "Restamos",
+    "multiplicar": "Multiplicamos", "dividir": "Dividimos",
+}
+
+
+def _fmt_num(v: float) -> str:
+    return f"{v:.2f}".replace('.', ',')
+
+
+def _explicacion_desde_compositor(comp: dict) -> dict:
+    """Explicación derivada de la MISMA fórmula y valores que produjeron la respuesta.
+
+    Evita el desfase de construirla con números distintos a los del enunciado.
+    """
+    vals = comp["valores"]
+    formula = comp["formula"]
+    legible = formula
+    for nombre in ("total", "n_cant", "a", "b", "c"):   # 'total' antes que 'a' para no romper
+        legible = legible.replace(nombre, _fmt_num(vals[nombre]) if nombre != "n_cant" else str(vals[nombre]))
+    verbo = _VERBO_OPERACION.get(comp["operacion_correcta"], "Operamos")
+    return {
+        "titulo": "Resolución",
+        "pasos": [
+            {"orden": 1, "texto": "Alineamos las comas y comprobamos que ambos números tengan la misma cantidad de cifras decimales."},
+            {"orden": 2, "texto": f"{verbo} según el planteamiento: {legible}."},
+            {"orden": 3, "texto": f"Resultado: {comp['respuesta_correcta']}."},
+        ],
+    }
+
+
+def _errores_desde_compositor(comp: dict, confusiones_mod: list) -> dict:
+    """Errores previstos anclados al resultado real, con confusiones nombradas (C5.6)."""
+    res = comp["resultado_num"]
+    err = {}
+    # Desplazamiento de coma: el error estructural de toda la fase.
+    for desviado in (round(res * 10, 2), round(res / 10, 2)):
+        if desviado > 0 and abs(desviado - res) > 0.005:
+            err[_fmt_num(desviado)] = "Revisa la posición de la coma decimal en el resultado."
+    # Confusión nombrada del catálogo (no texto genérico).
+    if confusiones_mod:
+        conf = confusiones_mod[0]
+        etiqueta = conf.get("feedback") or conf.get("explicacion") or "Revisa el procedimiento paso a paso."
+        candidato = round(res + 0.1, 2)
+        if abs(candidato - res) > 0.005:
+            err[_fmt_num(candidato)] = etiqueta
+    return err
+
+
+def _con_unidad(valor: str, unidad: str) -> str:
+    """'R$ 12,50' para dinero; '12,50 m' para magnitudes físicas."""
+    return f"{unidad} {valor}" if unidad in ("R$", "$", "€") else f"{valor} {unidad}"
+
+
+# Operación que un alumno aplica cuando confunde el sentido del problema.
+_OP_INVERSA = {"sumar": "restar", "restar": "sumar",
+               "multiplicar": "dividir", "dividir": "multiplicar"}
+
+_FEEDBACK_INVERSA = {
+    "sumar": "Al juntar cantidades se suma, no se resta.",
+    "restar": "Cuando algo se quita o se gasta se resta, no se suma.",
+    "multiplicar": "Varias cantidades iguales se multiplican, no se dividen.",
+    "dividir": "Repartir en partes iguales es dividir, no multiplicar.",
+}
+
+
+def _factor_conversion(formula: str) -> float | None:
+    """Factor de la escalera métrica presente en la fórmula (10, 100 o 1000)."""
+    for f in (1000.0, 100.0, 10.0):
+        if f"{f:g}" in formula:
+            return f
+    return None
+
+
+def _alternativas_desde_compositor(comp: dict, rng: random.Random) -> list:
+    """4 alternativas ancladas al resultado real y a errores con significado (C5.6).
+
+    Los distractores no son ruido aleatorio: cada uno encarna un error que un
+    alumno comete de verdad (operación invertida, coma desplazada, un operando
+    olvidado). Sin esto la opción múltiple se resuelve por descarte visual.
+    """
+    res = comp["resultado_num"]
+    unidad = comp["unidad"]
+    vals = comp["valores"]
+    op = comp["operacion_correcta"]
+
+    correcto = _con_unidad(comp["respuesta_correcta"], unidad)
+    candidatos = []
+
+    # 1) Operación invertida respecto a la que pide el enunciado.
+    a, b = vals["a"], vals["b"]
+    factor = _factor_conversion(comp["formula"])
+    if factor:
+        # En una conversión el error real es recorrer la escalera métrica al
+        # revés, no "repartir en vez de multiplicar": el feedback genérico de
+        # operación mentiría sobre lo que el alumno hizo.
+        invertido = a * factor if f"/{factor:g}" in comp["formula"] else a / factor
+        candidatos.append((round(invertido, 2), TipoErrorEnum.DECIMAL,
+                           f"Recorriste la escalera métrica al revés: aquí hay que "
+                           f"{'dividir' if f'/{factor:g}' in comp['formula'] else 'multiplicar'} por {factor:g}."))
+    else:
+        inversos = {"sumar": a - b, "restar": a + b,
+                    "multiplicar": (a / b if b else 0), "dividir": a * b}
+        candidatos.append((round(inversos.get(op, res + 1), 2),
+                           TipoErrorEnum.OPERACION_INCORRECTA,
+                           _FEEDBACK_INVERSA.get(op, "Revisa qué operación pide el enunciado.")))
+
+    # 2) Coma desplazada un lugar: el error estructural de toda la fase.
+    candidatos.append((round(res * 10, 2), TipoErrorEnum.VALOR_POSICIONAL,
+                       "Revisa la posición de la coma decimal en el resultado."))
+    candidatos.append((round(res / 10, 2), TipoErrorEnum.VALOR_POSICIONAL,
+                       "Corriste la coma un lugar de más al escribir el resultado."))
+
+    # 3) Un operando olvidado.
+    candidatos.append((round(res - b, 2), TipoErrorEnum.CALCULO,
+                       "Quedó un dato del enunciado sin usar en la cuenta."))
+
+    alts = [{"texto": correcto, "es_correcta": True, "orden": 1,
+             "tipo_error": None, "feedback_error": None}]
+    usados = {comp["respuesta_correcta"]}
+    for valor, tipo_err, fb in candidatos:
+        if len(alts) == 4:
+            break
+        if valor <= 0 or abs(valor - res) < 0.005:
+            continue
+        # Un distractor 100 veces mayor que la respuesta se descarta de un
+        # vistazo y no mide nada. Debe ser plausible para ser útil.
+        if valor > res * 100 or valor < res / 100:
+            continue
+        txt = _fmt_num(valor)
+        if txt in usados:
+            continue
+        usados.add(txt)
+        alts.append({"texto": _con_unidad(txt, unidad), "es_correcta": False,
+                     "orden": len(alts) + 1, "tipo_error": tipo_err, "feedback_error": fb})
+
+    # Relleno determinista si algún candidato quedó descartado por colisión.
+    paso = 0.15
+    while len(alts) < 4:
+        paso += 0.15
+        txt = _fmt_num(round(res + paso, 2))
+        if txt in usados:
+            continue
+        usados.add(txt)
+        alts.append({"texto": _con_unidad(txt, unidad), "es_correcta": False,
+                     "orden": len(alts) + 1, "tipo_error": TipoErrorEnum.CALCULO,
+                     "feedback_error": "Repite la cuenta comprobando cada cifra decimal."})
+
+    rng.shuffle(alts)
+    for i, alt in enumerate(alts):
+        alt["orden"] = i + 1
+    return alts
+
+
 def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var_idx: int, seed_val: int) -> dict:
     rng = random.Random(seed_val)
     sec = modulo_id * 100 + nivel_id
@@ -201,389 +356,38 @@ def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var
     es_espejo = (var_idx > 0)
     personaje = NOMBRES_POOL[(fam_idx + var_idx) % len(NOMBRES_POOL)]
 
-    # ── Compositor: genera enunciado validado (R1, R2, presupuestos, variedad) ──
-    try:
-        comp = _COMPOSITOR.componer_pregunta_practica(
-            modulo_id, nivel_id, fam_idx, var_idx, seed_val
-        )
-        enunciado_comp = comp["enunciado"]
-    except Exception:
-        # Fallback determinista si el compositor no tiene plantilla para esta combinación
-        enunciado_comp = None
+    # ── Compositor: ÚNICA fuente del enunciado, la respuesta y la explicación ──
+    # No hay generador de reserva a propósito. El fallback heredado de la fase
+    # anterior componía volumen (L, dm³) para el módulo 4 y superficie para un
+    # módulo 5 que ya no existe, ambos fuera de la Fase 4 tras C6.5; además leía
+    # esc["nombre"] y confusiones_mod[6], ausentes en los catálogos nuevos. Si el
+    # compositor no puede componer, la siembra debe fallar y no colar una
+    # pregunta de otra magnitud.
+    comp = _COMPOSITOR.componer_pregunta_practica(
+        modulo_id, nivel_id, fam_idx, var_idx, seed_val
+    )
+    confusiones_mod = [c for c in _COMPOSITOR.confusiones if c["modulo_id"] == modulo_id]
 
-    # El catálogo viejo se usa solo para confusiones y escenario de referencia
-    # (el enunciado final vendrá del compositor si está disponible)
-    escenarios_mod = [e for e in CATALOGO_DATA["escenarios"] if e["modulo_id"] == modulo_id]
-    confusiones_mod = [c for c in CATALOGO_DATA["confusiones"] if c["modulo_id"] == modulo_id]
-    esc = escenarios_mod[fam_idx % len(escenarios_mod)]
-
-    # offset garantizando singularidad numérica para cada variante
-    item_offset = (fam_idx * 4 + var_idx) * 0.07
-
-    if modulo_id == 1:
-        if nivel_id == 1:
-            op_enum = OperacionEnum.SUMA
-            a = round(1.20 + item_offset + rng.uniform(0.01, 0.05), 2)
-            b = round(0.45 + (fam_idx * 0.03) + rng.uniform(0.01, 0.05), 2)
-            ans_num = round(a + b, 2)
-            ans_str = _fmt_money(ans_num)
-            
-            enunciado = (
-                f"{personaje} compra dos productos en {esc['nombre'].lower()}: "
-                f"uno por R$ {_fmt_money(a)} y otro por R$ {_fmt_money(b)}.<br/>"
-                f"¿Cuánto paga en total?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Alineamos las comas verticales: {_fmt_money(a)} + {_fmt_money(b)}."},
-                    {"orden": 2, "texto": f"Sumamos columna a columna: {_fmt_money(a)} + {_fmt_money(b)} = R$ {ans_str}."}
-                ]
-            }
-            err_dict = {
-                _fmt_money(ans_num + 1.0): "Revisa el acarreo en las décimas.",
-                _fmt_money(round(a + b + 0.1, 2)): confusiones_mod[0]["feedback"]
-            }
-
-        elif nivel_id == 2:
-            op_enum = OperacionEnum.RESTA
-            a = round(15.0 + item_offset + rng.uniform(0.1, 0.4), 1)
-            b = round(1.25 + (fam_idx * 0.02) + rng.uniform(0.01, 0.05), 2)
-            if b >= a:
-                b = round(a / 2, 2)
-            ans_num = round(a - b, 2)
-            ans_str = _fmt_money(ans_num)
-
-            enunciado = (
-                f"{personaje} tiene R$ {_fmt_money(a)} y gasta R$ {_fmt_money(b)} en {esc['nombre'].lower()}.<br/>"
-                f"¿Cuánto dinero le queda?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Completamos con ceros: {_fmt_money(a)} − {_fmt_money(b)}."},
-                    {"orden": 2, "texto": f"Restamos pidiendo prestado si hace falta: {_fmt_money(a)} − {_fmt_money(b)} = R$ {ans_str}."}
-                ]
-            }
-            err_dict = {
-                _fmt_money(round(a - b + 0.9, 2)): confusiones_mod[1]["feedback"],
-                _fmt_money(round(a - b - 0.1, 2)): confusiones_mod[2]["feedback"]
-            }
-
-        else:  # N3
-            op_enum = OperacionEnum.MIXTA
-            a = round(20.0 + item_offset + rng.uniform(0.1, 0.5), 2)
-            b = round(2.15 + (fam_idx * 0.02) + rng.uniform(0.01, 0.04), 2)
-            c = round(1.10 + (fam_idx * 0.01) + rng.uniform(0.01, 0.03), 2)
-            ans_num = round(a - b - c, 2)
-            ans_str = _fmt_money(ans_num)
-
-            tbl = tabla_datos([("Dinero inicial", f"R$ {_fmt_money(a)}"), ("Primer gasto", f"R$ {_fmt_money(b)}"), ("Segundo gasto", f"R$ {_fmt_money(c)}")], color=color_modulo(5,1))
-            enunciado = (
-                f"{personaje} administra su presupuesto en {esc['nombre'].lower()}:<br/>"
-                f"{tbl}<br/>"
-                f"¿Cuánto dinero le queda después de ambos gastos?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Sumamos los gastos: {_fmt_money(b)} + {_fmt_money(c)} = R$ {_fmt_money(b+c)}."},
-                    {"orden": 2, "texto": f"Restamos del inicial: {_fmt_money(a)} − {_fmt_money(b+c)} = R$ {ans_str}."}
-                ]
-            }
-            err_dict = {
-                _fmt_money(round(a - b, 2)): "Olvidaste restar el segundo gasto.",
-                _fmt_money(round(a + b + c, 2)): confusiones_mod[7]["feedback"]
-            }
-
-    elif modulo_id == 2:
-        if nivel_id == 1:
-            op_enum = OperacionEnum.MULTIPLICACION
-            p_unit = round(0.35 + item_offset * 0.1 + rng.uniform(0.01, 0.04), 2)
-            cant = 3 + (fam_idx + var_idx) % 7
-            ans_num = round(p_unit * cant, 2)
-            ans_str = _fmt_money(ans_num)
-
-            enunciado = (
-                f"En {esc['nombre'].lower()}, {personaje} compra {cant} unidades a R$ {_fmt_money(p_unit)} cada una.<br/>"
-                f"¿Cuánto paga en total?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Multiplicamos enteros y ubicamos la coma a 2 lugares: R$ {ans_str}."}
-                ]
-            }
-            err_dict = {
-                _fmt_money(round(ans_num * 10, 2)): confusiones_mod[0]["feedback"],
-                _fmt_money(round(p_unit + cant, 2)): confusiones_mod[3]["feedback"]
-            }
-
-        elif nivel_id == 2:
-            op_enum = OperacionEnum.DIVISION
-            cant = [2, 4, 5, 8, 10][(fam_idx + var_idx) % 5]
-            ans_num = round(2.50 + item_offset + rng.uniform(0.01, 0.05), 2)
-            total = round(ans_num * cant, 2)
-            ans_str = _fmt_money(ans_num)
-
-            enunciado = (
-                f"Una cuenta de R$ {_fmt_money(total)} en {esc['nombre'].lower()} se reparte equitativamente entre {cant} personas.<br/>"
-                f"¿Cuánto paga cada una?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Dividimos total ÷ personas: {_fmt_money(total)} ÷ {cant} = {ans_str}."}
-                ]
-            }
-            err_dict = {
-                _fmt_money(round(total * cant, 2)): confusiones_mod[2]["feedback"],
-                _fmt_money(round(total / 10, 2)): confusiones_mod[1]["feedback"]
-            }
-
-        else:
-            op_enum = OperacionEnum.MIXTA
-            cant = [3, 4, 6, 12][(fam_idx + var_idx) % 4]
-            unit_price = round(2.20 + item_offset + rng.uniform(0.01, 0.05), 2)
-            total = round(unit_price * cant, 2)
-            ans_num = unit_price
-            ans_str = _fmt_money(ans_num)
-
-            tbl = tabla_datos([("Costo total", f"R$ {_fmt_money(total)}"), ("Cant. unidades", f"{cant}")], color=color_modulo(5,2))
-            enunciado = (
-                f"{personaje} consulta precios en {esc['nombre'].lower()}:<br/>"
-                f"{tbl}<br/>"
-                f"¿Cuál es el precio unitario de cada producto?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Dividimos total ÷ unidades: {_fmt_money(total)} ÷ {cant} = {ans_str}."}
-                ]
-            }
-            err_dict = {
-                _fmt_money(total): confusiones_mod[9]["feedback"],
-                _fmt_money(round(total * cant, 2)): confusiones_mod[2]["feedback"]
-            }
-
-    elif modulo_id == 3:
-        if nivel_id == 1:
-            op_enum = OperacionEnum.MIXTA
-            m_val = round(1.10 + item_offset + rng.uniform(0.01, 0.05), 2)
-            ans_num = round(m_val * 100, 1)
-            ans_str = _fmt_dec(ans_num)
-
-            svg = escalera_unidades("lineal", ["cm","dm","m"], "m", "cm", m_val, color_modulo(5,3))
-            enunciado = (
-                f"{personaje} mide un tramo en {esc['nombre'].lower()}: {m_val} m.<br/>"
-                f"{svg}<br/>"
-                f"¿Cuántos centímetros son?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"De m a cm bajamos 2 peldaños (×100): {m_val} × 100 = {ans_str} cm."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(m_val * 10): confusiones_mod[3]["feedback"],
-                _fmt_dec(m_val / 100): confusiones_mod[1]["feedback"]
-            }
-
-        elif nivel_id == 2:
-            op_enum = OperacionEnum.MIXTA
-            m_val = round(1.2 + (fam_idx * 0.05), 1)
-            cm_val = 15 + var_idx * 10 + fam_idx % 20
-            ans_num = round(m_val * 100 + cm_val, 1)
-            ans_str = _fmt_dec(ans_num)
-
-            enunciado = (
-                f"{personaje} une dos cables en {esc['nombre'].lower()}: uno de {m_val} m y otro de {cm_val} cm.<br/>"
-                f"¿Cuántos centímetros de cable tiene en total?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Convertimos {m_val} m a cm ({int(m_val*100)}) y sumamos {cm_val} = {ans_str} cm."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(m_val + cm_val): confusiones_mod[4]["feedback"],
-                _fmt_dec(m_val * 100): "Olvidaste sumar el segundo tramo."
-            }
-
-        else:
-            op_enum = OperacionEnum.MIXTA
-            cm_mapa = 2 + (fam_idx + var_idx) % 7
-            esc_val = [2, 5, 10, 15][fam_idx % 4]
-            ans_num = cm_mapa * esc_val
-            ans_str = _fmt_dec(ans_num)
-
-            tbl = tabla_datos([("Medida en mapa", f"{cm_mapa} cm"), ("Escala", f"1 cm = {esc_val} km")], color=color_modulo(5,3))
-            enunciado = (
-                f"{personaje} estudia un plano en {esc['nombre'].lower()}:<br/>"
-                f"{tbl}<br/>"
-                f"¿Cuál es la distancia real en kilómetros?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Multiplicamos cm × escala: {cm_mapa} × {esc_val} = {ans_num} km."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(cm_mapa / esc_val): confusiones_mod[6]["feedback"],
-                _fmt_dec(cm_mapa + esc_val): "Multiplica la distancia por el factor de escala."
-            }
-
-    elif modulo_id == 4:
-        if nivel_id == 1:
-            op_enum = OperacionEnum.MIXTA
-            l_val = round(0.4 + item_offset * 0.1 + rng.uniform(0.01, 0.04), 1)
-            ans_num = round(l_val * 1000, 1)
-            ans_str = _fmt_dec(ans_num)
-
-            svg = escalera_unidades("cubica", ["mL","L"], "L", "mL", l_val, color_modulo(5,4))
-            enunciado = (
-                f"{personaje} revisa un envase en {esc['nombre'].lower()} de {l_val} L.<br/>"
-                f"{svg}<br/>"
-                f"¿Cuántos mililitros contiene?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"1 L = 1000 mL → {l_val} × 1000 = {ans_str} mL."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(l_val * 100): confusiones_mod[0]["feedback"],
-                _fmt_dec(l_val / 1000): confusiones_mod[5]["feedback"]
-            }
-
-        elif nivel_id == 2:
-            op_enum = OperacionEnum.MIXTA
-            dm3_val = 4 + fam_idx + var_idx * 2
-            ans_num = dm3_val
-            ans_str = _fmt_dec(ans_num)
-
-            enunciado = (
-                f"Un depósito en {esc['nombre'].lower()} ocupa {dm3_val} dm³ de volumen.<br/>"
-                f"¿Cuántos litros de capacidad tiene?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"1 dm³ = 1 L → {dm3_val} dm³ = {ans_str} L."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(dm3_val * 10): confusiones_mod[2]["feedback"],
-                _fmt_dec(dm3_val * 1000): "dm³ y L son equivalentes 1:1."
-            }
-
-        else:
-            op_enum = OperacionEnum.MIXTA
-            cap_l = round(1.0 + item_offset * 0.1, 1)
-            usado_ml = 100 + var_idx * 50 + fam_idx * 5
-            ans_num = round(cap_l * 1000 - usado_ml, 1)
-            ans_str = _fmt_dec(ans_num)
-
-            tbl = tabla_datos([("Capacidad total", f"{cap_l} L"), ("Consumo", f"{usado_ml} mL")], color=color_modulo(5,4))
-            enunciado = (
-                f"{personaje} controla líquidos en {esc['nombre'].lower()}:<br/>"
-                f"{tbl}<br/>"
-                f"¿Cuántos mililitros de líquido quedan?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"{cap_l} L = {int(cap_l*1000)} mL − {usado_ml} mL = {ans_str} mL."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(cap_l * 1000 + usado_ml): confusiones_mod[6]["feedback"],
-                _fmt_dec(cap_l * 1000): "Olvidaste restar el consumo."
-            }
-
-    else:
-        if nivel_id == 1:
-            op_enum = OperacionEnum.MIXTA
-            m2_val = round(1.5 + item_offset * 0.1 + rng.uniform(0.01, 0.05), 1)
-            ans_num = round(m2_val * 100, 1)
-            ans_str = _fmt_dec(ans_num)
-
-            svg = escalera_unidades("cuadrada", ["cm²","dm²","m²"], "m²", "dm²", m2_val, color_modulo(5,5))
-            enunciado = (
-                f"{personaje} mide una lámina en {esc['nombre'].lower()} de {m2_val} m².<br/>"
-                f"{svg}<br/>"
-                f"¿Cuántos decímetros cuadrados (dm²) son?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"De m² a dm² multiplicamos por 100: {m2_val} × 100 = {ans_str} dm²."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(m2_val * 10): confusiones_mod[0]["feedback"],
-                _fmt_dec(m2_val / 100): confusiones_mod[8]["feedback"]
-            }
-
-        elif nivel_id == 2:
-            op_enum = OperacionEnum.MIXTA
-            pulg_val = 4 + fam_idx % 25 + var_idx * 2
-            ans_num = round(pulg_val * 2.54, 2)
-            ans_str = _fmt_dec(ans_num)
-
-            enunciado = (
-                f"{personaje} mide una pantalla en {esc['nombre'].lower()}: {pulg_val} pulgadas.<br/>"
-                f"¿Cuántos centímetros mide la diagonal? (1 pulg = 2,54 cm)"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"{pulg_val} × 2,54 = {ans_str} cm."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(pulg_val * 2.5): confusiones_mod[5]["feedback"],
-                _fmt_dec(pulg_val * 2.0): "Usa el factor exacto de 2,54 cm por pulgada."
-            }
-
-        else:
-            op_enum = OperacionEnum.MIXTA
-            km_val = round(1.2 + item_offset * 0.4, 1)
-            tramos = [4, 5, 8, 10, 20][(fam_idx + var_idx) % 5]
-            ans_num = round(km_val * 1000 / tramos, 1)
-            ans_str = _fmt_dec(ans_num)
-
-            tbl = tabla_datos([("Distancia total", f"{km_val} km"), ("Tramos iguales", f"{tramos}")], color=color_modulo(4,3))
-            enunciado = (
-                f"{personaje} recorre un trayecto en {esc['nombre'].lower()}:<br/>"
-                f"{tbl}<br/>"
-                f"¿Cuántos metros mide cada tramo del recorrido?"
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"{km_val} km = {int(km_val*1000)} m ÷ {tramos} = {ans_str} m."}
-                ]
-            }
-            err_dict = {
-                _fmt_dec(km_val * 1000 * tramos): confusiones_mod[4]["feedback"],
-                _fmt_dec(km_val * 100 / tramos): confusiones_mod[3]["feedback"]
-            }
-
-    tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA if _is_numeric_answer(ans_str) else TipoPreguntaEnum.MULTIPLE_OPCION
+    enunciado_final = comp["enunciado"]
+    ans_str = comp["respuesta_correcta"]
+    op_enum = _OP_ENUM_POR_NOMBRE.get(comp["operacion_correcta"], OperacionEnum.MIXTA)
+    explicacion = _explicacion_desde_compositor(comp)
+    err_dict = _errores_desde_compositor(comp, confusiones_mod)
+    tipo_preg = (TipoPreguntaEnum.RESPUESTA_NUMERICA if _is_numeric_answer(ans_str)
+                 else TipoPreguntaEnum.MULTIPLE_OPCION)
 
     datos_num = {
+        **comp["valores"],
         "fase4": True,
         "seed": seed_val,
-        "escenario": esc["nombre"],
-        "personaje": personaje,
+        "plantilla_id": comp["plantilla_id"],
+        "escenario_id": comp["escenario_id"],
+        "personaje": comp["personaje"],
+        "formula": comp["formula"],
+        "unidad": comp["unidad"],
         "variante": var_idx,
         "es_espejo": es_espejo,
-        "resultado": ans_str
+        "resultado": ans_str,
     }
 
     return {
@@ -592,7 +396,7 @@ def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var
         "estructura_padre_id": fam_id,          # NUNCA None (Tomo 4 §11, F5 req#1)
         "operacion": op_enum,
         "tipo_pregunta": tipo_preg,
-        "enunciado": enunciado_comp if enunciado_comp else enunciado,  # compositor first
+        "enunciado": enunciado_final,
         "respuesta_correcta": ans_str,
         "datos_numericos": datos_num,
         "explicacion_paso_a_paso": explicacion,
@@ -641,86 +445,45 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
     real_mod = (q_idx % 4) + 1 if mod_id == 99 else mod_id
     personaje = NOMBRES_POOL[q_idx % len(NOMBRES_POOL)]
 
-    escenarios_mod = [e for e in CATALOGO_DATA["escenarios"] if e["modulo_id"] == real_mod]
-    confusiones_mod = [c for c in CATALOGO_DATA["confusiones"] if c["modulo_id"] == real_mod]
+    # Catálogos de la Fase 4 (escenarios_fase4.json / confusiones_fase4.json),
+    # no el CATALOGO_DATA heredado de la fase anterior.
+    escenarios_mod = [e for e in _COMPOSITOR.escenarios if e["modulo_id"] == real_mod]
+    confusiones_mod = [c for c in _COMPOSITOR.confusiones if c["modulo_id"] == real_mod]
     if not escenarios_mod:
-        escenarios_mod = CATALOGO_DATA["escenarios"]
+        escenarios_mod = _COMPOSITOR.escenarios
     if not confusiones_mod:
-        confusiones_mod = CATALOGO_DATA["confusiones"]
+        confusiones_mod = _COMPOSITOR.confusiones
     esc = escenarios_mod[q_idx % len(escenarios_mod)]
 
-    struct_id = f"f5_d{sec}_q{q_idx:03d}"
+    struct_id = f"f4_d{sec}_q{q_idx:03d}"
 
     des_type = (11 if (q_idx % 3 == 0) else (12 if (q_idx % 3 == 1) else 13)) if des_id == 99 else des_id
+    comp_d1 = None          # solo D1 usa el compositor; D2/DF tienen otra estructura
 
     # ── D1: PROBLEMA DE CONTEXTO EN OPCIÓN MÚLTIPLE (C5.3, C5.5, C5.9) ────────
     if des_type == 11:
-        op_enum = OperacionEnum.MIXTA
         tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
 
-        if real_mod == 1:
-            a = round(2.50 + (q_idx % 10) * 0.40 + rng.uniform(0.01, 0.09), 2)
-            b = round(1.10 + (q_idx % 8) * 0.30 + rng.uniform(0.01, 0.09), 2)
-            ans_num = round(a + b, 2)
-            ans_str = _fmt_money(ans_num)
-            enunciado = f"{personaje} compró un cuaderno de R$ {_fmt_money(a)} y un lápiz de R$ {_fmt_money(b)}. ¿Cuánto gastó en total?"
-            correct_alt = f"R$ {ans_str}"
-            alts = [
-                {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
-                {"texto": f"R$ {_fmt_money(round(a - b, 2))}", "es_correcta": False, "orden": 2, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Al juntar gastos se suma, no se resta."},
-                {"texto": f"R$ {_fmt_money(round(a + b - 0.9, 2))}", "es_correcta": False, "orden": 3, "tipo_error": TipoErrorEnum.VALOR_POSICIONAL, "feedback_error": "Revisa la suma alineando bien la coma."},
-                {"texto": f"R$ {_fmt_money(round(a + b + 1.0, 2))}", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.SUMA_DECIMAL, "feedback_error": "Olvidaste llevar el acarreo de las décimas."}
-            ]
-        elif real_mod == 2:
-            cant = (q_idx % 5) + 2
-            precio = round(3.50 + (q_idx % 6) * 0.50 + rng.uniform(0.01, 0.05), 2)
-            ans_num = round(cant * precio, 2)
-            ans_str = _fmt_money(ans_num)
-            enunciado = f"{personaje} compró {cant} paquetes de galletas a R$ {_fmt_money(precio)} cada uno. ¿Cuánto pagó en total?"
-            correct_alt = f"R$ {ans_str}"
-            alts = [
-                {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
-                {"texto": f"R$ {_fmt_money(round(cant + precio, 2))}", "es_correcta": False, "orden": 2, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Varias unidades del mismo precio se multiplican."},
-                {"texto": f"R$ {_fmt_money(round(ans_num / 10, 2))}", "es_correcta": False, "orden": 3, "tipo_error": TipoErrorEnum.VALOR_POSICIONAL, "feedback_error": "Revisa la posición de la coma al multiplicar."},
-                {"texto": f"R$ {_fmt_money(round(ans_num - precio, 2))}", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.CALCULO, "feedback_error": "Faltó multiplicar por un paquete."}
-            ]
-        elif real_mod == 3:
-            personas = (q_idx % 4) + 2
-            monto = round(personas * (2.50 + (q_idx % 5) * 1.20), 2)
-            ans_num = round(monto / personas, 2)
-            ans_str = _fmt_money(ans_num)
-            enunciado = f"{personaje} repartió R$ {_fmt_money(monto)} entre {personas} amigos en partes iguales. ¿Cuánto recibió cada uno?"
-            correct_alt = f"R$ {ans_str}"
-            alts = [
-                {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
-                {"texto": f"R$ {_fmt_money(round(monto * personas, 2))}", "es_correcta": False, "orden": 2, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Repartir en partes iguales es dividir, no multiplicar."},
-                {"texto": f"R$ {_fmt_money(round(monto - personas, 2))}", "es_correcta": False, "orden": 3, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "No corresponde restar."},
-                {"texto": f"R$ {_fmt_money(round(ans_num / 10, 2))}", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.VALOR_POSICIONAL, "feedback_error": "Revisa el punto decimal en la división."}
-            ]
-        else:
-            metros = (q_idx % 8 + 1) * 250
-            km = round(metros / 1000.0, 2)
-            ans_str = _fmt_dec(km)
-            enunciado = f"{personaje} recorrió una distancia de {metros} metros en su bicicleta. ¿A cuántos kilómetros equivale en total?"
-            correct_alt = f"{ans_str} km"
-            alts = [
-                {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
-                {"texto": f"{_fmt_dec(metros * 1000)} km", "es_correcta": False, "orden": 2, "tipo_error": TipoErrorEnum.DECIMAL, "feedback_error": "Para pasar de m a km se divide por 1.000, no se multiplica."},
-                {"texto": f"{_fmt_dec(metros / 100)} km", "es_correcta": False, "orden": 3, "tipo_error": TipoErrorEnum.DECIMAL, "feedback_error": "1 km equivale a 1.000 m, no a 100 m."},
-                {"texto": f"{_fmt_dec(metros / 10)} km", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.DECIMAL, "feedback_error": "Debes dividir por 1.000 para llegar a km."}
-            ]
-
-        rng.shuffle(alts)
-        for i, alt in enumerate(alts):
-            alt["orden"] = i + 1
-
-        explicacion = {
-            "titulo": "Resolución",
-            "pasos": [{"orden": 1, "texto": f"Identificar datos y operar para hallar el resultado."}],
-            "pista": {"texto": "Lee con atención las palabras claves para elegir la operación adecuada.", "penalizacion_segundos": 5}
+        # El desafío D1 recorre los TRES niveles del módulo, no un enunciado fijo:
+        # 18 plantillas por módulo frente a 1. Sin esto el alumno memoriza
+        # "cuaderno + lápiz = sumar" y el bloque deja de medir razonamiento (C7.1).
+        nivel_d1 = ((q_idx // 3) % 3) + 1
+        comp = comp_d1 = _COMPOSITOR.componer_pregunta_practica(
+            real_mod, nivel_d1, q_idx % 12, q_idx % 4, seed_val
+        )
+        enunciado = comp["enunciado"]
+        ans_str = comp["respuesta_correcta"]
+        esc = next((e for e in _COMPOSITOR.escenarios
+                    if e["id"] == comp["escenario_id"]), esc)
+        op_enum = _OP_ENUM_POR_NOMBRE.get(comp["operacion_correcta"], OperacionEnum.MIXTA)
+        alts = _alternativas_desde_compositor(comp, rng)
+        explicacion = _explicacion_desde_compositor(comp)
+        explicacion["pista"] = {
+            "texto": "Lee las palabras clave del enunciado para decidir qué operación pide.",
+            "penalizacion_segundos": 5,
         }
-        err_dict = {alt["texto"]: alt["feedback_error"] for alt in alts if not alt["es_correcta"]}
-
+        err_dict = {alt["texto"]: alt["feedback_error"]
+                    for alt in alts if not alt["es_correcta"]}
     # ── D2: TJS AVANZADO EN OPCIÓN MÚLTIPLE (C5.3, C5.9) ───────────────────────
     elif des_type == 12:
         op_enum = OperacionEnum.MIXTA
@@ -746,7 +509,7 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             a = round(2.5 + (q_idx % 5) * 0.4, 1)
             b = round(1.2 + (q_idx % 4) * 0.3, 1)
             res_err = round((a * 10) * (b * 10), 2)
-            enunciado = f"{personaje} calculó {a} × {b} y obtuvo {_fmt_dec(res_err)}. ¿Cuál fue su error con la coma?"
+            enunciado = f"{personaje} calculó {_fmt_dec(a)} × {_fmt_dec(b)} y obtuvo {_fmt_dec(res_err)}. ¿Cuál fue su error con la coma?"
             correct_alt = "Olvidó contar los decimales de ambos factores"
             alts = [
                 {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
@@ -800,26 +563,30 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
         is_context_rounding = (q_idx % 5 == 0)
 
         if is_context_rounding:
-            litros = round(2.2 + (q_idx % 4) * 0.8, 1)
-            cap_botella = 1.0
-            irrel_balde = round(15.0 + (q_idx % 3) * 5.0, 1)
-            ans_arithmetic = round(litros / cap_botella, 1)
-            ans_int = int(litros // cap_botella) + (1 if (litros % cap_botella) > 0 else 0)
+            # C6.5: la Fase 4 trabaja longitud y dinero. El volumen (L) pasó a la
+            # fase de geometría 3D, así que el redondeo al alza se plantea con
+            # listones, no con botellas.
+            largo = round(4.4 + (q_idx % 4) * 1.6, 1)
+            cap_liston = 2.0
+            irrel_ancho = round(1.2 + (q_idx % 3) * 0.3, 1)
+            ans_arithmetic = round(largo / cap_liston, 2)
+            ans_int = int(largo // cap_liston) + (1 if (largo % cap_liston) > 0 else 0)
             ans_str = f"{ans_int}"
 
-            enunciado = f"{personaje} necesita {litros} L de jugo. Cada botella trae {cap_botella} L y miró un balde de {irrel_balde} L. ¿Cuántas botellas completas debe comprar?"
+            enunciado = f"{personaje} debe cubrir {_fmt_dec(largo)} m de zócalo con listones de {_fmt_dec(cap_liston)} m cada uno. El pasillo mide {_fmt_dec(irrel_ancho)} m de ancho. ¿Cuántos listones completos necesita comprar?"
 
+            faltan = round(largo - int(ans_arithmetic) * cap_liston, 2)
             explicacion = {
                 "titulo": "Resolución",
                 "pasos": [
-                    {"orden": 1, "texto": f"Dato irrelevante: el balde de {irrel_balde} L."},
-                    {"orden": 2, "texto": f"{litros} ÷ {cap_botella} = {ans_arithmetic}. Como no venden fracciones de botella, se compran {ans_int} botellas."}
+                    {"orden": 1, "texto": f"Dato irrelevante: el ancho del pasillo ({_fmt_dec(irrel_ancho)} m) no interviene en el largo del zócalo."},
+                    {"orden": 2, "texto": f"{_fmt_dec(largo)} ÷ {_fmt_dec(cap_liston)} = {_fmt_dec(ans_arithmetic)}. Como no venden listones partidos, se compran {ans_int}."}
                 ],
-                "pista": {"texto": "Recuerda que no puedes comprar una fracción de botella; si falta un poco, necesitas otra botella entera.", "penalizacion_segundos": 5}
+                "pista": {"texto": "No puedes comprar una parte de listón: si sobra un tramo por cubrir, necesitas otro listón entero.", "penalizacion_segundos": 5}
             }
             err_dict = {
-                _fmt_dec(ans_arithmetic): f"Tu cuenta está bien ({_fmt_dec(ans_arithmetic)}). Pero no se venden fracciones de botella: con {int(ans_arithmetic)} no alcanza. Necesitas {ans_int} botellas.",
-                f"{int(ans_arithmetic)}": f"Con {int(ans_arithmetic)} botellas solo obtienes {int(ans_arithmetic)} L y faltan {round(litros - int(ans_arithmetic), 1)} L. Necesitas {ans_int} botellas."
+                _fmt_dec(ans_arithmetic): f"Tu división está bien ({_fmt_dec(ans_arithmetic)}), pero los listones se venden enteros. Necesitas {ans_int}.",
+                f"{int(ans_arithmetic)}": f"Con {int(ans_arithmetic)} listones cubres {_fmt_dec(round(int(ans_arithmetic) * cap_liston, 2))} m y quedan {_fmt_dec(faltan)} m sin cubrir. Necesitas {ans_int}."
             }
 
         elif is_two_step:
@@ -886,6 +653,15 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
         "personaje": personaje,
         "resultado": ans_str
     }
+    # D1 viene del compositor: registrar la plantilla hace auditable la variedad
+    # estructural del bloque (si no se guarda, no se puede medir).
+    if comp_d1 is not None:
+        datos_num.update({
+            "plantilla_id": comp_d1["plantilla_id"],
+            "escenario_id": comp_d1["escenario_id"],
+            "formula": comp_d1["formula"],
+            "nivel_origen": comp_d1["nivel_id"],
+        })
 
     return {
         "q_dict": {

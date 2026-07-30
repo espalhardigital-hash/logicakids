@@ -83,22 +83,31 @@ MODULOS_META = {
     1: {"nombre": "Suma y Resta de Decimales", "descripcion": "Alineación de comas, enteros, décimas y centésimas.", "icono": "activity", "color": "#10B981"},
     2: {"nombre": "Multiplicación de Decimales", "descripcion": "Conteo de cifras decimales y factores.", "icono": "hash", "color": "#8B5CF6"},
     3: {"nombre": "División con Decimales", "descripcion": "Cocientes decimales y desplazamiento de comas.", "icono": "shopping-bag", "color": "#F59E0B"},
-    4: {"nombre": "Conversión de Unidades", "descripcion": "Escalera métrica: m, cm, mm, km y superficie.", "icono": "tool", "color": "#EC4899"},
+    4: {"nombre": "Conversión de Unidades", "descripcion": "Escalera métrica: km, m, cm, mm.", "icono": "tool", "color": "#EC4899"},
 }
 
+# Nombre canónico de la fase. Debe coincidir con app/seed.py FASES_DATA id=4.
+FASE_NOMBRE = "Operatoria Decimal y Conversiones"
+
+# FUENTE ÚNICA de la cantidad de niveles por módulo (reestructuracion.md C6.6):
+# 4 módulos × 3 niveles = 12 niveles. NO duplicar este mapa en otro sitio.
+NIVELES_POR_MODULO = {1: 3, 2: 3, 3: 3, 4: 3}
+
+# Títulos alineados con app/fase4/theory_data.py (estructura aprobada C6.6).
+# Si cambian ahí, deben cambiar aquí: son la misma verdad servida por dos rutas.
 NIVELES_META = {
     (1, 1): {"nombre": "Suma alineando la coma", "descripcion": "Alineación vertical de comas y ceros de relleno."},
-    (1, 2): {"nombre": "Resta con prestados", "descripcion": "Resta de decimales con desatado de unidades."},
-    (1, 3): {"nombre": "Problemas de cambio", "descripcion": "Transacciones monetarias y cambio con decimales."},
-    (2, 1): {"nombre": "Multiplicación por 10, 100, 1000", "descripcion": "Desplazamiento directo de la coma a la derecha."},
-    (2, 2): {"nombre": "Decimal por entero", "descripcion": "Multiplicación de factores decimales por enteros."},
-    (2, 3): {"nombre": "Decimal por decimal", "descripcion": "Suma de cifras decimales del producto final."},
-    (3, 1): {"nombre": "División por entero", "descripcion": "División con coma en el cociente."},
-    (3, 2): {"nombre": "División entre decimales", "descripcion": "Multiplicación por potencias de 10 para eliminar el divisor decimal."},
-    (3, 3): {"nombre": "Aproximación y redondeo", "descripcion": "Redondeo a décimas y centésimas más cercanas."},
-    (4, 1): {"nombre": "Escalera métrica lineal", "descripcion": "Conversión entre mm, cm, dm, m, dam, hm, km."},
-    (4, 2): {"nombre": "Escalera de superficie", "descripcion": "Conversión entre mm², cm², m² (factores de 100)."},
-    (4, 3): {"nombre": "Masa y capacidad", "descripcion": "Conversiones de g, kg, L, mL e integración."},
+    (1, 2): {"nombre": "Resta con completado de ceros", "descripcion": "Distinto número de cifras decimales; completar con ceros."},
+    (1, 3): {"nombre": "Combinadas en contexto", "descripcion": "Suma y resta encadenadas en situaciones reales."},
+    (2, 1): {"nombre": "Un factor decimal (1 cifra)", "descripcion": "Factor decimal de una cifra por entero."},
+    (2, 2): {"nombre": "Un factor decimal (2 cifras)", "descripcion": "Factor decimal de dos cifras por entero."},
+    (2, 3): {"nombre": "Ambos factores decimales", "descripcion": "Conteo de cifras decimales de ambos factores."},
+    (3, 1): {"nombre": "Dividendo decimal (1 cifra)", "descripcion": "Dividendo decimal de una cifra entre entero."},
+    (3, 2): {"nombre": "Dividendo decimal (2 cifras)", "descripcion": "Dividendo decimal de dos cifras entre entero."},
+    (3, 3): {"nombre": "Divisor decimal y redondeo por contexto", "descripcion": "Desplazamiento de la coma en ambos y ajuste por contexto real."},
+    (4, 1): {"nombre": "Bajar la escalera métrica", "descripcion": "De unidad mayor a menor: multiplicar."},
+    (4, 2): {"nombre": "Subir la escalera métrica", "descripcion": "De unidad menor a mayor: dividir."},
+    (4, 3): {"nombre": "Unidades mixtas y contexto", "descripcion": "Convertir antes de operar; ambas direcciones."},
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -209,7 +218,7 @@ def _is_nivel_unlocked(progresos: dict, modulo_id: int, nivel_id: int) -> bool:
     
     if nivel_id == 1 and modulo_id > 1:
         prev_mod = modulo_id - 1
-        prev_mod_levels = {1: 3, 2: 3, 3: 4, 4: 3}[prev_mod]
+        prev_mod_levels = NIVELES_POR_MODULO[prev_mod]
         
         # Check all practice levels of previous module
         for p_level in range(1, prev_mod_levels + 1):
@@ -281,8 +290,8 @@ async def get_fase4_dashboard(
     des_cfg = global_cfg.get("desafios", {})
 
     modulos = []
-    modulo_niveles_map = {1: 3, 2: 3, 3: 4, 4: 3}
-    
+    modulo_niveles_map = NIVELES_POR_MODULO
+
     for mod_id in range(1, 5):
         meta = MODULOS_META[mod_id]
         niveles = []
@@ -462,6 +471,8 @@ async def get_lectura_fase4(
     return Fase5ContenidoLectura(
         modulo_id=modulo_id,
         nivel_id=nivel_id,
+        modulo_nombre=MODULOS_META.get(modulo_id, {}).get("nombre", f"Módulo {modulo_id}"),
+        fase_nombre=FASE_NOMBRE,
         titulo=theory.titulo,
         parrafos=parrafos,
         ejemplos=theory.ejemplos,

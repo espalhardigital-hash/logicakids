@@ -234,6 +234,8 @@ class Fase5ContenidoLectura(BaseModel):
     """Contenido teórico/tutorial de un nivel, cargado desde BD."""
     modulo_id: int
     nivel_id: int
+    modulo_nombre: str
+    fase_nombre: str
     titulo: str
     parrafos: List[str]
     ejemplos: Optional[List[Dict[str, Any]]] = None

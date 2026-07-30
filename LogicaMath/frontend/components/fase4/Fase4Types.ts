@@ -1,5 +1,5 @@
 /**
- * Tipos TypeScript — Fase 5: Operatoria Decimal y Conversiones
+ * Tipos TypeScript — Fase 4: Operatoria Decimal y Conversiones
  * Espeja exactamente los schemas Pydantic del backend (fase4/schemas.py)
  */
 
@@ -146,6 +146,7 @@ export interface Fase4Dashboard {
 export interface Fase4Lectura {
   modulo_id: number;
   modulo_nombre?: string;
+  fase_nombre?: string;
   nivel_id: number;
   titulo: string;
   parrafos: string[];

@@ -1,6 +1,20 @@
 import sys
 from unittest.mock import MagicMock
 
+import pytest
+
+# Estos tests cubren PORCENTAJES (contextual_bar: battery / download / tank), que
+# eran contenido de la antigua Fase 4 y con la reestructuración pasaron a la Fase 5.
+# Importaban generate_practice_question_fase4 / generate_challenge_question_fase4,
+# funciones que ya no existen, y el fallo de importación interrumpía la colección de
+# TODA la suite. Se omiten a nivel de módulo en lugar de borrarlos: los cuerpos siguen
+# siendo la especificación válida para reactivarlos al reestructurar la Fase 5.
+pytest.skip(
+    "Porcentajes pasaron a la Fase 5 con la reestructuración; reactivar al migrar "
+    "estos tests a app.fase5 (ver reestructuracion.md)",
+    allow_module_level=True,
+)
+
 # Mock database and sqlalchemy models to prevent imports crashing in JSDOM/sqlite environment
 sys.modules['app.db'] = MagicMock()
 sys.modules['app.db.session'] = MagicMock()

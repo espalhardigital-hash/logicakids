@@ -84,7 +84,7 @@ FASES_DATA = [
     {
         "id": 4,
         "nombre": "Operatoria Decimal y Conversiones",
-        "descripcion": "Dominio de las cuatro operaciones con decimales y su aplicación a medidas de longitud, volumen y superficie.",
+        "descripcion": "Dominio de las cuatro operaciones con decimales y su aplicación a conversiones de unidades de longitud.",
         "orden": 4,
     },
     {

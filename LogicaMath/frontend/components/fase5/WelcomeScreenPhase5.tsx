@@ -1,7 +1,7 @@
 /**
  * WelcomeScreenPhase5.tsx
  * ─────────────────────────────────────────────────────────────
- * Hub de selección de módulos para la Fase 4: Fracciones, Porcentajes y Proporciones.
+ * Hub de selección de módulos para la Fase 5: Fracciones, Porcentajes y Proporciones.
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
