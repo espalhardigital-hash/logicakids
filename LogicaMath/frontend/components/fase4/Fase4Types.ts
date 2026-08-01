@@ -36,9 +36,7 @@ export interface Fase4Pregunta {
   enunciado_seed?: string;
   tipo_pregunta:
     | 'respuesta_numerica'
-    | 'multiple_opcion'
-    | 'subrayado_tokens'
-    | 'constructor_soluciones_chained';
+    | 'multiple_opcion';
   respuesta_correcta?: string;
   tiene_cronometro: boolean;
   tiempo_limite_segundos?: number;

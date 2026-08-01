@@ -3,8 +3,8 @@ Pruebas de Integridad de Pool de Preguntas — LogicaKids Pro
 ==========================================================
 Verifica los invariantes pedagógicos y de datos en la BD:
  1. 0 preguntas MULTIPLE_OPCION con 0 alternativas (LEFT JOIN).
- 2. 0 preguntas RESPUESTA_NUMERICA con respuesta no numérica.
- 3. Cardinalidad de familias (estructura_padre_id no NULL en secciones de práctica).
+ 2. 0 preguntas RESPUESTA_NUMERICA con respuesta fuera de los formatos admitidos.
+ 3. Cardinalidad de familias en las fases que usan el modelo de familias.
  4. Mapeo correcto de imágenes (menciona figura -> datos_numericos tiene url).
 """
 
@@ -38,7 +38,7 @@ async def test_no_empty_multiple_choice_options(db_session):
 
 @pytest.mark.asyncio
 async def test_numeric_answers_are_parseable(db_session):
-    """Garantiza que las preguntas de RESPUESTA NUMERICA tengan valores numéricos parseables."""
+    """Acepta enteros, decimales, fracciones y porcentajes normalizables."""
     query = select(Pregunta).where(
         and_(
             Pregunta.fase_id.in_([1, 2, 3, 4, 5, 6, 7, 8]),
@@ -48,7 +48,9 @@ async def test_numeric_answers_are_parseable(db_session):
     result = await db_session.execute(query)
     preguntas = result.scalars().all()
     
-    numeric_pattern = re.compile(r'^-?[0-9]+([.,][0-9]+)?$')
+    numeric_pattern = re.compile(
+        r"^(?:-?[0-9]+(?:[.,][0-9]+)?|[0-9]+/[1-9][0-9]*|[0-9]+(?:[.,][0-9]+)?%)$"
+    )
     invalid_answers = []
     
     for p in preguntas:
@@ -61,8 +63,8 @@ async def test_numeric_answers_are_parseable(db_session):
 
 @pytest.mark.asyncio
 async def test_estructura_padre_id_cardinality(db_session):
-    """Verifica que las secciones de práctica tengan estructura_padre_id poblado (no 100% NULL)."""
-    for fase_id in range(1, 9):
+    """Verifica familias desde Fase 4; Fases 1-3 conservan el modelo legado."""
+    for fase_id in range(4, 9):
         query = select(
             func.count(Pregunta.id).label("total"),
             func.count(Pregunta.estructura_padre_id).label("con_padre"),

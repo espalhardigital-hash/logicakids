@@ -1,4 +1,7 @@
-Este documento Describe el Proceso de reestructuracion de la Fase 4
+# Auditoría histórica de la reestructuración de la Fase 4
+
+> **ESTADO: CERRADO Y CONSERVADO COMO EVIDENCIA.** No es un plan activo ni una fuente normativa.
+> Plan histórico relacionado: `docs/reestructuraciondefases.md`.
 
 Contexto :
 EL programa app logicakids tenia una estructura de datos que estaba en un archivo llamado fase4.json  que estaba جدا anticuado y con muchos errores , este archivo se usaba para la generacion de preguntas y desafios de la fase 4 .

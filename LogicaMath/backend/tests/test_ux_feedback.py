@@ -176,10 +176,13 @@ async def test_create_ux_feedback_multiple_images():
     
     res = await create_ux_feedback(payload=payload, db=db_mock, current_user=user_mock)
     
+    # La llamada directa omite la validación response_model que aplica FastAPI.
+    # Valida aquí la parte anidada sin exigir campos que normalmente completa la BD.
+    imagenes = [UXFeedbackImagen.model_validate(imagen) for imagen in res.imagenes]
     assert res.comentario == "Prueba con dos imágenes"
-    assert len(res.imagenes) == 2
-    assert res.imagenes[0].rol == "actual"
-    assert res.imagenes[1].rol == "referencia"
+    assert len(imagenes) == 2
+    assert imagenes[0].rol == "actual"
+    assert imagenes[1].rol == "referencia"
     db_mock.add.assert_called_once()
 
 @pytest.mark.asyncio

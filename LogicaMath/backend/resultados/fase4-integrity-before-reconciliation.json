@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-08-01T01:48:11.195991+00:00",
+  "database": {
+    "driver": "postgresql+asyncpg",
+    "host": "postgres",
+    "port": 5432,
+    "database": "logicakids_local"
+  },
+  "phase_id": 4,
+  "canonical_playable_sections": [
+    101,
+    102,
+    103,
+    201,
+    202,
+    203,
+    301,
+    302,
+    303,
+    401,
+    402,
+    403,
+    1011,
+    1012,
+    1013,
+    2011,
+    2012,
+    2013,
+    3011,
+    3012,
+    3013,
+    4011,
+    4012,
+    4013,
+    99099
+  ],
+  "configurations": {
+    "total_rows": 26,
+    "global_rows": 1,
+    "by_section": {
+      "0": 1,
+      "101": 1,
+      "102": 1,
+      "103": 1,
+      "201": 1,
+      "202": 1,
+      "203": 1,
+      "301": 1,
+      "302": 1,
+      "303": 1,
+      "401": 1,
+      "402": 1,
+      "403": 1,
+      "1011": 1,
+      "1012": 1,
+      "1013": 1,
+      "2011": 1,
+      "2012": 1,
+      "2013": 1,
+      "3011": 1,
+      "3012": 1,
+      "3013": 1,
+      "4011": 1,
+      "4012": 1,
+      "4013": 1,
+      "99099": 1
+    },
+    "missing_playable_sections": [],
+    "noncanonical_sections": []
+  },
+  "progress": {
+    "total_rows": 10,
+    "by_section": {
+      "101": 2,
+      "102": 1,
+      "103": 1,
+      "201": 1,
+      "202": 1,
+      "402": 1,
+      "4011": 1,
+      "4012": 1,
+      "99099": 1
+    },
+    "by_state": {
+      "en_progreso": 10
+    },
+    "phantom_rows": []
+  },
+  "reconciliation_executed": false,
+  "reconciliation_note": "This command is read-only. Reconciliation requires an identified development snapshot and an explicit archive/delete decision."
+}

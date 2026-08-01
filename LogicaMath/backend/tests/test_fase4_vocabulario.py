@@ -13,6 +13,7 @@ por cada defecto detectado en la auditoría:
   - variedad estructural real (firmas, no reformulaciones)
 """
 
+import json
 import re
 import pytest
 
@@ -116,6 +117,54 @@ def test_sin_volumen_ni_superficie():
         bajo = c["enunciado"].lower()
         hallados = [t for t in PROHIBIDO_C65 if t in bajo]
         assert not hallados, f"M{m}N{n}: magnitud ajena a la Fase 4 {hallados} en {c['enunciado']!r}"
+
+
+# Volumen y superficie: 0 filas en escenarios_fase4.json para CUALQUIER módulo
+# (confirmado contra el catálogo real) — nunca están en alcance de la Fase 4.
+# Masa SÍ está en alcance para los módulos 1-3 (5, 3 y 5 escenarios reales
+# respectivamente): no se prohíbe ahí. Solo el Módulo 4 (escalera métrica) es
+# puro-longitud (20/20 escenarios), así que ahí sí se prohíbe masa/dinero.
+_MAGNITUD_PROHIBIDA_GLOBAL_RE = re.compile(
+    r"\bmL\b|mililitro|litro|volumen|superficie|\bárea\b|\bm2\b|m²|\bcm2\b|cm²|\bdm2\b|dm²|\bbotella",
+    re.IGNORECASE,
+)
+_MAGNITUD_PROHIBIDA_MODULO4_RE = re.compile(
+    r"\bkg\b|kilogramo|gramo|\bharina\b|\bmasa\b|\bpeso\b",
+    re.IGNORECASE,
+)
+
+
+def test_teoria_sin_magnitudes_ajenas_a_fase4():
+    """Regresión: la teoría del Módulo 4 mezclaba longitud con "kg → g" y
+    "L → mL" en la misma frase (el Módulo 4 es puro-longitud), y el Módulo 3
+    usaba "botellas" como ejemplo de redondeo por contexto (evoca volumen,
+    que no existe en ningún módulo del catálogo real)."""
+    from app.fase4.theory_data import FASE4_TEORIA_DATA
+
+    for t in FASE4_TEORIA_DATA:
+        texto = json.dumps(t, ensure_ascii=False)
+        hallados = _MAGNITUD_PROHIBIDA_GLOBAL_RE.findall(texto)
+        assert not hallados, f"M{t['modulo_id']}N{t['nivel_id']}: {hallados} en la teoría"
+        if t["modulo_id"] == 4:
+            hallados_m4 = _MAGNITUD_PROHIBIDA_MODULO4_RE.findall(texto)
+            assert not hallados_m4, f"M4N{t['nivel_id']}: {hallados_m4} (Módulo 4 es puro-longitud)"
+
+
+def test_ejemplos_guiados_sin_magnitudes_ajenas_a_fase4():
+    """Regresión: ejemplos guiados de práctica calculaban área (m²) y volumen
+    (L), magnitudes que no existen en ningún módulo del catálogo real
+    (escenarios_fase4.json). Masa SÍ es válida en los módulos 1-3: no se
+    prohíbe ahí, solo en el Módulo 4 (puro-longitud)."""
+    from app.fase4.theory_examples import obtener_ejemplos_expandidos_fase4
+
+    for m, n in NIVELES:
+        for i, eg in enumerate(obtener_ejemplos_expandidos_fase4(m, n)):
+            texto = json.dumps(eg, ensure_ascii=False)
+            hallados = _MAGNITUD_PROHIBIDA_GLOBAL_RE.findall(texto)
+            assert not hallados, f"M{m}N{n} ejemplo[{i}]: {hallados}"
+            if m == 4:
+                hallados_m4 = _MAGNITUD_PROHIBIDA_MODULO4_RE.findall(texto)
+                assert not hallados_m4, f"M4N{n} ejemplo[{i}]: {hallados_m4} (Módulo 4 es puro-longitud)"
 
 
 def test_sin_vocabulario_de_fracciones():

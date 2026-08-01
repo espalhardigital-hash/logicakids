@@ -40,6 +40,7 @@ Pedro\ II/
 # --- Archivos de agentes / workspace ---
 openspec/
 .agent/
+.claude/settings.local.json
 *.code-workspace
 
 # --- Base de datos / dumps ---

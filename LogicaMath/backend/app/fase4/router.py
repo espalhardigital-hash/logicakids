@@ -1,8 +1,8 @@
 """
-Router FastAPI — Fase 5: Geometría Plana y Medidas
+Router FastAPI — Fase 4: Operatoria Decimal y Conversiones
 =============================================================================
-Prefijo: /fase5
-Tags:    fase5
+Prefijo: /fase4
+Tags:    fase4
 
 Responsabilidades:
   - Dashboard con los 4 módulos (niveles de práctica y de desafíos).
@@ -11,7 +11,7 @@ Responsabilidades:
   - Validar respuestas:
     - Bucle Espejo (Mirror Loop) en modo Práctica Libre.
     - Salida Temprana (Early Exit) en modo Desafío con reinicio de progreso.
-  - Graduación a Fase 6 (requiere 26 niveles dominados).
+  - Graduación idempotente a Fase 5 tras aprobar el desafío mixto.
 """
 
 import random
@@ -33,21 +33,33 @@ from ..models.sql_models import (
     OperacionEnum, TipoPreguntaEnum, TipoErrorEnum,
     PlatformSettings, User,
 )
-from ..utils.math_utils import normalize_response, calcular_max_errores
+from ..utils.math_utils import normalize_response
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from .compositor_fase4 import CompositorFase4
 from .theory_examples import obtener_ejemplos_expandidos_fase4
 from .schemas import (
-    Fase5Dashboard, Fase5ModuloInfo, Fase5NivelInfo,
-    Fase5PreguntaParaAlumno, Fase5Token,
+    Fase4Dashboard, Fase4ModuloInfo, Fase4NivelInfo,
+    Fase4PreguntaParaAlumno, Fase4Token,
     Fase4ResponderPregunta, Fase4ResultadoRespuesta,
-    Fase5ContenidoLectura, Fase5DesafioInfo,
-    Fase5AlternativaOut, Fase5CerrarRescate,
+    Fase4ContenidoLectura, Fase4DesafioInfo,
+    Fase4AlternativaOut, Fase4CerrarRescate,
+    Fase4ReiniciarBloque, Fase4ReinicioResultado,
+)
+from .topology import (
+    FASE4_ID,
+    MIXED_SECTION,
+    PLAYABLE_SECTIONS,
+    all_prerequisites_approved,
+    configured_error_tolerance,
+    get_block,
+    has_reached_error_limit,
+    is_block_unlocked,
+    phase_is_complete,
 )
 
 router = APIRouter(prefix="/fase4", tags=["fase4"])
 
-FASE_DECIMALES_ID = 4
+FASE_DECIMALES_ID = FASE4_ID
 MAX_ESPEJO = 3  # Intentos máximos en Bucle Espejo
 _COMPOSITOR_VISUAL = CompositorFase4()
 
@@ -133,7 +145,7 @@ MODULOS_META = {
 # Nombre canónico de la fase. Debe coincidir con app/seed.py FASES_DATA id=4.
 FASE_NOMBRE = "Operatoria Decimal y Conversiones"
 
-# FUENTE ÚNICA de la cantidad de niveles por módulo (reestructuracion.md C6.6):
+# FUENTE ÚNICA de la cantidad de niveles por módulo (docs/reestructuraciondefases.md C6.6):
 # 4 módulos × 3 niveles = 12 niveles. NO duplicar este mapa en otro sitio.
 NIVELES_POR_MODULO = {1: 3, 2: 3, 3: 3, 4: 3}
 
@@ -159,16 +171,9 @@ NIVELES_META = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _seccion_operacion(modulo_id: int, nivel_id: int) -> tuple:
-    """Mapea (módulo, nivel) → (sección, operación) para ConfiguracionProgreso."""
-    if modulo_id == 99 or nivel_id in (11, 12, 13):
-        # Desafíos
-        seccion = modulo_id * 1000 + nivel_id
-        return seccion, "mixta"
-    else:
-        # Práctica libre
-        seccion = modulo_id * 100 + nivel_id
-        operacion_map = {1: "suma", 2: "multiplicacion", 3: "mixta", 4: "mixta"}
-        return seccion, operacion_map.get(modulo_id, "mixta")
+    """Map a validated Phase 4 block to its canonical section and operation."""
+    block = get_block(modulo_id, nivel_id)
+    return block.section, block.operation
 
 
 async def _get_global_config(db: AsyncSession) -> dict:
@@ -212,7 +217,7 @@ async def _get_config(db: AsyncSession, seccion: int, operacion: str) -> Optiona
     if config:
         return config
 
-    # 2. Fallback: intentar obtener configuración por defecto de la Fase 2 (seccion = 0, operacion = 'mixta')
+    # 2. Fallback: configuración global heredada de Fase 4 (sección 0).
     result_phase = await db.execute(
         select(ConfiguracionProgreso).where(and_(
             ConfiguracionProgreso.fase_id == FASE_DECIMALES_ID,
@@ -232,7 +237,7 @@ async def _get_or_create_progreso(
             ProgresoMaestria.alumno_id == alumno_id,
             ProgresoMaestria.fase_id == FASE_DECIMALES_ID,
             ProgresoMaestria.seccion == seccion,
-        ))
+        )).with_for_update()
     )
     progreso = result.scalar_one_or_none()
     if not progreso:
@@ -251,70 +256,95 @@ async def _get_or_create_progreso(
 
 
 def _is_nivel_unlocked(progresos: dict, modulo_id: int, nivel_id: int) -> bool:
-    """Verifica si un nivel de práctica libre está desbloqueado secuencialmente."""
-    if modulo_id == 1 and nivel_id == 1:
-        return True
-    
-    if nivel_id > 1:
-        prev_seccion, prev_op = _seccion_operacion(modulo_id, nivel_id - 1)
-        prev_prog = progresos.get(prev_seccion)
-        return prev_prog is not None and prev_prog.estado == EstadoProgresoEnum.APROBADO
-    
-    if nivel_id == 1 and modulo_id > 1:
-        prev_mod = modulo_id - 1
-        prev_mod_levels = NIVELES_POR_MODULO[prev_mod]
-        
-        # Check all practice levels of previous module
-        for p_level in range(1, prev_mod_levels + 1):
-            p_sec, p_op = _seccion_operacion(prev_mod, p_level)
-            p_prog = progresos.get(p_sec)
-            if not p_prog or p_prog.estado != EstadoProgresoEnum.APROBADO:
-                return False
-                
-        # Check all challenges of previous module
-        for des_id in (11, 12, 13):
-            c_sec, c_op = _seccion_operacion(prev_mod, des_id)
-            c_prog = progresos.get(c_sec)
-            if not c_prog or c_prog.estado != EstadoProgresoEnum.APROBADO:
-                return False
-                
-        return True
-    
-    return False
+    return is_block_unlocked(progresos, modulo_id, nivel_id)
 
 
 def _is_desafio_unlocked(progresos: dict, modulo_id: int, desafio_id: int, all_practice_approved: bool) -> bool:
-    """Verifica si un desafío está desbloqueado basado en la maestría de práctica."""
-    if not all_practice_approved:
-        return False
-    if desafio_id == 11:
-        return True
-    if desafio_id == 12:
-        sec_d1, op_d1 = _seccion_operacion(modulo_id, 11)
-        prog_d1 = progresos.get(sec_d1)
-        return prog_d1 is not None and prog_d1.estado == EstadoProgresoEnum.APROBADO
-    if desafio_id == 13:
-        sec_d2, op_d2 = _seccion_operacion(modulo_id, 12)
-        prog_d2 = progresos.get(sec_d2)
-        return prog_d2 is not None and prog_d2.estado == EstadoProgresoEnum.APROBADO
-    return False
+    return all_practice_approved and is_block_unlocked(progresos, modulo_id, desafio_id)
+
+
+def _is_admin_inspection(current_user: object) -> bool:
+    return isinstance(current_user, dict) and current_user.get("role") == "ADMIN"
+
+
+async def _load_progress_by_section(db: AsyncSession, alumno_id: int) -> dict:
+    result = await db.execute(
+        select(ProgresoMaestria).where(and_(
+            ProgresoMaestria.alumno_id == alumno_id,
+            ProgresoMaestria.fase_id == FASE_DECIMALES_ID,
+        ))
+    )
+    return {progress.seccion: progress for progress in result.scalars().all()}
+
+
+async def _authorize_block_access(
+    db: AsyncSession,
+    alumno: Alumno,
+    modulo_id: int,
+    nivel_id: int,
+    current_user: object,
+) -> dict:
+    """Apply the same canonical unlock policy to every playable endpoint."""
+    get_block(modulo_id, nivel_id)
+    if _is_admin_inspection(current_user):
+        return {}
+    progress_by_section = await _load_progress_by_section(db, alumno.id)
+    if not is_block_unlocked(progress_by_section, modulo_id, nivel_id):
+        raise HTTPException(status_code=403, detail="Este bloque de Fase 4 aun esta bloqueado.")
+    return progress_by_section
+
+
+async def _resolve_question_for_block(
+    db: AsyncSession, question_id: int, modulo_id: int, nivel_id: int
+) -> Pregunta:
+    """Load a Phase 4 question and bind it to its server-owned block identity."""
+    block = get_block(modulo_id, nivel_id)
+    result = await db.execute(
+        select(Pregunta)
+        .options(selectinload(Pregunta.alternativas))
+        .where(and_(
+            Pregunta.id == question_id,
+            Pregunta.fase_id == FASE_DECIMALES_ID,
+            Pregunta.estado == StatusEnum.ACTIVO,
+        ))
+    )
+    question = result.scalar_one_or_none()
+    if not question:
+        raise HTTPException(status_code=404, detail="Pregunta de Fase 4 no encontrada.")
+    if question.seccion != block.section:
+        raise HTTPException(
+            status_code=409,
+            detail="La pregunta no pertenece al bloque de Fase 4 indicado.",
+        )
+    return question
+
+
+def _progress_value(progress: Optional[ProgresoMaestria], field: str) -> int:
+    return int(getattr(progress, field, 0) or 0)
+
+
+async def _lock_student_progress(db: AsyncSession, alumno_id: int) -> None:
+    """Serialize progress mutations, including the first response in a block."""
+    await db.execute(
+        select(Alumno.id).where(Alumno.id == alumno_id).with_for_update()
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ENDPOINT 1 — Dashboard de la Fase 2 (26 niveles)
+# ENDPOINT 1 — Dashboard canónico de la Fase 4 (25 bloques)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/dashboard", response_model=Fase5Dashboard)
+@router.get("/dashboard", response_model=Fase4Dashboard)
 async def get_fase4_dashboard(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
     """
-    Devuelve el estado completo de los 4 módulos de Fase 2 para el alumno,
+    Devuelve el estado completo de los 4 módulos de Fase 4 para el alumno,
     incluyendo niveles de práctica libre y desafíos.
     """
 
-    # Cargar progresos en Fase 2
+    # Cargar progresos en Fase 4
     result = await db.execute(
         select(ProgresoMaestria).where(and_(
             ProgresoMaestria.alumno_id == alumno.id,
@@ -371,7 +401,7 @@ async def get_fase4_dashboard(
                     estado = "en_progreso" if _is_nivel_unlocked(progresos, mod_id, niv_id) else "bloqueado"
 
             mod_porcentaje_total += porcentaje
-            niveles.append(Fase5NivelInfo(
+            niveles.append(Fase4NivelInfo(
                 nivel_id=niv_id,
                 nombre=niv_meta["nombre"],
                 descripcion=niv_meta["descripcion"],
@@ -431,10 +461,14 @@ async def get_fase4_dashboard(
             if not usa_crono:
                 tiempo_limite = 0
 
-            max_errores_dinamico = calcular_max_errores(cantidad_req, porc_aprobacion)
+            max_errores_dinamico = configured_error_tolerance(
+                mod_id,
+                des_id,
+                config.errores_tolerados if config else None,
+            )
 
             mod_porcentaje_total += porcentaje
-            desafios.append(Fase5DesafioInfo(
+            desafios.append(Fase4DesafioInfo(
                 desafio_id=des_id,
                 nombre=d_conf["nombre"],
                 dificultad=d_conf["dificultad"],
@@ -454,7 +488,7 @@ async def get_fase4_dashboard(
         else:
             estado_modulo = "en_progreso"
 
-        modulos.append(Fase5ModuloInfo(
+        modulos.append(Fase4ModuloInfo(
             modulo_id=mod_id,
             nombre=meta["nombre"],
             descripcion=meta["descripcion"],
@@ -466,15 +500,21 @@ async def get_fase4_dashboard(
             desafios=desafios,
         ))
 
-    puntos = sum(p.aciertos_acumulados for p in progresos.values())
-    total_niveles_aprobados = sum(
-        1 for p in progresos.values() if p.estado == EstadoProgresoEnum.APROBADO
+    puntos = sum(
+        p.aciertos_acumulados
+        for section, p in progresos.items()
+        if section in PLAYABLE_SECTIONS
     )
-    
-    desafio_mixto_disponible = (total_niveles_aprobados >= 25)
-    desafio_mixto_estado = "completado" if desafio_mixto_disponible else "bloqueado"
+    mixed_completed = phase_is_complete(progresos)
+    desafio_mixto_disponible = all_prerequisites_approved(progresos) or mixed_completed
+    if mixed_completed:
+        desafio_mixto_estado = "completado"
+    elif desafio_mixto_disponible:
+        desafio_mixto_estado = "disponible"
+    else:
+        desafio_mixto_estado = "bloqueado"
 
-    return Fase5Dashboard(
+    return Fase4Dashboard(
         alumno_nombre=alumno.nombre,
         puntos_totales=puntos,
         modulos=modulos,
@@ -487,14 +527,22 @@ async def get_fase4_dashboard(
 # ENDPOINT 2 — Contenido de lectura / teoría dinámico
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=Fase5ContenidoLectura)
+@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=Fase4ContenidoLectura)
 async def get_lectura_fase4(
     modulo_id: int,
     nivel_id: int,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
+    current_user: dict = Depends(get_current_user),
 ):
     """Devuelve el contenido de lectura/teoría de un nivel específico desde la base de datos."""
+    try:
+        await _authorize_block_access(
+            db, alumno, modulo_id, nivel_id, current_user
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     result = await db.execute(
         select(NivelTeoria).where(and_(
             NivelTeoria.fase_id == FASE_DECIMALES_ID,
@@ -512,7 +560,7 @@ async def get_lectura_fase4(
     
     parrafos = [p.strip() for p in theory.texto_descubrimiento.split("\n") if p.strip()]
     
-    return Fase5ContenidoLectura(
+    return Fase4ContenidoLectura(
         modulo_id=modulo_id,
         nivel_id=nivel_id,
         modulo_nombre=MODULOS_META.get(modulo_id, {}).get("nombre", f"Módulo {modulo_id}"),
@@ -534,58 +582,33 @@ async def get_lectura_fase4(
 # ENDPOINT 3 — Obtener Pregunta (Práctica con Bucle Espejo y Desafíos aleatorios)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=Fase5PreguntaParaAlumno)
+@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=Fase4PreguntaParaAlumno)
 async def get_pregunta_fase4(
     modulo_id: int,
     nivel_id: int,
     reload: bool = False,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Devuelve la siguiente pregunta para un módulo y nivel (o desafío) dados.
     Cargado dinámicamente desde el pool pre-sembrado en la base de datos.
     Soporta Bucle Espejo en práctica libre y selección aleatoria en desafíos.
     """
-    seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
+    try:
+        progress_by_section = await _authorize_block_access(
+            db, alumno, modulo_id, nivel_id, current_user
+        )
+        seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     config = await _get_config(db, seccion, operacion)
+    progreso = progress_by_section.get(seccion)
 
     # 1. MODO DESAFÍO (modulo_id == 99 o nivel_id en 11, 12, 13)
     if modulo_id == 99 or nivel_id in (11, 12, 13):
-        progreso = await _get_or_create_progreso(db, alumno.id, seccion, operacion)
-        if reload:
-            # Borrar los intentos de la tabla general `Intento` para esta sección de desafío
-            await db.execute(
-                delete(Intento).where(and_(
-                    Intento.alumno_id == alumno.id,
-                    Intento.fase_id == FASE_DECIMALES_ID,
-                    Intento.seccion == seccion
-                ))
-            )
-            
-            # Borrar los intentos de la tabla `IntentoPregunta` si aplica
-            result_q_ids = await db.execute(
-                select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == FASE_DECIMALES_ID,
-                    Pregunta.seccion == seccion
-                ))
-            )
-            q_ids = result_q_ids.scalars().all()
-            if q_ids:
-                await db.execute(
-                    delete(IntentoPregunta).where(and_(
-                        IntentoPregunta.alumno_id == alumno.id,
-                        IntentoPregunta.pregunta_id.in_(q_ids)
-                    ))
-                )
-            
-            # Restablecer el progreso de maestría a 0%
-            progreso.aciertos_acumulados = 0
-            progreso.intentos_totales = 0
-            progreso.porcentaje_actual = 0
-            progreso.estado = EstadoProgresoEnum.EN_PROGRESO
-            await db.commit()
-
         # Obtener preguntas del desafío que el alumno ya aprobó
         result = await db.execute(
             select(Intento.pregunta_id)
@@ -604,12 +627,7 @@ async def get_pregunta_fase4(
             Pregunta.estado == StatusEnum.ACTIVO
         ))
         
-        if modulo_id == 99:
-            # Filtrar solo preguntas de nivel de maestría (Desafío Final: secciones 1013, 2013, 3013, 4013)
-            # Las secciones de desafíos se calculan como módulo*1000+nivel (ej: 1*1000+13=1013)
-            query = query.where(func.mod(Pregunta.seccion, 1000) == 13)
-        else:
-            query = query.where(Pregunta.seccion == seccion)
+        query = query.where(Pregunta.seccion == seccion)
 
         result = await db.execute(query)
         preguntas = result.scalars().all()
@@ -626,7 +644,7 @@ async def get_pregunta_fase4(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                Fase5AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                Fase4AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -654,7 +672,7 @@ async def get_pregunta_fase4(
         if not tiene_crono:
             tiempo_lim = None
 
-        return Fase5PreguntaParaAlumno(
+        return Fase4PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
@@ -664,62 +682,26 @@ async def get_pregunta_fase4(
             tiempo_limite_segundos=tiempo_lim,
             alternativas=alts_out,
             datos_numericos=pregunta_elex.datos_numericos,
-            aciertos_acumulados=progreso.aciertos_acumulados,
-            intentos_totales=progreso.intentos_totales,
-            porcentaje_actual=progreso.porcentaje_actual,
+            aciertos_acumulados=_progress_value(progreso, "aciertos_acumulados"),
+            intentos_totales=_progress_value(progreso, "intentos_totales"),
+            porcentaje_actual=_progress_value(progreso, "porcentaje_actual"),
+            cantidad_requerida=config.cantidad_requerida if config else None,
         )
 
     # 2. MODO PRÁCTICA LIBRE (1-10)
     else:
-        progreso = await _get_or_create_progreso(db, alumno.id, seccion, operacion)
-        
-        if reload:
-            # 1. Borrar los intentos de la tabla general `Intento` para esta sección
-            await db.execute(
-                delete(Intento).where(and_(
-                    Intento.alumno_id == alumno.id,
-                    Intento.fase_id == FASE_DECIMALES_ID,
-                    Intento.seccion == seccion
-                ))
-            )
-            
-            # 2. Borrar los intentos de la tabla `IntentoPregunta` para las preguntas de esta sección
-            result_q_ids = await db.execute(
-                select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == FASE_DECIMALES_ID,
-                    Pregunta.seccion == seccion
-                ))
-            )
-            q_ids = result_q_ids.scalars().all()
-            if q_ids:
-                await db.execute(
-                    delete(IntentoPregunta).where(and_(
-                        IntentoPregunta.alumno_id == alumno.id,
-                        IntentoPregunta.pregunta_id.in_(q_ids)
-                    ))
-                )
-            
-            # 3. Restablecer el progreso de maestría a 0%
-            progreso.aciertos_acumulados = 0
-            progreso.intentos_totales = 0
-            progreso.porcentaje_actual = 0
-            progreso.estado = EstadoProgresoEnum.EN_PROGRESO
-            await db.commit()
-            
-            latest_attempt = None
-        else:
-            # Consultar el último intento en este nivel
-            result = await db.execute(
-                select(Intento)
-                .where(and_(
-                    Intento.alumno_id == alumno.id,
-                    Intento.fase_id == FASE_DECIMALES_ID,
-                    Intento.seccion == seccion,
-                ))
-                .order_by(Intento.fecha.desc(), Intento.id.desc())
-                .limit(1)
-            )
-            latest_attempt = result.scalar_one_or_none()
+        # `reload` is retained as a read-only compatibility parameter.
+        result = await db.execute(
+            select(Intento)
+            .where(and_(
+                Intento.alumno_id == alumno.id,
+                Intento.fase_id == FASE_DECIMALES_ID,
+                Intento.seccion == seccion,
+            ))
+            .order_by(Intento.fecha.desc(), Intento.id.desc())
+            .limit(1)
+        )
+        latest_attempt = result.scalar_one_or_none()
 
         espejo_pregunta = None
         
@@ -816,7 +798,7 @@ async def get_pregunta_fase4(
         alts_out = None
         if pregunta_elex.tipo_pregunta.value == "multiple_opcion" or pregunta_elex.alternativas:
             alts_out = [
-                Fase5AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
+                Fase4AlternativaOut(id=alt.id, texto=alt.texto, orden=alt.orden)
                 for alt in pregunta_elex.alternativas
             ]
             random.shuffle(alts_out)
@@ -845,7 +827,7 @@ async def get_pregunta_fase4(
         if not tiene_crono:
             tiempo_lim = None
 
-        return Fase5PreguntaParaAlumno(
+        return Fase4PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
             nivel_id=nivel_id,
@@ -856,19 +838,100 @@ async def get_pregunta_fase4(
             pasos_encadenados=pasos_encadenados,
             alternativas=alts_out,
             datos_numericos=pregunta_elex.datos_numericos,
-            aciertos_acumulados=progreso.aciertos_acumulados,
-            intentos_totales=progreso.intentos_totales,
-            porcentaje_actual=progreso.porcentaje_actual,
+            aciertos_acumulados=_progress_value(progreso, "aciertos_acumulados"),
+            intentos_totales=_progress_value(progreso, "intentos_totales"),
+            porcentaje_actual=_progress_value(progreso, "porcentaje_actual"),
             cantidad_requerida=cantidad_req,
         )# ─────────────────────────────────────────────────────────────────────────────
 # ENDPOINT 4 — Responder pregunta (Valida y actualiza progreso)
 # ─────────────────────────────────────────────────────────────────────────────
+
+@router.post("/reiniciar", response_model=Fase4ReinicioResultado)
+async def reiniciar_bloque_fase4(
+    payload: Fase4ReiniciarBloque,
+    db: AsyncSession = Depends(get_db),
+    alumno: Alumno = Depends(get_current_student),
+    current_user: dict = Depends(get_current_user),
+):
+    """Explicitly reset one unlocked block; GET endpoints never mutate state."""
+    admin_inspection = _is_admin_inspection(current_user)
+    try:
+        seccion, operacion = _seccion_operacion(payload.modulo_id, payload.nivel_id)
+        if not admin_inspection:
+            await _lock_student_progress(db, alumno.id)
+        progress_by_section = await _authorize_block_access(
+            db, alumno, payload.modulo_id, payload.nivel_id, current_user
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    if admin_inspection:
+        return Fase4ReinicioResultado(
+            message="Inspeccion de administrador: no se modifico progreso.",
+            modulo_id=payload.modulo_id,
+            nivel_id=payload.nivel_id,
+            progreso_reiniciado=False,
+        )
+
+    question_ids_result = await db.execute(
+        select(Pregunta.id).where(and_(
+            Pregunta.fase_id == FASE_DECIMALES_ID,
+            Pregunta.seccion == seccion,
+        ))
+    )
+    question_ids = list(question_ids_result.scalars().all())
+    if question_ids:
+        attempt_question_ids_result = await db.execute(
+            select(IntentoPregunta.id).where(and_(
+                IntentoPregunta.alumno_id == alumno.id,
+                IntentoPregunta.pregunta_id.in_(question_ids),
+            ))
+        )
+        attempt_question_ids = list(attempt_question_ids_result.scalars().all())
+        if attempt_question_ids:
+            await db.execute(
+                delete(IntentoPaso).where(
+                    IntentoPaso.intento_pregunta_id.in_(attempt_question_ids)
+                )
+            )
+        await db.execute(
+            delete(IntentoPregunta).where(and_(
+                IntentoPregunta.alumno_id == alumno.id,
+                IntentoPregunta.pregunta_id.in_(question_ids),
+            ))
+        )
+
+    await db.execute(
+        delete(Intento).where(and_(
+            Intento.alumno_id == alumno.id,
+            Intento.fase_id == FASE_DECIMALES_ID,
+            Intento.seccion == seccion,
+        ))
+    )
+
+    progreso = progress_by_section.get(seccion)
+    if progreso is not None:
+        progreso.aciertos_acumulados = 0
+        progreso.intentos_totales = 0
+        progreso.porcentaje_actual = 0
+        progreso.estado = EstadoProgresoEnum.EN_PROGRESO
+        progreso.fecha_aprobacion = None
+
+    await db.commit()
+    return Fase4ReinicioResultado(
+        message="Bloque de Fase 4 reiniciado.",
+        modulo_id=payload.modulo_id,
+        nivel_id=payload.nivel_id,
+        progreso_reiniciado=progreso is not None,
+    )
+
 
 @router.post("/responder", response_model=Fase4ResultadoRespuesta)
 async def responder_fase4(
     payload: Fase4ResponderPregunta,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Valida la respuesta del alumno, calcula aciertos, e implementa:
@@ -877,21 +940,24 @@ async def responder_fase4(
     """
     modulo_id = payload.modulo_id
     nivel_id = payload.nivel_id
-    seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
+    admin_inspection = _is_admin_inspection(current_user)
+    try:
+        seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
+        pregunta = await _resolve_question_for_block(
+            db, payload.pregunta_id, modulo_id, nivel_id
+        )
+        if not admin_inspection:
+            await _lock_student_progress(db, alumno.id)
+        progress_by_section = await _authorize_block_access(
+            db, alumno, modulo_id, nivel_id, current_user
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     config = await _get_config(db, seccion, operacion)
-    progreso = await _get_or_create_progreso(db, alumno.id, seccion, operacion)
-
-    if not payload.pregunta_id:
-        raise HTTPException(status_code=400, detail="pregunta_id es requerido para validar la respuesta.")
-
-    result_q = await db.execute(
-        select(Pregunta).options(selectinload(Pregunta.alternativas))
-        .options(selectinload(Pregunta.alternativas))
-        .where(Pregunta.id == payload.pregunta_id)
-    )
-    pregunta = result_q.scalar_one_or_none()
-    if not pregunta:
-        raise HTTPException(status_code=404, detail="Pregunta no encontrada.")
+    progreso = progress_by_section.get(seccion)
+    if not admin_inspection:
+        progreso = await _get_or_create_progreso(db, alumno.id, seccion, operacion)
 
     es_correcta = False
     respuesta_correcta_str = pregunta.respuesta_correcta
@@ -900,8 +966,7 @@ async def responder_fase4(
 
     # 1. VALIDAR LA RESPUESTA
     tipo_pregunta = pregunta.tipo_pregunta.value
-    # Fase 5 no maneja dinero (módulo 3 = "Figuras Compuestas", copiado de Fase 2/3
-    # donde módulo 3 era la Tienda). Las respuestas son enteros de área/perímetro/etc.
+    # La normalización decimal de Fase 4 no necesita retirar símbolos monetarios.
     is_money = False
 
     tipo_error = None
@@ -928,30 +993,27 @@ async def responder_fase4(
                 tipo_error = alternativa_elegida.tipo_error
                 feedback_mostrado = alternativa_elegida.feedback_error
 
-    elif tipo_pregunta == "constructor_soluciones_chained":
-        pasos = (pregunta.datos_numericos or {}).get("pasos", [])
-        paso_idx = (payload.paso_numero or 1) - 1
-        if paso_idx < 0 or paso_idx >= len(pasos):
-            raise HTTPException(status_code=400, detail="Número de paso inválido.")
-
-        paso = pasos[paso_idx]
-        respuesta_correcta_str = str(paso.get("respuesta_correcta", ""))
-        
-        resp_dada = normalize_response(payload.respuesta_dada, is_money)
-        resp_corr = normalize_response(respuesta_correcta_str, is_money)
-        es_correcta = resp_dada == resp_corr
-        
-        if es_correcta:
-            paso_aprobado = payload.paso_numero
-            if payload.paso_numero == 1:
-                valor_paso1_congelado = respuesta_correcta_str
-
     else:
+        # Fase 4 solo genera 'multiple_opcion' y 'respuesta_numerica' (verificado
+        # contra la BD real: 0 preguntas 'constructor_soluciones_chained' o
+        # 'subrayado_tokens'). No se maneja esa rama aquí.
         resp_dada = normalize_response(payload.respuesta_dada, is_money)
         resp_corr = normalize_response(respuesta_correcta_str, is_money)
         es_correcta = resp_dada == resp_corr
 
     es_correcta_intento = es_correcta
+
+    if admin_inspection:
+        return Fase4ResultadoRespuesta(
+            es_correcta=es_correcta,
+            respuesta_correcta=respuesta_correcta_str,
+            feedback_error=feedback_mostrado,
+            aciertos_acumulados=_progress_value(progreso, "aciertos_acumulados"),
+            intentos_totales=_progress_value(progreso, "intentos_totales"),
+            porcentaje_actual=_progress_value(progreso, "porcentaje_actual"),
+            paso_aprobado=paso_aprobado,
+            valor_paso1_congelado=valor_paso1_congelado,
+        )
 
     # 2. DETECTAR ERRORES COGNITIVOS EN PREGUNTAS ABIERTAS
     if not es_correcta and tipo_pregunta != "multiple_opcion":
@@ -962,7 +1024,13 @@ async def responder_fase4(
                 err_val_normalized = normalize_response(err.get("valor", ""), is_money)
                 if normalized_dada == err_val_normalized:
                     tipo_error_str = err.get("tipo_error", "calculo")
-                    tipo_error = TipoErrorEnum(tipo_error_str) if hasattr(TipoErrorEnum, tipo_error_str) else TipoErrorEnum.CALCULO
+                    # TipoErrorEnum.CALCULO.value == "calculo": hasattr() comprueba
+                    # nombres de atributo ("CALCULO"), no valores de enum ("calculo"),
+                    # así que siempre fallaba y clasificaba todo como CALCULO.
+                    try:
+                        tipo_error = TipoErrorEnum(tipo_error_str)
+                    except ValueError:
+                        tipo_error = TipoErrorEnum.CALCULO
                     feedback_mostrado = err.get("feedback")
                     break
             
@@ -971,59 +1039,7 @@ async def responder_fase4(
                 tipo_error = TipoErrorEnum.CALCULO
                 feedback_mostrado = pregunta.errores_previstos.get("calculo", "Revisa tus cálculos e inténtalo de nuevo.")
 
-    # INTEGRACIÓN DE INTENTOPREGUNTA E INTENTOPASO (MÓDULO 4 CONSTRUCTOR)
     es_variante_espejo = (pregunta.datos_numericos and pregunta.datos_numericos.get("es_espejo"))
-    if tipo_pregunta == "constructor_soluciones_chained":
-        # Buscar o crear IntentoPregunta
-        result_ip = await db.execute(
-            select(IntentoPregunta).where(and_(
-                IntentoPregunta.alumno_id == alumno.id,
-                IntentoPregunta.pregunta_id == pregunta.id
-            ))
-        )
-        intento_preg = result_ip.scalar_one_or_none()
-        if not intento_preg:
-            intento_preg = IntentoPregunta(
-                alumno_id=alumno.id,
-                pregunta_id=pregunta.id,
-                aprobada_completa=False,
-                intentos_totales=0,
-                tiempo_total=0.0
-            )
-            db.add(intento_preg)
-            await db.flush()
-
-        # Incrementar intentos y sumarle tiempo
-        intento_preg.intentos_totales += 1
-        if payload.tiempo_respuesta_segundos:
-            intento_preg.tiempo_total += payload.tiempo_respuesta_segundos
-
-        # Registrar el paso en IntentoPaso
-        intento_paso = IntentoPaso(
-            intento_pregunta_id=intento_preg.id,
-            paso_numero=payload.paso_numero or 1,
-            respuesta_dada=payload.respuesta_dada,
-            es_correcta=es_correcta,
-            tipo_error_detectado=tipo_error.value if tipo_error else None,
-            es_espejo=bool(es_variante_espejo),
-            tiempo_respuesta=payload.tiempo_respuesta_segundos
-        )
-        db.add(intento_paso)
-        await db.flush()
-
-        # Lógica de completitud general:
-        # Solo si es el ÚLTIMO paso y es correcta, aprobamos el IntentoPregunta y mantenemos es_correcta_intento = True
-        pasos = (pregunta.datos_numericos or {}).get("pasos", [])
-        es_ultimo_paso = (payload.paso_numero == len(pasos))
-
-        if es_correcta and es_ultimo_paso:
-            intento_preg.aprobada_completa = True
-            es_correcta_intento = True
-        else:
-            # Si es un paso intermedio o es incorrecta, la pregunta general no está aprobada completa,
-            # y forzamos que el intento general de la tabla Intento sea es_correcta_intento = False
-            # para no registrar la familia como resuelta de forma prematura.
-            es_correcta_intento = False
 
     # 3. REGISTRAR EL INTENTO
     intento = Intento(
@@ -1057,7 +1073,11 @@ async def responder_fase4(
                 cantidad_req = 10 if nivel_id == 13 else 25
                 porc_aprobacion = 90
 
-        max_errores = calcular_max_errores(cantidad_req, porc_aprobacion)
+        max_errores = configured_error_tolerance(
+            modulo_id,
+            nivel_id,
+            config.errores_tolerados if config else None,
+        )
 
         result_att = await db.execute(
             select(Intento)
@@ -1070,25 +1090,9 @@ async def responder_fase4(
         )
         attempts = result_att.scalars().all()
         
-        errores_sesion = 0
-        if not es_correcta:
-            errores_sesion = 1
-            
-        current_aciertos = progreso.aciertos_acumulados
-        aciertos_found = 0
+        errores_sesion = sum(1 for attempt in attempts if not attempt.es_correcta)
         
-        for att in attempts:
-            if att.id == intento.id:
-                continue
-            if att.es_correcta:
-                aciertos_found += 1
-                if aciertos_found > current_aciertos:
-                    break
-            else:
-                if aciertos_found <= current_aciertos:
-                    errores_sesion += 1
-        
-        if errores_sesion >= max_errores:
+        if has_reached_error_limit(errores_sesion, max_errores):
             # RESET ABSOLUTO POR SALIDA TEMPRANA
             progreso.aciertos_acumulados = 0
             progreso.porcentaje_actual = 0
@@ -1180,15 +1184,10 @@ async def responder_fase4(
                 bloque_completado = True
 
                 await db.flush()
-                res_aprob = await db.execute(
-                    select(func.count(ProgresoMaestria.id)).where(and_(
-                        ProgresoMaestria.alumno_id == alumno.id,
-                        ProgresoMaestria.fase_id == FASE_DECIMALES_ID,
-                        ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO,
-                    ))
+                fase_completada = (
+                    seccion == MIXED_SECTION
+                    and progreso.estado == EstadoProgresoEnum.APROBADO
                 )
-                if res_aprob.scalar() >= 26:
-                    fase_completada = True
 
             await db.commit()
 
@@ -1267,15 +1266,6 @@ async def responder_fase4(
             bloque_completado = True
             
             await db.flush()
-            res_aprob = await db.execute(
-                select(func.count(ProgresoMaestria.id)).where(and_(
-                    ProgresoMaestria.alumno_id == alumno.id,
-                    ProgresoMaestria.fase_id == FASE_DECIMALES_ID,
-                    ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
-                ))
-            )
-            if res_aprob.scalar() >= 26:
-                fase_completada = True
 
             # Sincronizar espejo visual heredado
             await _sync_unlocked_levels(db, alumno.id, operacion)
@@ -1327,9 +1317,10 @@ async def responder_fase4(
 
 @router.post("/cerrar-rescate", response_model=Fase4ResultadoRespuesta)
 async def cerrar_rescate_fase4(
-    payload: Fase5CerrarRescate,
+    payload: Fase4CerrarRescate,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Cierra la explicación del bloque de rescate y registra un intento virtual 'BYPASS_EXPLICACION'.
@@ -1337,16 +1328,31 @@ async def cerrar_rescate_fase4(
     """
     modulo_id = payload.modulo_id
     nivel_id = payload.nivel_id
-    seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
+    admin_inspection = _is_admin_inspection(current_user)
+    try:
+        seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
+        pregunta = await _resolve_question_for_block(
+            db, payload.pregunta_id, modulo_id, nivel_id
+        )
+        if not admin_inspection:
+            await _lock_student_progress(db, alumno.id)
+        progress_by_section = await _authorize_block_access(
+            db, alumno, modulo_id, nivel_id, current_user
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    if admin_inspection:
+        return Fase4ResultadoRespuesta(
+            es_correcta=False,
+            respuesta_correcta=pregunta.respuesta_correcta,
+            aciertos_acumulados=0,
+            intentos_totales=0,
+            porcentaje_actual=0,
+        )
+
     config = await _get_config(db, seccion, operacion)
     progreso = await _get_or_create_progreso(db, alumno.id, seccion, operacion)
-
-    result_q = await db.execute(
-        select(Pregunta).options(selectinload(Pregunta.alternativas)).where(Pregunta.id == payload.pregunta_id)
-    )
-    pregunta = result_q.scalar_one_or_none()
-    if not pregunta:
-        raise HTTPException(status_code=404, detail="Pregunta no encontrada.")
 
     # Registrar el bypass como un intento fallido especial
     intento = Intento(
@@ -1402,15 +1408,6 @@ async def cerrar_rescate_fase4(
         bloque_completado = True
         
         await db.flush()
-        res_aprob = await db.execute(
-            select(func.count(ProgresoMaestria.id)).where(and_(
-                ProgresoMaestria.alumno_id == alumno.id,
-                ProgresoMaestria.fase_id == FASE_DECIMALES_ID,
-                ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
-            ))
-        )
-        if res_aprob.scalar() >= 26:
-            fase_completada = True
 
         # Sincronizar espejo visual heredado
         await _sync_unlocked_levels(db, alumno.id, operacion)
@@ -1434,7 +1431,7 @@ async def cerrar_rescate_fase4(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ENDPOINT 5 — Graduación a Fase 6 (Exige 26 niveles aprobados)
+# ENDPOINT 5 — Graduación a Fase 5 (requiere el desafío mixto aprobado)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.post("/graduate")
@@ -1442,36 +1439,55 @@ async def graduate_fase4(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
-    """
-    Gradúa al alumno de Fase 5 a Fase 6 si todos los 26 niveles (práctica y desafíos) están dominados.
-    """
+    """Advance from Phase 4 to Phase 5 exactly once after mixed mastery."""
+    locked_student_result = await db.execute(
+        select(Alumno).where(Alumno.id == alumno.id).with_for_update()
+    )
+    locked_student = locked_student_result.scalar_one()
 
-    result = await db.execute(
-        select(func.count(ProgresoMaestria.id)).where(and_(
-            ProgresoMaestria.alumno_id == alumno.id,
+    target_result = await db.execute(select(Fase).where(Fase.orden == 5))
+    target_phase = target_result.scalar_one_or_none()
+    if not target_phase:
+        raise HTTPException(status_code=500, detail="La Fase 5 aun no ha sido configurada.")
+
+    if locked_student.fase_actual_id == target_phase.id:
+        return {
+            "message": "El alumno ya se encuentra en la Fase 5.",
+            "nueva_fase_id": target_phase.id,
+            "nueva_fase_nombre": target_phase.nombre,
+        }
+
+    current_result = await db.execute(
+        select(Fase).where(Fase.id == locked_student.fase_actual_id)
+    )
+    current_phase = current_result.scalar_one_or_none()
+    if not current_phase or current_phase.orden != 4:
+        raise HTTPException(
+            status_code=409,
+            detail="La graduacion solo puede ejecutarse desde la Fase 4.",
+        )
+
+    mixed_result = await db.execute(
+        select(ProgresoMaestria).where(and_(
+            ProgresoMaestria.alumno_id == locked_student.id,
             ProgresoMaestria.fase_id == FASE_DECIMALES_ID,
+            ProgresoMaestria.seccion == MIXED_SECTION,
             ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO,
         ))
     )
-    aprobados = result.scalar()
-    if aprobados < 26:
+    if mixed_result.scalar_one_or_none() is None:
         raise HTTPException(
             status_code=400,
-            detail=f"Debes dominar los 26 niveles (práctica y desafíos) de la Fase 5. Llevas {aprobados}/26.",
+            detail="Debes aprobar el desafio mixto de la Fase 4 antes de graduarte.",
         )
 
-    result = await db.execute(select(Fase).where(Fase.orden == 6))
-    fase6 = result.scalar_one_or_none()
-    if not fase6:
-        raise HTTPException(status_code=500, detail="La Fase 6 aún no ha sido configurada.")
-
-    alumno.fase_actual_id = fase6.id
+    locked_student.fase_actual_id = target_phase.id
     await db.commit()
 
     return {
-        "message": "¡Felicitaciones! ¡Has dominado la Fase 5 y avanzas a la Fase 6!",
-        "nueva_fase_id": fase6.id,
-        "nueva_fase_nombre": fase6.nombre,
+        "message": "Has dominado la Fase 4 y avanzas a la Fase 5.",
+        "nueva_fase_id": target_phase.id,
+        "nueva_fase_nombre": target_phase.nombre,
     }
 
 

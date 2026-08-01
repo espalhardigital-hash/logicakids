@@ -1,5 +1,10 @@
 # Evitar copiar dependencias locales y archivos de compilación de desarrollo
 node_modules
+dist
+dist-ssr
+playwright-report
+test-results
+coverage
 .env
 .env.*
 .env.local

@@ -1,5 +1,6 @@
 # Reestructuración de Fases — LogicaKids Pro
 
+> **ESTADO: HISTÓRICO, EJECUCIÓN PARCIAL.** La reestructuración de Fase 4 fue cerrada; la alineación física de Fases 7–11 quedó incompleta. No usar este plan como fuente de verdad vigente.
 > **Documento de planeación de ejecución. Versión 1.0. Fecha: 2026-07-23.**
 > Negociado decisión por decisión con el dueño del producto antes de escribir una sola línea de código.
 > Dirigido a la LLM implementadora. No es un documento rector permanente: su función y su fecha de caducidad se explican en la Sección 1.

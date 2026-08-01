@@ -127,7 +127,7 @@ export default function PhaseMapScreen({
     {
       index: 4,
       title: 'Operatoria Decimal y Conversiones',
-      description: 'Operaciones con decimales, conversión de unidades de longitud, volumen y superficie.',
+      description: 'Operaciones con decimales y conversión de unidades de longitud.',
       icon: Calculator,
       color: 'bg-cyan-500',
       textColor: 'text-cyan-400',

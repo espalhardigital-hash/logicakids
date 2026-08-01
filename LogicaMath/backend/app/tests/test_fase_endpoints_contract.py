@@ -66,11 +66,16 @@ async def test_fases_responder_contract(db_session, fase_id, responder_fn, schem
         tiempo_respuesta_segundos=5
     )
 
-    respuesta = await responder_fn(
-        payload=payload,
-        db=db_session,
-        alumno=alumno
-    )
+    responder_kwargs = {
+        "payload": payload,
+        "db": db_session,
+        "alumno": alumno,
+    }
+    if fase_id == 4:
+        # Contract inspection must not depend on or mutate a student's unlock state.
+        responder_kwargs["current_user"] = {"role": "ADMIN"}
+
+    respuesta = await responder_fn(**responder_kwargs)
 
     assert respuesta is not None, f"responder_fase{fase_id} devolvió None (error de indentación o rama inalcanzable)"
     assert hasattr(respuesta, 'es_correcta'), f"La respuesta de Fase {fase_id} no contiene 'es_correcta'"

@@ -1,6 +1,6 @@
 """
 Seeder autónomo y determinista para la Fase 4: Operatoria Decimal y Conversiones.
-Cumple estrictamente con reestructuracion.md y deep_analise_pro §25.4.
+Cumple estrictamente con docs/reestructuraciondefases.md y deep_analise_pro §25.4.
 
 Volumetría:
   - 12 niveles en niveles_teoria_pool (NivelTeoria) — 4 módulos × 3 niveles.
@@ -226,22 +226,43 @@ def _explicacion_desde_compositor(comp: dict) -> dict:
     }
 
 
+def _construir_errores_previstos(pares: list, fallback: str) -> dict:
+    """Contrato canónico de `errores_previstos`, consumido por router.py.
+
+    router.py busca `errores_previstos["respuestas_erroneas"]` (lista de
+    {valor, tipo_error, feedback}) y usa `errores_previstos["calculo"]` como
+    mensaje de respaldo. Guardar aquí cualquier otra forma (ej. un dict plano
+    {texto: feedback}) deja el feedback cognitivo calculado pero nunca leído:
+    `.get("respuestas_erroneas", [])` siempre devuelve una lista vacía.
+    """
+    return {
+        "respuestas_erroneas": [
+            {"valor": valor, "tipo_error": tipo.value, "feedback": feedback}
+            for valor, tipo, feedback in pares
+        ],
+        "calculo": fallback,
+    }
+
+
 def _errores_desde_compositor(comp: dict, confusiones_mod: list) -> dict:
     """Errores previstos anclados al resultado real, con confusiones nombradas (C5.6)."""
     res = comp["resultado_num"]
-    err = {}
+    pares = []
     # Desplazamiento de coma: el error estructural de toda la fase.
     for desviado in (round(res * 10, 2), round(res / 10, 2)):
         if desviado > 0 and abs(desviado - res) > 0.005:
-            err[_fmt_num(desviado)] = "Revisa la posición de la coma decimal en el resultado."
+            pares.append((_fmt_num(desviado), TipoErrorEnum.VALOR_POSICIONAL,
+                          "Revisa la posición de la coma decimal en el resultado."))
     # Confusión nombrada del catálogo (no texto genérico).
     if confusiones_mod:
         conf = confusiones_mod[0]
-        etiqueta = conf.get("feedback") or conf.get("explicacion") or "Revisa el procedimiento paso a paso."
+        etiqueta = conf.get("explicacion") or "Revisa el procedimiento paso a paso."
+        codigo = (conf.get("codigo") or "").lower()
+        tipo = TipoErrorEnum.VALOR_POSICIONAL if ("coma" in codigo or "alinear" in codigo) else TipoErrorEnum.CALCULO
         candidato = round(res + 0.1, 2)
         if abs(candidato - res) > 0.005:
-            err[_fmt_num(candidato)] = etiqueta
-    return err
+            pares.append((_fmt_num(candidato), tipo, etiqueta))
+    return _construir_errores_previstos(pares, "Revisa tus cálculos e inténtalo de nuevo.")
 
 
 def _con_unidad(valor: str, unidad: str) -> str:
@@ -497,8 +518,9 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             "texto": "Lee las palabras clave del enunciado para decidir qué operación pide.",
             "penalizacion_segundos": 5,
         }
-        err_dict = {alt["texto"]: alt["feedback_error"]
-                    for alt in alts if not alt["es_correcta"]}
+        err_dict = _construir_errores_previstos(
+            [(a["texto"], a["tipo_error"], a["feedback_error"]) for a in alts if not a["es_correcta"]],
+            "Revisa qué operación pide el enunciado y vuelve a calcular.")
     # ── D2: TJS AVANZADO EN OPCIÓN MÚLTIPLE (C5.3, C5.9) ───────────────────────
     elif des_type == 12:
         op_enum = OperacionEnum.MIXTA
@@ -536,14 +558,27 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             div = round(4.5 + (q_idx % 4) * 1.5, 1)
             divisor = round(0.5 + (q_idx % 3) * 0.5, 1)
             ans_val = round(div / divisor, 2)
+            # El cociente NO siempre es entero (ej. 4,5 ÷ 1,0 = 4,5): la
+            # afirmación "Sí" no puede darse por correcta sin comprobarlo.
+            es_entero = abs(ans_val - round(ans_val)) < 1e-9
             enunciado = f"{personaje} dividió {_fmt_dec(div)} ÷ {_fmt_dec(divisor)} desplazando las comas. ¿Tuvo razón al afirmar que el resultado es entero?"
-            correct_alt = f"Sí, porque al desplazar comas obtiene {int(div*10)} ÷ {int(divisor*10)} = {_fmt_dec(ans_val)}"
-            alts = [
-                {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
-                {"texto": "No, porque al dividir decimales siempre da decimal", "es_correcta": False, "orden": 2, "tipo_error": TipoErrorEnum.CALCULO, "feedback_error": "La división de dos decimales puede dar un cociente entero."},
-                {"texto": "No, porque debió restar las comas", "es_correcta": False, "orden": 3, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Las comas se desplazan multiplicando por 10 en dividendo y divisor."},
-                {"texto": "Faltan datos para saber el resultado", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.NO_IDENTIFICA_DATOS, "feedback_error": "Los datos son suficientes para resolver."}
-            ]
+            desplazado = f"{int(div * 10)} ÷ {int(divisor * 10)} = {_fmt_dec(ans_val)}"
+            if es_entero:
+                correct_alt = f"Sí, porque al desplazar comas obtiene {desplazado}, un número entero"
+                alts = [
+                    {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
+                    {"texto": "No, porque al dividir decimales siempre da decimal", "es_correcta": False, "orden": 2, "tipo_error": TipoErrorEnum.CALCULO, "feedback_error": "La división de dos decimales puede dar un cociente entero, como en este caso."},
+                    {"texto": "No, porque debió restar las comas", "es_correcta": False, "orden": 3, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Las comas se desplazan multiplicando por 10 en dividendo y divisor."},
+                    {"texto": "Faltan datos para saber el resultado", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.NO_IDENTIFICA_DATOS, "feedback_error": "Los datos son suficientes para resolver."}
+                ]
+            else:
+                correct_alt = f"No, porque al desplazar comas obtiene {desplazado}, que no es un número entero"
+                alts = [
+                    {"texto": correct_alt, "es_correcta": True, "orden": 1, "tipo_error": None, "feedback_error": None},
+                    {"texto": f"Sí, porque al desplazar comas obtiene {desplazado}", "es_correcta": False, "orden": 2, "tipo_error": TipoErrorEnum.CALCULO, "feedback_error": f"{_fmt_dec(ans_val)} tiene cifras decimales: no es un número entero."},
+                    {"texto": "No, porque debió restar las comas", "es_correcta": False, "orden": 3, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Las comas se desplazan multiplicando por 10 en dividendo y divisor."},
+                    {"texto": "Faltan datos para saber el resultado", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.NO_IDENTIFICA_DATOS, "feedback_error": "Los datos son suficientes para resolver."}
+                ]
         else:
             val_m = round(1.5 + (q_idx % 4) * 0.5, 1)
             val_cm_err = val_m * 10
@@ -555,6 +590,7 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                         ("Resultado dado", f"{_fmt_dec(val_cm_err)} cm"),
                     ],
                     color=color_modulo(4, 4),
+                    marco=False,
                 ),
                 125,
             )
@@ -576,7 +612,9 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             "pasos": [{"orden": 1, "texto": f"Evaluar la situación y procedimiento."}],
             "pista": {"texto": "Analiza la regla conceptual antes de juzgar la respuesta.", "penalizacion_segundos": 5}
         }
-        err_dict = {alt["texto"]: alt["feedback_error"] for alt in alts if not alt["es_correcta"]}
+        err_dict = _construir_errores_previstos(
+            [(a["texto"], a["tipo_error"], a["feedback_error"]) for a in alts if not a["es_correcta"]],
+            "Revisa la situación planteada e inténtalo de nuevo.")
 
     # ── DF: CARGA TOTAL INTEGRADA EN INPUT LIBRE (C5.3, C5.9, C5.11, C5.12, C5.13)
     else:
@@ -603,6 +641,7 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                         ("Hora de salida", f"{hora_salida}:00"),
                     ],
                     color=color_modulo(4, 4),
+                    marco=False,
                 ),
                 145,
             )
@@ -615,11 +654,14 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                 ],
                 "pista": {"texto": "Expresa los dos tramos en centímetros antes de sumarlos.", "penalizacion_segundos": 5},
             }
-            err_dict = {
-                _fmt_dec(round(tramo_m * 100, 2)): "Convertiste el primer tramo, pero falta sumar el tramo B.",
-                _fmt_dec(round(tramo_m + tramo_cm, 2)): "No puedes sumar metros y centímetros sin unificar las unidades.",
-                _fmt_dec(round(tramo_m * 10 + tramo_cm, 2)): "De metros a centímetros se multiplica por 100, no por 10.",
-            }
+            err_dict = _construir_errores_previstos([
+                (_fmt_dec(round(tramo_m * 100, 2)), TipoErrorEnum.PROBLEMA_INCOMPLETO,
+                 "Convertiste el primer tramo, pero falta sumar el tramo B."),
+                (_fmt_dec(round(tramo_m + tramo_cm, 2)), TipoErrorEnum.VALOR_POSICIONAL,
+                 "No puedes sumar metros y centímetros sin unificar las unidades."),
+                (_fmt_dec(round(tramo_m * 10 + tramo_cm, 2)), TipoErrorEnum.VALOR_POSICIONAL,
+                 "De metros a centímetros se multiplica por 100, no por 10."),
+            ], "Revisa la conversión de unidades e inténtalo de nuevo.")
 
         elif is_context_rounding:
             # C6.5: la Fase 4 trabaja longitud y dinero. El volumen (L) pasó a la
@@ -643,10 +685,12 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                 ],
                 "pista": {"texto": "No puedes comprar una parte de listón: si sobra un tramo por cubrir, necesitas otro listón entero.", "penalizacion_segundos": 5}
             }
-            err_dict = {
-                _fmt_dec(ans_arithmetic): f"Tu división está bien ({_fmt_dec(ans_arithmetic)}), pero los listones se venden enteros. Necesitas {ans_int}.",
-                f"{int(ans_arithmetic)}": f"Con {int(ans_arithmetic)} listones cubres {_fmt_dec(round(int(ans_arithmetic) * cap_liston, 2))} m y quedan {_fmt_dec(faltan)} m sin cubrir. Necesitas {ans_int}."
-            }
+            err_dict = _construir_errores_previstos([
+                (_fmt_dec(ans_arithmetic), TipoErrorEnum.PROBLEMA_INCOMPLETO,
+                 f"Tu división está bien ({_fmt_dec(ans_arithmetic)}), pero los listones se venden enteros. Necesitas {ans_int}."),
+                (f"{int(ans_arithmetic)}", TipoErrorEnum.PROBLEMA_INCOMPLETO,
+                 f"Con {int(ans_arithmetic)} listones cubres {_fmt_dec(round(int(ans_arithmetic) * cap_liston, 2))} m y quedan {_fmt_dec(faltan)} m sin cubrir. Necesitas {ans_int}."),
+            ], "Recuerda redondear hacia arriba: no se venden listones partidos.")
 
         elif is_two_step:
             cant = 3
@@ -668,11 +712,14 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                 ],
                 "pista": {"texto": "Calcula primero el costo total de los cuadernos antes de restar del billete.", "penalizacion_segundos": 5}
             }
-            err_dict = {
-                _fmt_money(total_gastado): "Calculaste el costo total de los cuadernos, pero falta restar del billete para hallar el vuelto.",
-                _fmt_money(round(billete - precio_unit, 2)): "Compró 3 cuadernos, no uno solo. Debes multiplicar primero.",
-                _fmt_money(billete): "Ese es el dinero inicial. Aún falta restar el costo total de los cuadernos."
-            }
+            err_dict = _construir_errores_previstos([
+                (_fmt_money(total_gastado), TipoErrorEnum.PROBLEMA_INCOMPLETO,
+                 "Calculaste el costo total de los cuadernos, pero falta restar del billete para hallar el vuelto."),
+                (_fmt_money(round(billete - precio_unit, 2)), TipoErrorEnum.CALCULO,
+                 "Compró 3 cuadernos, no uno solo. Debes multiplicar primero."),
+                (_fmt_money(billete), TipoErrorEnum.PROBLEMA_INCOMPLETO,
+                 "Ese es el dinero inicial. Aún falta restar el costo total de los cuadernos."),
+            ], "Calcula el costo total de la compra y luego resta del billete.")
 
         else:
             billete = round(20.0 + (q_idx % 3) * 10.0, 2)
@@ -694,11 +741,14 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                 ],
                 "pista": {"texto": "Suma los productos comprados y resta el resultado del billete que llevó.", "penalizacion_segundos": 5}
             }
-            err_dict = {
-                _fmt_money(total): "Ese es el costo total gastado. Te piden cuánto le sobró del billete.",
-                _fmt_money(round(billete - item1, 2)): "Falta restar el segundo producto comprado.",
-                _fmt_money(billete): "Ese es el dinero inicial. Todavía falta descontar las compras."
-            }
+            err_dict = _construir_errores_previstos([
+                (_fmt_money(total), TipoErrorEnum.PROBLEMA_INCOMPLETO,
+                 "Ese es el costo total gastado. Te piden cuánto le sobró del billete."),
+                (_fmt_money(round(billete - item1, 2)), TipoErrorEnum.PROBLEMA_INCOMPLETO,
+                 "Falta restar el segundo producto comprado."),
+                (_fmt_money(billete), TipoErrorEnum.PROBLEMA_INCOMPLETO,
+                 "Ese es el dinero inicial. Todavía falta descontar las compras."),
+            ], "Suma lo comprado y resta el resultado del billete.")
 
     enunciado_prosa = re.sub(r"<svg.*?</svg>", "", enunciado, flags=re.DOTALL | re.IGNORECASE)
     enunciado_prosa = re.sub(r"<[^>]+>", " ", enunciado_prosa)

@@ -67,15 +67,27 @@ export async function getFase4Dashboard(): Promise<Fase4Dashboard> {
  * Obtiene la siguiente pregunta para un módulo y nivel específicos.
  */
 export async function getFase4Question(
-  moduloId: number, nivelId: number, reload: boolean = false): Promise<Fase4Pregunta> {
-  const key = `question-${moduloId}-${nivelId}-${reload}`;
+  moduloId: number, nivelId: number): Promise<Fase4Pregunta> {
+  const key = `question-${moduloId}-${nivelId}`;
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(
-      `${API_URL}/fase4/modulo/${moduloId}/nivel/${nivelId}/pregunta?reload=${reload}`,
+      `${API_URL}/fase4/modulo/${moduloId}/nivel/${nivelId}/pregunta`,
       { headers: getAuthHeaders() }
     );
     return handleResponse<Fase4Pregunta>(res);
   });
+}
+
+/** Reinicia de forma explícita el progreso y los intentos de un bloque. */
+export async function resetFase4Block(
+  moduloId: number, nivelId: number
+): Promise<void> {
+  const res = await fetchWithTimeout(`${API_URL}/fase4/reiniciar`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ modulo_id: moduloId, nivel_id: nivelId }),
+  });
+  await handleResponse(res);
 }
 
 /**
@@ -110,7 +122,7 @@ export async function closeFase4Rescate(
  * Obtiene el contenido de lectura/teoría de un nivel.
  */
 export async function getFase4Reading(
-  moduloId: number, nivelId: number, reload: boolean = false): Promise<Fase4Lectura> {
+  moduloId: number, nivelId: number): Promise<Fase4Lectura> {
   const key = `reading-${moduloId}-${nivelId}`;
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(

@@ -1,10 +1,12 @@
 > ✅ **Reestructuración de la Fase 4 completada.**
-> `reestructuracion.md` se conserva como referencia histórica; la tabla canónica de este documento refleja el estado real de la BD local.
+> `docs/reestructuraciondefases.md` se conserva como referencia histórica; la tabla canónica de este documento refleja el estado real de la BD local.
 # Mapa Canónico de Fases — LogicaKids Pro
 
 > **Versión:** 2.0 (Post-Reestructuración Fase 4)  
 > **Fecha de Actualización:** 2026-07-30  
 > **Propósito:** Documento rector de equivalencia entre Base de Datos, Backend, Frontend y Contenido Pedagógico para evitar bugs de desalineación o borrado accidental (`Arquetipo H` / `Recomendación R1`).
+
+> **DEUDA VERIFICADA (2026-07-30):** la tabla representa el objetivo canónico, pero el código de Fases 7–11 todavía no lo cumple por completo. Existen routers, constantes, seeders y componentes heredados con números cruzados. No ejecutar movimientos o borrados parciales en esas carpetas hasta completar una migración integral con pruebas de importación, endpoints y seeding.
 
 ---
 
@@ -12,7 +14,6 @@
 
 | `fase_id` (DB) | Orden | Nombre Pedagógico Oficial (`app/seed.py`) | Backend Path | API Prefix | Frontend Component Main | Modulos |
 | :---: | :---: | :--- | :--- | :--- | :--- | :---: |
-| **0** | 0 | Operaciones Elementales | `app/fase1/` | `/api/fase1` | `Fase1GameScreen.tsx` | 1 |
 | **1** | 1 | Aritmética Básica | `app/fase1/` | `/api/fase1` | `Fase1GameScreen.tsx` | 4 |
 | **2** | 2 | Desarrollo Numérico y Razonamiento | `app/fase2/` | `/api/fase2` | `Fase2GameScreen.tsx` | 4 |
 | **3** | 3 | Problemas de Texto y Sistemas Simples | `app/fase3/` | `/api/fase3` | `Fase3GameScreen.tsx` | 4 |

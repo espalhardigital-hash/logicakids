@@ -120,7 +120,7 @@ test.describe('Fase 4 Multiple Opcion Redesign', () => {
     await requestPromise;
   });
 
-  test('Should call /pregunta with reload=true on initial mount', async ({ page }) => {
+  test('Should load the initial question without a destructive reset', async ({ page }) => {
     // Mock the dashboard to show mixed challenge available
     await page.route('**/fase4/dashboard', async route => {
       const json = {
@@ -133,12 +133,17 @@ test.describe('Fase 4 Multiple Opcion Redesign', () => {
       await route.fulfill({ json });
     });
 
-    // Capture the first GET request to /pregunta and verify it has reload=true
-    let hasReloadTrue = false;
+    // Capture the first GET and ensure the legacy destructive flag is absent.
+    let hasLegacyReload = false;
+    let resetCalled = false;
+    await page.route('**/fase4/reiniciar', async route => {
+      resetCalled = true;
+      await route.fulfill({ json: { message: 'ok', modulo_id: 99, nivel_id: 99, progreso_reiniciado: true } });
+    });
     await page.route('**/fase4/modulo/*/nivel/*/pregunta*', async route => {
       const url = route.request().url();
       if (url.includes('reload=true')) {
-        hasReloadTrue = true;
+        hasLegacyReload = true;
       }
       const json = {
         id: 101,
@@ -184,7 +189,7 @@ test.describe('Fase 4 Multiple Opcion Redesign', () => {
     // Wait for alternatives to render (ensures the question load finished)
     await page.waitForSelector('text="A"');
 
-    // Expect that the request had reload=true
-    expect(hasReloadTrue).toBe(true);
+    expect(hasLegacyReload).toBe(false);
+    expect(resetCalled).toBe(false);
   });
 });

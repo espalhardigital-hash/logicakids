@@ -232,10 +232,11 @@ class CompositorFase4:
                     destino,
                     vals[token],
                     color=color,
+                    marco=False,
                 )
 
             filas = self._filas_conversion_svg(plantilla, vals)
-            return tabla_datos(filas, titulo="Datos a unificar", color=color)
+            return tabla_datos(filas, titulo="Datos a unificar", color=color, marco=False)
 
         if int(plantilla.get("n_datos", 0)) < 2:
             return None
@@ -243,7 +244,7 @@ class CompositorFase4:
         filas = self._filas_datos_svg(plantilla, vals, unidad)
         if len(filas) < 2:
             return None
-        return tabla_datos(filas, titulo="Datos", color=color)
+        return tabla_datos(filas, titulo="Datos", color=color, marco=False)
 
     def _unidades_conversion(self, plantilla: dict) -> tuple[str, str] | None:
         pid = plantilla.get("id", "")

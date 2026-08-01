@@ -1,7 +1,7 @@
 # theory_examples.py
 # ─────────────────────────────────────────────────────────────
 # Base de ejemplos guiados estructurados para Fase 4 (Decimales).
-# Cumple con C2.2, C2.4, C3 y §4.3 de reestructuracion.md.
+# Cumple con C2.2, C2.4, C3 y §4.3 de docs/reestructuraciondefases.md.
 # Exactly 4 guided examples per level (3 calculation + 1 TJS 5-step with active commitment on step 3).
 
 from app.utils.svg_figuras import tabla_datos, comparador_opciones, diagrama_conversion, color_modulo
@@ -206,7 +206,7 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Un comerciante ofrece un pack de 6 botellas de jugo de 1,5 L a R$ 24,00 en total. Por separado, cada botella cuesta R$ 4,20. ¿Qué conviene comprar?",
+                "enunciado": "Un comerciante ofrece un pack de 6 cuadernos a R$ 24,00 en total. Por separado, cada cuaderno cuesta R$ 4,20. ¿Qué conviene comprar?",
                 "es_tjs": True,
                 "pasos": [
                     {"orden": 1, "texto": "Leemos las alternativas: Comprar el pack de 6 por R$ 24,00 vs comprar 6 sueltas a R$ 4,20 c/u."},
@@ -287,21 +287,21 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
         ],
         (2, 3): [
             {
-                "enunciado": "Halla el área de una tarjeta decorativa rectangular.<br/>" +
-                             tabla_datos([("Largo", "1,5 m"), ("Ancho", "0,4 m")], color=color_modulo(2,3)),
+                "enunciado": "Un tren avanza a velocidad constante. Halla la distancia recorrida.<br/>" +
+                             tabla_datos([("Velocidad", "1,5 m/s"), ("Tiempo", "0,4 s")], color=color_modulo(2,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos números enteros: 15 × 4 = 60."},
                     {"orden": 2, "texto": "Sumamos posiciones decimales: 1,5 (1) + 0,4 (1) = 2 decimales."},
-                    {"orden": 3, "texto": "Contamos 2 lugares desde la derecha: 0,60 m²."}
+                    {"orden": 3, "texto": "Contamos 2 lugares desde la derecha: 0,60 m."}
                 ]
             },
             {
-                "enunciado": "Un frasco entero tiene concentrado. ¿Cuánto hay en la porción indicada?<br/>" +
-                             tabla_datos([("Frasco entero", "0,25 L"), ("Porción", "0,5")], color=color_modulo(2,3)),
+                "enunciado": "Un rollo entero tiene una cinta. ¿Cuánto hay en la porción indicada?<br/>" +
+                             tabla_datos([("Rollo entero", "0,25 m"), ("Porción", "0,5")], color=color_modulo(2,3)),
                 "pasos": [
                     {"orden": 1, "texto": "Multiplicamos 25 × 5 = 125."},
                     {"orden": 2, "texto": "Sumamos decimales: 0,25 (2) + 0,5 (1) = 3 decimales."},
-                    {"orden": 3, "texto": "Resultado: 0,125 L."}
+                    {"orden": 3, "texto": "Resultado: 0,125 m."}
                 ]
             },
             {
@@ -480,24 +480,24 @@ def obtener_ejemplos_expandidos_fase4(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Hugo necesita 2,2 litros de jugo para una reunión. Las botellas en la tienda vienen únicamente de 1,0 litro. ¿Cuántas botellas debe comprar?",
+                "enunciado": "Hugo necesita 2,2 m de cable para decorar una fiesta. Los rollos en la tienda vienen únicamente de 1,0 m. ¿Cuántos rollos debe comprar?",
                 "es_tjs": True,
                 "pasos": [
-                    {"orden": 1, "texto": "Situación: Hugo necesita 2,2 L. Botellas de 1,0 L. La tienda no vende fracciones de botella."},
-                    {"orden": 2, "texto": "Juicio práctico: 2,2 ÷ 1,0 = 2,2. Pero no se pueden comprar 0,2 botellas. Si compra 2 botellas, tiene 2,0 L y le faltan 0,2 L."},
+                    {"orden": 1, "texto": "Situación: Hugo necesita 2,2 m. Rollos de 1,0 m. La tienda no vende fracciones de rollo."},
+                    {"orden": 2, "texto": "Juicio práctico: 2,2 ÷ 1,0 = 2,2. Pero no se pueden comprar 0,2 rollos. Si compra 2 rollos, tiene 2,0 m y le faltan 0,2 m."},
                     {
                         "orden": 3,
-                        "texto": "¿Cuántas botellas completas debe comprar Hugo?",
+                        "texto": "¿Cuántos rollos completos debe comprar Hugo?",
                         "opciones": [
-                            "Debe comprar 3 botellas completas",
-                            "Debe comprar 2 botellas completas",
-                            "Debe comprar 2,2 botellas"
+                            "Debe comprar 3 rollos completos",
+                            "Debe comprar 2 rollos completos",
+                            "Debe comprar 2,2 rollos"
                         ],
                         "opcion_correcta": 0,
                         "explicacion_opciones": {
-                            "0": "¡Correcto! Regla de redondeo en contexto: con 2 botellas solo obtiene 2,0 L (le faltaría jugo). Necesita 3.",
-                            "1": "Atención: con 2 botellas solo junta 2,0 L y la reunión queda corta por 0,2 L.",
-                            "2": "Cuidado: la tienda no vende botellas abiertas ni cortadas."
+                            "0": "¡Correcto! Regla de redondeo en contexto: con 2 rollos solo obtiene 2,0 m (le faltaría cable). Necesita 3.",
+                            "1": "Atención: con 2 rollos solo junta 2,0 m y la decoración queda corta por 0,2 m.",
+                            "2": "Cuidado: la tienda no vende rollos abiertos ni cortados."
                         }
                     },
                     {"orden": 4, "texto": "Resolución: Aunque 2,2 está más cerca de 2 en matemática pura, el contexto real exige cubrir todo el sobrante. Se sube al entero 3."},

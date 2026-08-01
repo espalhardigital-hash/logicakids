@@ -72,8 +72,15 @@ def _svg_container(
     viewbox: str | None = None,
     grid: bool = True,
     leyenda: str | None = "1 cm",
+    marco: bool = True,
 ) -> str:
-    """Contenedor SVG estandar ampliado (s11.2.2)."""
+    """Contenedor SVG estandar ampliado (s11.2.2).
+
+    `marco=False` omite el fondo oscuro y el borde decorativo exterior,
+    dejando solo el contenido (líneas de tabla, figura, leyenda). Por
+    defecto es True para no cambiar el comportamiento de ningún llamador
+    existente (otras fases también usan este contenedor compartido).
+    """
     vb = viewbox or f"0 0 {_W} {_H}"
     g = f"<path d='{_GRID_PATH}' stroke='{_GRID}' stroke-width='0.4'/>" if grid else ""
     ly = ""
@@ -82,10 +89,12 @@ def _svg_container(
             f"<line x1='155' y1='188' x2='175' y2='188' stroke='{_SCALE}' stroke-width='1.5'/>"
             f"<text x='165' y='198' fill='{_SCALE}' font-size='{_FS_SC}' text-anchor='middle'>{leyenda}</text>"
         )
+    marco_style = (
+        f"background:#111827; border:2px solid {border_color}; border-radius:14px;" if marco else ""
+    )
     return (
         f"<svg width='{w}' height='{h}' viewBox='{vb}' "
-        f"style='margin:10px auto; display:block; background:#111827; "
-        f"border:2px solid {border_color}; border-radius:14px;'>"
+        f"style='margin:10px auto; display:block; {marco_style}'>"
         f"{g}{content}{ly}</svg>"
     )
 
@@ -504,7 +513,7 @@ def fig_inscrita(externa: str, interna: str, dims: dict,
 
 def escalera_unidades(tipo: str, unidades: list[str], origen: str, destino: str,
                       valor: float | None = None, color: str = "#F59E0B",
-                      mostrar_factor: bool = True) -> str:
+                      mostrar_factor: bool = True, marco: bool = True) -> str:
     """Escalera de conversion. Anti-revelacion: NO escribe el resultado."""
     fac = {"lineal":"x10/div10","cuadrada":"x100/div100","cubica":"x1000/div1000"}.get(tipo,"x?")
     n=len(unidades); sw=min(int(_INNER/max(n,1)),30); sh=20
@@ -521,12 +530,13 @@ def escalera_unidades(tipo: str, unidades: list[str], origen: str, destino: str,
         if mostrar_factor else ""
     )
     vb = f"{x0-15:.0f} {y0-th-25:.0f} {tw+30:.0f} {th+40:.0f}"
-    return _svg_container(shps+fc, border_color=color, viewbox=vb, grid=False, leyenda=None)
+    return _svg_container(shps+fc, border_color=color, viewbox=vb, grid=False, leyenda=None, marco=marco)
 
 
 def diagrama_conversion(origen: str, destino: str, valor: float | str | None = None,
                         color: str = "#3B82F6",
-                        valor_destino: float | str | None = None) -> str:
+                        valor_destino: float | str | None = None,
+                        marco: bool = True) -> str:
     """Ruta de conversion legible sin ejecutar el calculo por el estudiante."""
     def _fmt(value: float | str) -> str:
         if isinstance(value, str):
@@ -568,6 +578,7 @@ def diagrama_conversion(origen: str, destino: str, valor: float | str | None = N
         viewbox="0 0 360 122",
         grid=False,
         leyenda=None,
+        marco=marco,
     )
 
 
@@ -595,7 +606,7 @@ def recta_numerica_decimal(inicio: float, fin: float, paso: float,
 
 
 def tabla_datos(filas: list[tuple[str,str]], titulo: str | None = None,
-                color: str = "#F59E0B") -> str:
+                color: str = "#F59E0B", marco: bool = True) -> str:
     """Mini tabla. Datos numericos aqui, NO en la prosa (Decision 10)."""
     for concepto, _ in filas:
         if len(concepto) > 15:
@@ -618,7 +629,7 @@ def tabla_datos(filas: list[tuple[str,str]], titulo: str | None = None,
         txts += (f"<text x='{x0+6:.1f}' y='{ry+rh*0.70:.1f}' fill='{_LBL}' font-size='11' text-anchor='start'>{concepto}</text>"
                  f"<text x='{x0+cw+cw/2:.1f}' y='{ry+rh*0.70:.1f}' fill='{color}' font-size='11' font-weight='bold' text-anchor='middle'>{valor}</text>")
     vb = f"{x0-10:.0f} {y0-10:.0f} {tw+20:.0f} {th+20:.0f}"
-    return _svg_container(shps+txts, border_color=color, viewbox=vb, grid=False, leyenda=None)
+    return _svg_container(shps+txts, border_color=color, viewbox=vb, grid=False, leyenda=None, marco=marco)
 
 
 def comparador_opciones(titulo_a: str, datos_a: list[tuple[str,str]],

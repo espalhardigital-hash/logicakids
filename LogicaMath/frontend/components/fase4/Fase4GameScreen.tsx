@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import './Fase4Styles.css';
-import { getFase4Question, submitFase4Answer, getFase4Reading, closeFase4Rescate, graduateFase4 } from './Fase4Service';
+import { getFase4Question, submitFase4Answer, getFase4Reading, closeFase4Rescate, graduateFase4, resetFase4Block } from './Fase4Service';
 import { Fase4TheoryModal } from './Fase4TheoryModal';
 import { Fase4MirrorModal } from './Fase4MirrorModal';
 import type {
@@ -727,6 +727,17 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
     return `Desafío - Nivel ${nivelId}`;
   }, [moduloId, nivelId]);
 
+  // Etiqueta corta del encabezado. `nivelId` codifica el tipo de desafío
+  // (11/12/13/99), no un número de nivel real: mostrar "NIVEL 11" confundía
+  // al alumno, que veía "Módulo 3 · Nivel 11" en un módulo de 3 niveles.
+  const headerLevelLabel = useMemo(() => {
+    if (moduloId === 99) return 'MIXTO';
+    if (nivelId === 11) return 'DESAFÍO 1';
+    if (nivelId === 12) return 'DESAFÍO 2';
+    if (nivelId === 13) return 'DESAFÍO FINAL';
+    return `NIVEL ${nivelId}`;
+  }, [moduloId, nivelId]);
+
   const displayModuleName = useMemo(() => {
     if (moduloId === 99) return "Desafío Mixto de la Fase 4";
     return MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`;
@@ -813,8 +824,10 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
     setPaso1Valor(null);
     
     try {
-      // Removed explicit throw for Evaluator mode
-      const data = await getFase4Question(moduloId, nivelId, resetProgress);
+      if (resetProgress) {
+        await resetFase4Block(moduloId, nivelId);
+      }
+      const data = await getFase4Question(moduloId, nivelId);
       
       setProgreso({
         aciertos: data.aciertos_acumulados,
@@ -886,15 +899,7 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
     setFeedback({ visible: false, esCorrecta: false });
 
     if (feedback.esCorrecta) {
-      if (pregunta?.tipo_pregunta === 'constructor_soluciones_chained') {
-        if (feedback.resultado?.paso_aprobado === 2 || feedback.resultado?.paso_approved === 2) {
-          loadPregunta();
-        } else {
-          setTimeout(() => inputRef.current?.focus(), 100);
-        }
-      } else {
-        loadPregunta();
-      }
+      loadPregunta();
     } else {
       if (feedback.resultado?.soporte_avanzado) {
         setShowRescate(true);
@@ -932,10 +937,8 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
       modulo_id:  moduloId,
       nivel_id:   nivelId,
       pregunta_id: pregunta.id,
-      respuesta_dada:          pregunta.tipo_pregunta === 'respuesta_numerica' || pregunta.tipo_pregunta === 'constructor_soluciones_chained' ? respuesta.trim() : undefined,
+      respuesta_dada:          pregunta.tipo_pregunta === 'respuesta_numerica' ? respuesta.trim() : undefined,
       alternativa_id:          pregunta.tipo_pregunta === 'multiple_opcion' ? selectedAltId ?? undefined : undefined,
-      tokens_seleccionados:    pregunta.tipo_pregunta === 'subrayado_tokens' ? tokensSeleccionados : undefined,
-      paso_numero:             pregunta.tipo_pregunta === 'constructor_soluciones_chained' ? paso : undefined,
     };
 
     try {
@@ -952,21 +955,14 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
       }
 
       if (resultado.es_correcta) {
-        if (pregunta.tipo_pregunta === 'constructor_soluciones_chained' && paso === 1) {
-          setPaso1Valor(resultado.valor_paso1_congelado || respuesta);
-          setPaso(2);
-          setRespuesta('');
-          setFeedback({ visible: true, esCorrecta: true, resultado });
+        setFeedback({ visible: true, esCorrecta: true, resultado });
+        if (resultado.fase_completada || resultado.bloque_completado) {
+          // Wait for feedback display
         } else {
-          setFeedback({ visible: true, esCorrecta: true, resultado });
-          if (resultado.fase_completada || resultado.bloque_completado) {
-            // Wait for feedback display
-          } else {
-            setTimeout(() => {
-              setFeedback({ visible: false, esCorrecta: false });
-              loadPregunta();
-            }, 500);
-          }
+          setTimeout(() => {
+            setFeedback({ visible: false, esCorrecta: false });
+            loadPregunta();
+          }, 500);
         }
       } else {
         setShaking(true);
@@ -1067,7 +1063,7 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
     });
     setTimeout(() => {
       setFeedback({ visible: false, esCorrecta: false });
-      loadPregunta(false, true); // <--- Forzar recarga en backend
+      loadPregunta(false, false);
     }, 500);
   }, [feedback.visible, maxAciertos, loadPregunta, progreso]);
 
@@ -1276,7 +1272,7 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 <span className="f4-badge-divider">|</span>
                 <span className="f4-badge-level">MÓDULO {moduloId === 99 ? 'MAESTRÍA' : moduloId}</span>
                 <span className="f4-badge-divider">|</span>
-                <span className="f4-badge-level">NIVEL {nivelId}</span>
+                <span className="f4-badge-level">{headerLevelLabel}</span>
                 <span className="f4-badge-divider">|</span>
                 <span className="f4-badge-challenge">{isChallenge ? 'DESAFÍO' : 'PROGRESO'} {progreso.aciertos}/{maxAciertos}</span>
                 {isChallenge && (
@@ -1386,152 +1382,10 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                      )}
                   </div>
                 )}
-                {pregunta.tipo_pregunta === 'constructor_soluciones_chained' && (
-                  <div className="flex flex-col h-full justify-between gap-4">
-                    <div className="f4-question-text-box">
-                      <div className="f4-question-text" dangerouslySetInnerHTML={safeHtml(cleanEnunciado(pregunta.enunciado))} />
-                      {pregunta.datos_numericos?.tipo_visual === 'imagen' && pregunta.datos_numericos.url && (
-                        <img src={pregunta.datos_numericos.url} alt="Figura Ilustrativa" className="lk-question-graphic mt-2" />
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-4 my-2">
-                      {/* Paso 1 */}
-                      <div 
-                        className={`p-4 rounded-2xl border transition-all duration-300 ${
-                          paso === 1 
-                            ? 'bg-white/5 border-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.1)]' 
-                            : 'bg-green-500/5 border-green-500/20'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span 
-                            className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${
-                              paso === 1 
-                                ? 'bg-pink-500/20 text-pink-400' 
-                                : 'bg-green-500/20 text-green-400'
-                            }`}
-                          >
-                            Paso 1: {pregunta.pasos_encadenados?.[0]?.titulo || 'Cálculo Inicial'}
-                          </span>
-                          {paso > 1 && (
-                            <span className="flex items-center gap-1 text-green-400 text-xs font-bold">
-                              ✓ Completado
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-white/80 text-sm mb-3">
-                          {pregunta.pasos_encadenados?.[0]?.descripcion || 'Resuelve el primer paso.'}
-                        </p>
-                        
-                        {paso === 1 ? (
-                          <div className={`f4-custom-input-box focused ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : ''}`} onClick={() => inputRef.current?.focus()}>
-                            <input 
-                              ref={inputRef} 
-                              type="text" 
-                              value={respuesta} 
-                              onChange={e => !feedback.visible && /^[0-9,.\-]*$/.test(e.target.value) && setRespuesta(e.target.value)} 
-                              onKeyDown={handleKeyDown} 
-                              className="f4-hidden-input" 
-                              autoFocus 
-                              autoComplete="off" 
-                              inputMode="none" 
-                            />
-                            <span className="f4-input-value-text">{feedback.visible ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) : (respuesta || '?')}</span>
-                            {feedback.visible && (
-                              <div className="f4-input-status-elements">
-                                {feedback.esCorrecta ? (
-                                  <div className="f4-status-badge correct">
-                                    <svg className="f4-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <span className="f4-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span>
-                                    <div className="f4-status-badge incorrect">
-                                      <svg className="f4-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="f4-custom-input-box correct opacity-80 pointer-events-none">
-                            <span className="f4-input-value-text">{paso1Valor}</span>
-                            <div className="f4-input-status-elements">
-                              <div className="f4-status-badge correct">
-                                <svg className="f4-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Paso 2 */}
-                      {paso === 2 && (
-                        <div 
-                          className="p-4 rounded-2xl border border-pink-500/30 bg-white/5 shadow-[0_0_15px_rgba(236,72,153,0.1)] transition-all duration-300"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-pink-500/20 text-pink-400 font-black">
-                              Paso 2: {pregunta.pasos_encadenados?.[1]?.titulo || 'Resultado Final'}
-                            </span>
-                          </div>
-                          <p className="text-white/80 text-sm mb-3">
-                            {pregunta.pasos_encadenados?.[1]?.descripcion || 'Resuelve el paso final.'}
-                          </p>
-
-                          <div className={`f4-custom-input-box focused ${feedback.visible ? (feedback.esCorrecta ? 'correct' : 'incorrect') : ''}`} onClick={() => inputRef.current?.focus()}>
-                            <input 
-                              ref={inputRef} 
-                              type="text" 
-                              value={respuesta} 
-                              onChange={e => !feedback.visible && /^[0-9,.\-]*$/.test(e.target.value) && setRespuesta(e.target.value)} 
-                              onKeyDown={handleKeyDown} 
-                              className="f4-hidden-input" 
-                              autoFocus 
-                              autoComplete="off" 
-                              inputMode="none" 
-                            />
-                            <span className="f4-input-value-text">{feedback.visible ? (feedback.esCorrecta ? (feedback.resultado?.respuesta_correcta || respuesta) : (respuesta || '?')) : (respuesta || '?')}</span>
-                            {feedback.visible && (
-                              <div className="f4-input-status-elements">
-                                {feedback.esCorrecta ? (
-                                  <div className="f4-status-badge correct">
-                                    <svg className="f4-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <span className="f4-era-pill">Era: {feedback.resultado?.respuesta_correcta}</span>
-                                    <div className="f4-status-badge incorrect">
-                                      <svg className="f4-status-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-
-
-                    {!isChallenge && <div className="f4-scores-container"><div className="f4-score-box correct"><span className="f4-score-label">CORRECTAS</span><span className="f4-score-value">{progreso.aciertos}</span></div><div className="f4-score-box incorrect"><span className="f4-score-label">ERRORES</span><span className="f4-score-value">{feedback.resultado?.errores_sesion ?? (progreso.intentos - progreso.aciertos)}</span></div></div>}
-                  </div>
-                )}
-                {/* Fallback */}
-                {pregunta.tipo_pregunta === 'subrayado_tokens' && (
-                   <div className="flex flex-col h-full items-center justify-center p-10 text-center">
-                     <p className="text-xl font-bold mb-4">Módulo en Construcción</p>
-                     <p className="opacity-70">El tipo {pregunta.tipo_pregunta} estará disponible en la próxima actualización.</p>
-                     <button className="mt-8 px-6 py-3 bg-white/10 rounded-xl" onClick={() => loadPregunta()}>Saltar pregunta</button>
-                   </div>
-                )}
               </motion.div>
 
               {/* Teclado Numérico con Visor de Respuesta Integrado (C8.2, C8.4) */}
-              {(pregunta.tipo_pregunta === 'respuesta_numerica' || pregunta.tipo_pregunta === 'constructor_soluciones_chained') && (
+              {(pregunta.tipo_pregunta === 'respuesta_numerica') && (
                 <motion.div variants={keypadVariants} initial="hidden" animate="show" className="w-full max-w-[320px] md:w-[320px] shrink-0 z-10 mx-auto md:mx-0 mt-4 md:mt-0">
                   <div className="flex flex-col gap-4 p-6 glass-card rounded-[2.5rem]">
                      {/* Visor Grande Integrado sobre el Teclado */}
@@ -1661,8 +1515,17 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         )}
         {showRescate && feedback.resultado?.explicacion && (
           <Fase4RescateModal explicacion={feedback.resultado.explicacion} moduleColor={moduleColor} onClose={async () => {
-            if (pregunta?.id) try { await closeFase4Rescate(moduloId, nivelId, pregunta.id); } catch(e){}
-            setShowRescate(false); loadPregunta();
+            if (pregunta?.id) {
+              try {
+                await closeFase4Rescate(moduloId, nivelId, pregunta.id);
+              } catch (e: any) {
+                setShowRescate(false);
+                setError(e.message || 'No se pudo guardar el cierre del rescate.');
+                return;
+              }
+            }
+            setShowRescate(false);
+            loadPregunta();
           }} />
         )}
         {showMirrorModal && mirrorPregunta && (
@@ -1690,8 +1553,11 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
             onClose={async () => {
               try {
                 await graduateFase4();
-              } catch (e) {
+              } catch (e: any) {
                 console.error(e);
+                setShowGraduation(false);
+                setError(e.message || 'No se pudo completar la graduación.');
+                return;
               }
               setShowGraduation(false);
               navigate('/map');

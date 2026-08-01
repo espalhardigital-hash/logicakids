@@ -1,6 +1,6 @@
 """
 Guión pedagógico de teoría para los 12 niveles de la Fase 4 (Operatoria Decimal y Conversiones).
-Cumple con las Secciones 5 y 6 de reestructuracion.md y Criterios C1.3, C2, C3, C5.13, §4.3.
+Cumple con las Secciones 5 y 6 de docs/reestructuraciondefases.md y Criterios C1.3, C2, C3, C5.13, §4.3.
 
 Contiene:
   - 12 niveles en FASE4_TEORIA_DATA (3 por módulo, M1 a M4).
@@ -212,18 +212,18 @@ FASE4_TEORIA_DATA = [
         "texto_descubrimiento": (
             "Para dividir entre un número que tiene coma en el divisor (ej. 6 ÷ 1,5), desplaza la coma "
             "hacia la derecha en el divisor y en el dividendo las mismas posiciones hasta volver el divisor entero.\n\n"
-            "📦 Regla de redondeo por contexto: A veces la cuenta aritmética da un decimal (ej. 2,4 botellas), "
+            "📦 Regla de redondeo por contexto: A veces la cuenta aritmética da un decimal (ej. 2,4 listones), "
             "pero los objetos del mundo real no se venden fraccionados. Si falta aunque sea un poquito, "
-            "debemos subir al siguiente número entero completo (necesitas 3 botellas)."
+            "debemos subir al siguiente número entero completo (necesitas 3 listones)."
         ),
         "cuerpo_teoria": (
             "1. Desplazamiento de coma: Multiplica divisor y dividendo por 10, 100 para eliminar la coma del divisor.\n"
-            "2. Redondeo en contexto práctico: Cuando el enunciado pregunte por objetos enteros (botellas, cajas, viajes), "
+            "2. Redondeo en contexto práctico: Cuando el enunciado pregunte por objetos enteros (listones, cajas, viajes), "
             "si la división tiene sobrante o decimales, se redondea hacia arriba al entero entero."
         ),
         "advertencia": (
-            "¡No confundas la cuenta matemática con la realidad! 2,2 botellas significa que con 2 no alcanza. "
-            "Se deben comprar 3 botellas completas."
+            "¡No confundas la cuenta matemática con la realidad! 2,2 listones significa que con 2 no alcanza. "
+            "Se deben comprar 3 listones completos."
         ),
         "diccionario": {
             "Desplazamiento de coma": "Mover la coma a la derecha en divisor y dividendo la misma cantidad de lugares.",
@@ -238,7 +238,7 @@ FASE4_TEORIA_DATA = [
         "modulo_id": 4, "nivel_id": 1, "seccion": 401,
         "titulo": "Bajar la escalera métrica",
         "texto_descubrimiento": (
-            "Para pasar de una unidad mayor a una menor en la escalera métrica (km → m, m → cm, kg → g, L → mL), "
+            "Para pasar de una unidad mayor a una menor en la escalera métrica de longitud (km → m, m → cm, cm → mm), "
             "bajas escalones. Cada escalón hacia abajo multiplica por 10, desplazando la coma decimal a la derecha."
         ),
         "cuerpo_teoria": (
@@ -259,12 +259,12 @@ FASE4_TEORIA_DATA = [
         "modulo_id": 4, "nivel_id": 2, "seccion": 402,
         "titulo": "Subir la escalera métrica",
         "texto_descubrimiento": (
-            "Para pasar de una unidad menor a una mayor (cm → m, g → kg, mL → L), "
+            "Para pasar de una unidad menor a una mayor en la escalera métrica de longitud (mm → cm, cm → m, m → km), "
             "subes escalones. Cada escalón hacia arriba divide entre 10, desplazando la coma decimal a la izquierda."
         ),
         "cuerpo_teoria": (
             "Reglas para subir la escalera:\n"
-            "1. Identifica cuántos escalones subes (ej. g a kg = 3 escalones = ÷1000).\n"
+            "1. Identifica cuántos escalones subes (ej. m a km = 3 escalones = ÷1000).\n"
             "2. Mueve la coma decimal a la izquierda tantos lugares como ceros tenga el divisor.\n"
             "3. Si faltan lugares a la izquierda, añade ceros y coloca 0, al inicio."
         ),

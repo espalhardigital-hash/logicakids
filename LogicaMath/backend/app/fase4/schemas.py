@@ -1,7 +1,7 @@
 """
-Schemas Pydantic — Fase 2: Desarrollo Numérico y Razonamiento
+Schemas Pydantic — Fase 4: Operatoria Decimal y Conversiones
 =============================================================
-Schemas exclusivos de los 4 módulos de Fase 2. No modifica ni reemplaza
+Schemas exclusivos de los 4 módulos de Fase 4. No modifica ni reemplaza
 los schemas globales de app.schemas; conviven sin conflicto.
 
 Módulos:
@@ -13,15 +13,24 @@ Módulos:
 Cada módulo posee 3 desafíos virtuales (nivel_id 11, 12, 13).
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, List, Dict, Any
+
+from .topology import get_block
+
+
+def _validate_block_pair(module_id: int, level_id: int) -> None:
+    try:
+        get_block(module_id, level_id)
+    except ValueError as exc:
+        raise ValueError(str(exc)) from exc
 
 
 # ============================================================
 # ALTERNATIVA (Opción Múltiple — Desafíos 1 y 2)
 # ============================================================
 
-class Fase5AlternativaOut(BaseModel):
+class Fase4AlternativaOut(BaseModel):
     """Una opción de respuesta para preguntas de opción múltiple."""
     id: int
     texto: str
@@ -33,7 +42,7 @@ class Fase5AlternativaOut(BaseModel):
 # TOKENS (Legado Módulo Detective — no se usa en Fase 2 refactorizada)
 # ============================================================
 
-class Fase5Token(BaseModel):
+class Fase4Token(BaseModel):
     """Un segmento tokenizado del enunciado de un problema de texto."""
     id: int
     texto: str
@@ -42,23 +51,23 @@ class Fase5Token(BaseModel):
 
 
 # ============================================================
-# PREGUNTA PARA EL ALUMNO (Fase 2)
+# PREGUNTA PARA EL ALUMNO (Fase 4)
 # ============================================================
 
-class Fase5PreguntaParaAlumno(BaseModel):
-    """Lo que recibe el frontend para mostrar una pregunta de Fase 2."""
+class Fase4PreguntaParaAlumno(BaseModel):
+    """Lo que recibe el frontend para mostrar una pregunta de Fase 4."""
     id: Optional[int] = None           # None para preguntas generadas dinámicamente
     modulo_id: int
     nivel_id: int
     enunciado: str
     enunciado_seed: Optional[str] = None
-    tipo_pregunta: str                  # respuesta_numerica | multiple_opcion | constructor_soluciones_chained
+    tipo_pregunta: str                  # respuesta_numerica | multiple_opcion
     respuesta_correcta: Optional[str] = None   # None para opción múltiple (no se revela)
     tiene_cronometro: bool = False
     tiempo_limite_segundos: Optional[int] = None
 
     # Opciones múltiples (Desafíos 1 y 2)
-    alternativas: Optional[List[Fase5AlternativaOut]] = None
+    alternativas: Optional[List[Fase4AlternativaOut]] = None
 
     # Constructor de Soluciones (Módulo 4)
     pasos_encadenados: Optional[List[Dict[str, Any]]] = None
@@ -68,7 +77,7 @@ class Fase5PreguntaParaAlumno(BaseModel):
     explicacion_referencia: Optional[Dict[str, Any]] = None
 
     # Legado: tokens (no se usa en la Fase 2 refactorizada)
-    payload_tokenizado: Optional[List[Fase5Token]] = None
+    payload_tokenizado: Optional[List[Fase4Token]] = None
 
     # Estado de progreso actual (para sincronización instantánea)
     aciertos_acumulados: int = 0
@@ -79,14 +88,14 @@ class Fase5PreguntaParaAlumno(BaseModel):
 
 
 # ============================================================
-# RESPUESTA DEL ALUMNO (Fase 2)
+# RESPUESTA DEL ALUMNO (Fase 4)
 # ============================================================
 
 class Fase4ResponderPregunta(BaseModel):
-    """Payload que envía el alumno al responder en Fase 2."""
+    """Payload que envía el alumno al responder en Fase 4."""
     modulo_id: int
     nivel_id: int
-    pregunta_id: Optional[int] = None           # Para preguntas de BD
+    pregunta_id: int = Field(gt=0)              # Para preguntas de BD
     enunciado_seed: Optional[str] = None        # Seed reproducible para mód 1-3
 
     # Modos de respuesta (mutuamente excluyentes)
@@ -97,25 +106,59 @@ class Fase4ResponderPregunta(BaseModel):
 
     tiempo_respuesta_segundos: Optional[float] = None
 
+    @model_validator(mode="after")
+    def validate_identity_and_answer_mode(self):
+        _validate_block_pair(self.modulo_id, self.nivel_id)
+        answer_modes = (
+            self.respuesta_dada is not None,
+            self.alternativa_id is not None,
+            bool(self.tokens_seleccionados),
+        )
+        if sum(answer_modes) > 1:
+            raise ValueError("Los modos de respuesta son mutuamente excluyentes.")
+        return self
+
 
 # ============================================================
-# CIERRE DE RESCATE (Fase 2)
+# CIERRE DE RESCATE (Fase 4)
 # ============================================================
 
-class Fase5CerrarRescate(BaseModel):
+class Fase4CerrarRescate(BaseModel):
     """Payload que envía el alumno para omitir la explicación de rescate."""
     modulo_id: int
     nivel_id: int
     pregunta_id: int
 
+    @model_validator(mode="after")
+    def validate_identity(self):
+        _validate_block_pair(self.modulo_id, self.nivel_id)
+        return self
+
+
+class Fase4ReiniciarBloque(BaseModel):
+    modulo_id: int
+    nivel_id: int
+
+    @model_validator(mode="after")
+    def validate_identity(self):
+        _validate_block_pair(self.modulo_id, self.nivel_id)
+        return self
+
+
+class Fase4ReinicioResultado(BaseModel):
+    message: str
+    modulo_id: int
+    nivel_id: int
+    progreso_reiniciado: bool
+
 
 
 # ============================================================
-# RESULTADO DE RESPUESTA (Fase 2)
+# RESULTADO DE RESPUESTA (Fase 4)
 # ============================================================
 
 class Fase4ResultadoRespuesta(BaseModel):
-    """Lo que recibe el frontend después de validar la respuesta en Fase 2."""
+    """Lo que recibe el frontend después de validar la respuesta en Fase 4."""
     es_correcta: bool
     respuesta_correcta: Optional[str] = None
     explicacion: Optional[Dict[str, Any]] = None
@@ -153,7 +196,7 @@ class Fase4ResultadoRespuesta(BaseModel):
 # NIVEL (dentro de un módulo)
 # ============================================================
 
-class Fase5NivelInfo(BaseModel):
+class Fase4NivelInfo(BaseModel):
     """Estado de un nivel específico dentro de un módulo."""
     nivel_id: int
     nombre: str
@@ -169,7 +212,7 @@ class Fase5NivelInfo(BaseModel):
 # DESAFÍO (dentro de un módulo)
 # ============================================================
 
-class Fase5DesafioInfo(BaseModel):
+class Fase4DesafioInfo(BaseModel):
     """Estado de un desafío específico dentro de un módulo."""
     desafio_id: int       # 11, 12, o 13
     nombre: str
@@ -183,11 +226,11 @@ class Fase5DesafioInfo(BaseModel):
 
 
 # ============================================================
-# MÓDULO (dashboard de Fase 2)
+# MÓDULO (dashboard de Fase 4)
 # ============================================================
 
-class Fase5ModuloInfo(BaseModel):
-    """Estado de un módulo completo de Fase 2 para el dashboard."""
+class Fase4ModuloInfo(BaseModel):
+    """Estado de un módulo completo de Fase 4 para el dashboard."""
     modulo_id: int
     nombre: str
     descripcion: str
@@ -195,19 +238,19 @@ class Fase5ModuloInfo(BaseModel):
     color: str
     estado: str              # bloqueado | en_progreso | dominado
     porcentaje_global: int = 0
-    niveles: List[Fase5NivelInfo] = []
-    desafios: List[Fase5DesafioInfo] = []
+    niveles: List[Fase4NivelInfo] = []
+    desafios: List[Fase4DesafioInfo] = []
 
 
 # ============================================================
 # DASHBOARD FASE 2
 # ============================================================
 
-class Fase5Dashboard(BaseModel):
-    """Todo lo necesario para renderizar la pantalla principal de Fase 2."""
+class Fase4Dashboard(BaseModel):
+    """Todo lo necesario para renderizar la pantalla principal de Fase 4."""
     alumno_nombre: str
     puntos_totales: int = 0
-    modulos: List[Fase5ModuloInfo]
+    modulos: List[Fase4ModuloInfo]
     desafio_mixto_disponible: bool = False
     desafio_mixto_estado: str = "bloqueado"   # bloqueado | disponible | completado
 
@@ -216,7 +259,7 @@ class Fase5Dashboard(BaseModel):
 # LECTURA / TEORIA (ahora desde BD)
 # ============================================================
 
-class Fase5InteractivoOut(BaseModel):
+class Fase4InteractivoOut(BaseModel):
     """Un ejercicio interactivo dentro del contenido de teoría."""
     pregunta: str
     respuesta: str
@@ -224,13 +267,13 @@ class Fase5InteractivoOut(BaseModel):
     feedback_error: str
 
 
-class Fase5EjemploOut(BaseModel):
+class Fase4EjemploOut(BaseModel):
     """Un ejemplo guiado dentro del contenido de teoría."""
     enunciado: str
     respuesta: str
 
 
-class Fase5ContenidoLectura(BaseModel):
+class Fase4ContenidoLectura(BaseModel):
     """Contenido teórico/tutorial de un nivel, cargado desde BD."""
     modulo_id: int
     nivel_id: int

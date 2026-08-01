@@ -1,0 +1,19 @@
+{
+  "database": "logicakids_fase4_test_20260801",
+  "api_base_url": "http://127.0.0.1:8010",
+  "blocks_completed": 25,
+  "requests_answered": 332,
+  "unauthorized_status": 401,
+  "locked_status": 403,
+  "cross_section_status": 409,
+  "concurrent_statuses": [
+    200,
+    200
+  ],
+  "concurrent_credited_answers": 1,
+  "mixed_state_before": "disponible",
+  "mixed_state_after": "completado",
+  "graduated_phase_order": 5,
+  "repeated_graduation_phase_order": 5,
+  "synthetic_user_removed": true
+}

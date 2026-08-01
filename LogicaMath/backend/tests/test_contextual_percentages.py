@@ -11,7 +11,7 @@ import pytest
 # siendo la especificación válida para reactivarlos al reestructurar la Fase 5.
 pytest.skip(
     "Porcentajes pasaron a la Fase 5 con la reestructuración; reactivar al migrar "
-    "estos tests a app.fase5 (ver reestructuracion.md)",
+    "estos tests a app.fase5 (ver docs/reestructuraciondefases.md)",
     allow_module_level=True,
 )
 

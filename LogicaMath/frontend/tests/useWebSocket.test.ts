@@ -6,6 +6,10 @@ describe('useWebSocket URL resolution', () => {
   let wsConstructorSpy: any;
 
   beforeEach(() => {
+    // La resolución por window.location es el comportamiento bajo prueba.
+    // Evita que el .env.local del desarrollador anule el escenario simulado.
+    vi.stubEnv('VITE_API_URL', '');
+
     // Mockear la clase WebSocket global
     wsConstructorSpy = vi.fn().mockImplementation(function (this: any, url: string) {
       this.url = url;
@@ -25,6 +29,7 @@ describe('useWebSocket URL resolution', () => {
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
     vi.restoreAllMocks();
   });
 

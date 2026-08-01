@@ -12,3 +12,11 @@ __pycache__
 .dockerignore
 .pytest_cache
 tests/.pytest_cache
+*.db
+*.sqlite
+*.sqlite3
+.coverage
+coverage.xml
+htmlcov
+test-results
+playwright-report

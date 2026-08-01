@@ -1,5 +1,5 @@
 > ✅ **Reestructuración de la Fase 4 completada.**
-> `reestructuracion.md` se conserva como referencia histórica; para la Fase 4 manda el estado real ya implementado en código y BD local.
+> `docs/reestructuraciondefases.md` se conserva como referencia histórica; para la Fase 4 manda el estado real ya implementado en código y BD local.
 
 # Tomo 1: Documento Rector Pedagógico — LogicaKids Pro
 
