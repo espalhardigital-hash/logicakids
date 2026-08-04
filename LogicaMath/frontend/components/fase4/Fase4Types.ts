@@ -49,6 +49,8 @@ export interface Fase4Pregunta {
   intentos_totales?: number;
   porcentaje_actual?: number;
   cantidad_requerida?: number;
+  max_errores_tolerados?: number;  // Solo para desafíos (nivelId 11/12/13 o modulo 99)
+  errores_sesion?: number;         // Errores cometidos en la sesión actual
 }
 
 // ─── Respuesta del alumno ──────────────────────────────────────────────────

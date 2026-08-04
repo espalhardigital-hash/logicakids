@@ -84,6 +84,8 @@ class Fase4PreguntaParaAlumno(BaseModel):
     intentos_totales: int = 0
     porcentaje_actual: int = 0
     cantidad_requerida: Optional[int] = None
+    max_errores_tolerados: Optional[int] = None  # Solo para desafíos (nivelId 11/12/13 o modulo 99)
+    errores_sesion: int = 0                      # Errores acumulados en la sesión actual del desafío
 
 
 

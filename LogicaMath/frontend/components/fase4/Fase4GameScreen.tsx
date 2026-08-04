@@ -670,6 +670,7 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   const [feedback, setFeedback]   = useState<FeedbackState>({ visible: false, esCorrecta: false });
   const [error, setError]         = useState<string | null>(null);
   const [progreso, setProgreso]   = useState({ aciertos: 0, intentos: 0, porcentaje: 0 });
+  const [erroresSesion, setErroresSesion] = useState(0); // Fuente de verdad: viene del backend (errores_sesion)
   const [shaking, setShaking]     = useState(false);
   const [timer, setTimer]         = useState<number | null>(null);
   const [maxTimer, setMaxTimer]   = useState<number>(1);
@@ -705,18 +706,16 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   const [maxAciertos, setMaxAciertos] = useState<number>(moduloId === 99 ? 20 : (nivelId >= 11 && nivelId <= 13 ? (nivelId === 13 ? 10 : 25) : 15));
   const barWidth    = useMemo(() => Math.min(100, (progreso.aciertos / maxAciertos) * 100), [progreso.aciertos, maxAciertos]);
 
-  const maxErroresPermitidos = useMemo(() => {
-    if (!isChallenge) return 0;
-    const porcAprobacion = 90;
-    let minAciertosReq = maxAciertos;
-    for (let c = 0; c <= maxAciertos; c++) {
-      if (Math.floor((c / maxAciertos) * 100) >= porcAprobacion) {
-        minAciertosReq = c;
-        break;
-      }
-    }
-    return maxAciertos - minAciertosReq;
-  }, [isChallenge, maxAciertos]);
+  // maxErroresPermitidos: Se inicializa con el default de la topología y se sincroniza
+  // desde el backend al cargar la primera pregunta. Bug 1 fix: no usar fórmula local.
+  // El valor real llega con data.max_errores_tolerados en loadPregunta.
+  const [maxErroresPermitidos, setMaxErroresPermitidos] = useState<number>(() => {
+    const challenge = moduloId === 99 || (nivelId >= 11 && nivelId <= 13);
+    if (!challenge) return 0;
+    if (moduloId === 99) return 3;
+    if (nivelId === 13) return 1;
+    return 2; // desafíos 11 y 12 — default conservador hasta que llegue el valor del servidor
+  });
 
   // Premium splash memos
   const challengeName = useMemo(() => {
@@ -848,6 +847,15 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
       setMirrorPregunta(null);
       // Sync dynamic required count from backend config
       if (data.cantidad_requerida) setMaxAciertos(data.cantidad_requerida);
+      // Bug 1 fix: sincronizar max_errores_tolerados y errores_sesion desde el servidor (Fuente de Verdad)
+      if (isChallenge) {
+        if (data.max_errores_tolerados != null) {
+          setMaxErroresPermitidos(data.max_errores_tolerados);
+        }
+        if (data.errores_sesion != null) {
+          setErroresSesion(data.errores_sesion);
+        }
+      }
       
       if (data.tiene_cronometro) {
         const fallbackLimit = isChallenge ? (moduloId === 99 ? 90 : (nivelId === 11 ? 30 : nivelId === 12 ? 45 : 60)) : 15;
@@ -948,6 +956,14 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         intentos:   resultado.intentos_totales,
         porcentaje: resultado.porcentaje_actual,
       });
+      // Bug 1 fix: actualizar max_errores_tolerados con el valor confirmado del servidor
+      if (isChallenge && resultado.max_errores_tolerados != null && resultado.max_errores_tolerados > 0) {
+        setMaxErroresPermitidos(resultado.max_errores_tolerados);
+      }
+      // Sincronizar el contador de errores desde el backend (fuente de verdad)
+      if (isChallenge && resultado.errores_sesion != null) {
+        setErroresSesion(resultado.errores_sesion);
+      }
 
       if (resultado.early_exit) {
         setFeedback({ visible: true, esCorrecta: false, resultado });
@@ -1278,8 +1294,8 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                 {isChallenge && (
                   <>
                     <span className="f4-badge-divider">|</span>
-                    <span className="f4-badge-errors animate-pulse" style={{ color: (progreso.intentos - progreso.aciertos) >= maxErroresPermitidos ? '#EF4444' : '#F59E0B', fontWeight: 800 }}>
-                      ERRORES: {progreso.intentos - progreso.aciertos}/{maxErroresPermitidos}
+                    <span className="f4-badge-errors animate-pulse" style={{ color: erroresSesion >= maxErroresPermitidos ? '#EF4444' : '#F59E0B', fontWeight: 800 }}>
+                      ERRORES: {erroresSesion}/{maxErroresPermitidos}
                     </span>
                   </>
                 )}
@@ -1528,7 +1544,12 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
             loadPregunta();
           }} />
         )}
-        {showMirrorModal && mirrorPregunta && (
+        {/* `!showReading`: al montar, el efecto de carga de práctica y el de
+            auto-apertura de teoría corren en paralelo. Si el alumno tiene un
+            Bucle Espejo pendiente de una sesión anterior, ambos modales
+            querían aparecer a la vez. La teoría tiene prioridad; el espejo
+            pendiente se muestra justo después de cerrarla, no compitiendo. */}
+        {showMirrorModal && mirrorPregunta && !showReading && (
           <Fase4MirrorModal pregunta={mirrorPregunta} moduleColor={moduleColor} lastCorrectAnswer={lastCorrectAnswer} lastQuestionEnunciado={lastQuestionEnunciado} lastWrongAnswer={lastWrongAnswer} onClose={(res) => {
             if (res) {
               setProgreso({ aciertos: res.aciertos_acumulados, intentos: res.intentos_totales, porcentaje: res.porcentaje_actual });

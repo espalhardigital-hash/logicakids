@@ -827,6 +827,25 @@ async def get_pregunta_fase4(
         if not tiene_crono:
             tiempo_lim = None
 
+        # Calcular max_errores_tolerados y errores_sesion para desafíos (Bug 1 fix - Fuente Única de Verdad)
+        _max_err = None
+        _errores_sesion = 0
+        if modulo_id == 99 or nivel_id in (11, 12, 13):
+            _max_err = configured_error_tolerance(
+                modulo_id,
+                nivel_id,
+                config.errores_tolerados if config else None,
+            )
+            res_err = await db.execute(
+                select(Intento.es_correcta)
+                .where(and_(
+                    Intento.alumno_id == alumno.id,
+                    Intento.fase_id == FASE_DECIMALES_ID,
+                    Intento.seccion == seccion,
+                ))
+            )
+            _errores_sesion = sum(1 for (es_corr,) in res_err.tuples() if not es_corr)
+
         return Fase4PreguntaParaAlumno(
             id=pregunta_elex.id,
             modulo_id=modulo_id,
@@ -842,6 +861,8 @@ async def get_pregunta_fase4(
             intentos_totales=_progress_value(progreso, "intentos_totales"),
             porcentaje_actual=_progress_value(progreso, "porcentaje_actual"),
             cantidad_requerida=cantidad_req,
+            max_errores_tolerados=_max_err,
+            errores_sesion=_errores_sesion,
         )# ─────────────────────────────────────────────────────────────────────────────
 # ENDPOINT 4 — Responder pregunta (Valida y actualiza progreso)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1093,11 +1114,15 @@ async def responder_fase4(
         errores_sesion = sum(1 for attempt in attempts if not attempt.es_correcta)
         
         if has_reached_error_limit(errores_sesion, max_errores):
-            # RESET ABSOLUTO POR SALIDA TEMPRANA
+            # RESET DE CONTADORES POR SALIDA TEMPRANA
+            # Bug 2 fix: si el bloque ya fue APROBADO (superado alguna vez), preservar
+            # ese estado para que los desafíos siguientes no se re-bloqueen.
+            # Solo se resetean los contadores para el nuevo intento.
             progreso.aciertos_acumulados = 0
             progreso.porcentaje_actual = 0
             progreso.intentos_totales = 0
-            progreso.estado = EstadoProgresoEnum.EN_PROGRESO
+            if progreso.estado != EstadoProgresoEnum.APROBADO:
+                progreso.estado = EstadoProgresoEnum.EN_PROGRESO
             
             # Borrar los intentos acumulados para evitar colisiones en la próxima sesión
             await db.execute(

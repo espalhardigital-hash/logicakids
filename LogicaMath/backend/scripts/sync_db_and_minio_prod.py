@@ -328,13 +328,25 @@ def sync_database(
             report["to_skip_existing"] = 0
             update_ids = set(common_ids)
 
-        # Pre-vuelo huérfanas
+        # Pre-vuelo huérfanas (optimizado masivo)
         deletable: list[int] = []
         preservable: list[int] = []
         if orphan_ids and not skip_orphan_delete:
             with remote_conn.cursor() as cur:
+                orphan_list = list(orphan_ids)
+                cur.execute(
+                    """
+                    SELECT DISTINCT pregunta_id FROM pool_asignado_alumno WHERE pregunta_id = ANY(%s)
+                    UNION
+                    SELECT DISTINCT pregunta_id FROM intentos WHERE pregunta_id = ANY(%s)
+                    UNION
+                    SELECT DISTINCT pregunta_id FROM intento_preguntas WHERE pregunta_id = ANY(%s)
+                    """,
+                    (orphan_list, orphan_list, orphan_list),
+                )
+                ids_con_progreso = {row[0] for row in cur.fetchall()}
                 for q_id in orphan_ids:
-                    if _question_has_progress(cur, q_id):
+                    if q_id in ids_con_progreso:
                         preservable.append(q_id)
                     else:
                         deletable.append(q_id)
@@ -356,10 +368,11 @@ def sync_database(
             return report
 
         with remote_conn.cursor() as cur:
-            # A) Borrar huérfanas seguras
-            for q_id in deletable:
-                cur.execute("DELETE FROM alternativas WHERE pregunta_id = %s", (q_id,))
-                cur.execute("DELETE FROM preguntas WHERE id = %s", (q_id,))
+            # A) Borrar huérfanas seguras (optimizado masivo)
+            if deletable:
+                print(f"[*] Borrando {len(deletable)} preguntas huérfanas y sus alternativas en la VPS...")
+                cur.execute("DELETE FROM alternativas WHERE pregunta_id = ANY(%s)", (deletable,))
+                cur.execute("DELETE FROM preguntas WHERE id = ANY(%s)", (deletable,))
 
             # B) Insert / update en lotes para no saturar la conexión SSH
             work_ids = list(to_insert_ids | update_ids)
