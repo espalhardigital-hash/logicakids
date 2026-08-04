@@ -227,10 +227,11 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ showConfirm, showAlert 
     try {
       await fn();
       if (selectedAlumno) await fetchProgress(selectedAlumno.alumno_id);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      if (showAlert) showAlert('Error', 'Error al aplicar la acción de override.', 'error');
-      else alert('Error al aplicar la acción.');
+      const msg = e?.message || 'Error al aplicar la acción de override.';
+      if (showAlert) showAlert('Error', msg, 'error');
+      else alert(msg);
     } finally {
       setActionInProgress(null);
     }
@@ -660,6 +661,20 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ showConfirm, showAlert 
               <textarea
                 value={overrideMotivo}
                 onChange={(e) => setOverrideMotivo(e.target.value)}
+                onKeyDown={(e) => {
+                  if ((e.key === 'Enter' && !e.shiftKey) || (e.key === 'Enter' && e.ctrlKey)) {
+                    e.preventDefault();
+                    if (overrideMotivo.trim().length >= 10 && !overrideSubmitting && pendingOverride) {
+                      const p = pendingOverride;
+                      setOverrideSubmitting(true);
+                      p.execute(overrideMotivo.trim()).finally(() => {
+                        setOverrideSubmitting(false);
+                        setPendingOverride(null);
+                        setOverrideMotivo('');
+                      });
+                    }
+                  }
+                }}
                 rows={3}
                 autoFocus
                 placeholder="Ej: Estudiante avanzado de 5º grado, demuestra dominio inicial."

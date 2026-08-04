@@ -820,12 +820,13 @@ const PedagogyTab: React.FC = () => {
                c.operacion === draft.operacion
         );
 
-        if (!original) {
-          await createModularConfig(draft);
-        } else if (JSON.stringify(original) !== JSON.stringify(draft)) {
-          if (original.id) {
-            await saveModularConfig(original.id, draft);
+        const targetId = draft.id || original?.id;
+        if (targetId) {
+          if (JSON.stringify(original) !== JSON.stringify(draft)) {
+            await saveModularConfig(targetId, draft);
           }
+        } else {
+          await createModularConfig(draft);
         }
       }
 

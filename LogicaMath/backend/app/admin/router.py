@@ -187,8 +187,15 @@ async def create_configuracion(config_data: ConfiguracionProgresoCreate, db: Asy
             ConfiguracionProgreso.operacion == config_data.operacion
         )
     )
-    if result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Ya existe configuración para este bloque")
+    existing = result.scalar_one_or_none()
+    if existing:
+        update_data = config_data.model_dump()
+        for key, value in update_data.items():
+            setattr(existing, key, value)
+        await db.commit()
+        await db.refresh(existing)
+        await manager.broadcast(json.dumps({"type": "SYNC_REQUIRED", "source": "config_updated"}))
+        return existing
 
     new_config = ConfiguracionProgreso(**config_data.model_dump())
     db.add(new_config)
@@ -570,6 +577,11 @@ async def get_alumno_progress(alumno_id: int, db: AsyncSession = Depends(get_db)
 
 @router.post("/alumnos/{alumno_id}/progress/override")
 async def override_alumno_progress(alumno_id: int, payload: ProgressOverridePayload, db: AsyncSession = Depends(get_db), admin_user: dict = Depends(get_admin_user)):
+    result_alumno = await db.execute(select(Alumno).where(Alumno.id == alumno_id))
+    alumno = result_alumno.scalar_one_or_none()
+    if not alumno:
+        raise HTTPException(status_code=404, detail="Alumno no encontrado")
+
     result = await db.execute(
         select(ProgresoMaestria).where(and_(
             ProgresoMaestria.alumno_id == alumno_id,
@@ -656,15 +668,22 @@ async def override_alumno_progress(alumno_id: int, payload: ProgressOverridePayl
 
     # Sync with user.settings para todas las fases ya que algunos frontends dependen de unlockedLevels
     from sqlalchemy.orm.attributes import flag_modified
-    result_alumno = await db.execute(select(Alumno).where(Alumno.id == alumno_id))
-    alumno = result_alumno.scalar_one_or_none()
     if alumno:
         result_user = await db.execute(select(User).where(User.id == alumno.user_id))
         user = result_user.scalar_one_or_none()
         if user:
-            # Need to use dict() or copy if settings is a SQLAlchemy mutable dict, but typically reassigning and flag_modified is enough
-            settings = user.settings or {}
-            if "unlockedLevels" not in settings:
+            raw_settings = user.settings
+            if isinstance(raw_settings, str):
+                try:
+                    settings = json.loads(raw_settings)
+                except Exception:
+                    settings = {}
+            elif isinstance(raw_settings, dict):
+                settings = dict(raw_settings)
+            else:
+                settings = {}
+
+            if "unlockedLevels" not in settings or not isinstance(settings["unlockedLevels"], dict):
                 settings["unlockedLevels"] = {}
             
             cat_map = {
@@ -702,8 +721,7 @@ async def override_alumno_progress_bulk(
     """
     Apply a bulk progress override (approve / unlock / lock) to a set of sections
     belonging to the same module or phase in a single database transaction.
-    This is significantly more efficient than calling the single-item endpoint
-    once per level when operating on an entire module (~7 levels) or phase (~28+ levels).
+    Deduplicates items to prevent IntegrityError crashes on duplicate entries.
     """
     from sqlalchemy.orm.attributes import flag_modified
 
@@ -712,8 +730,21 @@ async def override_alumno_progress_bulk(
     if not payload.items:
         raise HTTPException(status_code=400, detail="La lista de items no puede estar vacía.")
 
-    # Collect all (fase_id, seccion, operacion) tuples for efficient batch query
+    result_alumno = await db.execute(select(Alumno).where(Alumno.id == alumno_id))
+    alumno = result_alumno.scalar_one_or_none()
+    if not alumno:
+        raise HTTPException(status_code=404, detail="Alumno no encontrado")
+
+    # Deduplicate items in payload to prevent duplicate key integrity crashes
+    seen_tuples = set()
+    unique_items = []
     for item in payload.items:
+        key = (item.fase_id, item.seccion, item.operacion)
+        if key not in seen_tuples:
+            seen_tuples.add(key)
+            unique_items.append(item)
+
+    for item in unique_items:
         result = await db.execute(
             select(ProgresoMaestria).where(and_(
                 ProgresoMaestria.alumno_id == alumno_id,
@@ -792,13 +823,9 @@ async def override_alumno_progress_bulk(
     # Single commit for all items in the batch
     await db.commit()
 
-    # Expansión de fase completa: SOLO cuando el frontend lo solicita explícitamente
-    # (botón "Aprobar Fase completa"). Cubre secciones activas de la fase que puedan no
-    # estar en el phase-map del frontend (ej. Módulo 5 en Fase 3 o el Desafío Mixto 99099).
-    # Antes esto se disparaba con una heurística frágil (count>=4) que sobre-aprobaba fases
-    # al seleccionar 4 secciones sueltas.
+    # Expansión de fase completa: SOLO cuando el frontend lo solicita explícitamente (expand_phase=True)
     if payload.action == "approve" and payload.expand_phase:
-        fase_ids = {item.fase_id for item in payload.items}
+        fase_ids = {item.fase_id for item in unique_items}
         for fase_id in fase_ids:
             result_all_configs = await db.execute(
                 select(ConfiguracionProgreso).where(and_(
@@ -843,14 +870,22 @@ async def override_alumno_progress_bulk(
         await db.commit()
 
     # Sync user.settings["unlockedLevels"] aggregated across all unique categories in the batch
-    result_alumno = await db.execute(select(Alumno).where(Alumno.id == alumno_id))
-    alumno = result_alumno.scalar_one_or_none()
     if alumno:
         result_user = await db.execute(select(User).where(User.id == alumno.user_id))
         user = result_user.scalar_one_or_none()
         if user:
-            settings = user.settings or {}
-            if "unlockedLevels" not in settings:
+            raw_settings = user.settings
+            if isinstance(raw_settings, str):
+                try:
+                    settings = json.loads(raw_settings)
+                except Exception:
+                    settings = {}
+            elif isinstance(raw_settings, dict):
+                settings = dict(raw_settings)
+            else:
+                settings = {}
+
+            if "unlockedLevels" not in settings or not isinstance(settings["unlockedLevels"], dict):
                 settings["unlockedLevels"] = {}
 
             cat_map = {
@@ -860,11 +895,9 @@ async def override_alumno_progress_bulk(
                 "division": "division",
                 "mixta": "challenge"
             }
-            # Determine the maximum level value per category from the batch
-            # (approve = 6, unlock = 1, lock = 0)
             action_level = {"approve": 6, "unlock": 1, "lock": 0}[payload.action]
             affected_cats = set()
-            for item in payload.items:
+            for item in unique_items:
                 cat = cat_map.get(item.operacion)
                 if cat:
                     affected_cats.add(cat)
@@ -874,7 +907,6 @@ async def override_alumno_progress_bulk(
                 if payload.action == "lock":
                     settings["unlockedLevels"][cat] = 0
                 else:
-                    # Only upgrade, never downgrade existing unlocked level
                     settings["unlockedLevels"][cat] = max(current, action_level)
 
             user.settings = settings
@@ -883,8 +915,8 @@ async def override_alumno_progress_bulk(
         
         await recalcular_y_sincronizar_fase_actual(alumno_id, db)
 
-    processed = len(payload.items)
-    fases_afectadas = sorted({item.fase_id for item in payload.items})
+    processed = len(unique_items)
+    fases_afectadas = sorted({item.fase_id for item in unique_items})
     await registrar_auditoria(
         db=db,
         admin_id=admin_user["id"],
