@@ -55,9 +55,13 @@ async def recalcular_y_sincronizar_fase_actual(alumno_id: int, db: AsyncSession)
         progresos_aprobados = result_progresos.scalars().all()
 
         aprobados_set = {(p.seccion, p.operacion) for p in progresos_aprobados}
+        aprobados_secciones = {p.seccion for p in progresos_aprobados}
         
-        # Verificar si todos los bloques de la fase están aprobados
-        fase_completa = all((c.seccion, c.operacion) in aprobados_set for c in configs)
+        # Verificar si todos los bloques de la fase están aprobados (por tupla o por número de sección)
+        fase_completa = all(
+            (c.seccion, c.operacion) in aprobados_set or c.seccion in aprobados_secciones
+            for c in configs
+        )
 
         if not fase_completa:
             # La primera fase que no esté completada al 100% es la Fase Actual del alumno

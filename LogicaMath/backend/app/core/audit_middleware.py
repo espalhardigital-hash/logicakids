@@ -22,35 +22,34 @@ class AuditMiddleware(BaseHTTPMiddleware):
             
             payload_summary = body.decode("utf-8", errors="ignore")[:2000] if body else None
             
-            # Re-inject the body so the actual endpoint can read it
+            # Re-inject the body safely so FastAPI endpoints can read it without hanging
             async def receive():
-                return {"type": "http.request", "body": body}
+                return {"type": "http.request", "body": body, "more_body": False}
             request._receive = receive
             
             response = await call_next(request)
             
-            # Note: getting the admin_id from the token is tricky inside a middleware
-            # because dependencies haven't run yet. For simplicity in this demo,
-            # we'll log it as "SYSTEM_OR_ADMIN" unless we can decode the JWT manually.
-            # In a real app, we'd decode the Authorization header.
             auth_header = request.headers.get("Authorization", "")
             admin_id = "UNKNOWN"
             if auth_header.startswith("Bearer "):
-                admin_id = "ADMIN_TOKEN_USED" # Placeholder for decoded ID
+                admin_id = "ADMIN_TOKEN_USED"
 
-            # Save the log
-            async with AsyncSessionLocal() as session:
-                audit_entry = AuditLog(
-                    admin_id=admin_id,
-                    action=f"{request.method} {request.url.path}",
-                    endpoint=request.url.path,
-                    method=request.method,
-                    payload_summary=payload_summary,
-                    ip_address=request.client.host if request.client else "UNKNOWN"
-                )
-                session.add(audit_entry)
-                await session.commit()
-                
+            try:
+                async with AsyncSessionLocal() as session:
+                    audit_entry = AuditLog(
+                        admin_id=admin_id,
+                        action=f"{request.method} {request.url.path}",
+                        endpoint=request.url.path,
+                        method=request.method,
+                        payload_summary=payload_summary,
+                        ip_address=request.client.host if request.client else "UNKNOWN"
+                    )
+                    session.add(audit_entry)
+                    await session.commit()
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error(f"Error guardando AuditLog en AuditMiddleware: {e}")
+
             return response
         else:
             return await call_next(request)

@@ -43,7 +43,17 @@ async function apiRequest<T>(endpoint: string, method: string = 'GET', body?: an
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err.detail || err.message || 'API Error');
+    let errorMessage = 'API Error';
+    if (typeof err.detail === 'string') {
+      errorMessage = err.detail;
+    } else if (Array.isArray(err.detail)) {
+      errorMessage = err.detail.map((d: any) => d.msg || JSON.stringify(d)).join('; ');
+    } else if (typeof err.message === 'string') {
+      errorMessage = err.message;
+    } else if (err.detail) {
+      errorMessage = JSON.stringify(err.detail);
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json() as Promise<T>;

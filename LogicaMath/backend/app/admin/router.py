@@ -591,6 +591,15 @@ async def override_alumno_progress(alumno_id: int, payload: ProgressOverridePayl
         ))
     )
     progreso = result.scalar_one_or_none()
+    if not progreso:
+        result_alt = await db.execute(
+            select(ProgresoMaestria).where(and_(
+                ProgresoMaestria.alumno_id == alumno_id,
+                ProgresoMaestria.fase_id == payload.fase_id,
+                ProgresoMaestria.seccion == payload.seccion
+            ))
+        )
+        progreso = result_alt.scalar_one_or_none()
     
     cant_req = 15
     result_config = await db.execute(
@@ -601,6 +610,14 @@ async def override_alumno_progress(alumno_id: int, payload: ProgressOverridePayl
         ))
     )
     config = result_config.scalar_one_or_none()
+    if not config:
+        result_config_alt = await db.execute(
+            select(ConfiguracionProgreso).where(and_(
+                ConfiguracionProgreso.fase_id == payload.fase_id,
+                ConfiguracionProgreso.seccion == payload.seccion
+            ))
+        )
+        config = result_config_alt.scalar_one_or_none()
     if config:
         cant_req = config.cantidad_requerida
         
@@ -645,7 +662,20 @@ async def override_alumno_progress(alumno_id: int, payload: ProgressOverridePayl
             progreso.aprobado_por_admin = False
             
     elif payload.action == "lock":
-        if progreso:
+        if not progreso:
+            progreso = ProgresoMaestria(
+                alumno_id=alumno_id,
+                fase_id=payload.fase_id,
+                seccion=payload.seccion,
+                operacion=payload.operacion,
+                estado=EstadoProgresoEnum.BLOQUEADO,
+                aciertos_acumulados=0,
+                intentos_totales=0,
+                porcentaje_actual=0,
+                aprobado_por_admin=False
+            )
+            db.add(progreso)
+        else:
             progreso.estado = EstadoProgresoEnum.BLOQUEADO
             progreso.porcentaje_actual = 0
             progreso.aciertos_acumulados = 0
@@ -754,6 +784,15 @@ async def override_alumno_progress_bulk(
             ))
         )
         progreso = result.scalar_one_or_none()
+        if not progreso:
+            result_alt = await db.execute(
+                select(ProgresoMaestria).where(and_(
+                    ProgresoMaestria.alumno_id == alumno_id,
+                    ProgresoMaestria.fase_id == item.fase_id,
+                    ProgresoMaestria.seccion == item.seccion
+                ))
+            )
+            progreso = result_alt.scalar_one_or_none()
 
         # Fetch ConfiguracionProgreso to know cantidad_requerida
         cant_req = 15
@@ -765,6 +804,14 @@ async def override_alumno_progress_bulk(
             ))
         )
         config = result_config.scalar_one_or_none()
+        if not config:
+            result_config_alt = await db.execute(
+                select(ConfiguracionProgreso).where(and_(
+                    ConfiguracionProgreso.fase_id == item.fase_id,
+                    ConfiguracionProgreso.seccion == item.seccion
+                ))
+            )
+            config = result_config_alt.scalar_one_or_none()
         if config:
             cant_req = config.cantidad_requerida
 
@@ -809,7 +856,20 @@ async def override_alumno_progress_bulk(
                 progreso.aprobado_por_admin = False
 
         elif payload.action == "lock":
-            if progreso:
+            if not progreso:
+                progreso = ProgresoMaestria(
+                    alumno_id=alumno_id,
+                    fase_id=item.fase_id,
+                    seccion=item.seccion,
+                    operacion=item.operacion,
+                    estado=EstadoProgresoEnum.BLOQUEADO,
+                    aciertos_acumulados=0,
+                    intentos_totales=0,
+                    porcentaje_actual=0,
+                    aprobado_por_admin=False
+                )
+                db.add(progreso)
+            else:
                 progreso.estado = EstadoProgresoEnum.BLOQUEADO
                 progreso.porcentaje_actual = 0
                 progreso.aciertos_acumulados = 0
