@@ -12,6 +12,7 @@ import { UXFeedbackTab } from './UXFeedbackTab';
 import { ThemeToggle } from '../theme/ThemeToggle';
 import { PhaseMapProvider } from './PhaseMapContext';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { getStoredToken } from '../../services/authService';
 
 interface Props {
   onBack: () => void;
@@ -94,6 +95,29 @@ const AdminPanel: React.FC<Props> = ({ onBack, onLogout }) => {
       html.style.fontSize = originalFontSize;
     };
   }, [adminScale, adminFontFamily]);
+
+  useEffect(() => {
+    const fetchPendingBadges = async () => {
+      try {
+        const token = getStoredToken();
+        if (!token) return;
+        const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const res = await fetch(`${apiBase}/evaluador/feedback?estado=pendiente`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTabBadges(prev => ({
+            ...prev,
+            ux_feedback: Array.isArray(data) && data.length > 0 ? data.length : undefined
+          }));
+        }
+      } catch {
+        // Fallback silencioso en caso de error de red
+      }
+    };
+    fetchPendingBadges();
+  }, []);
 
   const tabs = [
     { id: 'general', label: 'Vista General', icon: LayoutDashboard },

@@ -32,7 +32,7 @@ interface HistoryItem {
 }
 
 const SRE_ENDPOINT = import.meta.env.VITE_SRE_ENDPOINT ?? 'http://localhost:9323/progreso_sre.json';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api$/, '');
 
 const METRIC_EXPLANATIONS: Record<string, { title: string; desc: string }> = {
   generated_at: {

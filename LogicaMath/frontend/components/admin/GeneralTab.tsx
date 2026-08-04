@@ -439,7 +439,10 @@ const GeneralTab: React.FC<Props> = ({ onBack, showConfirm, showAlert }) => {
                     type="text"
                     placeholder="Buscar por usuario o email..."
                     value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
+                    onChange={(e) => {
+                      setFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     className="w-full bg-transparent border-b border-slate-300 dark:border-white/10 rounded-none py-1.5 pl-8 pr-4 text-slate-700 dark:text-slate-200 text-[13px] focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-500"
                   />
                 </div>

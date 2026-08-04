@@ -4,7 +4,7 @@ import { ShieldAlert, CheckCircle, Clock, Trash2, Filter, Code } from 'lucide-re
 import { sanitizeHtml } from '../../services/textService';
 import AuthenticatedImage from '../common/AuthenticatedImage';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/api$/, '');
 
 interface ShadowDOMWrapperProps {
   html: string;

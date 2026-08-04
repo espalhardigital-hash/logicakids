@@ -86,21 +86,23 @@ export const TheoryEditor: React.FC<TheoryEditorProps> = ({
 
   const handleUpdateInteractiveStepText = (intIdx: number, stepIdx: number, value: string) => {
     const newInteractives = [...(theory?.interactivos || [])];
-    const steps = [...newInteractives[intIdx].pasos];
-    steps[stepIdx] = {
-      ...steps[stepIdx],
-      texto: value
-    };
-    newInteractives[intIdx] = {
-      ...newInteractives[intIdx],
-      pasos: steps
-    };
-    setTheory((prev: any) => ({ ...prev, interactivos: newInteractives }));
+    const steps = [...(newInteractives[intIdx]?.pasos || [])];
+    if (steps[stepIdx]) {
+      steps[stepIdx] = {
+        ...steps[stepIdx],
+        texto: value
+      };
+      newInteractives[intIdx] = {
+        ...newInteractives[intIdx],
+        pasos: steps
+      };
+      setTheory((prev: any) => ({ ...prev, interactivos: newInteractives }));
+    }
   };
 
   const handleDeleteInteractiveStep = (intIdx: number, stepIdx: number) => {
     const newInteractives = [...(theory?.interactivos || [])];
-    const steps = newInteractives[intIdx].pasos.filter((_: any, i: number) => i !== stepIdx)
+    const steps = (newInteractives[intIdx]?.pasos || []).filter((_: any, i: number) => i !== stepIdx)
       .map((s: any, idx: number) => ({ ...s, orden: idx + 1 }));
     newInteractives[intIdx] = {
       ...newInteractives[intIdx],

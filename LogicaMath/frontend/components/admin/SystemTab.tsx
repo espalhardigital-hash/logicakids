@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getSystemConfig, updateSystemConfig } from '../../services/storageService';
-import { Server, Save, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Server, Save, Loader2, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Props {
@@ -22,6 +22,8 @@ const SystemTab: React.FC<Props> = ({ showAlert }) => {
   const [showDbUrl, setShowDbUrl] = useState(false);
   const [savingSystemConfig, setSavingSystemConfig] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEndpointDisabled, setIsEndpointDisabled] = useState(false);
+  const [disabledMessage, setDisabledMessage] = useState('');
 
   useEffect(() => {
     loadData();
@@ -29,11 +31,16 @@ const SystemTab: React.FC<Props> = ({ showAlert }) => {
 
   const loadData = async () => {
     setIsLoading(true);
+    setIsEndpointDisabled(false);
     try {
       const sysConf = await getSystemConfig();
       setSystemConfig(sysConf);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      if (e.message && (e.message.includes('deshabilitado') || e.message.includes('403'))) {
+        setIsEndpointDisabled(true);
+        setDisabledMessage(e.message || 'El endpoint de configuración está deshabilitado en este entorno por razones de seguridad.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -76,13 +83,25 @@ const SystemTab: React.FC<Props> = ({ showAlert }) => {
             </div>
           </div>
 
-          {/* Banner de Entorno Local */}
-          <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-3">
-            <span className="font-bold uppercase tracking-wider bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">Modo Local</span>
-            <p className="leading-relaxed">
-              El entorno activo de pruebas opera 100% localmente sobre contenedores Docker (<code className="font-mono font-bold">logicakids_local_db</code>). Los cambios en esta sección preservan los parámetros locales del sistema.
-            </p>
-          </div>
+          {/* Banner de Entorno Local / Seguridad */}
+          {isEndpointDisabled ? (
+            <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-xs flex items-start gap-3">
+              <ShieldAlert size={20} className="shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold uppercase tracking-wider bg-red-500/20 px-2 py-0.5 rounded text-[10px] block w-fit mb-1">Configuración Protegida</span>
+                <p className="leading-relaxed font-medium">
+                  {disabledMessage || 'El endpoint de edición de parámetros de infraestructura está desactivado en este entorno por políticas de seguridad.'}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-3">
+              <span className="font-bold uppercase tracking-wider bg-amber-500/20 px-2 py-0.5 rounded text-[10px]">Modo Local</span>
+              <p className="leading-relaxed">
+                El entorno activo de pruebas opera 100% localmente sobre contenedores Docker (<code className="font-mono font-bold">logicakids_local_db</code>). Los cambios en esta sección preservan los parámetros locales del sistema.
+              </p>
+            </div>
+          )}
           
           <form onSubmit={handleSaveSystemConfig} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2 md:col-span-2">
