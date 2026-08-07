@@ -110,25 +110,55 @@ class CompositorFase4:
         # 'total' NO es la respuesta: es un dato del enunciado (presupuesto, meta,
         # billete...). La respuesta se deriva SIEMPRE de plantilla["formula"] sobre
         # estos mismos valores, para que enunciado y respuesta sean coherentes.
+        # ── Generación de valores ────────────────────────────────────────────
         n_cant = 2 + (fam_idx % 4)                      # 2..5
         a_val = round(1.20 + (fam_idx * 0.05) + rng.uniform(0.01, 0.05), 2)
         b_val = round(0.85 + (fam_idx * 0.03) + rng.uniform(0.01, 0.05), 2)
         c_val = round(0.50 + rng.uniform(0.01, 0.05), 2)
-        # 'total' debe ser mayor que los aportes para que restas y faltantes den > 0
         total_val = round(a_val + b_val + c_val + 1.0 + rng.uniform(0.05, 0.4), 2)
 
-        # 'factor_faltante' y 'dividendo' exigen un total coherente con a
-        if plantilla["incognita"] == "factor_faltante":
+        formula = plantilla.get("formula", "")
+
+        # ── Garantía de cocientes exactos y finitos (máx 2 decimales, sin números periódicos) ──
+        if formula == "a/n_cant":
+            # Elegir un resultado objetivo exacto Q (entero o máx 2 decimales)
+            opciones_q = [0.25, 0.4, 0.5, 0.75, 0.8, 1.2, 1.25, 1.5, 1.75, 2.2, 2.25, 2.4, 2.5, 3.2, 3.5, 4.25, 5.25]
+            q_target = opciones_q[fam_idx % len(opciones_q)]
+            a_val = round(q_target * n_cant, 2)
+        elif formula == "a/b":
+            # Parejas (b_val, q_target) donde a_val = b_val * q_target es exacto con <= 2 decimales
+            parejas_div = [
+                (0.5, 1.4),   # a = 0.7, a/b = 1.4
+                (0.4, 1.25),  # a = 0.5, a/b = 1.25
+                (0.8, 1.25),  # a = 1.0, a/b = 1.25
+                (1.2, 1.5),   # a = 1.8, a/b = 1.5
+                (1.5, 2.4),   # a = 3.6, a/b = 2.4
+                (2.5, 1.8),   # a = 4.5, a/b = 1.8
+                (0.5, 2.4),   # a = 1.2, a/b = 2.4
+                (0.25, 4.8),  # a = 1.2, a/b = 4.8
+                (1.6, 2.5),   # a = 4.0, a/b = 2.5
+                (0.8, 2.25),  # a = 1.8, a/b = 2.25
+                (1.25, 0.8),  # a = 1.0, a/b = 0.8
+                (2.4, 1.5),   # a = 3.6, a/b = 1.5
+            ]
+            b_val, q_target = parejas_div[(fam_idx + var_idx) % len(parejas_div)]
+            a_val = round(b_val * q_target, 2)
+        elif plantilla["incognita"] == "factor_faltante" or formula == "total/a":
             total_val = round(a_val * n_cant, 2)
-        # divisor decimal (M3N3): b debe ser menor que a y no trivial
-        if plantilla["formula"] in ("a/b",):
-            b_val = round(max(0.25, min(b_val, a_val / 2)), 2)
+        elif formula == "(total-c)/n_cant":
+            opciones_q = [0.25, 0.5, 0.75, 1.2, 1.25, 1.5, 2.0, 2.5, 3.25, 4.5]
+            q_target = opciones_q[fam_idx % len(opciones_q)]
+            total_val = round(q_target * n_cant + c_val, 2)
+        elif formula == "a*b":
+            parejas_ab = [
+                (1.5, 0.8), (2.4, 1.5), (3.5, 1.2), (1.25, 0.4),
+                (2.5, 0.6), (1.8, 0.5), (4.2, 0.5), (3.6, 0.25),
+                (2.8, 1.5), (1.6, 2.5), (3.2, 1.25), (2.25, 0.8),
+                (1.4, 2.5), (3.8, 0.5), (4.5, 0.4), (2.6, 1.5)
+            ]
+            a_val, b_val = parejas_ab[(fam_idx + var_idx) % len(parejas_ab)]
 
         # ── Escala pedagógica de las conversiones ────────────────────────────
-        # Al SUBIR la escalera (dividir por 100/1000) un valor de 1,22 daría
-        # 0,01: el redondeo destruye la respuesta. El operando debe vivir en el
-        # rango de la unidad de partida, no en el rango por defecto.
-        formula = plantilla["formula"]
         if "/1000" in formula:
             a_val = round(a_val * 1000, 0) if formula.startswith("a/") else a_val
             total_val = round(total_val * 1000, 0) if formula.startswith("total/") else total_val
@@ -137,15 +167,14 @@ class CompositorFase4:
             total_val = round(total_val * 100, 0) if formula.startswith("total/") else total_val
         elif "/10" in formula and formula.startswith("a/"):
             a_val = round(a_val * 10, 0)
-        # Unidades mixtas: el operando menor debe ser una cantidad realista
-        # (una tira de 0,89 cm no existe; 89 cm sí).
+
         if "b/100" in formula:
             b_val = round(b_val * 100, 0)
         elif "b/10" in formula:
             b_val = round(b_val * 10, 0)
         if "c/100" in formula:
             c_val = round(c_val * 100, 0)
-        # a*1000-b y a*1000+b: 'b' está en la unidad menor (m frente a km)
+
         if "a*1000" in formula and ("+b" in formula or "-b" in formula):
             b_val = round(b_val * 1000, 0)
             if "-b" in formula and b_val >= a_val * 1000:
@@ -393,4 +422,6 @@ class CompositorFase4:
             raise ValueError(f"Fórmula de '{plantilla['id']}' produjo un resultado no finito con {vals}")
         if res <= 0:
             raise ValueError(f"Fórmula de '{plantilla['id']}' produjo un resultado no positivo ({res}) con {vals}")
+        if abs(res - round(res, 2)) > 1e-6:
+            raise ValueError(f"Fórmula de '{plantilla['id']}' produjo un resultado no exacto/periódico ({res}) con {vals}")
         return round(float(res), 2)
