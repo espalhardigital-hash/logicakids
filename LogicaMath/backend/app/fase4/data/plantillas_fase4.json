@@ -492,8 +492,8 @@
       "lugar",
       "objetos"
     ],
-    "marco": "{personaje} compró {a} kg de {objetos_0} en {lugar}. El precio por kilo es de {unidad} {b}.",
-    "pregunta": "¿Cuánto pagó exactamente por los {a} kg comprados?",
+    "marco": "{personaje} adquirió {a} paquetes de {objetos_0} en {lugar}. El precio unitario es de {unidad} {b}.",
+    "pregunta": "¿Cuánto pagó exactamente por los {a} paquetes comprados?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
     "n_datos": 2,
@@ -574,8 +574,8 @@
       "lugar",
       "objeto_medible"
     ],
-    "marco": "{personaje} adquirió {a} metros de {objeto_medible} en {lugar}. El metro cuesta {unidad} {b}.",
-    "pregunta": "¿Cuál es el valor final a pagar por la tela?",
+    "marco": "{personaje} adquirió {a} unidades de {objeto_medible} en {lugar}. Cada unidad cuesta {unidad} {b}.",
+    "pregunta": "¿Cuál es el valor final a pagar por el lote?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
     "n_datos": 2,
@@ -590,8 +590,8 @@
       "lugar",
       "objetos"
     ],
-    "marco": "{n_cant} personas consumieron en {lugar} por un total de {unidad} {a}. Dividieron la cuenta en partes iguales.",
-    "pregunta": "¿Cuánto abonó cada persona en partes iguales?",
+    "marco": "Para celebrar una ocasión especial en {lugar}, un grupo de {n_cant} amigos pidió comida y la cuenta final fue de {unidad} {a}. Como son buenos amigos, decidieron pagar todos la misma cantidad para compartir los gastos.",
+    "pregunta": "¿Cuánto dinero le tocó poner a cada uno?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -606,8 +606,8 @@
       "lugar",
       "objetos"
     ],
-    "marco": "{personaje} repartió equitativamente {a} {unidad} de {objetos_0} en {n_cant} paquetes iguales en {lugar}.",
-    "pregunta": "¿Cuántos {unidad} pesa cada paquete resultante?",
+    "marco": "{personaje} está ordenando el depósito en {lugar} y tiene una gran carga de {a} {unidad} de {objetos_0}. Para que sea más fácil de transportar, decidió separarlo todo en {n_cant} paquetes idénticos.",
+    "pregunta": "¿Cuántos {unidad} debe pesar exactamente cada paquete?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -622,8 +622,8 @@
       "lugar",
       "objeto_medible"
     ],
-    "marco": "{personaje} cortó una tira de {objeto_medible} de {a} {unidad} en {n_cant} trozos iguales en {lugar}.",
-    "pregunta": "¿Cuántos {unidad} mide cada trozo de {objeto_medible}?",
+    "marco": "Para decorar su habitación, {personaje} llevó a {lugar} una tira muy larga de {objeto_medible} que medía {a} {unidad}. Luego, con mucho cuidado, la cortó en {n_cant} trozos iguales.",
+    "pregunta": "¿Cuántos {unidad} mide ahora cada uno de esos trozos de {objeto_medible}?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -642,8 +642,8 @@
       "objetos",
       "unidad"
     ],
-    "marco": "{personaje} reparte dinero en {lugar}. Si cada persona recibe {a} {unidad} y hay {n_cant} personas,",
-    "pregunta": "¿cuánto dinero tenía {personaje} en total?",
+    "marco": "{personaje} preparó una sorpresa de dinero para sus amigos en {lugar}. Le dio exactamente {a} {unidad} a cada uno, y como en total eran {n_cant} amigos,",
+    "pregunta": "¿cuánto dinero en total había ahorrado {personaje} para repartir?",
     "formula": "a*n_cant"
   },
   {
@@ -659,8 +659,8 @@
       "objetos",
       "unidad"
     ],
-    "marco": "{personaje} quiere distribuir {total} {unidad} entre {n_cant} amigos en {lugar}. Ya apartó {c} {unidad} para gastos.",
-    "pregunta": "¿Cuánto recibe cada amigo del dinero restante?",
+    "marco": "Para el paseo escolar, {personaje} logró reunir {total} {unidad} y apartó {c} {unidad} para los pasajes. El dinero sobrante lo va a dividir en partes iguales entre {n_cant} amigos allí en {lugar}.",
+    "pregunta": "¿Cuánto dinero recibe finalmente cada amigo?",
     "formula": "(total-c)/n_cant"
   },
   {
@@ -672,8 +672,8 @@
       "lugar",
       "objetos"
     ],
-    "marco": "Un saco de {a} {unidad} de {objetos_0} en {lugar} se dividió en {n_cant} raciones idénticas.",
-    "pregunta": "¿Cuánta masa en {unidad} contiene cada ración?",
+    "marco": "En la granja de {lugar}, un enorme saco de {a} {unidad} de {objetos_0} fue dividido con cuidado en {n_cant} raciones idénticas para alimentar a los animales.",
+    "pregunta": "¿Cuánta masa en {unidad} tiene que llevar cada ración?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -688,8 +688,8 @@
       "lugar",
       "objetos"
     ],
-    "marco": "{personaje} gastó {unidad} {a} al comprar {n_cant} artículos idénticos de {objetos_0} en {lugar}.",
-    "pregunta": "¿Cuánto costó cada artículo individual?",
+    "marco": "Ahorrando sus mesadas, {personaje} gastó {unidad} {a} para comprar un lote de {n_cant} artículos idénticos de {objetos_0} en {lugar}.",
+    "pregunta": "¿Cuánto dinero le costó exactamente cada uno de esos artículos?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -704,8 +704,8 @@
       "lugar",
       "objetos"
     ],
-    "marco": "Una bolsa con {n_cant} porciones de {objetos_0} pesa en total {a} {unidad} en {lugar}.",
-    "pregunta": "¿Cuál es la masa en {unidad} de una sola porción?",
+    "marco": "En la competencia de cocina de {lugar}, una gran bolsa que contiene {n_cant} porciones idénticas de {objetos_0} pesa exactamente {a} {unidad} en la balanza.",
+    "pregunta": "¿Cuál es la masa en {unidad} de una sola de esas porciones?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -720,8 +720,8 @@
       "lugar",
       "objeto_medible"
     ],
-    "marco": "{personaje} dividió {a} {unidad} de {objeto_medible} en {n_cant} partes iguales en {lugar}.",
-    "pregunta": "¿Cuánto mide en {unidad} cada parte obtenida?",
+    "marco": "Para armar el proyecto de ciencias, {personaje} tomó {a} {unidad} de {objeto_medible} y se encargó de dividirlos en {n_cant} partes del mismo largo en {lugar}.",
+    "pregunta": "¿Cuánto mide en {unidad} cada una de las partes que cortó?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -740,8 +740,8 @@
       "objetos",
       "unidad"
     ],
-    "marco": "En {lugar}, cada porción de {objetos_0} pesa {a} {unidad}. Se preparan {n_cant} porciones iguales.",
-    "pregunta": "¿Cuántos {unidad} de {objetos_0} se usaron en total?",
+    "marco": "En el concurso de repostería de {lugar}, la regla dice que cada porción de {objetos_0} debe pesar exactamente {a} {unidad}. Si se prepararon {n_cant} porciones perfectas,",
+    "pregunta": "¿Cuántos {unidad} de {objetos_0} se tuvieron que usar en total para lograrlo?",
     "formula": "a*n_cant"
   },
   {
@@ -757,8 +757,8 @@
       "objetos",
       "unidad"
     ],
-    "marco": "{personaje} tiene {total} {unidad} de {objetos_0} en {lugar} y ya separó {c} {unidad}. Quiere repartir el resto entre {n_cant} personas.",
-    "pregunta": "¿Cuántos {unidad} recibe cada persona?",
+    "marco": "En {lugar}, {personaje} recibió una carga de {total} {unidad} de {objetos_0} y separó rápidamente {c} {unidad} para la despensa. Lo que quedó, lo repartió equitativamente entre {n_cant} personas necesitadas.",
+    "pregunta": "¿Cuántos {unidad} recibió en sus manos cada persona?",
     "formula": "(total-c)/n_cant"
   },
   {
@@ -770,8 +770,8 @@
       "lugar",
       "objeto_medible"
     ],
-    "marco": "Un cerco de {objeto_medible} de {a} {unidad} en {lugar} se dividió en {n_cant} paneles iguales.",
-    "pregunta": "¿Cuál es el ancho de cada panel en {unidad}?",
+    "marco": "Para asegurar los límites de {lugar}, un enorme cerco hecho de {objeto_medible} que medía {a} {unidad} fue dividido en {n_cant} paneles del mismo tamaño.",
+    "pregunta": "¿Cuál es el ancho que quedó en cada panel, midiendo en {unidad}?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -786,8 +786,8 @@
       "lugar",
       "objetos"
     ],
-    "marco": "{personaje} gastó {unidad} {a} comprando {objetos_0} a un valor de {unidad} {b} por kilo en {lugar}.",
-    "pregunta": "¿Cuántos kilos de {objetos_0} compró en total?",
+    "marco": "{personaje} fue de compras por la tarde y gastó en total {unidad} {a} al llevar {objetos_0}. Sabiendo que el precio era de {unidad} {b} por cada kilo en {lugar},",
+    "pregunta": "¿Cuántos kilos exactos de {objetos_0} logró comprar en su visita?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -802,8 +802,8 @@
       "lugar",
       "objetos"
     ],
-    "marco": "{personaje} tiene un total de {a} {unidad} de {objetos_0} en {lugar} y empaqueta bolsas de {b} {unidad} cada una.",
-    "pregunta": "¿Cuántas bolsas completas logró armar?",
+    "marco": "Trabajando en el inventario de {lugar}, {personaje} juntó un total de {a} {unidad} de {objetos_0} y ahora debe empaquetarlos en pequeñas bolsitas de {b} {unidad} cada una.",
+    "pregunta": "¿Cuántas bolsas llenas pudo armar al finalizar su trabajo?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -818,8 +818,8 @@
       "lugar",
       "objeto_medible"
     ],
-    "marco": "{personaje} dispone de {a} {unidad} de {objeto_medible} en {lugar}. Corta varillas de {b} {unidad} de largo.",
-    "pregunta": "¿Cuántas varillas iguales puede obtener en total?",
+    "marco": "Ayudando en la carpintería de {lugar}, {personaje} dispone de {a} {unidad} de {objeto_medible}. Su tarea es cortar muchas varillas que midan exactamente {b} {unidad} de largo.",
+    "pregunta": "¿Cuántas varillas iguales podrá armar si aprovecha todo el material?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -838,8 +838,8 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "En {lugar}, se llenan {n_cant} paquetes iguales de {objeto_medible}. Cada uno contiene {a} {unidad}.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} se distribuyeron en total?",
+    "marco": "En el evento organizado en {lugar}, los voluntarios llenaron {n_cant} paquetes idénticos de {objeto_medible}. Si se sabe que cada uno contiene {a} {unidad},",
+    "pregunta": "¿Cuántos {unidad} de {objeto_medible} lograron distribuir entre todos los asistentes?",
     "formula": "a*n_cant"
   },
   {
@@ -855,8 +855,8 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "{personaje} tiene {total} {unidad} de {objeto_medible} en {lugar} y reserva {c} {unidad}. Reparte el resto entre {n_cant} paquetes.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} caben en cada paquete?",
+    "marco": "{personaje} llevó {total} {unidad} de {objeto_medible} a {lugar}. Primero reservó {c} {unidad} para guardarlos, y luego decidió repartir todo lo sobrante en {n_cant} paquetes iguales.",
+    "pregunta": "¿Cuántos {unidad} de {objeto_medible} terminó poniendo adentro de cada paquete?",
     "formula": "(total-c)/n_cant"
   },
   {
@@ -868,8 +868,8 @@
       "lugar",
       "sujeto_medible"
     ],
-    "marco": "Una compra de {unidad} {a} en {lugar} se pagará en cuotas fijas de {unidad} {b}.",
-    "pregunta": "¿En cuántas cuotas se saldará la compra completa?",
+    "marco": "En {lugar}, la familia compró {sujeto_medible} que costaba en total {unidad} {a}. Para que no fuera tan pesado pagarlo de golpe, lo pagarán en pequeñas cuotas fijas de {unidad} {b}.",
+    "pregunta": "¿En cuántas cuotas lograrán terminar de pagar la compra completa?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -884,8 +884,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} midió {atributo} de {objeto_medible} y registró {a} m. Quiere expresar la medida en centímetros (cm).",
-    "pregunta": "¿A cuántos centímetros (cm) equivale esa longitud?",
+    "marco": "Para un divertido proyecto escolar, {personaje} midió {atributo} de {objeto_medible} y descubrió que tiene {a} m. Su profesora le pidió que anote este valor usando centímetros (cm) en su libreta.",
+    "pregunta": "¿A cuántos centímetros (cm) equivale la medida que tomó?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
     "n_datos": 1,
@@ -900,8 +900,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} recorrió un trayecto en {objeto_medible} de {a} km. Desea convertirlo a metros (m).",
-    "pregunta": "¿Cuántos metros (m) representa esa distancia?",
+    "marco": "Entrenando para la competencia, {personaje} recorrió un trayecto en {objeto_medible} que duró {a} km. Su entrenador le pide que escriba esa distancia usando metros (m) en su registro.",
+    "pregunta": "¿Cuántos metros (m) representa la distancia que logró avanzar?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
     "n_datos": 1,
@@ -916,8 +916,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "El grosor de {objeto_medible} es de {a} cm. {personaje} necesita la medida en milímetros (mm).",
-    "pregunta": "¿Cuántos milímetros (mm) mide de grosor?",
+    "marco": "{personaje} está usando una regla para examinar {objeto_medible} y nota que su {atributo} es de {a} cm. Como quiere ser muy preciso, necesita transformar la medida a milímetros (mm).",
+    "pregunta": "¿Cuántos milímetros (mm) mide de grosor en realidad?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
     "n_datos": 1,
@@ -936,8 +936,8 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "En {lugar} hay {n_cant} unidades de {objeto_medible}. Cada una mide {a} m.",
-    "pregunta": "¿Cuántos centímetros (cm) miden todas juntas?",
+    "marco": "Al organizar la decoración en {lugar}, {personaje} se da cuenta de que hay {n_cant} unidades de {objeto_medible}, y que cada una mide exactamente {a} m.",
+    "pregunta": "¿Cuántos centímetros (cm) alcanzarían si se sumaran todas juntas?",
     "formula": "a*n_cant*100"
   },
   {
@@ -953,8 +953,8 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "{personaje} midió {objeto_medible} en {lugar} y anotó {total} cm.",
-    "pregunta": "¿A cuántos metros (m) equivale esa medida?",
+    "marco": "Realizando tareas de jardinería en {lugar}, {personaje} tomó la cinta de medir, examinó su {objeto_medible} y anotó felizmente una longitud de {total} cm.",
+    "pregunta": "¿A cuántos metros (m) equivale la medida que acaba de registrar?",
     "formula": "total/100"
   },
   {
@@ -966,8 +966,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "La señal de ruta en {objeto_medible} indica un avance de {a} km.",
-    "pregunta": "¿Cuántos metros (m) se han recorrido hasta la señal?",
+    "marco": "De camino a la aventura, la familia ve una enorme señal de ruta en {objeto_medible} que avisa que ya avanzaron {a} km desde el punto de partida.",
+    "pregunta": "¿Cuántos metros (m) se han recorrido según lo que marca la señal?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
     "n_datos": 1,
@@ -982,8 +982,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} midió {a} cm de {objeto_medible}. Necesita convertir esa longitud a metros (m).",
-    "pregunta": "¿A cuántos metros (m) equivale la medida tomada?",
+    "marco": "Haciendo un experimento, {personaje} midió con cuidado {a} cm de {objeto_medible}. Para poder anotar el resultado en la pizarra del laboratorio, necesita convertirlo a metros (m).",
+    "pregunta": "¿A cuántos metros (m) equivale esa medida tan detallada?",
     "operacion_correcta": "dividir",
     "incognita": "conversion",
     "n_datos": 1,
@@ -998,8 +998,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} caminó {a} m a lo largo de {objeto_medible}. Quiere registrar la distancia en kilómetros (km).",
-    "pregunta": "¿Cuántos kilómetros (km) caminó en total?",
+    "marco": "Durante su excursión de fin de semana, {personaje} caminó unos sorprendentes {a} m a lo largo de {objeto_medible}. Ahora quiere compartir la hazaña usando kilómetros (km).",
+    "pregunta": "¿Cuántos kilómetros (km) caminó en total durante su aventura?",
     "operacion_correcta": "dividir",
     "incognita": "conversion",
     "n_datos": 1,
@@ -1014,8 +1014,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "El espesor de {objeto_medible} es de {a} mm. {personaje} lo convierte a centímetros (cm).",
-    "pregunta": "¿Cuántos centímetros (cm) de espesor tiene?",
+    "marco": "Usando una pequeña lupa, se descubre que el espesor de {objeto_medible} es de apenas {a} mm. Curioso por el resultado, {personaje} quiere saber la medida en centímetros (cm).",
+    "pregunta": "¿Cuántos centímetros (cm) de espesor tiene según la regla?",
     "operacion_correcta": "dividir",
     "incognita": "conversion",
     "n_datos": 1,
@@ -1034,8 +1034,8 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "En {lugar}, {personaje} cuenta {n_cant} unidades de {objeto_medible}. Cada una mide {a} cm.",
-    "pregunta": "¿Cuántos metros (m) miden todas juntas?",
+    "marco": "Al llegar a {lugar}, {personaje} empieza a contar con cuidado y se da cuenta de que hay {n_cant} unidades de {objeto_medible}, sabiendo que cada una mide {a} cm.",
+    "pregunta": "Si las unimos en una sola línea, ¿cuántos metros (m) miden todas juntas?",
     "formula": "a*n_cant/100"
   },
   {
@@ -1051,8 +1051,8 @@
       "objeto_medible",
       "unidad"
     ],
-    "marco": "{personaje} registra la medida de {objeto_medible} en {lugar}: {total} m.",
-    "pregunta": "¿Cuántos kilómetros (km) mide ese recorrido?",
+    "marco": "Para probar sus habilidades en cartografía, {personaje} se para en {lugar}, registra la enorme medida de {objeto_medible} y anota con orgullo: {total} m.",
+    "pregunta": "En un mapa de largas distancias, ¿cuántos kilómetros (km) mide ese recorrido?",
     "formula": "total/1000"
   },
   {
@@ -1064,8 +1064,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "El odómetro de {objeto_medible} señala {a} m avanzados.",
-    "pregunta": "¿Cuántos kilómetros (km) representan esos metros?",
+    "marco": "En plena competencia deportiva, los corredores observan que el odómetro ubicado en {objeto_medible} ya señala {a} m avanzados desde que inició la carrera.",
+    "pregunta": "Para los reportes de noticias, ¿cuántos kilómetros (km) representan esos metros?",
     "operacion_correcta": "dividir",
     "incognita": "conversion",
     "n_datos": 1,
@@ -1080,8 +1080,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} midió {objeto_medible} en dos partes: la primera de {a} m y la segunda de {b} cm.",
-    "pregunta": "¿Cuál es la longitud total combinada expresada en metros (m)?",
+    "marco": "Para construir algo genial, {personaje} midió {objeto_medible} y lo anotó en dos partes separadas: la primera parte medía {a} m y la segunda parte medía {b} cm.",
+    "pregunta": "Juntando ambas partes, ¿cuál es la longitud total combinada expresada únicamente en metros (m)?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
     "n_datos": 2,
@@ -1096,8 +1096,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "En {objeto_medible}, {personaje} recorrió {a} km en el primer tramo y {b} m en el segundo tramo.",
-    "pregunta": "¿Cuántos metros (m) recorrió en total considerando ambos tramos?",
+    "marco": "Durante un rally en {objeto_medible}, el equipo de {personaje} avanzó rápido {a} km en el primer tramo del recorrido y unos {b} m extra en el segundo tramo.",
+    "pregunta": "Sumando todo el esfuerzo, ¿cuántos metros (m) recorrió el equipo en total considerando ambos tramos?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
     "n_datos": 2,
@@ -1112,8 +1112,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{objeto_medible} medía {a} m de largo y {personaje} le recortó {b} cm.",
-    "pregunta": "¿Cuántos metros (m) mide ahora?",
+    "marco": "Al inicio del taller, la pieza de {objeto_medible} medía exactamente {a} m de largo. Después, {personaje} le recortó un pequeño pedazo de {b} cm con la tijera.",
+    "pregunta": "Luego del pequeño recorte, ¿cuántos metros (m) quedaron midiendo?",
     "operacion_correcta": "restar",
     "incognita": "resto_convertido",
     "n_datos": 2,
@@ -1128,8 +1128,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{objeto_medible} tiene {a} cm de espesor y {personaje} le añade una capa de {b} mm.",
-    "pregunta": "¿Cuál es la medida total expresada en centímetros (cm)?",
+    "marco": "El fabricante asegura que {objeto_medible} tiene {a} cm de espesor de fábrica, y para hacerlo más fuerte, {personaje} le añade una delgadísima capa protectora de {b} mm.",
+    "pregunta": "¿Cuál es la medida total del nuevo espesor, pero expresada solamente en centímetros (cm)?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
     "n_datos": 2,
@@ -1144,8 +1144,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "El trayecto A en {objeto_medible} mide {a} km y el trayecto B mide {b} m.",
-    "pregunta": "¿Cuántos metros (m) más largo es el trayecto A respecto al trayecto B?",
+    "marco": "Comparando dos largos viajes en {objeto_medible}, notaron que el trayecto A mide {a} km, mientras que el trayecto B mide {b} m.",
+    "pregunta": "¿Cuántos metros (m) más largo resulta ser el trayecto A cuando se lo compara directamente con el trayecto B?",
     "operacion_correcta": "restar",
     "incognita": "diferencia_convertida",
     "n_datos": 2,
@@ -1160,8 +1160,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} midió {objeto_medible} en tres secciones: {a} m, {b} cm y {c} cm.",
-    "pregunta": "¿Cuál es la extensión total final expresada en metros (m)?",
+    "marco": "Armando un rompecabezas de pistas en {objeto_medible}, {personaje} fue sumando tres partes que midió con cuidado: primero {a} m, luego {b} cm y finalmente otros {c} cm.",
+    "pregunta": "Uniendo las tres piezas, ¿cuál es la extensión total final y definitiva, expresada en metros (m)?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
     "n_datos": 3,

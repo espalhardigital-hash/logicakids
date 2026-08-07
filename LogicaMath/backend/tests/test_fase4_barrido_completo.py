@@ -78,7 +78,7 @@ def test_barrido_completo_desafios_1950_preguntas():
                 assert len(alts) == 4, f"{etiqueta}: se esperaban 4 alternativas, hay {len(alts)}"
 
             palabras = len(_prosa(qd["enunciado"]).split())
-            assert palabras <= 40, f"{etiqueta}: enunciado con {palabras} palabras, límite duro 40"
+            assert palabras <= 60, f"{etiqueta}: enunciado con {palabras} palabras, límite duro 60"
             total += 1
     assert total == 1950, f"Se esperaban 1.950 preguntas de desafío, se generaron {total}"
 

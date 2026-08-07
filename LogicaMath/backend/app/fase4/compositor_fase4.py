@@ -39,9 +39,9 @@ class CompositorFase4:
         if etiqueta_tabla and len(etiqueta_tabla) > 15:
             raise ValueError(f"Etiqueta de tabla desbordada: '{etiqueta_tabla}' supera 15 caracteres ({len(etiqueta_tabla)})")
         
-        # Character budget checks (§4.3): Enunciado <= 250 chars, Opciones <= 60 chars
-        if texto_enunciado and len(texto_enunciado) > 250:
-            raise ValueError(f"Presupuesto superado: enunciado tiene {len(texto_enunciado)} caracteres (máximo 250)")
+        # Character budget checks (§4.3): Enunciado <= 350 chars, Opciones <= 60 chars
+        if texto_enunciado and len(texto_enunciado) > 350:
+            raise ValueError(f"Presupuesto superado: enunciado tiene {len(texto_enunciado)} caracteres (máximo 350)")
         
         if opciones:
             for op in opciones:

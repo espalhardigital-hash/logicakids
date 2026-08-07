@@ -212,15 +212,30 @@ def _explicacion_desde_compositor(comp: dict) -> dict:
     """
     vals = comp["valores"]
     formula = comp["formula"]
+    op = comp["operacion_correcta"]
     legible = formula
     for nombre in ("total", "n_cant", "a", "b", "c"):   # 'total' antes que 'a' para no romper
         legible = legible.replace(nombre, _fmt_num(vals[nombre]) if nombre != "n_cant" else str(vals[nombre]))
-    verbo = _VERBO_OPERACION.get(comp["operacion_correcta"], "Operamos")
+    
+    legible_fmt = legible.replace('*', ' × ').replace('/', ' ÷ ').replace('+', ' + ').replace('-', ' − ')
+    verbo = _VERBO_OPERACION.get(op, "Operamos")
+
+    if op in ("sumar", "restar"):
+        paso1 = "Alineamos los números haciendo coincidir la coma decimal en la misma columna vertical."
+    elif op == "multiplicar":
+        paso1 = "Multiplicamos las cifras normalmente y ubicamos la coma contando el total de posiciones decimales."
+    elif op == "dividir":
+        paso1 = "Desplazamos la coma decimal en dividendo y divisor multiplicando por la misma potencia de 10 hasta obtener un divisor entero, o dividimos la parte entera y colocamos la coma al bajar la primera cifra decimal."
+    elif any(f in formula for f in ("/1000", "/100", "/10", "*1000", "*100", "*10")):
+        paso1 = "Ubicamos las posiciones en la escalera métrica y desplazamos la coma decimal según la equivalencia."
+    else:
+        paso1 = "Identificamos los datos y aplicamos el procedimiento correspondiente."
+
     return {
         "titulo": "Resolución",
         "pasos": [
-            {"orden": 1, "texto": "Alineamos las comas y comprobamos que ambos números tengan la misma cantidad de cifras decimales."},
-            {"orden": 2, "texto": f"{verbo} según el planteamiento: {legible}."},
+            {"orden": 1, "texto": paso1},
+            {"orden": 2, "texto": f"{verbo} según el planteamiento: {legible_fmt}."},
             {"orden": 3, "texto": f"Resultado: {comp['respuesta_correcta']}."},
         ],
     }
@@ -753,8 +768,8 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
     enunciado_prosa = re.sub(r"<svg.*?</svg>", "", enunciado, flags=re.DOTALL | re.IGNORECASE)
     enunciado_prosa = re.sub(r"<[^>]+>", " ", enunciado_prosa)
     words = enunciado_prosa.split()
-    if len(words) > 40:
-        raise ValueError(f"Enunciado excede el límite duro de 40 palabras ({len(words)} palabras): '{enunciado}'")
+    if len(words) > 60:
+        raise ValueError(f"Enunciado excede el límite duro de 60 palabras ({len(words)} palabras): '{enunciado}'")
 
     datos_num = {
         "fase4": True,

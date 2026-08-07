@@ -375,7 +375,7 @@
     "modulo_id": 2,
     "magnitud": "dinero",
     "unidad": "R$",
-    "nombre": "Manzanas por kilo",
+    "nombre": "Bolsas de manzanas",
     "lugar": "la frutería",
     "objetos": [
       "manzana roja",
@@ -383,7 +383,7 @@
     ],
     "sujeto_medible": "el importe a pagar",
     "objeto_medible": "la bolsa de manzanas",
-    "atributo": "el precio por kg"
+    "atributo": "el precio por bolsa"
   },
   {
     "id": "refrigerantes_fiesta",
@@ -405,15 +405,15 @@
     "modulo_id": 2,
     "magnitud": "dinero",
     "unidad": "R$",
-    "nombre": "Pan por kilo",
+    "nombre": "Paquetes de pan",
     "lugar": "la panadería",
     "objetos": [
       "pan francés",
       "pan de queso"
     ],
     "sujeto_medible": "la cuenta final",
-    "objeto_medible": "el kilo de pan",
-    "atributo": "el valor por kilo"
+    "objeto_medible": "el paquete de pan",
+    "atributo": "el valor por paquete"
   },
   {
     "id": "entradas_cine",
@@ -457,8 +457,8 @@
       "costilla"
     ],
     "sujeto_medible": "el importe de la compra",
-    "objeto_medible": "el trozo de carne",
-    "atributo": "el precio por kg"
+    "objeto_medible": "el corte de carne",
+    "atributo": "el valor del corte"
   },
   {
     "id": "precio_mayorista",
@@ -1027,11 +1027,11 @@
     "modulo_id": 4,
     "magnitud": "longitud",
     "unidad": "mm",
-    "nombre": "Espesor de monedas",
-    "lugar": "el laboratorio",
+    "nombre": "Espesor de fichas metálicas",
+    "lugar": "el taller de precisión",
     "objetos": [
-      "moneda de 50 centavos",
-      "moneda de 1 real"
+      "ficha de bronce",
+      "ficha de acero"
     ],
     "sujeto_medible": "el grosor acumulado",
     "objeto_medible": "la pila de monedas",
