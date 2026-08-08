@@ -341,16 +341,16 @@
     "nivel_id": 1,
     "magnitud": "dinero",
     "operacion_correcta": "multiplicar",
-    "incognita": "factor_faltante",
+    "incognita": "factor_multiplicativo",
     "n_datos": 2,
     "campos_requeridos": [
       "lugar",
       "objetos",
       "unidad"
     ],
-    "marco": "En {lugar}, {personaje} gastó {total} {unidad} en {objetos_0}. Si cada {objetos_0} cuesta {a} {unidad},",
-    "pregunta": "¿cuántas unidades compró {personaje}?",
-    "formula": "total/a"
+    "marco": "En {lugar}, {personaje} compró {n_cant} paquetes de {objetos_0}. Si cada paquete cuesta {unidad} {a},",
+    "pregunta": "¿cuánto pagó {personaje} en total?",
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n1_esq6_mult_tres_datos",
@@ -439,16 +439,16 @@
     "nivel_id": 2,
     "magnitud": "masa",
     "operacion_correcta": "multiplicar",
-    "incognita": "factor_faltante",
+    "incognita": "factor_multiplicativo",
     "n_datos": 2,
     "campos_requeridos": [
       "lugar",
       "objetos",
       "unidad"
     ],
-    "marco": "En {lugar}, un cargamento de {objetos_0} pesa {total} {unidad} en total. Si cada caja pesa {a} {unidad},",
-    "pregunta": "¿cuántas cajas hay en el cargamento?",
-    "formula": "total/a"
+    "marco": "En {lugar}, un cargamento lleva {n_cant} cajas de {objetos_0}. Si cada caja pesa {a} {unidad},",
+    "pregunta": "¿cuál es el peso total del cargamento en {unidad}?",
+    "formula": "a*n_cant"
   },
   {
     "id": "m2_n2_esq6_mult_tres_datos",
@@ -537,16 +537,16 @@
     "nivel_id": 3,
     "magnitud": "longitud",
     "operacion_correcta": "multiplicar",
-    "incognita": "factor_faltante",
+    "incognita": "factor_multiplicativo",
     "n_datos": 2,
     "campos_requeridos": [
       "lugar",
       "objeto_medible",
       "unidad"
     ],
-    "marco": "En {lugar}, se necesitó un total de {total} {unidad} de {objeto_medible}. Si cada tramo mide {a} {unidad},",
-    "pregunta": "¿cuántos tramos iguales se cortaron?",
-    "formula": "total/a"
+    "marco": "En {lugar}, {personaje} necesita {a} tramos de {objeto_medible}. Si cada tramo mide {b} {unidad},",
+    "pregunta": "¿cuántos {unidad} de {objeto_medible} precisa en total?",
+    "formula": "a*b"
   },
   {
     "id": "m2_n3_esq6_mult_tres_datos",
@@ -829,18 +829,18 @@
     "id": "m3_n3_esq4_div_dividendo",
     "modulo_id": 3,
     "nivel_id": 3,
-    "magnitud": "masa",
+    "magnitud": "longitud",
     "operacion_correcta": "dividir",
-    "incognita": "dividendo",
+    "incognita": "cantidad_tramos",
     "n_datos": 2,
     "campos_requeridos": [
       "lugar",
       "objeto_medible",
       "unidad"
     ],
-    "marco": "En el evento organizado en {lugar}, los voluntarios llenaron {n_cant} paquetes idénticos de {objeto_medible}. Si se sabe que cada uno contiene {a} {unidad},",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} lograron distribuir entre todos los asistentes?",
-    "formula": "a*n_cant"
+    "marco": "En {lugar}, se necesitó un total de {total} {unidad} de {objeto_medible}. Si cada tramo mide {a} {unidad},",
+    "pregunta": "¿cuántos tramos iguales se cortaron?",
+    "formula": "total/a"
   },
   {
     "id": "m3_n3_esq6_div_tres_datos",
