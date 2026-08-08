@@ -143,10 +143,12 @@ class CompositorFase4:
             b_val, q_target = parejas_div[(fam_idx + var_idx) % len(parejas_div)]
             a_val = round(b_val * q_target, 2)
         elif plantilla.get("incognita") == "factor_faltante" or formula == "total/a":
-            # total / a = entero o 1 decimal
-            opciones_q = [2, 3, 4, 5, 1.5, 2.5, 3.5, 4.5, 1.2, 2.4]
+            # Para conteos de tramos/paquetes/unidades, el resultado DEBE ser un entero exacto (2, 3, 4, 5, 6, 8, 10).
+            # Un niño de 10 años no corta "4,5 tramos iguales".
+            opciones_q = [2, 3, 4, 5, 6, 8, 10]
             q_target = opciones_q[fam_idx % len(opciones_q)]
-            a_val = round(1.2 + (fam_idx % 5) * 0.5, 2)
+            parejas_a = [0.5, 0.8, 1.2, 1.5, 2.2, 2.5, 3.2, 4.5]
+            a_val = parejas_a[(fam_idx + var_idx) % len(parejas_a)]
             total_val = round(a_val * q_target, 2)
         elif formula == "(total-c)/n_cant":
             opciones_q = [0.25, 0.5, 0.75, 1.2, 1.25, 1.5, 2.0, 2.5, 3.25, 4.5]
@@ -222,7 +224,10 @@ class CompositorFase4:
             """Enteros sin decimales de relleno ('450 cm', no '450,00 cm')."""
             if abs(v - round(v)) < 1e-9:
                 return str(int(round(v)))
-            return f"{v:.2f}".replace('.', ',').rstrip('0').rstrip(',') if '.' in f"{v:.2f}" else f"{v:.2f}".replace('.', ',')
+            res = f"{v:.2f}".replace('.', ',')
+            if ',' in res:
+                res = res.rstrip('0').rstrip(',')
+            return res
 
         fmt_a, fmt_b, fmt_c = fmt(a_val), fmt(b_val), fmt(c_val)
         fmt_total = fmt(total_val)
@@ -345,9 +350,12 @@ class CompositorFase4:
             if token == "n_cant":
                 etiqueta = "Cantidad"
                 texto_valor = f"{int(valor)} unidades"
-            elif token == "a" and formula in ("a*b", "a*n_cant"):
-                # Si 'a' es la cantidad de tramos/paquetes (conteo)
-                if plantilla.get("magnitud") in ("longitud", "masa") and "tramos" in plantilla.get("marco", ""):
+            elif token == "a" and formula in ("total/a", "a*b", "a*n_cant"):
+                # Si 'a' es la medida unitaria o el factor de cada tramo
+                if formula == "total/a":
+                    etiqueta = "Medida unitaria" if unidad not in ("R$", "$", "EUR") else "Precio unitario"
+                    texto_valor = f"{self._fmt_visual(valor)} {unidad}" if unidad not in ("R$", "$", "EUR") else f"{unidad} {self._fmt_visual(valor)}"
+                elif plantilla.get("magnitud") in ("longitud", "masa") and "tramos" in plantilla.get("marco", ""):
                     etiqueta = "Cantidad tramos"
                     texto_valor = f"{self._fmt_visual(valor)} tramos"
                 elif plantilla.get("magnitud") == "dinero" and "paquetes" in plantilla.get("marco", ""):
@@ -423,7 +431,10 @@ class CompositorFase4:
     def _fmt_visual(self, valor: float) -> str:
         if abs(valor - round(valor)) < 1e-9:
             return str(int(round(valor)))
-        return f"{valor:.2f}".replace(".", ",")
+        res = f"{valor:.2f}".replace(".", ",")
+        if "," in res:
+            res = res.rstrip("0").rstrip(",")
+        return res
 
     _NOMBRES_FORMULA = {"a", "b", "c", "total", "n_cant"}
 
