@@ -329,7 +329,7 @@
       "objeto_medible"
     ],
     "marco": "{personaje} cortó {n_cant} trozos iguales de {objeto_medible} en {lugar}. Cada trozo mide {a} {unidad}.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} usó en total?",
+    "pregunta": "¿Cuántos {unidad_nombre} de {objeto_medible} usó en total?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
     "n_datos": 2,
@@ -411,7 +411,7 @@
       "objetos"
     ],
     "marco": "Cada caja de {objetos_0} en {lugar} tiene una masa de {a} {unidad}. {personaje} transporta {n_cant} cajas.",
-    "pregunta": "¿Cuántos {unidad} pesa en total el lote transportado?",
+    "pregunta": "¿Cuántos {unidad_nombre} pesa en total el lote transportado?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
     "n_datos": 2,
@@ -427,7 +427,7 @@
       "objeto_medible"
     ],
     "marco": "En {lugar}, cada rollo de {objeto_medible} contiene {a} {unidad}. {personaje} compró {n_cant} rollos.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} obtuvo en total?",
+    "pregunta": "¿Cuántos {unidad_nombre} de {objeto_medible} obtuvo en total?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
     "n_datos": 2,
@@ -477,7 +477,7 @@
       "objeto_medible"
     ],
     "marco": "{personaje} bordea {n_cant} marcos de {objeto_medible} en {lugar}. Cada marco requiere {a} {unidad} de tira.",
-    "pregunta": "¿Cuántos {unidad} de tira necesita en total?",
+    "pregunta": "¿Cuántos {unidad_nombre} de tira necesita en total?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
     "n_datos": 2,
@@ -525,7 +525,7 @@
       "objeto_medible"
     ],
     "marco": "{personaje} necesita {a} tramos de {objeto_medible} en {lugar}. Cada tramo mide {b} {unidad}.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} precisa en total?",
+    "pregunta": "¿Cuántos {unidad_nombre} de {objeto_medible} precisa en total?",
     "operacion_correcta": "multiplicar",
     "incognita": "producto",
     "n_datos": 2,
@@ -562,7 +562,7 @@
       "unidad"
     ],
     "marco": "{personaje} corta {n_cant} piezas de {objeto_medible} en {lugar}. Cada pieza mide {a} {unidad}. Una pieza extra mide {c} {unidad}.",
-    "pregunta": "¿Cuántos {unidad} de {objeto_medible} necesitó solo para las {n_cant} piezas iguales?",
+    "pregunta": "¿Cuántos {unidad_nombre} de {objeto_medible} necesitó solo para las {n_cant} piezas iguales?",
     "formula": "a*n_cant"
   },
   {

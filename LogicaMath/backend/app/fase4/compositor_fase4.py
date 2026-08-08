@@ -238,6 +238,21 @@ class CompositorFase4:
         obj0 = objetos[0]
         obj1 = objetos[1] if len(objetos) > 1 else "otro artículo"
 
+        NOMBRES_UNIDADES = {
+            "m": "metros",
+            "cm": "centímetros",
+            "mm": "milímetros",
+            "km": "kilómetros",
+            "kg": "kilos",
+            "g": "gramos",
+            "l": "litros",
+            "ml": "mililitros",
+            "R$": "reales",
+            "$": "pesos",
+            "EUR": "euros"
+        }
+        unidad_nombre = NOMBRES_UNIDADES.get(unit, unit)
+
         campos = dict(
             personaje=personaje,
             lugar=esc.get("lugar", "el comercio"),
@@ -245,7 +260,7 @@ class CompositorFase4:
             objeto_medible=esc.get("objeto_medible", "el elemento"),
             sujeto_medible=esc.get("sujeto_medible", "el total"),
             atributo=esc.get("atributo", "la medida"),
-            unidad=unit, a=fmt_a, b=fmt_b, c=fmt_c, total=fmt_total,
+            unidad=unit, unidad_nombre=unidad_nombre, a=fmt_a, b=fmt_b, c=fmt_c, total=fmt_total,
             n_cant=n_cant, ruido=fmt_total,
         )
         enunciado = plantilla["marco"].format(**campos)
@@ -342,29 +357,42 @@ class CompositorFase4:
         }
         titulo = titulos.get(plantilla.get("modulo_id", 1), "Resumen de datos")
 
+        marco_txt = plantilla.get("marco", "").lower()
+        if "pieza" in marco_txt:
+            unit_cant = "piezas"
+        elif "tramo" in marco_txt:
+            unit_cant = "tramos"
+        elif "caja" in marco_txt:
+            unit_cant = "cajas"
+        elif "paquete" in marco_txt:
+            unit_cant = "paquetes"
+        elif "rollo" in marco_txt:
+            unit_cant = "rollos"
+        elif "bolsa" in marco_txt:
+            unit_cant = "bolsas"
+        elif "cesta" in marco_txt:
+            unit_cant = "cestas"
+        else:
+            unit_cant = "unidades"
+
         filas = []
         for token in tokens:
             valor = vals[token]
             
-            # Formatear adecuadamente según el tipo de token y contexto (etiquetas <= 15 chars)
             if token == "n_cant":
                 etiqueta = "Cantidad"
-                texto_valor = f"{int(valor)} unidades"
-            elif token == "a" and formula in ("total/a", "a*b", "a*n_cant"):
-                # Si 'a' es la medida unitaria o el factor de cada tramo
-                if formula == "total/a":
-                    etiqueta = "Medida unitaria" if unidad not in ("R$", "$", "EUR") else "Precio unitario"
-                    texto_valor = f"{self._fmt_visual(valor)} {unidad}" if unidad not in ("R$", "$", "EUR") else f"{unidad} {self._fmt_visual(valor)}"
-                elif plantilla.get("magnitud") in ("longitud", "masa") and "tramos" in plantilla.get("marco", ""):
-                    etiqueta = "Cantidad tramos"
-                    texto_valor = f"{self._fmt_visual(valor)} tramos"
-                elif plantilla.get("magnitud") == "dinero" and "paquetes" in plantilla.get("marco", ""):
-                    etiqueta = "Cant. comprada"
-                    texto_valor = f"{self._fmt_visual(valor)} paquetes"
+                texto_valor = f"{int(valor)} {unit_cant}"
+            elif token == "a":
+                if unidad in ("R$", "$", "EUR"):
+                    etiqueta = "Precio unitario"
+                    texto_valor = f"{unidad} {self._fmt_visual(valor)}"
+                elif plantilla.get("magnitud") == "masa":
+                    etiqueta = "Peso unitario"
+                    texto_valor = f"{self._fmt_visual(valor)} {unidad}"
                 else:
-                    etiqueta = "Valor A"
-                    texto_valor = f"{self._fmt_visual(valor)} {unidad}" if unidad not in ("R$", "$", "EUR") else f"{unidad} {self._fmt_visual(valor)}"
-            elif token == "b" and formula == "a*b":
+                    etiqueta = "Medida unitaria"
+                    texto_valor = f"{self._fmt_visual(valor)} {unidad}"
+            elif token == "b":
                 if unidad in ("R$", "$", "EUR"):
                     etiqueta = "Precio unitario"
                     texto_valor = f"{unidad} {self._fmt_visual(valor)}"
@@ -375,8 +403,7 @@ class CompositorFase4:
                 etiqueta = "Monto total" if unidad in ("R$", "$", "EUR") else "Medida total"
                 texto_valor = f"{unidad} {self._fmt_visual(valor)}" if unidad in ("R$", "$", "EUR") else f"{self._fmt_visual(valor)} {unidad}"
             else:
-                etiquetas_default = {"a": "Valor A", "b": "Valor B", "c": "Valor C"}
-                etiqueta = etiquetas_default.get(token, token.capitalize()[:15])
+                etiqueta = "Medida unitaria" if token == "c" and plantilla.get("magnitud") == "longitud" else "Dato adicional"
                 if unidad in ("R$", "$", "EUR"):
                     texto_valor = f"{unidad} {self._fmt_visual(valor)}"
                 else:
