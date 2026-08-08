@@ -47,15 +47,15 @@ def test_toda_plantilla_tiene_escenario_compatible():
     """Regresión: 4 plantillas declaraban magnitudes sin ningún escenario disponible."""
     huerfanas = []
     for p in COMP.plantillas:
-        escala = COMP._escala_requerida(p)
+        unidad_origen = COMP._unidad_origen_requerida(p)
         compatibles = [
             e for e in COMP.escenarios
             if e["modulo_id"] == p["modulo_id"] and e["magnitud"] == p["magnitud"]
             and all(req in e and e[req] for req in p.get("campos_requeridos", []))
-            and (escala is None or e.get("escala") == escala)
+            and (unidad_origen is None or e.get("unidad") == unidad_origen)
         ]
         if not compatibles:
-            huerfanas.append((p["id"], p["magnitud"], escala))
+            huerfanas.append((p["id"], p["magnitud"], unidad_origen))
     assert not huerfanas, f"Plantillas sin escenario compatible: {huerfanas}"
 
 

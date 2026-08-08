@@ -12,8 +12,10 @@
       "bizcocho"
     ],
     "sujeto_medible": "la cuenta",
-    "objeto_medible": "la bolsa de pan",
-    "atributo": "el precio"
+    "objeto_medible": "el pan",
+    "atributo": "el precio",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "quiosco_vuelto",
@@ -29,7 +31,9 @@
     ],
     "sujeto_medible": "el vuelto",
     "objeto_medible": "la compra",
-    "atributo": "el valor"
+    "atributo": "el valor",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "balanza_cocina",
@@ -45,7 +49,9 @@
     ],
     "sujeto_medible": "el peso total",
     "objeto_medible": "el tazón de ingredientes",
-    "atributo": "la masa"
+    "atributo": "la masa",
+    "dominio": "hogar",
+    "naturaleza": "continua"
   },
   {
     "id": "mochila_colegio",
@@ -61,7 +67,9 @@
     ],
     "sujeto_medible": "la carga total",
     "objeto_medible": "la mochila",
-    "atributo": "el peso"
+    "atributo": "el peso",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "pote_monedas",
@@ -77,7 +85,9 @@
     ],
     "sujeto_medible": "el ahorro total",
     "objeto_medible": "la alcancía",
-    "atributo": "el monto acumulado"
+    "atributo": "el monto acumulado",
+    "dominio": "hogar",
+    "naturaleza": "continua"
   },
   {
     "id": "cinta_manualidades",
@@ -92,8 +102,10 @@
       "cinta verde"
     ],
     "sujeto_medible": "la extensión total",
-    "objeto_medible": "el rollo de cinta",
-    "atributo": "la longitud"
+    "objeto_medible": "la cinta",
+    "atributo": "la longitud",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "termometro_fiebre",
@@ -101,14 +113,16 @@
     "magnitud": "temperatura",
     "unidad": "°C",
     "nombre": "El termómetro clínico",
-    "lugar": "el enfermería",
+    "lugar": "la enfermería",
     "objetos": [
       "temperatura inicial",
       "temperatura final"
     ],
     "sujeto_medible": "la variación térmica",
     "objeto_medible": "el paciente",
-    "atributo": "la temperatura"
+    "atributo": "la temperatura",
+    "dominio": "hogar",
+    "naturaleza": "continua"
   },
   {
     "id": "carrera_tramo",
@@ -124,7 +138,9 @@
     ],
     "sujeto_medible": "el recorrido total",
     "objeto_medible": "el circuito",
-    "atributo": "la distancia"
+    "atributo": "la distancia",
+    "dominio": "deporte",
+    "naturaleza": "continua"
   },
   {
     "id": "frutas_mercado",
@@ -139,8 +155,10 @@
       "naranjas"
     ],
     "sujeto_medible": "el gasto acumulado",
-    "objeto_medible": "la cesta de frutas",
-    "atributo": "el costo"
+    "objeto_medible": "las frutas",
+    "atributo": "el costo",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "libreria_utiles",
@@ -155,8 +173,10 @@
       "regla"
     ],
     "sujeto_medible": "la boleta de compra",
-    "objeto_medible": "el paquete de útiles",
-    "atributo": "el precio final"
+    "objeto_medible": "los útiles",
+    "atributo": "el precio final",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "paquete_correo",
@@ -166,12 +186,14 @@
     "nombre": "Envío por correo",
     "lugar": "la oficina postal",
     "objetos": [
-      "caja pequeña",
-      "caja mediana"
+      "encomienda chica",
+      "encomienda grande"
     ],
     "sujeto_medible": "el peso combinado",
     "objeto_medible": "la encomienda",
-    "atributo": "la masa"
+    "atributo": "la masa",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "recorrido_bicicleta",
@@ -186,7 +208,9 @@
     ],
     "sujeto_medible": "el trayecto completo",
     "objeto_medible": "la ruta",
-    "atributo": "la distancia"
+    "atributo": "la distancia",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "temperatura_ambiente",
@@ -201,7 +225,9 @@
     ],
     "sujeto_medible": "el cambio de temperatura",
     "objeto_medible": "el ambiente",
-    "atributo": "los grados"
+    "atributo": "los grados",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "supermercado_caja",
@@ -217,7 +243,9 @@
     ],
     "sujeto_medible": "el total a pagar",
     "objeto_medible": "el carro de compras",
-    "atributo": "el importe"
+    "atributo": "el importe",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "verdulería_pesaje",
@@ -232,8 +260,10 @@
       "cebollas"
     ],
     "sujeto_medible": "el peso total",
-    "objeto_medible": "la bolsa de verduras",
-    "atributo": "la masa"
+    "objeto_medible": "las verduras",
+    "atributo": "la masa",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "tela_costura",
@@ -248,7 +278,9 @@
     ],
     "sujeto_medible": "los metros totales",
     "objeto_medible": "el corte de tela",
-    "atributo": "la longitud"
+    "atributo": "la longitud",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "ahorro_viaje",
@@ -263,7 +295,9 @@
     ],
     "sujeto_medible": "el total recaudado",
     "objeto_medible": "el fondo escolar",
-    "atributo": "el dinero"
+    "atributo": "el dinero",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "cable_electrico",
@@ -277,8 +311,10 @@
       "cable secundario"
     ],
     "sujeto_medible": "el cableado total",
-    "objeto_medible": "la bobina de cable",
-    "atributo": "la longitud"
+    "objeto_medible": "el cable",
+    "atributo": "la longitud",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "merienda_compartida",
@@ -293,7 +329,9 @@
     ],
     "sujeto_medible": "la suma a pagar",
     "objeto_medible": "la orden",
-    "atributo": "el costo"
+    "atributo": "el costo",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "pesaje_maletas",
@@ -308,7 +346,9 @@
     ],
     "sujeto_medible": "el peso total del equipaje",
     "objeto_medible": "el conjunto de maletas",
-    "atributo": "la masa"
+    "atributo": "la masa",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "precio_balas_quiosco",
@@ -322,8 +362,10 @@
       "chupetes"
     ],
     "sujeto_medible": "el precio de la compra",
-    "objeto_medible": "el paquete de golosinas",
-    "atributo": "el precio unitario"
+    "objeto_medible": "las golosinas",
+    "atributo": "el precio unitario",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "copias_tarea",
@@ -338,7 +380,9 @@
     ],
     "sujeto_medible": "el valor total",
     "objeto_medible": "el juego de copias",
-    "atributo": "el costo por hoja"
+    "atributo": "el costo por hoja",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "lapices_colores",
@@ -352,8 +396,10 @@
       "marcador"
     ],
     "sujeto_medible": "el importe total",
-    "objeto_medible": "la caja de lápices",
-    "atributo": "el precio"
+    "objeto_medible": "los lápices",
+    "atributo": "el precio",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "paquete_chicles",
@@ -368,7 +414,9 @@
     ],
     "sujeto_medible": "el costo total",
     "objeto_medible": "la caja exhibidora",
-    "atributo": "el valor por paquete"
+    "atributo": "el valor por paquete",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "manzanas_peso",
@@ -382,8 +430,10 @@
       "manzana verde"
     ],
     "sujeto_medible": "el importe a pagar",
-    "objeto_medible": "la bolsa de manzanas",
-    "atributo": "el precio por bolsa"
+    "objeto_medible": "las manzanas",
+    "atributo": "el precio por bolsa",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "refrigerantes_fiesta",
@@ -398,7 +448,9 @@
     ],
     "sujeto_medible": "el total gastado",
     "objeto_medible": "el pack de bebidas",
-    "atributo": "el precio unitario"
+    "atributo": "el precio unitario",
+    "dominio": "hogar",
+    "naturaleza": "continua"
   },
   {
     "id": "pan_frances_kilo",
@@ -412,8 +464,10 @@
       "pan de queso"
     ],
     "sujeto_medible": "la cuenta final",
-    "objeto_medible": "el paquete de pan",
-    "atributo": "el valor por paquete"
+    "objeto_medible": "el pan",
+    "atributo": "el valor por paquete",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "entradas_cine",
@@ -428,7 +482,9 @@
     ],
     "sujeto_medible": "el costo de entradas",
     "objeto_medible": "el grupo de tickets",
-    "atributo": "el valor del boleto"
+    "atributo": "el valor del boleto",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "cuadernos_ano",
@@ -443,7 +499,9 @@
     ],
     "sujeto_medible": "el presupuesto de útiles",
     "objeto_medible": "el lote de cuadernos",
-    "atributo": "el precio por unidad"
+    "atributo": "el precio por unidad",
+    "dominio": "escuela",
+    "naturaleza": "discreta"
   },
   {
     "id": "carne_asado",
@@ -458,7 +516,9 @@
     ],
     "sujeto_medible": "el importe de la compra",
     "objeto_medible": "el corte de carne",
-    "atributo": "el valor del corte"
+    "atributo": "el valor del corte",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "precio_mayorista",
@@ -468,12 +528,14 @@
     "nombre": "Compra en mayorista",
     "lugar": "el comercio mayorista",
     "objetos": [
-      "caja de galletas",
-      "caja de chocolates"
+      "galletas",
+      "chocolates"
     ],
     "sujeto_medible": "la factura total",
     "objeto_medible": "el lote de cajas",
-    "atributo": "el valor por lote"
+    "atributo": "el valor por lote",
+    "dominio": "comercio",
+    "naturaleza": "discreta"
   },
   {
     "id": "comision_vendedor",
@@ -488,7 +550,9 @@
     ],
     "sujeto_medible": "la ganancia acumulada",
     "objeto_medible": "la venta realizada",
-    "atributo": "la comisión"
+    "atributo": "la comisión",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "cinta_embalaje_lote",
@@ -503,7 +567,9 @@
     ],
     "sujeto_medible": "el metraje total",
     "objeto_medible": "la cinta de embalaje",
-    "atributo": "los metros por rollo"
+    "atributo": "los metros por rollo",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "alambre_cerca",
@@ -518,7 +584,9 @@
     ],
     "sujeto_medible": "la longitud de alambre",
     "objeto_medible": "el alambre",
-    "atributo": "los metros por vuelta"
+    "atributo": "los metros por vuelta",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "harina_lote_panaderia",
@@ -528,12 +596,14 @@
     "nombre": "Bolsas de harina",
     "lugar": "el molino",
     "objetos": [
-      "bolsa de 2,5 kg",
-      "bolsa de 5 kg"
+      "harina blanca",
+      "harina integral"
     ],
     "sujeto_medible": "el peso en harina",
     "objeto_medible": "la harina",
-    "atributo": "el peso por bolsa"
+    "atributo": "el peso por bolsa",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "queso_faccionado",
@@ -548,7 +618,9 @@
     ],
     "sujeto_medible": "la cantidad de queso",
     "objeto_medible": "el queso",
-    "atributo": "la masa por porción"
+    "atributo": "la masa por porción",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "liston_madera_multi",
@@ -563,7 +635,9 @@
     ],
     "sujeto_medible": "la madera total",
     "objeto_medible": "los listones de madera",
-    "atributo": "la longitud por varilla"
+    "atributo": "la longitud por varilla",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "cables_cajas",
@@ -578,7 +652,9 @@
     ],
     "sujeto_medible": "el metraje de cable",
     "objeto_medible": "los cables",
-    "atributo": "la longitud unitaria"
+    "atributo": "la longitud unitaria",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "fruta_cajon",
@@ -593,7 +669,9 @@
     ],
     "sujeto_medible": "el peso total de fruta",
     "objeto_medible": "las naranjas",
-    "atributo": "el peso neto"
+    "atributo": "el peso neto",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "cinta_decorativa_multi",
@@ -608,7 +686,9 @@
     ],
     "sujeto_medible": "el total de metros",
     "objeto_medible": "el kit de cintas",
-    "atributo": "la longitud por carrete"
+    "atributo": "la longitud por carrete",
+    "dominio": "comercio",
+    "naturaleza": "continua"
   },
   {
     "id": "cuenta_helado_reparto",
@@ -623,7 +703,9 @@
     ],
     "sujeto_medible": "la parte de cada amigo",
     "objeto_medible": "la cuenta de helados",
-    "atributo": "el costo individual"
+    "atributo": "el costo individual",
+    "dominio": "hogar",
+    "naturaleza": "discreta"
   },
   {
     "id": "pizza_hermanos",
@@ -638,7 +720,9 @@
     ],
     "sujeto_medible": "el pago por hermano",
     "objeto_medible": "el pedido de pizza",
-    "atributo": "la cuota de cada uno"
+    "atributo": "la cuota de cada uno",
+    "dominio": "hogar",
+    "naturaleza": "discreta"
   },
   {
     "id": "premio_rifa_div",
@@ -653,7 +737,9 @@
     ],
     "sujeto_medible": "la ganancia por persona",
     "objeto_medible": "el pozo de la rifa",
-    "atributo": "el valor de cada parte"
+    "atributo": "el valor de cada parte",
+    "dominio": "escuela",
+    "naturaleza": "discreta"
   },
   {
     "id": "promedio_notas_div",
@@ -668,7 +754,9 @@
     ],
     "sujeto_medible": "el promedio gastado",
     "objeto_medible": "el registro de gastos",
-    "atributo": "el valor promedio"
+    "atributo": "el valor promedio",
+    "dominio": "escuela",
+    "naturaleza": "discreta"
   },
   {
     "id": "restaurante_division",
@@ -683,7 +771,9 @@
     ],
     "sujeto_medible": "el monto individual",
     "objeto_medible": "la factura total",
-    "atributo": "el costo por comensal"
+    "atributo": "el costo por comensal",
+    "dominio": "comercio",
+    "naturaleza": "discreta"
   },
   {
     "id": "propinas_reparto",
@@ -698,7 +788,9 @@
     ],
     "sujeto_medible": "la propina por mozo",
     "objeto_medible": "el bote de propinas",
-    "atributo": "la parte proporcional"
+    "atributo": "la parte proporcional",
+    "dominio": "comercio",
+    "naturaleza": "discreta"
   },
   {
     "id": "cuotas_salud",
@@ -713,7 +805,9 @@
     ],
     "sujeto_medible": "el valor de cada cuota",
     "objeto_medible": "el plan de pagos",
-    "atributo": "el importe de la cuota"
+    "atributo": "el importe de la cuota",
+    "dominio": "comercio",
+    "naturaleza": "discreta"
   },
   {
     "id": "videojuego_parcelas",
@@ -728,7 +822,9 @@
     ],
     "sujeto_medible": "el costo mensual",
     "objeto_medible": "la membresía anual",
-    "atributo": "la cuota mensual"
+    "atributo": "la cuota mensual",
+    "dominio": "hogar",
+    "naturaleza": "discreta"
   },
   {
     "id": "corta_cinta_partes",
@@ -743,7 +839,9 @@
     ],
     "sujeto_medible": "la longitud de cada trozo",
     "objeto_medible": "la cinta larga",
-    "atributo": "la medida por trozo"
+    "atributo": "la medida por trozo",
+    "dominio": "escuela",
+    "naturaleza": "discreta"
   },
   {
     "id": "reparto_harina_recetas",
@@ -757,8 +855,10 @@
       "cuenco preparado"
     ],
     "sujeto_medible": "la harina por pastel",
-    "objeto_medible": "el paquete grande",
-    "atributo": "el peso por porción"
+    "objeto_medible": "la harina",
+    "atributo": "el peso por porción",
+    "dominio": "hogar",
+    "naturaleza": "discreta"
   },
   {
     "id": "cemento_bolsas_div",
@@ -768,12 +868,14 @@
     "nombre": "Reparto de mezcla de cemento",
     "lugar": "la obra en construcción",
     "objetos": [
-      "balde de mezcla",
-      "carretilla"
+      "mezcla de hormigón",
+      "carretilla de cemento"
     ],
-    "sujeto_medible": "el peso por balde",
-    "objeto_medible": "el saco de cemento",
-    "atributo": "la masa por contenedor"
+    "sujeto_medible": "el peso por porción",
+    "objeto_medible": "el cemento",
+    "atributo": "la masa por contenedor",
+    "dominio": "construccion",
+    "naturaleza": "discreta"
   },
   {
     "id": "corte_tablas_iguales",
@@ -788,7 +890,9 @@
     ],
     "sujeto_medible": "el largo por estante",
     "objeto_medible": "el tablón original",
-    "atributo": "el largo individual"
+    "atributo": "el largo individual",
+    "dominio": "escuela",
+    "naturaleza": "discreta"
   },
   {
     "id": "pienso_animales_div",
@@ -798,12 +902,14 @@
     "nombre": "Ración para animales",
     "lugar": "la granja",
     "objetos": [
-      "ración diaria",
+      "alimento balanceado",
       "comedero"
     ],
     "sujeto_medible": "el alimento por animal",
-    "objeto_medible": "el saco de alimento",
-    "atributo": "la ración por cabeza"
+    "objeto_medible": "el alimento",
+    "atributo": "la ración por animal",
+    "dominio": "granja",
+    "naturaleza": "discreta"
   },
   {
     "id": "cable_tramos_iguales",
@@ -817,8 +923,10 @@
       "par trenzado"
     ],
     "sujeto_medible": "el largo por máquina",
-    "objeto_medible": "el rollo de cable",
-    "atributo": "la distancia por conexión"
+    "objeto_medible": "el cable",
+    "atributo": "la distancia por conexión",
+    "dominio": "escuela",
+    "naturaleza": "discreta"
   },
   {
     "id": "alquiler_amigos_div",
@@ -833,7 +941,9 @@
     ],
     "sujeto_medible": "el pago por jugador",
     "objeto_medible": "el alquiler total",
-    "atributo": "la cuota individual"
+    "atributo": "la cuota individual",
+    "dominio": "deporte",
+    "naturaleza": "discreta"
   },
   {
     "id": "queso_horma_div",
@@ -848,7 +958,9 @@
     ],
     "sujeto_medible": "el peso por cuña",
     "objeto_medible": "la horma entera",
-    "atributo": "la masa de la cuña"
+    "atributo": "la masa de la cuña",
+    "dominio": "comercio",
+    "naturaleza": "discreta"
   },
   {
     "id": "manguera_jardin_div",
@@ -862,8 +974,10 @@
       "conector"
     ],
     "sujeto_medible": "el largo por tramo",
-    "objeto_medible": "el rollo de manguera",
-    "atributo": "los metros por sección"
+    "objeto_medible": "la manguera",
+    "atributo": "los metros por sección",
+    "dominio": "hogar",
+    "naturaleza": "discreta"
   },
   {
     "id": "gastos_viaje_div",
@@ -878,7 +992,9 @@
     ],
     "sujeto_medible": "el aporte por pasajero",
     "objeto_medible": "el gasto total de ruta",
-    "atributo": "el valor por pasajero"
+    "atributo": "el valor por pasajero",
+    "dominio": "hogar",
+    "naturaleza": "discreta"
   },
   {
     "id": "paquetes_azucar_div",
@@ -886,14 +1002,16 @@
     "magnitud": "masa",
     "unidad": "kg",
     "nombre": "Fraccionar fardo de azúcar",
-    "lugar": "el depósito de viveres",
+    "lugar": "el depósito de víveres",
     "objetos": [
-      "paquete de 1 kg",
-      "paquete de 0,5 kg"
+      "azúcar refinada",
+      "azúcar morena"
     ],
-    "sujeto_medible": "el peso por bolsa",
-    "objeto_medible": "el fardo principal",
-    "atributo": "la masa unitaria"
+    "sujeto_medible": "el peso por porción",
+    "objeto_medible": "el azúcar",
+    "atributo": "la masa unitaria",
+    "dominio": "comercio",
+    "naturaleza": "discreta"
   },
   {
     "id": "hilo_pescar_div",
@@ -907,8 +1025,10 @@
       "línea armada"
     ],
     "sujeto_medible": "el hilo por caña",
-    "objeto_medible": "la bobina",
-    "atributo": "la longitud por caña"
+    "objeto_medible": "el hilo de pescar",
+    "atributo": "la longitud por caña",
+    "dominio": "deporte",
+    "naturaleza": "discreta"
   },
   {
     "id": "escalera_regla_escolar",
@@ -924,7 +1044,9 @@
     "sujeto_medible": "el largo en centímetros",
     "objeto_medible": "la regla escolar",
     "atributo": "la medida",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_cinta_metrica",
@@ -940,7 +1062,9 @@
     "sujeto_medible": "el largo de la prenda",
     "objeto_medible": "la tela cortada",
     "atributo": "los metros",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_distancia_mapa",
@@ -956,7 +1080,9 @@
     "sujeto_medible": "la distancia entre ciudades",
     "objeto_medible": "el camino",
     "atributo": "los kilómetros",
-    "escala": "distancia"
+    "escala": "distancia",
+    "dominio": "deporte",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_milimetros_tornillo",
@@ -972,7 +1098,9 @@
     "sujeto_medible": "el grosor en milímetros",
     "objeto_medible": "la pieza metálica",
     "atributo": "los milímetros",
-    "escala": "micro"
+    "escala": "micro",
+    "dominio": "construccion",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_altura_puerta",
@@ -988,7 +1116,9 @@
     "sujeto_medible": "la altura en metros",
     "objeto_medible": "la puerta",
     "atributo": "la altura",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "hogar",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_ancho_cuaderno",
@@ -1004,7 +1134,9 @@
     "sujeto_medible": "el ancho en cm",
     "objeto_medible": "el cuaderno",
     "atributo": "el ancho",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_tramo_camino",
@@ -1020,7 +1152,9 @@
     "sujeto_medible": "el trayecto en metros",
     "objeto_medible": "el sendero",
     "atributo": "la longitud del camino",
-    "escala": "distancia"
+    "escala": "distancia",
+    "dominio": "deporte",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_grosor_moneda",
@@ -1036,7 +1170,9 @@
     "sujeto_medible": "el grosor acumulado",
     "objeto_medible": "la pila de monedas",
     "atributo": "el espesor",
-    "escala": "micro"
+    "escala": "micro",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_largo_piscina",
@@ -1052,7 +1188,9 @@
     "sujeto_medible": "el largo de la piscina",
     "objeto_medible": "la piscina",
     "atributo": "los metros de largo",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "deporte",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_distancia_pueblos",
@@ -1068,7 +1206,9 @@
     "sujeto_medible": "la distancia entre pueblos",
     "objeto_medible": "la ruta de tierra",
     "atributo": "los kilómetros recorridos",
-    "escala": "distancia"
+    "escala": "distancia",
+    "dominio": "deporte",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_cinta_regalo",
@@ -1084,7 +1224,9 @@
     "sujeto_medible": "los centímetros de cinta",
     "objeto_medible": "la cinta decorativa",
     "atributo": "la longitud",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "hogar",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_grosor_libro",
@@ -1100,7 +1242,9 @@
     "sujeto_medible": "el grosor del lomo",
     "objeto_medible": "el libro",
     "atributo": "los milímetros de lomo",
-    "escala": "micro"
+    "escala": "micro",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_largo_mesa",
@@ -1116,7 +1260,9 @@
     "sujeto_medible": "la longitud de la mesa",
     "objeto_medible": "la mesa",
     "atributo": "el largo",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "hogar",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_recorrido_autobus",
@@ -1132,7 +1278,9 @@
     "sujeto_medible": "la distancia del recorrido",
     "objeto_medible": "la ruta del colectivo",
     "atributo": "los kilómetros de la línea",
-    "escala": "distancia"
+    "escala": "distancia",
+    "dominio": "deporte",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_largo_lapiz",
@@ -1148,7 +1296,9 @@
     "sujeto_medible": "los cm del lápiz",
     "objeto_medible": "el lápiz",
     "atributo": "la longitud",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_pantalla_tablet",
@@ -1164,7 +1314,9 @@
     "sujeto_medible": "el tamaño en cm",
     "objeto_medible": "la pantalla",
     "atributo": "la medida en cm",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_cancha_futbol",
@@ -1180,7 +1332,9 @@
     "sujeto_medible": "el largo de la cancha",
     "objeto_medible": "el campo de juego",
     "atributo": "la distancia en metros",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "deporte",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_grosor_cristal",
@@ -1196,7 +1350,9 @@
     "sujeto_medible": "el grosor del cristal",
     "objeto_medible": "el vidrio",
     "atributo": "los milímetros",
-    "escala": "micro"
+    "escala": "micro",
+    "dominio": "construccion",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_maraton_ciudad",
@@ -1212,7 +1368,9 @@
     "sujeto_medible": "el trayecto de la carrera",
     "objeto_medible": "el circuito urbano",
     "atributo": "los kilómetros totales",
-    "escala": "distancia"
+    "escala": "distancia",
+    "dominio": "deporte",
+    "naturaleza": "continua"
   },
   {
     "id": "escalera_pizarron_aula",
@@ -1228,6 +1386,8 @@
     "sujeto_medible": "el largo del pizarrón",
     "objeto_medible": "el pizarrón",
     "atributo": "los metros de ancho",
-    "escala": "objeto"
+    "escala": "objeto",
+    "dominio": "escuela",
+    "naturaleza": "continua"
   }
 ]

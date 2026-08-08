@@ -6,9 +6,103 @@ import json
 import os
 
 def generate_36_frames(p):
+    """Punto de entrada: genera 36 marcos y los sanea (Bugs #4 y #5) antes de
+    devolverlos. El Módulo 4 (conversión de unidades) tiene reglas propias
+    porque sus fórmulas representan un salto de escala, no las mismas
+    operaciones "total menos a" / "a más b" que asumen las reglas genéricas
+    de abajo (pensadas para dinero/masa/longitud de los módulos 1-3)."""
+    if p.get("modulo_id") == 4:
+        return _sanitize_frames(_generate_36_frames_modulo4(p))
+    return _sanitize_frames(_generate_36_frames_generico(p))
+
+
+def _generate_36_frames_generico(p):
     formula = p.get("formula", "")
     magnitud = p.get("magnitud", "dinero")
     pid = p.get("id", "")
+
+    if pid == "m1_n2_esq2_diferencia_pesos":
+        return _frames_m1_n2_esq2_diferencia_pesos()
+
+    if formula == "a+b-c":
+        if magnitud == "temperatura":
+            return [
+                "En {lugar}, la temperatura de {objeto_medible} era de {a} {unidad}. Subió {b} {unidad} y luego bajó {c} {unidad}.",
+                "En {lugar}, {personaje} registró que {objeto_medible} tenía {a} {unidad}. Subió {b} {unidad} al mediodía y bajó {c} {unidad} por la noche.",
+                "En {lugar}, {personaje} anotó {a} {unidad} en {objeto_medible} al amanecer. Subió {b} {unidad} y luego bajó {c} {unidad}.",
+                "En {lugar}, {personaje} controló {objeto_medible}: partió de {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} midió {objeto_medible} a las 8: {a} {unidad}. Subió {b} {unidad} al mediodía y bajó {c} {unidad} a la noche.",
+                "En {lugar}, {personaje} vigiló {objeto_medible} durante el día: comenzó en {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} tomó nota de {objeto_medible}: {a} {unidad} al inicio, subió {b} {unidad} y bajó {c} {unidad} después.",
+                "En {lugar}, {personaje} revisó {objeto_medible} tres veces: {a} {unidad}, luego subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} llevó el registro de {objeto_medible}: partió de {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} observó {objeto_medible}: {a} {unidad} por la mañana, subió {b} {unidad} y bajó {c} {unidad} por la tarde.",
+                "En {lugar}, {personaje} anotó en la planilla de {objeto_medible}: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} controló dos veces {objeto_medible}: comenzó en {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} siguió de cerca {objeto_medible}: {a} {unidad} al empezar, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} chequeó {objeto_medible} cada hora: partió de {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} apuntó {a} {unidad} para {objeto_medible}. Más tarde subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} midió {objeto_medible} al llegar: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} registró el cambio de {objeto_medible}: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} anotó {objeto_medible} al comenzar el turno: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} llevó control de {objeto_medible} todo el día: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} verificó {objeto_medible} en tres momentos: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} tomó la primera lectura de {objeto_medible}: {a} {unidad}. Subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} anotó {a} {unidad} al iniciar el registro de {objeto_medible}, que luego subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} completó la ficha de {objeto_medible}: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} controló {objeto_medible} para el informe: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} anotó el valor inicial de {objeto_medible}: {a} {unidad}. Subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} siguió la variación de {objeto_medible}: {a} {unidad} al comienzo, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} tomó tres lecturas de {objeto_medible}: {a} {unidad}, luego subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} anotó {objeto_medible} en su bitácora: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} midió {objeto_medible} para el reporte diario: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} controló {objeto_medible} antes de irse: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} registró {objeto_medible} para el estudio: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} anotó cuidadosamente {objeto_medible}: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} verificó dos veces el valor de {objeto_medible}: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} completó el seguimiento de {objeto_medible}: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} tomó nota al mediodía de {objeto_medible}: partió de {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+                "En {lugar}, {personaje} anotó el registro final de {objeto_medible}: {a} {unidad}, subió {b} {unidad} y bajó {c} {unidad}.",
+            ]
+        else:  # dinero
+            return [
+                "En {lugar}, {personaje} tenía {a} {unidad} guardados. Recibió {b} {unidad} de su familia y gastó {c} {unidad} en útiles.",
+                "En {lugar}, {personaje} contaba con {a} {unidad} en su alcancía. Cobró {b} {unidad} por un mandado y pagó {c} {unidad} de una deuda.",
+                "En {lugar}, {personaje} llevaba {a} {unidad} en el bolsillo. Ganó {b} {unidad} vendiendo rifas y usó {c} {unidad} en la merienda.",
+                "En {lugar}, {personaje} había ahorrado {a} {unidad}. Le regalaron {b} {unidad} de propina y abonó {c} {unidad} de una cuota.",
+                "En {lugar}, {personaje} tenía un saldo de {a} {unidad}. Recibió {b} {unidad} por su cumpleaños y gastó {c} {unidad} en un regalo.",
+                "En {lugar}, {personaje} disponía de {a} {unidad}. Cobró {b} {unidad} de la semana y pagó {c} {unidad} del transporte.",
+                "En {lugar}, {personaje} guardaba {a} {unidad} en una caja. Ingresó {b} {unidad} de la venta de galletas y sacó {c} {unidad} para materiales.",
+                "En {lugar}, {personaje} tenía {a} {unidad} de su mesada. Le pagaron {b} {unidad} por ayudar en casa y gastó {c} {unidad} en estampillas.",
+                "En {lugar}, {personaje} contaba con {a} {unidad} de ahorro. Recibió {b} {unidad} de un premio y destinó {c} {unidad} a una donación.",
+                "En {lugar}, {personaje} llevaba {a} {unidad} para el día. Cobró {b} {unidad} por lavar el auto y gastó {c} {unidad} en un juego.",
+                "En {lugar}, {personaje} tenía {a} {unidad} en su cuenta. Ingresó {b} {unidad} de una venta y retiró {c} {unidad} para el bus.",
+                "En {lugar}, {personaje} guardaba {a} {unidad} de aguinaldo. Recibió {b} {unidad} extra y pagó {c} {unidad} de una multa.",
+                "En {lugar}, {personaje} disponía de {a} {unidad} para gastar. Ganó {b} {unidad} apostando canicas y usó {c} {unidad} en golosinas.",
+                "En {lugar}, {personaje} tenía {a} {unidad} en el sobre. Le devolvieron {b} {unidad} de un préstamo y pagó {c} {unidad} de la entrada.",
+                "En {lugar}, {personaje} contaba con {a} {unidad}. Cobró {b} {unidad} por cuidar mascotas y gastó {c} {unidad} en comida.",
+                "En {lugar}, {personaje} llevaba {a} {unidad} de fondo. Recibió {b} {unidad} por vender manualidades y pagó {c} {unidad} de materiales.",
+                "En {lugar}, {personaje} tenía {a} {unidad} reservados. Le abonaron {b} {unidad} de intereses y retiró {c} {unidad} para un libro.",
+                "En {lugar}, {personaje} guardaba {a} {unidad} del mes pasado. Ingresó {b} {unidad} de su trabajo de medio tiempo y gastó {c} {unidad} en ropa.",
+                "En {lugar}, {personaje} disponía de {a} {unidad} iniciales. Cobró {b} {unidad} por reciclar botellas y usó {c} {unidad} en el cine.",
+                "En {lugar}, {personaje} tenía {a} {unidad} en su billetera. Recibió {b} {unidad} de vuelto y pagó {c} {unidad} de una rifa.",
+                "En {lugar}, {personaje} contaba con {a} {unidad} de saldo. Ganó {b} {unidad} en un concurso y gastó {c} {unidad} en un regalo.",
+                "En {lugar}, {personaje} llevaba {a} {unidad}. Le pagaron {b} {unidad} por un trabajo extra y abonó {c} {unidad} de una cuenta pendiente.",
+                "En {lugar}, {personaje} tenía {a} {unidad} guardados desde el mes anterior. Recibió {b} {unidad} de un familiar y pagó {c} {unidad} de una excursión.",
+                "En {lugar}, {personaje} disponía de {a} {unidad}. Cobró {b} {unidad} vendiendo limonada y gastó {c} {unidad} en vasos.",
+                "En {lugar}, {personaje} tenía {a} {unidad} en su alcancía de barro. Ingresó {b} {unidad} de sus ahorros semanales y sacó {c} {unidad} para un boleto.",
+                "En {lugar}, {personaje} contaba con {a} {unidad} de presupuesto. Recibió {b} {unidad} de reembolso y pagó {c} {unidad} de la merienda.",
+                "En {lugar}, {personaje} llevaba {a} {unidad} para el paseo. Le dieron {b} {unidad} extra y gastó {c} {unidad} en un souvenir.",
+                "En {lugar}, {personaje} tenía {a} {unidad} de la semana pasada. Cobró {b} {unidad} por su trabajo escolar y pagó {c} {unidad} de una tasa.",
+                "En {lugar}, {personaje} guardaba {a} {unidad}. Recibió {b} {unidad} de un premio deportivo y usó {c} {unidad} en un uniforme.",
+                "En {lugar}, {personaje} disponía de {a} {unidad} ahorrados. Ganó {b} {unidad} en una venta de garaje y pagó {c} {unidad} de flete.",
+                "En {lugar}, {personaje} tenía {a} {unidad} en su cuenta de ahorros. Ingresó {b} {unidad} por intereses y retiró {c} {unidad} para gastos.",
+                "En {lugar}, {personaje} llevaba {a} {unidad} de fondo común. Recibió {b} {unidad} de aportes y gastó {c} {unidad} en materiales.",
+                "En {lugar}, {personaje} contaba con {a} {unidad}. Cobró {b} {unidad} por un mandado extra y pagó {c} {unidad} de una cuota atrasada.",
+                "En {lugar}, {personaje} tenía {a} {unidad} guardados para el viaje. Le regalaron {b} {unidad} y gastó {c} {unidad} en el pasaje.",
+                "En {lugar}, {personaje} disponía de {a} {unidad} al empezar el día. Ganó {b} {unidad} vendiendo entradas y pagó {c} {unidad} de comisión.",
+                "En {lugar}, {personaje} tenía {a} {unidad} reservados para emergencias. Recibió {b} {unidad} de un bono y usó {c} {unidad} en reparaciones.",
+            ]
 
     # Generación estructurada de 36 contextos vivenciales únicos
     if formula in ("a+b", "a+b+c"):
@@ -303,10 +397,10 @@ def generate_36_frames(p):
                 "En la feria de {lugar}, {personaje} empaquetó {n_cant} lotes de {objetos_0} de {a} {unidad} cada uno.",
                 "En el club deportivo de {lugar}, {personaje} transportó {n_cant} equipamientos de {objetos_0} de {a} {unidad} cada uno.",
                 "Para la preparación en {lugar}, {personaje} juntó {n_cant} bloques de {objetos_0} de {a} {unidad} cada uno.",
-                "En la panadería de {lugar}, {personaje} amasó {n_cant} hormas de {objetos_0} de {a} {unidad} cada una.",
+                "En la panadería de {lugar}, {personaje} preparó {n_cant} moldes de {objetos_0} de {a} {unidad} cada uno.",
                 "En el laboratorio de {lugar}, {personaje} pesó {n_cant} muestras de {objetos_0} de {a} {unidad} cada una.",
-                "En el depósito de {lugar}, {personaje} acomodó {n_cant} pallets de {objetos_0} de {a} {unidad} cada uno.",
-                "Durante la cosecha en {lugar}, {personaje} juntó {n_cant} cajones de {objetos_0} de {a} {unidad} cada uno.",
+                "En el depósito de {lugar}, {personaje} acomodó {n_cant} lotes de {objetos_0} de {a} {unidad} cada uno.",
+                "Durante la cosecha en {lugar}, {personaje} juntó {n_cant} cajas de {objetos_0} de {a} {unidad} cada una.",
                 "En la fábrica de alimentos en {lugar}, {personaje} embotelló {n_cant} frascos de {objetos_0} de {a} {unidad} cada uno.",
                 "Para el comedor de {lugar}, {personaje} preparó {n_cant} platos de {objetos_0} de {a} {unidad} cada uno.",
                 "En el vivero de {lugar}, {personaje} alistó {n_cant} bolsas de compost de {objetos_0} de {a} {unidad} cada una.",
@@ -320,8 +414,8 @@ def generate_36_frames(p):
                 "En la granja modelo de {lugar}, {personaje} alistó {n_cant} fardos de {objetos_0} de {a} {unidad} cada uno.",
                 "Para el proyecto ecológico en {lugar}, {personaje} pesó {n_cant} contenedores de {objetos_0} de {a} {unidad} cada uno.",
                 "En el almacén escolar de {lugar}, {personaje} apiló {n_cant} cajas de {objetos_0} de {a} {unidad} cada una.",
-                "Durante el taller de ciencia en {lugar}, {personaje} mezcló {n_cant} tubos de {objetos_0} de {a} {unidad} cada uno.",
-                "En la verdulería central de {lugar}, {personaje} pesó {n_cant} mallas de {objetos_0} de {a} {unidad} cada una.",
+                "Durante el taller de ciencia en {lugar}, {personaje} mezcló {n_cant} frascos de {objetos_0} de {a} {unidad} cada uno.",
+                "En la verdulería central de {lugar}, {personaje} pesó {n_cant} bolsas de {objetos_0} de {a} {unidad} cada una.",
                 "Para el campamento scout en {lugar}, {personaje} repartió {n_cant} mochilas de {objetos_0} de {a} {unidad} cada una.",
                 "En el laboratorio farmacéutico en {lugar}, {personaje} pesó {n_cant} frascos de {objetos_0} de {a} {unidad} cada uno.",
                 "En la pastelería de {lugar}, {personaje} preparó {n_cant} tortas de {objetos_0} de {a} {unidad} cada una.",
@@ -384,7 +478,7 @@ def generate_36_frames(p):
                 "Para el proyecto escolar en {lugar}, {personaje} pagó {total} {unidad} por {n_cant} cajas idénticas de {objetos_0}.",
                 "En el ensayo musical en {lugar}, {personaje} invirtió {total} {unidad} en {n_cant} accesorios idénticos de {objetos_0}.",
                 "Revisando los gastos en {lugar}, {personaje} dividió {total} {unidad} entre {n_cant} cuotas iguales de {objetos_0}.",
-                "En el mercado de {lugar}, {personaje} pagó {total} {unidad} por {n_cant} mallas de {objetos_0} idénticas.",
+                "En el mercado de {lugar}, {personaje} pagó {total} {unidad} por {n_cant} bolsas de {objetos_0} idénticas.",
                 "Durante la tarde en {lugar}, {personaje} repartió {total} {unidad} entre {n_cant} entradas de {objetos_0} iguales.",
                 "Para la merienda grupal en {lugar}, {personaje} abonó {total} {unidad} por {n_cant} combos idénticos de {objetos_0}.",
                 "En la librería del barrio en {lugar}, {personaje} gastó {total} {unidad} en {n_cant} libros de {objetos_0} iguales.",
@@ -423,8 +517,8 @@ def generate_36_frames(p):
                 "En el club deportivo de {lugar}, {personaje} repartió {total} {unidad} de {objeto_medible} en {n_cant} maletas iguales.",
                 "Para la preparación en {lugar}, {personaje} fraccionó {total} {unidad} de {objeto_medible} entre {n_cant} recipientes iguales.",
                 "En la panadería de {lugar}, {personaje} dividió {total} {unidad} de {objeto_medible} en {n_cant} moldes idénticos.",
-                "En el laboratorio bioquímico de {lugar}, {personaje} fraccionó {total} {unidad} de {objeto_medible} en {n_cant} tubos iguales.",
-                "Durante la vendimia en {lugar}, {personaje} empaquetó {total} {unidad} de {objeto_medible} en {n_cant} cajones idénticos.",
+                "En el laboratorio bioquímico de {lugar}, {personaje} fraccionó {total} {unidad} de {objeto_medible} en {n_cant} frascos iguales.",
+                "Durante la vendimia en {lugar}, {personaje} empaquetó {total} {unidad} de {objeto_medible} en {n_cant} cajas idénticas.",
                 "En la fábrica de chocolates de {lugar}, {personaje} vertió {total} {unidad} de {objeto_medible} en {n_cant} barras iguales.",
                 "Para el comedor escolar de {lugar}, {personaje} dividió {total} {unidad} de {objeto_medible} en {n_cant} raciones iguales.",
                 "En la granja avícola de {lugar}, {personaje} distribuyó {total} {unidad} de {objeto_medible} en {n_cant} comederos iguales.",
@@ -432,7 +526,7 @@ def generate_36_frames(p):
                 "Para la feria gastronómica en {lugar}, {personaje} dividió {total} {unidad} de {objeto_medible} en {n_cant} platillos iguales.",
                 "En la verdulería central de {lugar}, {personaje} embolsó {total} {unidad} de {objeto_medible} en {n_cant} paquetes del mismo peso.",
                 "Cuidando la reserva en {lugar}, {personaje} fraccionó {total} {unidad} de {objeto_medible} en {n_cant} tambores iguales.",
-                "En la quesería artesanal de {lugar}, {personaje} repartió {total} {unidad} de {objeto_medible} entre {n_cant} hormas idénticas.",
+                "En la quesería artesanal de {lugar}, {personaje} repartió {total} {unidad} de {objeto_medible} entre {n_cant} moldes idénticos.",
                 "Para el taller de cerámica en {lugar}, {personaje} cortó {total} {unidad} de {objeto_medible} en {n_cant} bloques iguales.",
                 "En el almacén de semillas de {lugar}, {personaje} distribuyó {total} {unidad} de {objeto_medible} en {n_cant} frascos idénticos.",
                 "Durante el festival de repostería en {lugar}, {personaje} dividió {total} {unidad} de {objeto_medible} en {n_cant} tazones iguales.",
@@ -487,11 +581,373 @@ def generate_36_frames(p):
                 "En el circuito de entrenamiento de {lugar}, {personaje} fraccionó {total} {unidad} en {n_cant} estaciones idénticas."
             ]
 
-    # Fallback si ninguna regla aplica (36 frases estándar)
+    # Antes había un fallback silencioso que devolvía 36 frases placeholder
+    # ("... analiza la situación de X (opción N)") sin ningún dato numérico:
+    # ese fue el origen del bug de preguntas irresolubles en el Módulo 4 (16
+    # de 18 plantillas). Si aparece una fórmula/magnitud sin cobertura, es
+    # mejor que el script falle ruidosamente a que siembre contenido roto.
+    raise ValueError(
+        f"generate_36_frames: sin reglas para formula={formula!r} magnitud={magnitud!r} "
+        f"(plantilla {pid!r}). Agregar una rama nueva en enrich_templates_36.py."
+    )
+
+
+# ── Módulo 4: conversión de unidades ─────────────────────────────────────────
+# Los tokens numéricos de estas plantillas no representan "total menos a" ni
+# "a más b" en el sentido genérico de los bloques de arriba: representan un
+# salto de escala (m->cm, km->m, ...). Se agrupan por la FORMA de sus tokens,
+# no por fórmula exacta, para no repetir 36 líneas por cada una de las ~14
+# fórmulas de conversión distintas.
+import re as _re_mod4
+
+
+def _generate_36_frames_modulo4(p):
+    formula = p.get("formula", "")
+    tokens = [t for t in _re_mod4.findall(r"[A-Za-z_]+", formula) if t in ("a", "b", "c", "total", "n_cant")]
+    tokens_unicos = []
+    for t in tokens:
+        if t not in tokens_unicos:
+            tokens_unicos.append(t)
+    tokens_con_unidad = [t for t in tokens_unicos if t != "n_cant"]
+
+    if len(tokens_con_unidad) == 1 and "n_cant" not in tokens_unicos:
+        # Un solo valor a convertir (a*100, a/1000, total/100, ...): el texto
+        # usa {unidad} genérico porque el compositor ya garantiza (vía
+        # _unidad_origen_requerida) que el escenario elegido tiene la unidad
+        # de partida correcta para esta fórmula.
+        val = tokens_con_unidad[0]
+        return [f.replace("{VAL}", "{" + val + "}") for f in _frames_conversion_simple()]
+
+    if len(tokens_con_unidad) == 1 and "n_cant" in tokens_unicos:
+        # Conversión de varias piezas iguales (a*n_cant*100, a*n_cant/100):
+        # mismo razonamiento de unidad, más la cantidad de piezas.
+        return list(_frames_conversion_n_cant())
+
+    # Fórmulas mixtas de dos o tres valores en unidades distintas
+    # (a+b/100, a*1000+b, a-b/100, a+b/10, a*1000-b, a+b/100+c/100): la unidad
+    # de cada token es fija por fórmula (no depende del escenario), así que se
+    # hardcodea literalmente en el texto, igual que ya hacía el marco base
+    # original de estas plantillas.
+    unidades_por_formula = {
+        "a+b/100": {"a": "m", "b": "cm"},
+        "a-b/100": {"a": "m", "b": "cm"},
+        "a*1000+b": {"a": "km", "b": "m"},
+        "a*1000-b": {"a": "km", "b": "m"},
+        "a+b/10": {"a": "cm", "b": "mm"},
+        "a+b/100+c/100": {"a": "m", "b": "cm", "c": "cm"},
+    }
+    unidades = unidades_por_formula.get(formula)
+    if not unidades:
+        raise ValueError(f"_generate_36_frames_modulo4: sin unidades definidas para formula={formula!r}")
+
+    es_diferencia = formula in ("a-b/100", "a*1000-b")
+    if len(tokens_con_unidad) == 3:
+        frames = _frames_conversion_tres_valores()
+    elif es_diferencia:
+        frames = _frames_conversion_diferencia()
+    else:
+        frames = _frames_conversion_combinada()
+
+    out = []
+    for f in frames:
+        txt = f
+        for tok, uni in unidades.items():
+            txt = txt.replace("{" + tok + "_u}", uni)
+        out.append(txt)
+    return out
+
+
+def _frames_conversion_simple():
+    """36 marcos para conversión de un solo valor. {VAL} se reemplaza por el
+    token real (a o total) al llamar. Verbos neutros que no implican ninguna
+    escala física particular (nada de 'corrió N vueltas' ni similares), para
+    que sirvan igual con un valor en mm que en km."""
     return [
-        f"En {{lugar}}, {{personaje}} analiza la situación de {{objeto_medible}} (opción {i+1})."
-        for i in range(36)
+        "En {lugar}, {personaje} midió {objeto_medible} y anotó {VAL} {unidad} en su libreta.",
+        "Para el proyecto escolar en {lugar}, {personaje} registró {VAL} {unidad} como medida de {objeto_medible}.",
+        "En {lugar}, {personaje} usó una cinta métrica y obtuvo {VAL} {unidad} para {objeto_medible}.",
+        "Trabajando en {lugar}, {personaje} marcó {VAL} {unidad} al medir {objeto_medible}.",
+        "En {lugar}, {personaje} anotó en su cuaderno {VAL} {unidad} de {objeto_medible}.",
+        "Para el informe de {lugar}, {personaje} tomó nota de {VAL} {unidad} al medir {objeto_medible}.",
+        "En {lugar}, {personaje} comprobó con la regla {VAL} {unidad} de {objeto_medible}.",
+        "Durante la clase en {lugar}, {personaje} midió {objeto_medible} y registró {VAL} {unidad}.",
+        "En {lugar}, {personaje} verificó la medida de {objeto_medible}: {VAL} {unidad}.",
+        "Para el taller en {lugar}, {personaje} tomó la medida exacta de {objeto_medible}: {VAL} {unidad}.",
+        "En {lugar}, {personaje} anotó {VAL} {unidad} después de medir {objeto_medible} con cuidado.",
+        "Revisando {objeto_medible} en {lugar}, {personaje} obtuvo una lectura de {VAL} {unidad}.",
+        "En {lugar}, {personaje} registró en la ficha técnica {VAL} {unidad} para {objeto_medible}.",
+        "Para el control de calidad en {lugar}, {personaje} midió {objeto_medible} y anotó {VAL} {unidad}.",
+        "En {lugar}, {personaje} comparó medidas y encontró {VAL} {unidad} en {objeto_medible}.",
+        "Durante la inspección en {lugar}, {personaje} anotó {VAL} {unidad} al revisar {objeto_medible}.",
+        "En {lugar}, {personaje} tomó nota de {VAL} {unidad} mientras examinaba {objeto_medible}.",
+        "Para el catálogo de {lugar}, {personaje} registró {VAL} {unidad} como medida de {objeto_medible}.",
+        "En {lugar}, {personaje} confirmó con el metro {VAL} {unidad} de {objeto_medible}.",
+        "Antes de continuar en {lugar}, {personaje} anotó {VAL} {unidad} al medir {objeto_medible}.",
+        "En {lugar}, {personaje} llevó un registro de {objeto_medible}: {VAL} {unidad}.",
+        "Para el diseño en {lugar}, {personaje} midió {objeto_medible} y anotó {VAL} {unidad} en el plano.",
+        "En {lugar}, {personaje} chequeó {objeto_medible} y obtuvo {VAL} {unidad} de medida.",
+        "Durante la práctica en {lugar}, {personaje} registró {VAL} {unidad} al medir {objeto_medible}.",
+        "En {lugar}, {personaje} anotó {VAL} {unidad} tras revisar {objeto_medible} con la cinta.",
+        "Para el reporte de {lugar}, {personaje} tomó {VAL} {unidad} como medida de {objeto_medible}.",
+        "En {lugar}, {personaje} verificó dos veces y confirmó {VAL} {unidad} para {objeto_medible}.",
+        "Trabajando con cuidado en {lugar}, {personaje} midió {objeto_medible} y anotó {VAL} {unidad}.",
+        "En {lugar}, {personaje} registró {VAL} {unidad} en la planilla de medidas de {objeto_medible}.",
+        "Para completar la tarea en {lugar}, {personaje} anotó {VAL} {unidad} al medir {objeto_medible}.",
+        "En {lugar}, {personaje} comprobó la medida de {objeto_medible} y anotó {VAL} {unidad}.",
+        "Durante el experimento en {lugar}, {personaje} registró {VAL} {unidad} al medir {objeto_medible}.",
+        "En {lugar}, {personaje} anotó cuidadosamente {VAL} {unidad} de {objeto_medible}.",
+        "Para el archivo de {lugar}, {personaje} guardó el dato de {VAL} {unidad} de {objeto_medible}.",
+        "En {lugar}, {personaje} tomó la lectura del instrumento: {VAL} {unidad} para {objeto_medible}.",
+        "Revisando el trabajo en {lugar}, {personaje} confirmó {VAL} {unidad} como medida de {objeto_medible}.",
     ]
+
+
+def _frames_conversion_n_cant():
+    """36 marcos para varias piezas iguales (a*n_cant*100, a*n_cant/100)."""
+    return [
+        "En {lugar}, {personaje} tiene {n_cant} piezas de {objeto_medible}, cada una de {a} {unidad}.",
+        "Para el proyecto en {lugar}, {personaje} cortó {n_cant} trozos de {objeto_medible} de {a} {unidad} cada uno.",
+        "En {lugar}, {personaje} juntó {n_cant} tiras de {objeto_medible} de {a} {unidad} cada una.",
+        "Trabajando en {lugar}, {personaje} preparó {n_cant} secciones de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} midió {n_cant} trozos de {objeto_medible}, cada uno de {a} {unidad}.",
+        "Para el taller en {lugar}, {personaje} organizó {n_cant} partes de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} contó {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una.",
+        "Durante la clase en {lugar}, {personaje} separó {n_cant} trozos de {objeto_medible} de {a} {unidad} cada uno.",
+        "En {lugar}, {personaje} alistó {n_cant} tramos de {objeto_medible} de {a} {unidad} cada uno.",
+        "Para el mural en {lugar}, {personaje} recortó {n_cant} tiras de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} colocó {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una en fila.",
+        "Revisando el inventario en {lugar}, {personaje} contó {n_cant} unidades de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} preparó {n_cant} muestras de {objeto_medible} de {a} {unidad} cada una.",
+        "Para el experimento en {lugar}, {personaje} midió {n_cant} secciones de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} apiló {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una.",
+        "Durante la práctica en {lugar}, {personaje} cortó {n_cant} trozos de {objeto_medible} de {a} {unidad} cada uno.",
+        "En {lugar}, {personaje} ordenó {n_cant} tramos de {objeto_medible} de {a} {unidad} cada uno.",
+        "Para el catálogo en {lugar}, {personaje} midió {n_cant} piezas de {objeto_medible}, cada una de {a} {unidad}.",
+        "En {lugar}, {personaje} armó {n_cant} secciones de {objeto_medible} de {a} {unidad} cada una.",
+        "Trabajando con cuidado en {lugar}, {personaje} cortó {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} distribuyó {n_cant} trozos de {objeto_medible} de {a} {unidad} cada uno.",
+        "Para el proyecto de diseño en {lugar}, {personaje} preparó {n_cant} tiras de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} revisó {n_cant} piezas de {objeto_medible}, todas de {a} {unidad}.",
+        "Durante el inventario en {lugar}, {personaje} midió {n_cant} secciones de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} cortó {n_cant} tramos idénticos de {objeto_medible} de {a} {unidad} cada uno.",
+        "Para el armado en {lugar}, {personaje} contó {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} separó {n_cant} porciones de {objeto_medible} de {a} {unidad} cada una.",
+        "Organizando el trabajo en {lugar}, {personaje} midió {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} etiquetó {n_cant} secciones de {objeto_medible} de {a} {unidad} cada una.",
+        "Para completar el pedido en {lugar}, {personaje} cortó {n_cant} tiras de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} verificó {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una.",
+        "Durante la producción en {lugar}, {personaje} midió {n_cant} trozos de {objeto_medible} de {a} {unidad} cada uno.",
+        "En {lugar}, {personaje} clasificó {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una.",
+        "Para el control final en {lugar}, {personaje} contó {n_cant} secciones de {objeto_medible} de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} agrupó {n_cant} tramos de {objeto_medible} de {a} {unidad} cada uno.",
+        "Terminando la tarea en {lugar}, {personaje} midió {n_cant} piezas de {objeto_medible} de {a} {unidad} cada una.",
+    ]
+
+
+def _frames_conversion_combinada():
+    """36 marcos para dos/tres medidas en unidades distintas que se combinan
+    en un total (a+b/100, a*1000+b, a+b/10). Las unidades se hardcodean
+    literalmente vía {a_u}/{b_u} porque son fijas por fórmula, no por
+    escenario (igual que ya hacía el marco base original de estas
+    plantillas)."""
+    return [
+        "En {lugar}, {personaje} midió {objeto_medible}: {a} {a_u} y {b} {b_u} más.",
+        "Para la clase de arte en {lugar}, {personaje} usó {a} {a_u} y {b} {b_u} de {objeto_medible}.",
+        "En {lugar}, {personaje} unió dos partes de {objeto_medible}: una de {a} {a_u} y otra de {b} {b_u}.",
+        "Trabajando en {lugar}, {personaje} juntó {a} {a_u} de {objeto_medible} con {b} {b_u} más.",
+        "En {lugar}, {personaje} registró dos medidas de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Para el proyecto escolar en {lugar}, {personaje} sumó {a} {a_u} de {objeto_medible} a {b} {b_u} adicionales.",
+        "En {lugar}, {personaje} anotó {a} {a_u} de {objeto_medible} en una parte, y {b} {b_u} en otra.",
+        "Durante el taller en {lugar}, {personaje} combinó {a} {a_u} de {objeto_medible} con {b} {b_u}.",
+        "En {lugar}, {personaje} tomó dos tramos de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Para el mural en {lugar}, {personaje} usó {a} {a_u} de {objeto_medible} y agregó {b} {b_u} más.",
+        "En {lugar}, {personaje} midió {objeto_medible} en dos partes: {a} {a_u} y {b} {b_u}.",
+        "Revisando {objeto_medible} en {lugar}, {personaje} anotó {a} {a_u} y luego {b} {b_u} más.",
+        "En {lugar}, {personaje} registró {a} {a_u} de {objeto_medible} y sumó {b} {b_u}.",
+        "Para el informe en {lugar}, {personaje} midió {a} {a_u} de {objeto_medible} y {b} {b_u} extra.",
+        "En {lugar}, {personaje} tomó nota de {objeto_medible}: {a} {a_u} más {b} {b_u}.",
+        "Durante la práctica en {lugar}, {personaje} sumó {a} {a_u} de {objeto_medible} a {b} {b_u}.",
+        "En {lugar}, {personaje} anotó dos tramos de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Para el catálogo en {lugar}, {personaje} registró {a} {a_u} de {objeto_medible} y {b} {b_u} más.",
+        "En {lugar}, {personaje} verificó {objeto_medible} en dos etapas: {a} {a_u} y {b} {b_u}.",
+        "Trabajando con cuidado en {lugar}, {personaje} midió {a} {a_u} de {objeto_medible} y agregó {b} {b_u}.",
+        "En {lugar}, {personaje} completó la medida de {objeto_medible}: {a} {a_u} y {b} {b_u} adicionales.",
+        "Para el diseño en {lugar}, {personaje} anotó {a} {a_u} de {objeto_medible} más {b} {b_u}.",
+        "En {lugar}, {personaje} sumó dos partes de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Durante el experimento en {lugar}, {personaje} registró {a} {a_u} de {objeto_medible} y {b} {b_u} más.",
+        "En {lugar}, {personaje} tomó dos lecturas de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Para el reporte de {lugar}, {personaje} anotó {a} {a_u} de {objeto_medible} sumados a {b} {b_u}.",
+        "En {lugar}, {personaje} midió {objeto_medible} completo: {a} {a_u} más {b} {b_u}.",
+        "Organizando el trabajo en {lugar}, {personaje} sumó {a} {a_u} de {objeto_medible} y {b} {b_u}.",
+        "En {lugar}, {personaje} registró {objeto_medible} en dos tramos: {a} {a_u} y {b} {b_u}.",
+        "Para completar la tarea en {lugar}, {personaje} anotó {a} {a_u} de {objeto_medible} y {b} {b_u} más.",
+        "En {lugar}, {personaje} comprobó dos medidas de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Durante la producción en {lugar}, {personaje} sumó {a} {a_u} de {objeto_medible} a {b} {b_u} extra.",
+        "En {lugar}, {personaje} anotó el total de {objeto_medible} en dos partes: {a} {a_u} y {b} {b_u}.",
+        "Para el control final en {lugar}, {personaje} registró {a} {a_u} de {objeto_medible} y {b} {b_u} más.",
+        "En {lugar}, {personaje} juntó las dos medidas de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Terminando la tarea en {lugar}, {personaje} sumó {a} {a_u} de {objeto_medible} y {b} {b_u} adicionales.",
+    ]
+
+
+def _frames_conversion_diferencia():
+    """36 marcos para comparar/recortar dos medidas en unidades distintas
+    (a-b/100, a*1000-b)."""
+    return [
+        "En {lugar}, la pieza de {objeto_medible} medía {a} {a_u} y {personaje} le recortó un pedazo de {b} {b_u}.",
+        "En {lugar}, el trayecto de {objeto_medible} mide {a} {a_u}, y otro tramo mide {b} {b_u}.",
+        "Para la clase de arte en {lugar}, {personaje} tenía {objeto_medible} de {a} {a_u} y quitó {b} {b_u}.",
+        "En {lugar}, {objeto_medible} medía {a} {a_u} al comenzar, y {personaje} le sacó {b} {b_u}.",
+        "Trabajando en {lugar}, {personaje} tenía una pieza de {objeto_medible} de {a} {a_u} y cortó {b} {b_u}.",
+        "En {lugar}, un tramo de {objeto_medible} mide {a} {a_u} y otro mide {b} {b_u}.",
+        "En {lugar}, {personaje} midió {objeto_medible}: {a} {a_u} al inicio, y luego le recortó {b} {b_u}.",
+        "Para el proyecto en {lugar}, {objeto_medible} tenía {a} {a_u} y {personaje} redujo {b} {b_u}.",
+        "En {lugar}, dos secciones de {objeto_medible} miden {a} {a_u} y {b} {b_u} respectivamente.",
+        "Durante el taller en {lugar}, {personaje} recortó {b} {b_u} de una pieza de {objeto_medible} de {a} {a_u}.",
+        "En {lugar}, {objeto_medible} medía {a} {a_u}, y {personaje} le quitó {b} {b_u} con la tijera.",
+        "Para el mural en {lugar}, {personaje} tenía {a} {a_u} de {objeto_medible} y usó {b} {b_u} menos de lo esperado.",
+        "En {lugar}, un recorrido de {objeto_medible} mide {a} {a_u} y otro recorrido mide {b} {b_u}.",
+        "En {lugar}, {personaje} comparó dos piezas de {objeto_medible}: una de {a} {a_u} y otra {b} {b_u} más corta.",
+        "Trabajando con cuidado en {lugar}, {personaje} recortó {b} {b_u} de {objeto_medible}, que medía {a} {a_u}.",
+        "En {lugar}, el primer tramo de {objeto_medible} mide {a} {a_u} y el segundo mide {b} {b_u}.",
+        "Para el informe en {lugar}, {objeto_medible} medía {a} {a_u} antes del ajuste de {b} {b_u}.",
+        "En {lugar}, {personaje} anotó que {objeto_medible} pasó de {a} {a_u} a tener {b} {b_u} menos.",
+        "Durante la práctica en {lugar}, {personaje} redujo en {b} {b_u} una pieza de {objeto_medible} de {a} {a_u}.",
+        "En {lugar}, dos trayectos distintos de {objeto_medible} miden {a} {a_u} y {b} {b_u}.",
+        "Revisando {objeto_medible} en {lugar}, {personaje} notó que medía {a} {a_u} y le faltaban {b} {b_u}.",
+        "En {lugar}, {personaje} cortó {b} {b_u} a una barra de {objeto_medible} de {a} {a_u}.",
+        "Para el catálogo en {lugar}, {objeto_medible} medía {a} {a_u} y luego se le quitó {b} {b_u}.",
+        "En {lugar}, {personaje} comparó {objeto_medible}: un tramo de {a} {a_u} contra otro de {b} {b_u}.",
+        "Durante el experimento en {lugar}, {personaje} recortó {b} {b_u} de {objeto_medible}, que medía {a} {a_u}.",
+        "En {lugar}, la ruta A de {objeto_medible} mide {a} {a_u} y la ruta B mide {b} {b_u}.",
+        "Para el diseño en {lugar}, {personaje} tenía {a} {a_u} de {objeto_medible} y descartó {b} {b_u}.",
+        "En {lugar}, {personaje} verificó dos piezas de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Organizando el trabajo en {lugar}, {personaje} recortó {b} {b_u} a {objeto_medible}, que medía {a} {a_u}.",
+        "En {lugar}, {objeto_medible} tenía {a} {a_u} y quedó con {b} {b_u} menos tras el ajuste.",
+        "Para completar la tarea en {lugar}, {personaje} comparó {a} {a_u} de {objeto_medible} con {b} {b_u} de otra pieza.",
+        "En {lugar}, {personaje} anotó la diferencia entre dos tramos de {objeto_medible}: {a} {a_u} y {b} {b_u}.",
+        "Durante la producción en {lugar}, {personaje} descartó {b} {b_u} de {objeto_medible}, que medía {a} {a_u}.",
+        "En {lugar}, el primer trayecto de {objeto_medible} mide {a} {a_u}, y el segundo, {b} {b_u}.",
+        "Para el control final en {lugar}, {personaje} comparó {objeto_medible}: {a} {a_u} contra {b} {b_u}.",
+        "Terminando la tarea en {lugar}, {personaje} recortó {b} {b_u} de una pieza de {objeto_medible} de {a} {a_u}.",
+    ]
+
+
+def _frames_conversion_tres_valores():
+    """36 marcos para tres medidas en unidades distintas que se combinan en un
+    total (a+b/100+c/100)."""
+    return [
+        "En {lugar}, {personaje} midió {objeto_medible} en tres partes: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Para el proyecto en {lugar}, {personaje} usó {a} {a_u}, {b} {b_u} y {c} {c_u} de {objeto_medible}.",
+        "En {lugar}, {personaje} unió tres tramos de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Trabajando en {lugar}, {personaje} registró tres medidas de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} sumó {a} {a_u} de {objeto_medible} a {b} {b_u} y {c} {c_u} más.",
+        "Para la clase de arte en {lugar}, {personaje} cortó tres piezas de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} anotó {objeto_medible} en tres tramos: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Durante el taller en {lugar}, {personaje} combinó {a} {a_u}, {b} {b_u} y {c} {c_u} de {objeto_medible}.",
+        "En {lugar}, {personaje} tomó tres secciones de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Para el mural en {lugar}, {personaje} usó {objeto_medible} en tres partes: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} midió {objeto_medible} tres veces: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Revisando {objeto_medible} en {lugar}, {personaje} anotó {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} registró {objeto_medible} completo: {a} {a_u} más {b} {b_u} más {c} {c_u}.",
+        "Para el informe en {lugar}, {personaje} sumó tres tramos de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} tomó nota de {objeto_medible} en tres etapas: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Durante la práctica en {lugar}, {personaje} unió {a} {a_u}, {b} {b_u} y {c} {c_u} de {objeto_medible}.",
+        "En {lugar}, {personaje} anotó tres partes de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Para el catálogo en {lugar}, {personaje} registró {objeto_medible} en tres tramos: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} verificó {objeto_medible} en tres partes: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Trabajando con cuidado en {lugar}, {personaje} sumó {a} {a_u}, {b} {b_u} y {c} {c_u} de {objeto_medible}.",
+        "En {lugar}, {personaje} completó la medida de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Para el diseño en {lugar}, {personaje} anotó {objeto_medible} en tres tramos: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} sumó tres piezas de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Durante el experimento en {lugar}, {personaje} registró {a} {a_u}, {b} {b_u} y {c} {c_u} de {objeto_medible}.",
+        "En {lugar}, {personaje} tomó tres lecturas de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Para el reporte de {lugar}, {personaje} anotó {objeto_medible} en tres partes: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} midió {objeto_medible} completo en tres tramos: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Organizando el trabajo en {lugar}, {personaje} sumó {a} {a_u}, {b} {b_u} y {c} {c_u} de {objeto_medible}.",
+        "En {lugar}, {personaje} registró {objeto_medible} en tres secciones: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Para completar la tarea en {lugar}, {personaje} anotó tres medidas de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} comprobó {objeto_medible} en tres tramos: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Durante la producción en {lugar}, {personaje} sumó {objeto_medible} en tres partes: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} anotó el total de {objeto_medible} en tres tramos: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Para el control final en {lugar}, {personaje} registró {objeto_medible} en tres partes: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "En {lugar}, {personaje} juntó tres medidas de {objeto_medible}: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+        "Terminando la tarea en {lugar}, {personaje} sumó {objeto_medible} en tres tramos: {a} {a_u}, {b} {b_u} y {c} {c_u}.",
+    ]
+
+
+# ── Saneamiento (Bugs #4 y #5) ───────────────────────────────────────────────
+# Bug #4: marcos que anteponen un lugar-escena propio a {lugar} ("En el huerto
+# escolar de {lugar}") anidan dos lugares cuando {lugar} ya es un sitio
+# completo ("el laboratorio de computación"): "en el huerto escolar del
+# laboratorio de computación". Se detectaron por auditoría real (generando
+# preguntas y leyendo el texto) las frases concretas que rompen así; se
+# simplifican a "En {lugar}" conservando el verbo/actividad.
+#
+# Bug #5: en longitud de los módulos 1-3, algunos marcos usan verbos que
+# implican una escala física grande o específica del deporte ("corrió N
+# vueltas", "pedaleó N tramos") pero se combinan con cualquier escenario de
+# esa magnitud sin filtro de escala (a diferencia del Módulo 4), produciendo
+# "pedaleó 3 tramos de 2,35 mm". Se reemplazan por verbos neutros a cualquier
+# escala, en línea con el resto de frases del mismo bloque.
+_FIXES_LUGAR_ANIDADO = [
+    ("En el huerto escolar de {lugar}", "En {lugar}"),
+    ("en el huerto escolar de {lugar}", "en {lugar}"),
+    ("En la clase de educación física de {lugar}", "En {lugar}"),
+    ("en la clase de educación física de {lugar}", "en {lugar}"),
+    ("En la clase de educación física en {lugar}", "En {lugar}"),
+    ("En la granja educativa de {lugar}", "En {lugar}"),
+    ("En el club de robótica de {lugar}", "En {lugar}"),
+    ("En el club de robótica en {lugar}", "En {lugar}"),
+    ("en el club de robótica de {lugar}", "en {lugar}"),
+    ("Cuidando el vivero escolar en {lugar}", "En {lugar}"),
+    ("En el vivero escolar de {lugar}", "En {lugar}"),
+    ("En el taller escolar de {lugar}", "En {lugar}"),
+]
+
+_FIXES_ESCALA_VERBO = [
+    (
+        "En la clase de educación física de {lugar}, {personaje} corrió {n_cant} vueltas de {a} {unidad} cada una.",
+        "En {lugar}, {personaje} midió {n_cant} tramos de {objeto_medible} de {a} {unidad} cada uno.",
+    ),
+    (
+        "En el circuito de ciclismo en {lugar}, {personaje} pedaleó {n_cant} tramos de {a} {unidad} cada uno.",
+        "En {lugar}, {personaje} cortó {n_cant} tramos de {objeto_medible} de {a} {unidad} cada uno.",
+    ),
+    (
+        "Durante la práctica en la pista de {lugar}, {personaje} corrió {n_cant} series de {a} {unidad} cada una.",
+        "Durante la práctica en {lugar}, {personaje} midió {n_cant} secciones de {objeto_medible} de {a} {unidad} cada una.",
+    ),
+    (
+        "En la pista de atletismo de {lugar}, {personaje} dividió la vuelta de {total} {unidad} en {n_cant} sectores del mismo tamaño.",
+        "En {lugar}, {personaje} dividió una pieza de {objeto_medible} de {total} {unidad} en {n_cant} sectores del mismo tamaño.",
+    ),
+    (
+        "En el circuito de karts de {lugar}, {personaje} dividió la pista de {total} {unidad} en {n_cant} zonas del mismo largo.",
+        "En {lugar}, {personaje} dividió una barra de {objeto_medible} de {total} {unidad} en {n_cant} zonas del mismo largo.",
+    ),
+    (
+        "En el paseo en bicicleta por {lugar}, {personaje} pedaleó {a} {unidad} y sumó {b} {unidad}.",
+        "En {lugar}, {personaje} midió {a} {unidad} de {objeto_medible} y sumó {b} {unidad} más.",
+    ),
+    (
+        "En la clase de educación física en {lugar}, {personaje} trotó {a} {unidad} y caminó {b} {unidad}.",
+        "En {lugar}, {personaje} midió {a} {unidad} de {objeto_medible} y agregó {b} {unidad} más.",
+    ),
+]
+
+
+def _sanitize_frames(frames):
+    out = []
+    for f in frames:
+        for old, new in _FIXES_ESCALA_VERBO:
+            if f == old:
+                f = new
+        for old, new in _FIXES_LUGAR_ANIDADO:
+            f = f.replace(old, new)
+        out.append(f)
+    return out
+
 
 def run():
     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -515,7 +971,7 @@ def run():
     with open(plantillas_path, "w", encoding="utf-8") as f:
         json.dump(plantillas, f, ensure_ascii=False, indent=2)
 
-    print("🚀 ¡ÉXITO TOTAL! Las 72 plantillas ahora cuentan con 36 MARCOS NARRATIVOS ALTERNATIVOS a cada una.")
+    print("Listo: las 72 plantillas ahora cuentan con 36 marcos narrativos alternativos cada una.")
 
 if __name__ == "__main__":
     run()

@@ -87,18 +87,28 @@ class CompositorFase4:
         # Rotate template choice ensuring <=25% concentration
         plantilla = plantillas_nivel[fam_idx % len(plantillas_nivel)]
         
-        # Filter scenarios matching template magnitude and campos_requeridos (unlocked across modules)
-        escala_req = self._escala_requerida(plantilla)
+        # Filter scenarios matching template magnitude, campos_requeridos and dominios_compatibles
+        unidad_origen_req = self._unidad_origen_requerida(plantilla)
+        dominios_ok = plantilla.get("dominios_compatibles")
         escenarios_compatibles = [
             e for e in self.escenarios
             if e["magnitud"] == plantilla["magnitud"]
             and all(req in e and e[req] for req in plantilla.get("campos_requeridos", []))
-            and (escala_req is None or e.get("escala") == escala_req)
+            and (unidad_origen_req is None or e.get("unidad") == unidad_origen_req)
+            and (not dominios_ok or e.get("dominio") in dominios_ok)
         ]
+        if not escenarios_compatibles:
+            # Fallback without domain constraint if specific domain is missing
+            escenarios_compatibles = [
+                e for e in self.escenarios
+                if e["magnitud"] == plantilla["magnitud"]
+                and all(req in e and e[req] for req in plantilla.get("campos_requeridos", []))
+                and (unidad_origen_req is None or e.get("unidad") == unidad_origen_req)
+            ]
         if not escenarios_compatibles:
             raise ValueError(
                 f"No hay escenarios compatibles para plantilla '{plantilla['id']}'"
-                + (f" con escala '{escala_req}'" if escala_req else "")
+                + (f" con unidad de origen '{unidad_origen_req}'" if unidad_origen_req else "")
             )
         
         esc = escenarios_compatibles[(fam_idx + var_idx) % len(escenarios_compatibles)]
@@ -116,30 +126,70 @@ class CompositorFase4:
         c_val = round(0.50 + (fam_idx * 0.02), 2)
         total_val = round(a_val + b_val + c_val + 1.0, 2)
 
+        # Si el escenario es de naturaleza discreta (ej. fardos, paquetes enteros), usar valores integérrimos o medios
+        if esc.get("naturaleza") == "discreta":
+            a_val = float(6 + (fam_idx % 5))
+            b_val = float(1 + (fam_idx % 3))
+            c_val = float(1 + (fam_idx % 2))
+            total_val = float(a_val + b_val + c_val + 2.0)
+        elif plantilla.get("magnitud") == "temperatura":
+            if esc.get("id") == "termometro_fiebre" or esc.get("objeto_medible") == "el paciente":
+                a_val = round(36.5 + (fam_idx % 6) * 0.5, 1)
+                b_val = round(0.5 + (var_idx % 5) * 0.3, 1)
+                c_val = round(0.4 + (var_idx % 4) * 0.3, 1)
+            else:
+                a_val = round(18.0 + (fam_idx % 7) * 2.0, 1)
+                b_val = round(1.5 + (var_idx % 4) * 0.5, 1)
+                c_val = round(1.0 + (var_idx % 3) * 0.5, 1)
+            total_val = round(a_val + b_val - c_val, 1)
+
         formula = plantilla.get("formula", "")
 
         # ── Garantía de cocientes y productos exactos (máx 2 decimales, sin redondeos) ──
+        es_conteo_o_discreto = (
+            esc.get("naturaleza") == "discreta"
+            or plantilla.get("incognita") in ("cociente", "factor_multiplicativo", "factor_faltante")
+            or modulo_id == 3
+        )
+
         if formula == "a/n_cant":
-            # Elegir un resultado objetivo exacto Q (entero o máx 2 decimales)
-            opciones_q = [0.25, 0.4, 0.5, 0.75, 0.8, 1.2, 1.25, 1.5, 1.75, 2.2, 2.25, 2.4, 2.5, 3.2, 3.5, 4.25, 5.25]
+            if es_conteo_o_discreto:
+                opciones_q = [2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0]
+            else:
+                opciones_q = [0.25, 0.4, 0.5, 0.75, 0.8, 1.2, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
             q_target = opciones_q[fam_idx % len(opciones_q)]
             a_val = round(q_target * n_cant, 2)
         elif formula == "a/b":
-            # Parejas (b_val, q_target) donde a_val = b_val * q_target es exacto con <= 2 decimales
-            parejas_div = [
-                (0.5, 1.4),   # a = 0.7, a/b = 1.4
-                (0.4, 1.25),  # a = 0.5, a/b = 1.25
-                (0.8, 1.25),  # a = 1.0, a/b = 1.25
-                (1.2, 1.5),   # a = 1.8, a/b = 1.5
-                (1.5, 2.4),   # a = 3.6, a/b = 2.4
-                (2.5, 1.8),   # a = 4.5, a/b = 1.8
-                (0.5, 2.4),   # a = 1.2, a/b = 2.4
-                (0.25, 4.8),  # a = 1.2, a/b = 4.8
-                (1.6, 2.5),   # a = 4.0, a/b = 2.5
-                (0.8, 2.25),  # a = 1.8, a/b = 2.25
-                (1.25, 0.8),  # a = 1.0, a/b = 0.8
-                (2.4, 1.5),   # a = 3.6, a/b = 1.5
-            ]
+            if es_conteo_o_discreto:
+                parejas_div = [
+                    (0.5, 3.0),   # a = 1.5, a/b = 3
+                    (0.4, 4.0),   # a = 1.6, a/b = 4
+                    (0.8, 5.0),   # a = 4.0, a/b = 5
+                    (1.2, 3.0),   # a = 3.6, a/b = 3
+                    (1.5, 2.0),   # a = 3.0, a/b = 2
+                    (2.5, 4.0),   # a = 10.0, a/b = 4
+                    (0.5, 6.0),   # a = 3.0, a/b = 6
+                    (0.25, 8.0),  # a = 2.0, a/b = 8
+                    (1.6, 5.0),   # a = 8.0, a/b = 5
+                    (0.8, 4.0),   # a = 3.2, a/b = 4
+                    (1.25, 4.0),  # a = 5.0, a/b = 4
+                    (2.4, 2.0),   # a = 4.8, a/b = 2
+                ]
+            else:
+                parejas_div = [
+                    (0.5, 1.4),   # a = 0.7, a/b = 1.4
+                    (0.4, 1.25),  # a = 0.5, a/b = 1.25
+                    (0.8, 1.25),  # a = 1.0, a/b = 1.25
+                    (1.2, 1.5),   # a = 1.8, a/b = 1.5
+                    (1.5, 2.0),   # a = 3.0, a/b = 2
+                    (2.5, 1.8),   # a = 4.5, a/b = 1.8
+                    (0.5, 2.0),   # a = 1.0, a/b = 2
+                    (0.25, 4.0),  # a = 1.0, a/b = 4
+                    (1.6, 2.5),   # a = 4.0, a/b = 2.5
+                    (0.8, 2.25),  # a = 1.8, a/b = 2.25
+                    (1.25, 0.8),  # a = 1.0, a/b = 0.8
+                    (2.4, 1.5),   # a = 3.6, a/b = 1.5
+                ]
             b_val, q_target = parejas_div[(fam_idx + var_idx) % len(parejas_div)]
             a_val = round(b_val * q_target, 2)
         elif plantilla.get("incognita") == "factor_faltante" or formula == "total/a":
@@ -477,9 +527,36 @@ class CompositorFase4:
     _CONTRACCIONES = ((" de el ", " del "), (" a el ", " al "),
                       ("De el ", "Del "), ("A el ", "Al "))
 
+    # Palabras-envase que un marco puede anteponer a {objeto_medible}. Si el
+    # propio valor de objeto_medible ya trae un envase incorporado (p.ej. "el
+    # saco de cemento"), el resultado duplica el envase ("un paquete del saco
+    # de cemento"). El Paso 3 de la corrección de raíz normaliza objeto_medible
+    # a la sustancia/objeto base para que esto no ocurra; este detector queda
+    # como defensa en profundidad ante datos futuros que reintroduzcan el
+    # patrón, en vez de los 3 literales puntuales que había antes.
+    _ENVASES = (
+        "saco", "sacos", "bolsa", "bolsas", "paquete", "paquetes", "caja", "cajas",
+        "rollo", "rollos", "cesta", "cestas", "balde", "baldes", "fardo", "fardos",
+        "lata", "latas", "frasco", "frascos", "bobina", "bobinas", "costal",
+        "costales", "bidón", "bidones", "tambor", "tambores",
+    )
+
     def _contraer(self, texto: str) -> str:
         for origen, destino in self._CONTRACCIONES:
             texto = texto.replace(origen, destino)
+
+        # Envase duplicado: "<envase1> de[l] [un/una/el/la] <envase2>" -> se
+        # queda solo con el primer envase ("un paquete del saco de cemento" ->
+        # "un paquete de cemento").
+        import re as _re
+        envases_alt = "|".join(self._ENVASES)
+        texto = _re.sub(
+            rf"\b(?:{envases_alt})\s+de(?:l)?\s+(?:un|una|el|la)?\s*(?:{envases_alt})\s+de\b",
+            lambda m: m.group(0).split(" de")[0] + " de",
+            texto,
+            flags=_re.IGNORECASE,
+        )
+
         # Un marco que abre con {objeto_medible} hereda el artículo en minúscula
         # ("el libro tiene..."): la frase empieza mal.
         if texto and texto[0].islower():
@@ -489,26 +566,31 @@ class CompositorFase4:
         texto = _re.sub(r"\bde el\b(?=[.,;:?!)])", "del", texto)
         return texto
 
-    def _escala_requerida(self, plantilla: dict) -> str | None:
-        """Escala física que el marco presupone, derivada del factor de conversión.
+    def _unidad_origen_requerida(self, plantilla: dict) -> str | None:
+        """Unidad de partida exacta que el escenario debe tener para que el texto
+        (que usa {unidad} genérico) sea coherente con la dirección real de la
+        conversión.
 
-        R2b: la magnitud sola no da coherencia. 'longitud' cubre el grosor de una
-        moneda y una maratón, así que un marco de km montado sobre un escenario de
-        espesor produce "recorrió un trayecto en la pila de monedas de 1,57 km".
-        El factor de la fórmula ya identifica el par de unidades en juego.
+        Antes esto se resolvía por categoría de escala ("objeto" para factor 100,
+        "distancia" para 1000, "micro" para 10), pero esa categoría no distingue
+        dirección: un escenario en cm y otro en m comparten categoría "objeto",
+        así que una plantilla a*100 (parte de metros) podía recibir un escenario
+        en cm y generar una conversión circular ("mide 3 cm, ¿a cuántos cm
+        equivale?"). Delegar en _unidades_conversion() (misma fuente de verdad
+        que ya usa el SVG) da la unidad de origen exacta por fórmula.
+
+        Solo aplica a fórmulas de un solo token físico (excluyendo n_cant, que es
+        un conteo, no una medida). Las fórmulas mixtas (a+b/100, a*1000+b, ...)
+        hardcodean la unidad de cada token directamente en el marco narrativo y
+        no dependen del campo unidad del escenario.
         """
-        # Solo el módulo 4 (escalera métrica) tiene escenarios etiquetados: en los
-        # módulos 1-3 un factor 100 es dinero o porcentaje, no un salto de unidad.
         if plantilla.get("modulo_id") != 4:
             return None
-        formula = plantilla.get("formula") or ""
-        if "1000" in formula:
-            return "distancia"
-        if "100" in formula:
-            return "objeto"
-        if "10" in formula:
-            return "micro"
-        return None
+        tokens_con_unidad = [t for t in self._tokens_formula(plantilla) if t != "n_cant"]
+        if len(tokens_con_unidad) != 1:
+            return None
+        origen_destino = self._unidades_conversion(plantilla)
+        return origen_destino[0] if origen_destino else None
 
     def _evaluar_formula(self, plantilla: dict, vals: dict) -> float:
         formula = plantilla.get("formula")
