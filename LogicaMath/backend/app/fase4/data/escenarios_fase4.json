@@ -394,7 +394,7 @@
     "lugar": "el depósito",
     "objetos": [
       "lata de jugo",
-      "botella de agua"
+      "envase de agua"
     ],
     "sujeto_medible": "el total gastado",
     "objeto_medible": "el pack de bebidas",
@@ -517,7 +517,7 @@
       "hilera"
     ],
     "sujeto_medible": "la longitud de alambre",
-    "objeto_medible": "el cerco perimetral",
+    "objeto_medible": "el alambre",
     "atributo": "los metros por vuelta"
   },
   {
@@ -532,7 +532,7 @@
       "bolsa de 5 kg"
     ],
     "sujeto_medible": "el peso en harina",
-    "objeto_medible": "el cargamento",
+    "objeto_medible": "la harina",
     "atributo": "el peso por bolsa"
   },
   {
@@ -547,7 +547,7 @@
       "horma grande"
     ],
     "sujeto_medible": "la cantidad de queso",
-    "objeto_medible": "el paquete de queso",
+    "objeto_medible": "el queso",
     "atributo": "la masa por porción"
   },
   {
@@ -562,7 +562,7 @@
       "listón de roble"
     ],
     "sujeto_medible": "la madera total",
-    "objeto_medible": "el atado de listones",
+    "objeto_medible": "los listones de madera",
     "atributo": "la longitud por varilla"
   },
   {
@@ -577,7 +577,7 @@
       "rollo aislado"
     ],
     "sujeto_medible": "el metraje de cable",
-    "objeto_medible": "la caja de rollos",
+    "objeto_medible": "los cables",
     "atributo": "la longitud unitaria"
   },
   {
@@ -592,7 +592,7 @@
       "cajón de plástico"
     ],
     "sujeto_medible": "el peso total de fruta",
-    "objeto_medible": "el lote de cajones",
+    "objeto_medible": "las naranjas",
     "atributo": "el peso neto"
   },
   {

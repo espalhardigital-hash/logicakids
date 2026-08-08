@@ -87,11 +87,11 @@ class CompositorFase4:
         # Rotate template choice ensuring <=25% concentration
         plantilla = plantillas_nivel[fam_idx % len(plantillas_nivel)]
         
-        # Filter scenarios matching template magnitude and campos_requeridos
+        # Filter scenarios matching template magnitude and campos_requeridos (unlocked across modules)
         escala_req = self._escala_requerida(plantilla)
         escenarios_compatibles = [
             e for e in self.escenarios
-            if e["modulo_id"] == modulo_id and e["magnitud"] == plantilla["magnitud"]
+            if e["magnitud"] == plantilla["magnitud"]
             and all(req in e and e[req] for req in plantilla.get("campos_requeridos", []))
             and (escala_req is None or e.get("escala") == escala_req)
         ]
@@ -263,7 +263,13 @@ class CompositorFase4:
             unidad=unit, unidad_nombre=unidad_nombre, a=fmt_a, b=fmt_b, c=fmt_c, total=fmt_total,
             n_cant=n_cant, ruido=fmt_total,
         )
-        enunciado = plantilla["marco"].format(**campos)
+        marcos_alt = plantilla.get("marcos_alternativos")
+        if marcos_alt and isinstance(marcos_alt, list) and len(marcos_alt) > 0:
+            marco_str = marcos_alt[(fam_idx + var_idx) % len(marcos_alt)]
+        else:
+            marco_str = plantilla["marco"]
+
+        enunciado = marco_str.format(**campos)
         pregunta_txt = f"{enunciado} {plantilla['pregunta'].format(**campos)}"
         pregunta_txt = self._contraer(pregunta_txt)
 
