@@ -518,9 +518,16 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
         # El desafío D1 recorre los TRES niveles del módulo, no un enunciado fijo:
         # 18 plantillas por módulo frente a 1. Sin esto el alumno memoriza
         # "cuaderno + lápiz = sumar" y el bloque deja de medir razonamiento (C7.1).
-        nivel_d1 = ((q_idx // 3) % 3) + 1
+        #
+        # `q_idx % 12` y `q_idx % 4` daban un período combinado de solo 36
+        # (además, 4 divide a 12, así que var_idx nunca aportaba información
+        # nueva más allá de fam_idx): de 150 preguntas por bloque, apenas 36
+        # eran distintas y el resto se repetía ~4 veces. Verificado con el
+        # compositor real: fam_idx=var_idx=q_idx da 150/150 únicas en los 4
+        # módulos, sin intersección entre ellos.
+        nivel_d1 = ((q_idx // 13) % 3) + 1
         comp = comp_d1 = _COMPOSITOR.componer_pregunta_practica(
-            real_mod, nivel_d1, q_idx % 12, q_idx % 4, seed_val
+            real_mod, nivel_d1, q_idx, q_idx, seed_val
         )
         enunciado = _enunciado_con_svg(comp["enunciado"], comp.get("figura_svg"), 140)
         ans_str = comp["respuesta_correcta"]
@@ -542,9 +549,13 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
         tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
 
         if real_mod == 1:
-            monto = round(15.00 + (q_idx % 5) * 5.0, 2)
-            item1 = round(6.50 + (q_idx % 4) * 1.50, 2)
-            item2 = round(7.20 + (q_idx % 3) * 1.10, 2)
+            # Moduli 5/4/3 (período combinado 60 con los 15 personajes de
+            # NOMBRES_POOL): de 150 preguntas, solo 60 eran distintas.
+            # 11/13/7 no comparten factores con 15, así que el período supera
+            # los 150 y las 150 preguntas del bloque quedan únicas.
+            monto = round(15.00 + (q_idx % 11) * 2.0, 2)
+            item1 = round(6.50 + (q_idx % 13) * 0.40, 2)
+            item2 = round(7.20 + (q_idx % 7) * 0.35, 2)
             total = round(item1 + item2, 2)
             alcanza = total <= monto
             ans_str = "Sí, le alcanza" if alcanza else "No le alcanza"
@@ -558,8 +569,8 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                 {"texto": "Los datos no son suficientes", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.NO_IDENTIFICA_DATOS, "feedback_error": "Los datos son suficientes para sumar y comparar."}
             ]
         elif real_mod == 2:
-            a = round(2.5 + (q_idx % 5) * 0.4, 1)
-            b = round(1.2 + (q_idx % 4) * 0.3, 1)
+            a = round(2.5 + (q_idx % 11) * 0.1, 1)
+            b = round(1.2 + (q_idx % 13) * 0.1, 1)
             res_err = round((a * 10) * (b * 10), 2)
             enunciado = f"{personaje} calculó {_fmt_dec(a)} × {_fmt_dec(b)} y obtuvo {_fmt_dec(res_err)}. ¿Cuál fue su error con la coma?"
             correct_alt = "Olvidó contar los decimales de ambos factores"
@@ -570,8 +581,8 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                 {"texto": "El resultado obtenido es correcto", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.CALCULO, "feedback_error": "El resultado correcto tiene 2 cifras decimales."}
             ]
         elif real_mod == 3:
-            div = round(4.5 + (q_idx % 4) * 1.5, 1)
-            divisor = round(0.5 + (q_idx % 3) * 0.5, 1)
+            div = round(4.5 + (q_idx % 11) * 0.3, 1)
+            divisor = round(0.5 + (q_idx % 13) * 0.1, 1)
             ans_val = round(div / divisor, 2)
             # El cociente NO siempre es entero (ej. 4,5 ÷ 1,0 = 4,5): la
             # afirmación "Sí" no puede darse por correcta sin comprobarlo.
@@ -595,7 +606,7 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
                     {"texto": "Faltan datos para saber el resultado", "es_correcta": False, "orden": 4, "tipo_error": TipoErrorEnum.NO_IDENTIFICA_DATOS, "feedback_error": "Los datos son suficientes para resolver."}
                 ]
         else:
-            val_m = round(1.5 + (q_idx % 4) * 0.5, 1)
+            val_m = round(1.5 + (q_idx % 13) * 0.1, 1)
             val_cm_err = val_m * 10
             enunciado = _enunciado_con_svg(
                 f"{personaje} convirtió {_fmt_dec(val_m)} m a cm y obtuvo {_fmt_dec(val_cm_err)} cm. ¿Dónde cometió el error?",
@@ -631,139 +642,37 @@ def _generate_challenge_question(sec: int, q_idx: int, seed_val: int) -> dict:
             [(a["texto"], a["tipo_error"], a["feedback_error"]) for a in alts if not a["es_correcta"]],
             "Revisa la situación planteada e inténtalo de nuevo.")
 
-    # ── DF: CARGA TOTAL INTEGRADA EN INPUT LIBRE (C5.3, C5.9, C5.11, C5.12, C5.13)
+    # ── DF: DESAFÍO FINAL, INPUT LIBRE ──────────────────────────────────────────
+    # Antes esta rama generaba el enunciado (zócalo/listones, "cuánto le
+    # devolvieron", tramo de ruta...) a partir de q_idx en solitario, SIN usar
+    # real_mod para nada dentro del contenido. Como q_idx vuelve a recorrer
+    # 0..149 igual para cada módulo, el Desafío Final de Módulo 1, 2 y 3 salía
+    # LITERALMENTE idéntico entre sí (mismo enunciado, mismos números, mismo
+    # personaje, verificado contra la base real) — cero variedad real, el
+    # alumno memoriza el patrón en vez de razonar. Además cada módulo tenía
+    # apenas 1-3 plantillas fijas repitiéndose cada 20-35 preguntas.
+    #
+    # Se reemplaza por el mismo compositor que ya usan D1 y la práctica libre
+    # (72 plantillas × 36 marcos narrativos × decenas de escenarios, ya
+    # corregidos de raíz), filtrado por real_mod para que cada módulo muestre
+    # contenido genuinamente propio. nivel_df se inclina a nivel 2-3 (más
+    # difícil, coherente con ser el desafío final) y usa un offset de índices
+    # distinto al de D1 para que ninguna de las dos secciones se sienta calcada
+    # de la otra.
     else:
-        op_enum = OperacionEnum.MIXTA
+        nivel_df = 2 + ((q_idx // 5) % 2)
+        comp = comp_d1 = _COMPOSITOR.componer_pregunta_practica(
+            real_mod, nivel_df, q_idx, (q_idx // 2) + 5, seed_val
+        )
+        enunciado = _enunciado_con_svg(comp["enunciado"], comp.get("figura_svg"), 145)
+        ans_str = comp["respuesta_correcta"]
+        esc = next((e for e in _COMPOSITOR.escenarios
+                    if e["id"] == comp["escenario_id"]), esc)
+        op_enum = _OP_ENUM_POR_NOMBRE.get(comp["operacion_correcta"], OperacionEnum.MIXTA)
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         alts = None
-
-        is_two_step = (q_idx % 7 == 0)
-        is_context_rounding = (q_idx % 5 == 0)
-
-        if real_mod == 4:
-            tramo_m = round(1.2 + (q_idx % 5) * 0.3, 1)
-            tramo_cm = 35 + (q_idx % 4) * 15
-            hora_salida = 8 + (q_idx % 3)
-            ans_num = round(tramo_m * 100 + tramo_cm, 2)
-            ans_str = _fmt_dec(ans_num)
-
-            enunciado = _enunciado_con_svg(
-                f"{personaje} unió dos tramos de una ruta. ¿Cuántos centímetros mide la ruta completa?",
-                tabla_datos(
-                    [
-                        ("Tramo A", f"{_fmt_dec(tramo_m)} m"),
-                        ("Tramo B", f"{tramo_cm} cm"),
-                        ("Hora de salida", f"{hora_salida}:00"),
-                    ],
-                    color=color_modulo(4, 4),
-                    marco=False,
-                ),
-                145,
-            )
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Dato irrelevante: la hora de salida ({hora_salida}:00) no cambia la longitud."},
-                    {"orden": 2, "texto": f"Convertimos el tramo A: {_fmt_dec(tramo_m)} m × 100 = {_fmt_dec(tramo_m * 100)} cm."},
-                    {"orden": 3, "texto": f"Sumamos ambos tramos: {_fmt_dec(tramo_m * 100)} + {tramo_cm} = {ans_str} cm."},
-                ],
-                "pista": {"texto": "Expresa los dos tramos en centímetros antes de sumarlos.", "penalizacion_segundos": 5},
-            }
-            err_dict = _construir_errores_previstos([
-                (_fmt_dec(round(tramo_m * 100, 2)), TipoErrorEnum.PROBLEMA_INCOMPLETO,
-                 "Convertiste el primer tramo, pero falta sumar el tramo B."),
-                (_fmt_dec(round(tramo_m + tramo_cm, 2)), TipoErrorEnum.VALOR_POSICIONAL,
-                 "No puedes sumar metros y centímetros sin unificar las unidades."),
-                (_fmt_dec(round(tramo_m * 10 + tramo_cm, 2)), TipoErrorEnum.VALOR_POSICIONAL,
-                 "De metros a centímetros se multiplica por 100, no por 10."),
-            ], "Revisa la conversión de unidades e inténtalo de nuevo.")
-
-        elif is_context_rounding:
-            # C6.5: la Fase 4 trabaja longitud y dinero. El volumen (L) pasó a la
-            # fase de geometría 3D, así que el redondeo al alza se plantea con
-            # listones, no con botellas.
-            largo = round(4.4 + (q_idx % 4) * 1.6, 1)
-            cap_liston = 2.0
-            irrel_ancho = round(1.2 + (q_idx % 3) * 0.3, 1)
-            ans_arithmetic = round(largo / cap_liston, 2)
-            ans_int = int(largo // cap_liston) + (1 if (largo % cap_liston) > 0 else 0)
-            ans_str = f"{ans_int}"
-
-            enunciado = f"{personaje} debe cubrir {_fmt_dec(largo)} m de zócalo con listones de {_fmt_dec(cap_liston)} m cada uno. El pasillo mide {_fmt_dec(irrel_ancho)} m de ancho. ¿Cuántos listones completos necesita comprar?"
-
-            faltan = round(largo - int(ans_arithmetic) * cap_liston, 2)
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Dato irrelevante: el ancho del pasillo ({_fmt_dec(irrel_ancho)} m) no interviene en el largo del zócalo."},
-                    {"orden": 2, "texto": f"{_fmt_dec(largo)} ÷ {_fmt_dec(cap_liston)} = {_fmt_dec(ans_arithmetic)}. Como no venden listones partidos, se compran {ans_int}."}
-                ],
-                "pista": {"texto": "No puedes comprar una parte de listón: si sobra un tramo por cubrir, necesitas otro listón entero.", "penalizacion_segundos": 5}
-            }
-            err_dict = _construir_errores_previstos([
-                (_fmt_dec(ans_arithmetic), TipoErrorEnum.PROBLEMA_INCOMPLETO,
-                 f"Tu división está bien ({_fmt_dec(ans_arithmetic)}), pero los listones se venden enteros. Necesitas {ans_int}."),
-                (f"{int(ans_arithmetic)}", TipoErrorEnum.PROBLEMA_INCOMPLETO,
-                 f"Con {int(ans_arithmetic)} listones cubres {_fmt_dec(round(int(ans_arithmetic) * cap_liston, 2))} m y quedan {_fmt_dec(faltan)} m sin cubrir. Necesitas {ans_int}."),
-            ], "Recuerda redondear hacia arriba: no se venden listones partidos.")
-
-        elif is_two_step:
-            cant = 3
-            precio_unit = round(3.50 + (q_idx % 3) * 0.50, 2)
-            billete = 20.0
-            hora_compra = 14 + (q_idx % 4)
-            total_gastado = round(cant * precio_unit, 2)
-            ans_num = round(billete - total_gastado, 2)
-            ans_str = _fmt_money(ans_num)
-
-            enunciado = f"{personaje} llevó R$ {_fmt_money(billete)}. Compró {cant} cuadernos de R$ {_fmt_money(precio_unit)} cada uno. La compra fue a las {hora_compra}:00. ¿Cuánto le devolvieron?"
-
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Dato irrelevante: la hora de la compra ({hora_compra}:00)."},
-                    {"orden": 2, "texto": f"Paso 1 (inferido): {cant} × {_fmt_money(precio_unit)} = R$ {_fmt_money(total_gastado)}."},
-                    {"orden": 3, "texto": f"Paso 2: R$ {_fmt_money(billete)} − R$ {_fmt_money(total_gastado)} = R$ {ans_str}."}
-                ],
-                "pista": {"texto": "Calcula primero el costo total de los cuadernos antes de restar del billete.", "penalizacion_segundos": 5}
-            }
-            err_dict = _construir_errores_previstos([
-                (_fmt_money(total_gastado), TipoErrorEnum.PROBLEMA_INCOMPLETO,
-                 "Calculaste el costo total de los cuadernos, pero falta restar del billete para hallar el vuelto."),
-                (_fmt_money(round(billete - precio_unit, 2)), TipoErrorEnum.CALCULO,
-                 "Compró 3 cuadernos, no uno solo. Debes multiplicar primero."),
-                (_fmt_money(billete), TipoErrorEnum.PROBLEMA_INCOMPLETO,
-                 "Ese es el dinero inicial. Aún falta restar el costo total de los cuadernos."),
-            ], "Calcula el costo total de la compra y luego resta del billete.")
-
-        else:
-            billete = round(20.0 + (q_idx % 3) * 10.0, 2)
-            item1 = round(3.50 + (q_idx % 5) * 0.80, 2)
-            item2 = round(8.50 + (q_idx % 4) * 0.60, 2)
-            hora_compra = 15 + (q_idx % 3)
-            total = round(item1 + item2, 2)
-            ans_num = round(billete - total, 2)
-            ans_str = _fmt_money(ans_num)
-
-            enunciado = f"{personaje} llevó R$ {_fmt_money(billete)}. Compró un cuaderno de R$ {_fmt_money(item1)}, un lápiz de R$ {_fmt_money(item2)}. La compra fue a las {hora_compra}:00. ¿Cuánto dinero le sobró?"
-
-            explicacion = {
-                "titulo": "Resolución",
-                "pasos": [
-                    {"orden": 1, "texto": f"Dato irrelevante: la hora de la compra ({hora_compra}:00)."},
-                    {"orden": 2, "texto": f"Paso 1: R$ {_fmt_money(item1)} + R$ {_fmt_money(item2)} = R$ {_fmt_money(total)}."},
-                    {"orden": 3, "texto": f"Paso 2: R$ {_fmt_money(billete)} − R$ {_fmt_money(total)} = R$ {ans_str}."}
-                ],
-                "pista": {"texto": "Suma los productos comprados y resta el resultado del billete que llevó.", "penalizacion_segundos": 5}
-            }
-            err_dict = _construir_errores_previstos([
-                (_fmt_money(total), TipoErrorEnum.PROBLEMA_INCOMPLETO,
-                 "Ese es el costo total gastado. Te piden cuánto le sobró del billete."),
-                (_fmt_money(round(billete - item1, 2)), TipoErrorEnum.PROBLEMA_INCOMPLETO,
-                 "Falta restar el segundo producto comprado."),
-                (_fmt_money(billete), TipoErrorEnum.PROBLEMA_INCOMPLETO,
-                 "Ese es el dinero inicial. Todavía falta descontar las compras."),
-            ], "Suma lo comprado y resta el resultado del billete.")
+        explicacion = _explicacion_desde_compositor(comp)
+        err_dict = _errores_desde_compositor(comp, confusiones_mod)
 
     enunciado_prosa = re.sub(r"<svg.*?</svg>", "", enunciado, flags=re.DOTALL | re.IGNORECASE)
     enunciado_prosa = re.sub(r"<[^>]+>", " ", enunciado_prosa)
