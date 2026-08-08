@@ -106,20 +106,19 @@ class CompositorFase4:
         # Validate R1 & R2 contract
         self.validar_composicion(plantilla, esc)
         
-        # ── Generación de valores ────────────────────────────────────────────
-        # 'total' NO es la respuesta: es un dato del enunciado (presupuesto, meta,
-        # billete...). La respuesta se deriva SIEMPRE de plantilla["formula"] sobre
-        # estos mismos valores, para que enunciado y respuesta sean coherentes.
+        # ── Generación de valores exactos (máx 2 decimales, CERO redondeos) ──
+        # Para que un niño de 10 años no tenga que redondear ni truncar,
+        # los operandos y el resultado DEBEN ser números exactos (enteros o max 2 decimales).
         # ── Generación de valores ────────────────────────────────────────────
         n_cant = 2 + (fam_idx % 4)                      # 2..5
-        a_val = round(1.20 + (fam_idx * 0.05) + rng.uniform(0.01, 0.05), 2)
-        b_val = round(0.85 + (fam_idx * 0.03) + rng.uniform(0.01, 0.05), 2)
-        c_val = round(0.50 + rng.uniform(0.01, 0.05), 2)
-        total_val = round(a_val + b_val + c_val + 1.0 + rng.uniform(0.05, 0.4), 2)
+        a_val = round(1.20 + (fam_idx * 0.05), 2)
+        b_val = round(0.85 + (fam_idx * 0.03), 2)
+        c_val = round(0.50 + (fam_idx * 0.02), 2)
+        total_val = round(a_val + b_val + c_val + 1.0, 2)
 
         formula = plantilla.get("formula", "")
 
-        # ── Garantía de cocientes exactos y finitos (máx 2 decimales, sin números periódicos) ──
+        # ── Garantía de cocientes y productos exactos (máx 2 decimales, sin redondeos) ──
         if formula == "a/n_cant":
             # Elegir un resultado objetivo exacto Q (entero o máx 2 decimales)
             opciones_q = [0.25, 0.4, 0.5, 0.75, 0.8, 1.2, 1.25, 1.5, 1.75, 2.2, 2.25, 2.4, 2.5, 3.2, 3.5, 4.25, 5.25]
@@ -143,18 +142,54 @@ class CompositorFase4:
             ]
             b_val, q_target = parejas_div[(fam_idx + var_idx) % len(parejas_div)]
             a_val = round(b_val * q_target, 2)
-        elif plantilla["incognita"] == "factor_faltante" or formula == "total/a":
-            total_val = round(a_val * n_cant, 2)
+        elif plantilla.get("incognita") == "factor_faltante" or formula == "total/a":
+            # total / a = entero o 1 decimal
+            opciones_q = [2, 3, 4, 5, 1.5, 2.5, 3.5, 4.5, 1.2, 2.4]
+            q_target = opciones_q[fam_idx % len(opciones_q)]
+            a_val = round(1.2 + (fam_idx % 5) * 0.5, 2)
+            total_val = round(a_val * q_target, 2)
         elif formula == "(total-c)/n_cant":
             opciones_q = [0.25, 0.5, 0.75, 1.2, 1.25, 1.5, 2.0, 2.5, 3.25, 4.5]
             q_target = opciones_q[fam_idx % len(opciones_q)]
             total_val = round(q_target * n_cant + c_val, 2)
         elif formula == "a*b":
+            # Parejas exactas (a, b) cuyo producto a*b tiene MÁXIMO 2 decimales sin aproximar
             parejas_ab = [
-                (1.5, 0.8), (2.4, 1.5), (3.5, 1.2), (1.25, 0.4),
-                (2.5, 0.6), (1.8, 0.5), (4.2, 0.5), (3.6, 0.25),
-                (2.8, 1.5), (1.6, 2.5), (3.2, 1.25), (2.25, 0.8),
-                (1.4, 2.5), (3.8, 0.5), (4.5, 0.4), (2.6, 1.5)
+                (1.5, 0.8),   # 1.2
+                (2.4, 1.5),   # 3.6
+                (3.5, 1.2),   # 4.2
+                (1.25, 0.4),  # 0.5
+                (2.5, 0.6),   # 1.5
+                (1.8, 0.5),   # 0.9
+                (4.2, 0.5),   # 2.1
+                (3.6, 0.25),  # 0.9
+                (2.8, 1.5),   # 4.2
+                (1.6, 2.5),   # 4.0
+                (3.2, 1.25),  # 4.0
+                (2.25, 0.8),  # 1.8
+                (1.4, 2.5),   # 3.5
+                (3.8, 0.5),   # 1.9
+                (4.5, 0.4),   # 1.8
+                (2.6, 1.5),   # 3.9
+                (3.4, 0.5),   # 1.7
+                (4.8, 0.25),  # 1.2
+                (2.15, 2.0),  # 4.3
+                (1.75, 0.4),  # 0.7
+                (4.4, 1.5),   # 6.6
+                (2.2, 1.5),   # 3.3
+                (3.25, 0.8),  # 2.6
+                (1.45, 2.0),  # 2.9
+                (2.75, 0.4),  # 1.1
+                (3.12, 0.5),  # 1.56
+                (4.24, 0.5),  # 2.12
+                (2.36, 0.5),  # 1.18
+                (1.84, 0.5),  # 0.92
+                (3.68, 0.5),  # 1.84
+                (2.14, 0.5),  # 1.07
+                (4.16, 0.5),  # 2.08
+                (1.52, 0.5),  # 0.76
+                (2.48, 0.5),  # 1.24
+                (3.72, 0.5),  # 1.86
             ]
             a_val, b_val = parejas_ab[(fam_idx + var_idx) % len(parejas_ab)]
 
@@ -187,7 +222,7 @@ class CompositorFase4:
             """Enteros sin decimales de relleno ('450 cm', no '450,00 cm')."""
             if abs(v - round(v)) < 1e-9:
                 return str(int(round(v)))
-            return f"{v:.2f}".replace('.', ',')
+            return f"{v:.2f}".replace('.', ',').rstrip('0').rstrip(',') if '.' in f"{v:.2f}" else f"{v:.2f}".replace('.', ',')
 
         fmt_a, fmt_b, fmt_c = fmt(a_val), fmt(b_val), fmt(c_val)
         fmt_total = fmt(total_val)
@@ -208,8 +243,6 @@ class CompositorFase4:
             unidad=unit, a=fmt_a, b=fmt_b, c=fmt_c, total=fmt_total,
             n_cant=n_cant, ruido=fmt_total,
         )
-        # El marco Y la pregunta se formatean: dejar la pregunta sin formatear
-        # deja placeholders crudos como "{unidad}" a la vista del alumno.
         enunciado = plantilla["marco"].format(**campos)
         pregunta_txt = f"{enunciado} {plantilla['pregunta'].format(**campos)}"
         pregunta_txt = self._contraer(pregunta_txt)
@@ -231,12 +264,10 @@ class CompositorFase4:
             "resultado_num": resultado,
             "respuesta_correcta": fmt_res,
             "unidad": unit,
-            "figura_svg": self._figura_svg(plantilla, vals, unit),
+            "figura_svg": self._figura_svg(plantilla, vals, unit, esc),
         }
 
     # Operadores permitidos en las fórmulas de plantillas_fase4.json.
-    # No se usa eval() sobre entrada arbitraria: la fórmula es dato del repo,
-    # y aun así se restringe a nombres conocidos (deep_analise_pro §15.2).
     _COLOR_MODULO = {
         1: "#10B981",
         2: "#8B5CF6",
@@ -244,7 +275,7 @@ class CompositorFase4:
         4: "#EC4899",
     }
 
-    def _figura_svg(self, plantilla: dict, vals: dict, unidad: str) -> str | None:
+    def _figura_svg(self, plantilla: dict, vals: dict, unidad: str, esc: dict | None = None) -> str | None:
         modulo_id = plantilla["modulo_id"]
         color = self._COLOR_MODULO.get(modulo_id, "#A855F7")
 
@@ -270,10 +301,10 @@ class CompositorFase4:
         if int(plantilla.get("n_datos", 0)) < 2:
             return None
 
-        filas = self._filas_datos_svg(plantilla, vals, unidad)
+        filas, titulo_tabla = self._filas_datos_svg(plantilla, vals, unidad, esc or {})
         if len(filas) < 2:
             return None
-        return tabla_datos(filas, titulo="Datos", color=color, marco=False)
+        return tabla_datos(filas, titulo=titulo_tabla, color=color, marco=False)
 
     def _unidades_conversion(self, plantilla: dict) -> tuple[str, str] | None:
         pid = plantilla.get("id", "")
@@ -293,27 +324,60 @@ class CompositorFase4:
             return "mm", "cm"
         return None
 
-    def _filas_datos_svg(self, plantilla: dict, vals: dict, unidad: str) -> list[tuple[str, str]]:
-        etiquetas = {
-            "a": "Dato A",
-            "b": "Dato B",
-            "c": "Dato C",
-            "total": "Total",
-            "n_cant": "Cantidad",
-        }
+    def _filas_datos_svg(self, plantilla: dict, vals: dict, unidad: str, esc: dict) -> tuple[list[tuple[str, str]], str]:
+        formula = plantilla.get("formula", "")
         tokens = self._tokens_formula(plantilla)
+
+        # Variar títulos de tabla para romper la monotonía
+        titulos = {
+            1: "Resumen de compra",
+            2: "Ficha del pedido",
+            3: "Datos del reparto",
+            4: "Registro de medidas"
+        }
+        titulo = titulos.get(plantilla.get("modulo_id", 1), "Resumen de datos")
 
         filas = []
         for token in tokens:
             valor = vals[token]
+            
+            # Formatear adecuadamente según el tipo de token y contexto (etiquetas <= 15 chars)
             if token == "n_cant":
+                etiqueta = "Cantidad"
                 texto_valor = f"{int(valor)} unidades"
-            elif unidad in ("R$", "$", "EUR"):
-                texto_valor = f"{unidad} {self._fmt_visual(valor)}"
+            elif token == "a" and formula in ("a*b", "a*n_cant"):
+                # Si 'a' es la cantidad de tramos/paquetes (conteo)
+                if plantilla.get("magnitud") in ("longitud", "masa") and "tramos" in plantilla.get("marco", ""):
+                    etiqueta = "Cantidad tramos"
+                    texto_valor = f"{self._fmt_visual(valor)} tramos"
+                elif plantilla.get("magnitud") == "dinero" and "paquetes" in plantilla.get("marco", ""):
+                    etiqueta = "Cant. comprada"
+                    texto_valor = f"{self._fmt_visual(valor)} paquetes"
+                else:
+                    etiqueta = "Valor A"
+                    texto_valor = f"{self._fmt_visual(valor)} {unidad}" if unidad not in ("R$", "$", "EUR") else f"{unidad} {self._fmt_visual(valor)}"
+            elif token == "b" and formula == "a*b":
+                if unidad in ("R$", "$", "EUR"):
+                    etiqueta = "Precio unitario"
+                    texto_valor = f"{unidad} {self._fmt_visual(valor)}"
+                else:
+                    etiqueta = "Medida unitaria"
+                    texto_valor = f"{self._fmt_visual(valor)} {unidad}"
+            elif token == "total":
+                etiqueta = "Monto total" if unidad in ("R$", "$", "EUR") else "Medida total"
+                texto_valor = f"{unidad} {self._fmt_visual(valor)}" if unidad in ("R$", "$", "EUR") else f"{self._fmt_visual(valor)} {unidad}"
             else:
-                texto_valor = f"{self._fmt_visual(valor)} {unidad}"
-            filas.append((etiquetas[token], texto_valor))
-        return filas
+                etiquetas_default = {"a": "Valor A", "b": "Valor B", "c": "Valor C"}
+                etiqueta = etiquetas_default.get(token, token.capitalize()[:15])
+                if unidad in ("R$", "$", "EUR"):
+                    texto_valor = f"{unidad} {self._fmt_visual(valor)}"
+                else:
+                    texto_valor = f"{self._fmt_visual(valor)} {unidad}"
+                    
+            filas.append((etiqueta, texto_valor))
+
+        return filas, titulo
+
 
     def _tokens_formula(self, plantilla: dict) -> list[str]:
         import re as _re

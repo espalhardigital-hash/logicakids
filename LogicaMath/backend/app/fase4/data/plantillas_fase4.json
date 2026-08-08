@@ -590,7 +590,7 @@
       "lugar",
       "objetos"
     ],
-    "marco": "Para celebrar una ocasión especial en {lugar}, un grupo de {n_cant} amigos pidió comida y la cuenta final fue de {unidad} {a}. Como son buenos amigos, decidieron pagar todos la misma cantidad para compartir los gastos.",
+    "marco": "En {lugar}, un grupo de {n_cant} amigos pagó una cuenta total de {unidad} {a}. Decidieron repartir el gasto en partes iguales.",
     "pregunta": "¿Cuánto dinero le tocó poner a cada uno?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
@@ -606,7 +606,7 @@
       "lugar",
       "objetos"
     ],
-    "marco": "{personaje} está ordenando el depósito en {lugar} y tiene una gran carga de {a} {unidad} de {objetos_0}. Para que sea más fácil de transportar, decidió separarlo todo en {n_cant} paquetes idénticos.",
+    "marco": "{personaje} en {lugar} tiene {a} {unidad} de {objetos_0} y los reparte en {n_cant} paquetes iguales.",
     "pregunta": "¿Cuántos {unidad} debe pesar exactamente cada paquete?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
@@ -622,8 +622,8 @@
       "lugar",
       "objeto_medible"
     ],
-    "marco": "Para decorar su habitación, {personaje} llevó a {lugar} una tira muy larga de {objeto_medible} que medía {a} {unidad}. Luego, con mucho cuidado, la cortó en {n_cant} trozos iguales.",
-    "pregunta": "¿Cuántos {unidad} mide ahora cada uno de esos trozos de {objeto_medible}?",
+    "marco": "{personaje} compró una tira de {objeto_medible} de {a} {unidad} en {lugar} y la cortó en {n_cant} trozos iguales.",
+    "pregunta": "¿Cuántos {unidad} mide cada trozo de {objeto_medible}?",
     "operacion_correcta": "dividir",
     "incognita": "cociente",
     "n_datos": 2,
@@ -740,8 +740,8 @@
       "objetos",
       "unidad"
     ],
-    "marco": "En el concurso de repostería de {lugar}, la regla dice que cada porción de {objetos_0} debe pesar exactamente {a} {unidad}. Si se prepararon {n_cant} porciones perfectas,",
-    "pregunta": "¿Cuántos {unidad} de {objetos_0} se tuvieron que usar en total para lograrlo?",
+    "marco": "En {lugar}, cada porción de {objetos_0} pesa {a} {unidad}. Se prepararon {n_cant} porciones iguales.",
+    "pregunta": "¿Cuántos {unidad} de {objetos_0} se usaron en total?",
     "formula": "a*n_cant"
   },
   {
@@ -884,8 +884,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "Para un divertido proyecto escolar, {personaje} midió {atributo} de {objeto_medible} y descubrió que tiene {a} m. Su profesora le pidió que anote este valor usando centímetros (cm) en su libreta.",
-    "pregunta": "¿A cuántos centímetros (cm) equivale la medida que tomó?",
+    "marco": "{personaje} midió {objeto_medible} y anotó {a} m en su libreta.",
+    "pregunta": "¿A cuántos centímetros (cm) equivale esa medida?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
     "n_datos": 1,
@@ -900,8 +900,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "Entrenando para la competencia, {personaje} recorrió un trayecto en {objeto_medible} que duró {a} km. Su entrenador le pide que escriba esa distancia usando metros (m) en su registro.",
-    "pregunta": "¿Cuántos metros (m) representa la distancia que logró avanzar?",
+    "marco": "{personaje} recorrió un trayecto en {objeto_medible} de {a} km.",
+    "pregunta": "¿Cuántos metros (m) representa esa distancia?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
     "n_datos": 1,
@@ -916,8 +916,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "{personaje} está usando una regla para examinar {objeto_medible} y nota que su {atributo} es de {a} cm. Como quiere ser muy preciso, necesita transformar la medida a milímetros (mm).",
-    "pregunta": "¿Cuántos milímetros (mm) mide de grosor en realidad?",
+    "marco": "{personaje} midió {objeto_medible} y registró {a} cm en su regla.",
+    "pregunta": "¿Cuántos milímetros (mm) mide la pieza?",
     "operacion_correcta": "multiplicar",
     "incognita": "conversion",
     "n_datos": 1,
@@ -1096,8 +1096,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "Durante un rally en {objeto_medible}, el equipo de {personaje} avanzó rápido {a} km en el primer tramo del recorrido y unos {b} m extra en el segundo tramo.",
-    "pregunta": "Sumando todo el esfuerzo, ¿cuántos metros (m) recorrió el equipo en total considerando ambos tramos?",
+    "marco": "En {objeto_medible}, {personaje} avanzó {a} km en el primer tramo y {b} m en el segundo tramo.",
+    "pregunta": "¿Cuántos metros (m) recorrió en total?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
     "n_datos": 2,
@@ -1128,8 +1128,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "El fabricante asegura que {objeto_medible} tiene {a} cm de espesor de fábrica, y para hacerlo más fuerte, {personaje} le añade una delgadísima capa protectora de {b} mm.",
-    "pregunta": "¿Cuál es la medida total del nuevo espesor, pero expresada solamente en centímetros (cm)?",
+    "marco": "{objeto_medible} tiene {a} cm de espesor y {personaje} le añade {b} mm de capa protectora.",
+    "pregunta": "¿Cuál es la medida total del espesor en centímetros (cm)?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
     "n_datos": 2,
@@ -1144,8 +1144,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "Comparando dos largos viajes en {objeto_medible}, notaron que el trayecto A mide {a} km, mientras que el trayecto B mide {b} m.",
-    "pregunta": "¿Cuántos metros (m) más largo resulta ser el trayecto A cuando se lo compara directamente con el trayecto B?",
+    "marco": "El trayecto A en {objeto_medible} mide {a} km y el trayecto B mide {b} m.",
+    "pregunta": "¿Cuántos metros (m) más largo es el trayecto A?",
     "operacion_correcta": "restar",
     "incognita": "diferencia_convertida",
     "n_datos": 2,
@@ -1160,8 +1160,8 @@
       "objeto_medible",
       "atributo"
     ],
-    "marco": "Armando un rompecabezas de pistas en {objeto_medible}, {personaje} fue sumando tres partes que midió con cuidado: primero {a} m, luego {b} cm y finalmente otros {c} cm.",
-    "pregunta": "Uniendo las tres piezas, ¿cuál es la extensión total final y definitiva, expresada en metros (m)?",
+    "marco": "{personaje} unió tres piezas de {objeto_medible}: {a} m, {b} cm y {c} cm.",
+    "pregunta": "¿Cuál es la medida total en metros (m)?",
     "operacion_correcta": "sumar",
     "incognita": "total_convertido",
     "n_datos": 3,
