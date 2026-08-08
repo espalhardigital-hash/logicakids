@@ -295,7 +295,7 @@ def _generate_36_frames_generico(p):
                 "Para el festival de cocina en {lugar}, {personaje} tomó {a} {unidad} de {total} {unidad} de {objeto_medible}.",
                 "En el taller de cerámica en {lugar}, {personaje} usó {a} {unidad} de una masa total de {total} {unidad} de {objeto_medible}.",
                 "Durante la actividad en el campo en {lugar}, {personaje} descargó {a} {unidad} de {total} {unidad} de {objeto_medible}.",
-                "En la panificadora de {lugar}, {personaje} separó {a} {unidad} de una harina total de {total} {unidad} de {objeto_medible}.",
+                "En la panificadora de {lugar}, {personaje} separó {a} {unidad} de una reserva total de {total} {unidad} de {objeto_medible}.",
                 "Para el proyecto de compostaje en {lugar}, {personaje} retiró {a} {unidad} de {total} {unidad} de {objeto_medible}.",
                 "En la tienda de alimentos en {lugar}, {personaje} descontó {a} {unidad} a un paquete de {total} {unidad} de {objeto_medible}.",
                 "Cuidando el vivero escolar en {lugar}, {personaje} usó {a} {unidad} de los {total} {unidad} de {objeto_medible}.",
@@ -360,28 +360,28 @@ def _generate_36_frames_generico(p):
                 "En el ensayo musical en {lugar}, {personaje} compró {n_cant} repuestos de {objetos_0} a {unidad} {a} cada uno.",
                 "Revisando el catálogo en {lugar}, {personaje} eligió {n_cant} accesorios de {objetos_0} a {unidad} {a} cada uno.",
                 "En el puesto de la feria en {lugar}, {personaje} compró {n_cant} cajas de {objetos_0} a {unidad} {a} cada una.",
-                "En la cafetería escolar de {lugar}, {personaje} adquirió {n_cant} sándwiches de {objetos_0} a {unidad} {a} cada uno.",
+                "En la cafetería escolar de {lugar}, {personaje} adquirió {n_cant} combos de {objetos_0} a {unidad} {a} cada uno.",
                 "Para el regalo grupal en {lugar}, {personaje} compró {n_cant} tarjetas de {objetos_0} a {unidad} {a} cada una.",
-                "En la librería de {lugar}, {personaje} pagó {n_cant} cuadernos de {objetos_0} a {unidad} {a} cada uno.",
-                "Durante la tarde en {lugar}, {personaje} compró {n_cant} golosinas de {objetos_0} a {unidad} {a} cada una.",
-                "En el campamento en {lugar}, {personaje} encargó {n_cant} linternas de {objetos_0} a {unidad} {a} cada una.",
+                "En la librería de {lugar}, {personaje} pagó {n_cant} unidades de {objetos_0} a {unidad} {a} cada una.",
+                "Durante la tarde en {lugar}, {personaje} compró {n_cant} porciones de {objetos_0} a {unidad} {a} cada una.",
+                "En el campamento en {lugar}, {personaje} encargó {n_cant} artículos de {objetos_0} a {unidad} {a} cada uno.",
                 "En el cine de {lugar}, {personaje} adquirió {n_cant} entradas de {objetos_0} a {unidad} {a} cada una.",
                 "En la granja de {lugar}, {personaje} compró {n_cant} recipientes de {objetos_0} a {unidad} {a} cada uno.",
-                "En la ferretería de {lugar}, {personaje} pagó {n_cant} herramientas de {objetos_0} a {unidad} {a} cada una.",
+                "En la ferretería de {lugar}, {personaje} pagó {n_cant} lotes de {objetos_0} a {unidad} {a} cada uno.",
                 "En el mercadillo de {lugar}, {personaje} eligió {n_cant} bolsas de {objetos_0} a {unidad} {a} cada una.",
-                "Para el mural en {lugar}, {personaje} compró {n_cant} pinceles de {objetos_0} a {unidad} {a} cada uno.",
+                "Para el mural en {lugar}, {personaje} compró {n_cant} sets de {objetos_0} a {unidad} {a} cada uno.",
                 "En la tienda ecológica de {lugar}, {personaje} encargó {n_cant} envases de {objetos_0} a {unidad} {a} cada uno.",
-                "En la tienda de deportes de {lugar}, {personaje} compró {n_cant} pelotas de {objetos_0} a {unidad} {a} cada una.",
-                "Durante el picnic en {lugar}, {personaje} adquirió {n_cant} jugos de {objetos_0} a {unidad} {a} cada uno.",
+                "En la tienda de deportes de {lugar}, {personaje} compró {n_cant} unidades de {objetos_0} a {unidad} {a} cada una.",
+                "Durante el picnic en {lugar}, {personaje} adquirió {n_cant} envases de {objetos_0} a {unidad} {a} cada uno.",
                 "En la tienda de juegos en {lugar}, {personaje} pagó {n_cant} fichas de {objetos_0} a {unidad} {a} cada una.",
-                "Para el cuidado del jardín en {lugar}, {personaje} compró {n_cant} macetas de {objetos_0} a {unidad} {a} cada una.",
+                "Para el cuidado del jardín en {lugar}, {personaje} compró {n_cant} cajas de {objetos_0} a {unidad} {a} cada una.",
                 "En el taller de música en {lugar}, {personaje} abonó {n_cant} accesorios de {objetos_0} a {unidad} {a} cada uno.",
                 "En la tienda de piezas en {lugar}, {personaje} compró {n_cant} bloques de {objetos_0} a {unidad} {a} cada uno.",
-                "En la competencia en {lugar}, {personaje} adquirió {n_cant} medallas de {objetos_0} a {unidad} {a} cada una.",
+                "En la competencia en {lugar}, {personaje} adquirió {n_cant} artículos de {objetos_0} a {unidad} {a} cada uno.",
                 "En la boutique escolar de {lugar}, {personaje} compró {n_cant} distintivos de {objetos_0} a {unidad} {a} cada uno.",
                 "En el centro cultural de {lugar}, {personaje} encargó {n_cant} boletos de {objetos_0} a {unidad} {a} cada uno.",
                 "Para la feria de inventos en {lugar}, {personaje} pagó {n_cant} módulos de {objetos_0} a {unidad} {a} cada uno.",
-                "En la heladería artesanal de {lugar}, {personaje} compró {n_cant} copas de {objetos_0} a {unidad} {a} cada una."
+                "En la heladería artesanal de {lugar}, {personaje} compró {n_cant} paquetes de {objetos_0} a {unidad} {a} cada uno."
             ]
         elif magnitud == "masa":
             return [
@@ -397,13 +397,13 @@ def _generate_36_frames_generico(p):
                 "En la feria de {lugar}, {personaje} empaquetó {n_cant} lotes de {objetos_0} de {a} {unidad} cada uno.",
                 "En el club deportivo de {lugar}, {personaje} transportó {n_cant} equipamientos de {objetos_0} de {a} {unidad} cada uno.",
                 "Para la preparación en {lugar}, {personaje} juntó {n_cant} bloques de {objetos_0} de {a} {unidad} cada uno.",
-                "En la panadería de {lugar}, {personaje} preparó {n_cant} moldes de {objetos_0} de {a} {unidad} cada uno.",
+                "En la panadería de {lugar}, {personaje} preparó {n_cant} porciones de {objetos_0} de {a} {unidad} cada una.",
                 "En el laboratorio de {lugar}, {personaje} pesó {n_cant} muestras de {objetos_0} de {a} {unidad} cada una.",
                 "En el depósito de {lugar}, {personaje} acomodó {n_cant} lotes de {objetos_0} de {a} {unidad} cada uno.",
                 "Durante la cosecha en {lugar}, {personaje} juntó {n_cant} cajas de {objetos_0} de {a} {unidad} cada una.",
-                "En la fábrica de alimentos en {lugar}, {personaje} embotelló {n_cant} frascos de {objetos_0} de {a} {unidad} cada uno.",
-                "Para el comedor de {lugar}, {personaje} preparó {n_cant} platos de {objetos_0} de {a} {unidad} cada uno.",
-                "En el vivero de {lugar}, {personaje} alistó {n_cant} bolsas de compost de {objetos_0} de {a} {unidad} cada una.",
+                "En la fábrica de alimentos en {lugar}, {personaje} envasó {n_cant} lotes de {objetos_0} de {a} {unidad} cada uno.",
+                "Para el comedor de {lugar}, {personaje} preparó {n_cant} porciones de {objetos_0} de {a} {unidad} cada una.",
+                "En el vivero de {lugar}, {personaje} alistó {n_cant} bolsas de {objetos_0} de {a} {unidad} cada una.",
                 "En el mercado mayorista de {lugar}, {personaje} pesó {n_cant} cargas de {objetos_0} de {a} {unidad} cada una.",
                 "Durante la prueba en {lugar}, {personaje} cargó {n_cant} recipientes de {objetos_0} de {a} {unidad} cada uno.",
                 "En el taller artesanal de {lugar}, {personaje} usó {n_cant} bloques de {objetos_0} de {a} {unidad} cada uno.",
@@ -414,11 +414,11 @@ def _generate_36_frames_generico(p):
                 "En la granja modelo de {lugar}, {personaje} alistó {n_cant} fardos de {objetos_0} de {a} {unidad} cada uno.",
                 "Para el proyecto ecológico en {lugar}, {personaje} pesó {n_cant} contenedores de {objetos_0} de {a} {unidad} cada uno.",
                 "En el almacén escolar de {lugar}, {personaje} apiló {n_cant} cajas de {objetos_0} de {a} {unidad} cada una.",
-                "Durante el taller de ciencia en {lugar}, {personaje} mezcló {n_cant} frascos de {objetos_0} de {a} {unidad} cada uno.",
+                "Durante el taller de ciencia en {lugar}, {personaje} mezcló {n_cant} porciones de {objetos_0} de {a} {unidad} cada una.",
                 "En la verdulería central de {lugar}, {personaje} pesó {n_cant} bolsas de {objetos_0} de {a} {unidad} cada una.",
-                "Para el campamento scout en {lugar}, {personaje} repartió {n_cant} mochilas de {objetos_0} de {a} {unidad} cada una.",
-                "En el laboratorio farmacéutico en {lugar}, {personaje} pesó {n_cant} frascos de {objetos_0} de {a} {unidad} cada uno.",
-                "En la pastelería de {lugar}, {personaje} preparó {n_cant} tortas de {objetos_0} de {a} {unidad} cada una.",
+                "Para el campamento scout en {lugar}, {personaje} repartió {n_cant} bolsas de {objetos_0} de {a} {unidad} cada una.",
+                "En el laboratorio farmacéutico en {lugar}, {personaje} pesó {n_cant} envases de {objetos_0} de {a} {unidad} cada uno.",
+                "En la pastelería de {lugar}, {personaje} preparó {n_cant} lotes de {objetos_0} de {a} {unidad} cada uno.",
                 "En el puesto de venta en {lugar}, {personaje} empacó {n_cant} bolsitas de {objetos_0} de {a} {unidad} cada una.",
                 "Para la maratón de {lugar}, {personaje} alistó {n_cant} kits de {objetos_0} de {a} {unidad} cada uno."
             ]
@@ -599,6 +599,56 @@ def _generate_36_frames_generico(p):
 # no por fórmula exacta, para no repetir 36 líneas por cada una de las ~14
 # fórmulas de conversión distintas.
 import re as _re_mod4
+
+
+def _frames_m1_n2_esq2_diferencia_pesos():
+    """m1_n2_esq2_diferencia_pesos (formula a-b, incognita 'diferencia') no es
+    un 'resto de un total' como el resto de su antiguo grupo compartido
+    (b20342bc): compara DOS paquetes independientes ('Un paquete de
+    {objetos_0} pesa {a}... y otro de {objetos_1} pesa {b}...'). Compartir
+    marcos con las plantillas de tipo resto dejaba la pregunta ("¿cuánto más
+    pesa el primer paquete respecto al segundo?") sin referente, porque esos
+    marcos solo describen un total del que se usa una parte, no dos paquetes
+    distintos. Estos 36 marcos son dedicados y mantienen siempre los dos
+    paquetes explícitos."""
+    return [
+        "En {lugar}, un paquete de {objetos_0} pesa {a} {unidad} y otro de {objetos_1} pesa {b} {unidad}.",
+        "En {lugar}, {personaje} pesó dos paquetes: uno de {objetos_0} con {a} {unidad} y otro de {objetos_1} con {b} {unidad}.",
+        "En {lugar}, {personaje} comparó dos paquetes: el de {objetos_0} pesa {a} {unidad} y el de {objetos_1} pesa {b} {unidad}.",
+        "Para el inventario en {lugar}, {personaje} revisó un paquete de {objetos_0} de {a} {unidad} y otro de {objetos_1} de {b} {unidad}.",
+        "En {lugar}, {personaje} midió dos paquetes: {objetos_0} pesa {a} {unidad} y {objetos_1} pesa {b} {unidad}.",
+        "Trabajando en {lugar}, {personaje} verificó que un paquete de {objetos_0} pesa {a} {unidad} y otro de {objetos_1} pesa {b} {unidad}.",
+        "En {lugar}, {personaje} anotó el peso de dos paquetes: {a} {unidad} el de {objetos_0} y {b} {unidad} el de {objetos_1}.",
+        "Durante la entrega en {lugar}, un paquete de {objetos_0} pesa {a} {unidad} y otro de {objetos_1} pesa {b} {unidad}.",
+        "En {lugar}, {personaje} registró dos paquetes: uno de {objetos_0} de {a} {unidad} y otro de {objetos_1} de {b} {unidad}.",
+        "Para el control de {lugar}, {personaje} pesó un paquete de {objetos_0} ({a} {unidad}) y otro de {objetos_1} ({b} {unidad}).",
+        "En {lugar}, {personaje} comprobó en la balanza: {objetos_0} pesa {a} {unidad} y {objetos_1} pesa {b} {unidad}.",
+        "Ordenando el depósito en {lugar}, {personaje} halló un paquete de {objetos_0} de {a} {unidad} y otro de {objetos_1} de {b} {unidad}.",
+        "En {lugar}, {personaje} recibió dos paquetes: el de {objetos_0} con {a} {unidad} y el de {objetos_1} con {b} {unidad}.",
+        "Para la entrega en {lugar}, {personaje} pesó por separado {objetos_0} ({a} {unidad}) y {objetos_1} ({b} {unidad}).",
+        "En {lugar}, {personaje} etiquetó dos paquetes: {a} {unidad} de {objetos_0} y {b} {unidad} de {objetos_1}.",
+        "Cuidando el stock en {lugar}, {personaje} pesó un paquete de {objetos_0} de {a} {unidad} y otro de {objetos_1} de {b} {unidad}.",
+        "En {lugar}, {personaje} clasificó dos paquetes por peso: {objetos_0} con {a} {unidad} y {objetos_1} con {b} {unidad}.",
+        "Para el reparto en {lugar}, un paquete de {objetos_0} pesa {a} {unidad} y otro de {objetos_1} pesa {b} {unidad}.",
+        "En {lugar}, {personaje} confirmó el peso de dos paquetes: {a} {unidad} ({objetos_0}) y {b} {unidad} ({objetos_1}).",
+        "Revisando la mercadería en {lugar}, {personaje} pesó un paquete de {objetos_0} de {a} {unidad} y otro de {objetos_1} de {b} {unidad}.",
+        "En {lugar}, {personaje} volvió a pesar los paquetes: {objetos_0} dio {a} {unidad} y {objetos_1} dio {b} {unidad}.",
+        "Para el registro de {lugar}, {personaje} anotó dos paquetes: uno de {objetos_0} de {a} {unidad}, otro de {objetos_1} de {b} {unidad}.",
+        "En {lugar}, {personaje} separó dos paquetes en la mesa: {objetos_0} pesa {a} {unidad} y {objetos_1} pesa {b} {unidad}.",
+        "Durante la inspección en {lugar}, un paquete de {objetos_0} pesa {a} {unidad} y otro de {objetos_1} pesa {b} {unidad}.",
+        "En {lugar}, {personaje} tomó nota del peso de ambos paquetes: {a} {unidad} y {b} {unidad}, de {objetos_0} y {objetos_1}.",
+        "Para preparar el pedido en {lugar}, {personaje} pesó un paquete de {objetos_0} de {a} {unidad} y otro de {objetos_1} de {b} {unidad}.",
+        "En {lugar}, {personaje} comparó en la báscula dos paquetes: {objetos_0} ({a} {unidad}) y {objetos_1} ({b} {unidad}).",
+        "Organizando el envío en {lugar}, {personaje} pesó por turnos: {objetos_0} dio {a} {unidad} y {objetos_1} dio {b} {unidad}.",
+        "En {lugar}, {personaje} chequeó dos paquetes antes de despachar: {a} {unidad} de {objetos_0} y {b} {unidad} de {objetos_1}.",
+        "Para el control de calidad en {lugar}, un paquete de {objetos_0} pesa {a} {unidad} y otro de {objetos_1} pesa {b} {unidad}.",
+        "En {lugar}, {personaje} distinguió los dos paquetes por su peso: {objetos_0} con {a} {unidad}, {objetos_1} con {b} {unidad}.",
+        "Terminando el turno en {lugar}, {personaje} pesó un paquete de {objetos_0} de {a} {unidad} y otro de {objetos_1} de {b} {unidad}.",
+        "En {lugar}, {personaje} volvió a confirmar: {objetos_0} pesa {a} {unidad} y {objetos_1} pesa {b} {unidad}.",
+        "Para cerrar el inventario en {lugar}, {personaje} pesó dos paquetes: {objetos_0} ({a} {unidad}) y {objetos_1} ({b} {unidad}).",
+        "En {lugar}, {personaje} anotó en la planilla dos paquetes: uno de {objetos_0} de {a} {unidad}, otro de {objetos_1} de {b} {unidad}.",
+        "Antes de cerrar en {lugar}, un paquete de {objetos_0} pesa {a} {unidad} y otro de {objetos_1} pesa {b} {unidad}.",
+    ]
 
 
 def _generate_36_frames_modulo4(p):

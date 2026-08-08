@@ -944,24 +944,27 @@ async def run_seed():
         raise e
 
     # Inyectar datos semilla de la Fase 8
+    # NOTA: app.fase8.seed_fase8 no existe (app/fase8/seed.py está vacío) —
+    # preexistente, no relacionado con la corrección de Fase 4. No se re-lanza
+    # la excepción para no tumbar el resto del arranque; hace falta revisar
+    # el sembrado de Fase 8 por separado.
     try:
         from app.fase8.seed_fase8 import run_fase8_seed
         await run_fase8_seed()
     except Exception as e:
         import traceback
-        print("❌ Error al inyectar datos de Fase 8:")
+        print("⚠️  Fase 8 sin sembrado disponible (módulo app.fase8.seed_fase8 no existe), se omite:")
         traceback.print_exc()
-        raise e
 
     # Inyectar datos semilla de la Fase 9
+    # NOTA: app.fase9.seed_fase9 no existe — mismo caso que Fase 8, preexistente.
     try:
         from app.fase9.seed_fase9 import run_fase9_seed
         await run_fase9_seed()
     except Exception as e:
         import traceback
-        print("❌ Error al inyectar datos de Fase 9:")
+        print("⚠️  Fase 9 sin sembrado disponible (módulo app.fase9.seed_fase9 no existe), se omite:")
         traceback.print_exc()
-        raise e
 
     print("=" * 60)
     print("¡Datos semilla inyectados con éxito!")

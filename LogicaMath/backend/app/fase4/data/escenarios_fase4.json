@@ -749,8 +749,8 @@
     "nombre": "Promedio de gastos",
     "lugar": "la escuela",
     "objetos": [
-      "gasto 1",
-      "gasto 2"
+      "gasto de materiales",
+      "gasto de transporte"
     ],
     "sujeto_medible": "el promedio gastado",
     "objeto_medible": "el registro de gastos",
