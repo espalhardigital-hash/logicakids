@@ -438,22 +438,23 @@ class CompositorFase4:
             if token == "n_cant":
                 etiqueta = "Cantidad"
                 texto_valor = f"{int(valor)} {unit_cant}"
-            elif token == "a":
+            elif token in ("a", "b"):
+                # 'a' y 'b' son dos datos INDEPENDIENTES cuando la fórmula usa
+                # ambos (ej. a*b, a/b): compartir la misma etiqueta genérica
+                # ("Medida unitaria" para las dos) hacía indistinguibles dos
+                # filas con valores distintos en la tabla -- bug real
+                # reportado por un alumno (captura: dos filas "Medida
+                # unitaria" con 2,4 cm y 1,5 cm). Sufijo A/B siempre distingue.
+                colision = "a" in tokens and "b" in tokens
+                letra = "A" if token == "a" else "B"
                 if unidad in ("R$", "$", "EUR"):
-                    etiqueta = "Precio unitario"
+                    etiqueta = f"Precio {letra}" if colision else "Precio unitario"
                     texto_valor = f"{unidad} {self._fmt_visual(valor)}"
                 elif plantilla.get("magnitud") == "masa":
-                    etiqueta = "Peso unitario"
+                    etiqueta = f"Peso {letra}" if colision else "Peso unitario"
                     texto_valor = f"{self._fmt_visual(valor)} {unidad}"
                 else:
-                    etiqueta = "Medida unitaria"
-                    texto_valor = f"{self._fmt_visual(valor)} {unidad}"
-            elif token == "b":
-                if unidad in ("R$", "$", "EUR"):
-                    etiqueta = "Precio unitario"
-                    texto_valor = f"{unidad} {self._fmt_visual(valor)}"
-                else:
-                    etiqueta = "Medida unitaria"
+                    etiqueta = f"Medida {letra}" if colision else "Medida unitaria"
                     texto_valor = f"{self._fmt_visual(valor)} {unidad}"
             elif token == "total":
                 etiqueta = "Monto total" if unidad in ("R$", "$", "EUR") else "Medida total"

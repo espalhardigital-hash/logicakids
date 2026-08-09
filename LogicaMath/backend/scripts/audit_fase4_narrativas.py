@@ -13,6 +13,11 @@ corrección de raíz de agosto 2026:
   4. Palabra repetida consecutiva.
   5. Unidad de origen incoherente en Módulo 4 (p.ej. "mide 3 cm, ¿a cuántos
      cm equivale?") -- solo aplica a fórmulas de un solo token físico.
+  6. Marco que OCULTA una variable que la fórmula necesita (el más grave de
+     todos: produce una respuesta "correcta" que no se deduce del enunciado
+     mostrado -- bug real reportado por un alumno en agosto 2026, ver
+     screenshot "necesita 3 piezas... cada pieza mide 2,4 cm" con una "Medida
+     unitaria" fantasma de 1,5 cm que nunca aparecía en el texto).
 
 Uso:
     python scripts/audit_fase4_narrativas.py [--muestras N]
@@ -43,6 +48,10 @@ def _vars_in(txt):
     return set(re.findall(r"\{([a-zA-Z_0-9]+)\}", txt))
 
 
+def _tokens_de_formula(formula):
+    return set(t for t in re.findall(r"[A-Za-z_]+", formula) if t in NUM_VARS)
+
+
 def check_static(plantillas):
     """Chequeos que no requieren generar preguntas: sobre las plantillas tal
     cual están en plantillas_fase4.json."""
@@ -66,6 +75,21 @@ def check_static(plantillas):
             alertas.append(
                 f"[var_cruzada] {p['id']}: pregunta usa {sorted(preg_obj_vars)} pero "
                 f"marcos_alternativos usa {sorted(alt_obj_vars)}"
+            )
+
+        # El más grave: el marco tiene que mostrar TODAS las variables que la
+        # fórmula usa para calcular la respuesta. Si oculta una, el alumno no
+        # puede deducir la respuesta "correcta" a partir de lo que lee (bug
+        # real: "necesita 3 piezas... cada pieza mide 2,4 cm" pero el sistema
+        # evaluaba a*b con una "b" que nunca aparecía en el enunciado).
+        tf = _tokens_de_formula(p.get("formula", ""))
+        ocultan = [f for f in alt_list if tf - _vars_in(f)]
+        if ocultan:
+            faltantes = sorted(set().union(*(tf - _vars_in(f) for f in ocultan)))
+            alertas.append(
+                f"[formula_oculta] {p['id']} (formula={p.get('formula')!r}): "
+                f"{len(ocultan)}/{len(alt_list)} marcos no muestran {faltantes} "
+                f"aunque la fórmula los necesita para calcular la respuesta"
             )
 
     return alertas
@@ -99,7 +123,11 @@ def check_generated(compositor, n_por_combo=40, n_variantes=3):
                     continue
                 vistos.add(txt)
 
-                words = re.findall(r"[a-záéíóúñ]+", low)
+                # Captura también los números como su propio token: si no,
+                # "R$ 1,4, R$ 0,97 y R$ 0,58" deja tres "r" (de "R$") como si
+                # fueran adyacentes al filtrar los números entre medio ->
+                # falso positivo de "palabra repetida".
+                words = re.findall(r"[a-záéíóúñ]+|\d[\d.,]*", low)
                 for i in range(len(words) - 1):
                     if words[i] == words[i + 1]:
                         alertas.append(f"[palabra_repetida] {q['plantilla_id']}: {txt}")

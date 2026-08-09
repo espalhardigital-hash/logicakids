@@ -24,6 +24,9 @@ def _generate_36_frames_generico(p):
     if pid == "m1_n2_esq2_diferencia_pesos":
         return _frames_m1_n2_esq2_diferencia_pesos()
 
+    if pid in _PLANTILLAS_MARCO_DEDICADO:
+        return _frames_por_grupo_dedicado(p)
+
     if formula == "a+b-c":
         if magnitud == "temperatura":
             return [
@@ -590,6 +593,159 @@ def _generate_36_frames_generico(p):
         f"generate_36_frames: sin reglas para formula={formula!r} magnitud={magnitud!r} "
         f"(plantilla {pid!r}). Agregar una rama nueva en enrich_templates_36.py."
     )
+
+
+# ── Marcos dedicados por incompatibilidad enunciado↔fórmula ──────────────────
+# Bug crítico encontrado en producción (screenshot del usuario, agosto 2026):
+# el bloque genérico de abajo (elif formula in (...)) agrupa varias fórmulas
+# emparentadas ("total-a", "total-a-b", "a-b", ... o "a*n_cant", "a*b", ...)
+# bajo UN solo texto compartido, escrito pensando en la fórmula más simple del
+# grupo. Cuando una plantilla hermana necesita una variable extra (ej. "b" en
+# formula=a*b) que el texto compartido nunca menciona, el enunciado narra una
+# historia que no corresponde a lo que se calcula: el alumno ve "necesita 3
+# piezas, cada una mide 2,4 cm" (implica 3×2,4) pero el sistema evalúa a*b con
+# una "b" que jamás aparece en el texto (ej. 3,72×0,5=1,86 en vez de 3×3,72).
+# El campo `marco` base de cada plantilla SÍ usa las variables correctas — el
+# bug está solo en marcos_alternativos, que domina la selección (~97% de las
+# veces). Estos 19 grupos (magnitud, fórmula) dan contenido dedicado que
+# siempre menciona EXACTAMENTE las variables que la fórmula necesita.
+_APERTURAS_DEDICADAS = [
+    "En {lugar}", "Durante la mañana en {lugar}", "Para el proyecto en {lugar}",
+    "Trabajando en {lugar}", "Esa tarde en {lugar}", "Organizando todo en {lugar}",
+    "Durante la actividad en {lugar}", "Al terminar la jornada en {lugar}",
+    "Revisando las cuentas en {lugar}", "En la rutina de {lugar}",
+    "Con cuidado en {lugar}", "Antes de cerrar en {lugar}",
+    "Ese día en {lugar}", "Durante la visita a {lugar}", "En el turno de {lugar}",
+]
+
+_GRUPOS_MARCO_DEDICADO = {
+    ("dinero", "total-a-b"): [
+        f"{ap}, {{personaje}} tenía {{unidad}} {{total}} disponibles. Usó {{unidad}} {{a}} primero y luego {{unidad}} {{b}} más."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("dinero", "a+b+c"): [
+        f"{ap}, {{personaje}} hizo tres compras: {{unidad}} {{a}}, {{unidad}} {{b}} y {{unidad}} {{c}}."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("masa", "a-b"): [
+        f"{ap}, {{personaje}} tenía {{a}} {{unidad}} de {{objeto_medible}} y retiró {{b}} {{unidad}} para usar."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("masa", "total-a-b"): [
+        f"{ap}, {{personaje}} disponía de {{total}} {{unidad}} de {{objeto_medible}}. Usó {{a}} {{unidad}} primero y {{b}} {{unidad}} después."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("longitud", "total-a-b"): [
+        f"{ap}, {{personaje}} recorrió un tramo de {{a}} {{unidad}}, descansó y avanzó {{b}} {{unidad}} más. El trayecto total era de {{total}} {{unidad}}."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("dinero", "a*b"): [
+        f"{ap}, {{personaje}} compró {{a}} unidades de {{objeto_medible}}. Cada unidad cuesta {{unidad}} {{b}}."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("masa", "a*b"): [
+        f"{ap}, {{personaje}} tiene {{a}} cajas de {{objetos_0}} y cada caja pesa {{b}} {{unidad}}."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("longitud", "a*b"): [
+        f"{ap}, {{personaje}} necesita {{a}} tramos de {{objeto_medible}}. Cada tramo mide {{b}} {{unidad}}."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("dinero", "a/n_cant"): [
+        f"{ap}, un grupo de {{n_cant}} amigos pagó una cuenta total de {{unidad}} {{a}} y decidió repartir el gasto en partes iguales."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("masa", "a/n_cant"): [
+        f"{ap}, {{personaje}} tiene {{a}} {{unidad}} de {{objeto_medible}} y las reparte en {{n_cant}} partes iguales."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("longitud", "a/n_cant"): [
+        f"{ap}, {{personaje}} tiene {{a}} {{unidad}} de {{objeto_medible}} y la corta en {{n_cant}} partes iguales."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    # NOTA: formula "total/a" siempre implica incognita=factor_multiplicativo (un
+    # CONTEO, no un total) -- ver el override de m3_nX_esq4_div_dividendo en run().
+    # El texto tiene que mostrar {total} y {a}; el conteo lo pide la `pregunta`,
+    # nunca el propio marco (no hay "n_cant" que mostrar: es la respuesta).
+    ("dinero", "total/a"): [
+        f"{ap}, {{personaje}} repartió un total de {{unidad}} {{total}}, dándole exactamente {{unidad}} {{a}} a cada persona."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("masa", "total/a"): [
+        f"{ap}, {{personaje}} preparó un total de {{total}} {{unidad}} de {{objeto_medible}}, usando exactamente {{a}} {{unidad}} en cada porción."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("longitud", "total/a"): [
+        f"{ap}, se necesitó un total de {{total}} {{unidad}} de {{objeto_medible}}. Cada tramo mide {{a}} {{unidad}}."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("dinero", "(total-c)/n_cant"): [
+        f"{ap}, {{personaje}} reunió {{unidad}} {{total}} y apartó {{unidad}} {{c}} para gastos. Lo que quedó lo repartió entre {{n_cant}} personas por igual."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("masa", "(total-c)/n_cant"): [
+        f"{ap}, {{personaje}} recibió {{total}} {{unidad}} de {{objeto_medible}} y separó {{c}} {{unidad}} para la reserva. Lo que quedó lo repartió entre {{n_cant}} partes iguales."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("dinero", "a/b"): [
+        f"{ap}, {{personaje}} gastó en total {{unidad}} {{a}} comprando {{objetos_0}}, a un precio de {{unidad}} {{b}} cada uno."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("masa", "a/b"): [
+        f"{ap}, {{personaje}} tiene {{a}} {{unidad}} de {{objeto_medible}} y debe empaquetarlas en porciones de {{b}} {{unidad}} cada una."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+    ("longitud", "a/b"): [
+        f"{ap}, {{personaje}} dispone de {{a}} {{unidad}} de {{objeto_medible}} y debe cortar piezas que midan exactamente {{b}} {{unidad}} cada una."
+        for ap in _APERTURAS_DEDICADAS
+    ],
+}
+
+_PLANTILLAS_MARCO_DEDICADO = {
+    "m1_n1_esq3_sobrante_resto": ("dinero", "total-a-b"),
+    "m1_n1_esq5_tres_datos": ("dinero", "a+b+c"),
+    "m1_n2_esq1_resta_completar_ceros": ("masa", "a-b"),
+    "m1_n2_esq5_sobrante_tres_pesos": ("masa", "total-a-b"),
+    "m1_n3_esq1_combinadas_encadenadas": ("dinero", "total-a-b"),
+    "m1_n3_esq4_longitud_tramos": ("longitud", "total-a-b"),
+    "m1_n3_esq5_vuelto_pago_billete": ("dinero", "total-a-b"),
+    "m1_n3_esq6_meta_tres_aportes": ("dinero", "total-a-b"),
+    "m2_n3_esq1_ambos_factores_dec": ("dinero", "a*b"),
+    "m2_n3_esq2_peso_por_factor_decimal": ("masa", "a*b"),
+    "m2_n3_esq3_metros_factor_decimal": ("longitud", "a*b"),
+    "m2_n3_esq4_mult_factor": ("longitud", "a*b"),
+    "m2_n3_esq6_lote_telas_ambos_dec": ("dinero", "a*b"),
+    "m3_n1_esq1_div_dividendo_dec": ("dinero", "a/n_cant"),
+    "m3_n1_esq2_div_peso_reparto": ("masa", "a/n_cant"),
+    "m3_n1_esq3_div_corta_cinta": ("longitud", "a/n_cant"),
+    "m3_n1_esq4_div_dividendo": ("dinero", "total/a"),
+    "m3_n1_esq6_div_tres_datos": ("dinero", "(total-c)/n_cant"),
+    "m3_n1_esq6_div_pesaje_raciones": ("masa", "a/n_cant"),
+    "m3_n2_esq1_div_dos_decimales": ("dinero", "a/n_cant"),
+    "m3_n2_esq2_div_peso_dos_dec": ("masa", "a/n_cant"),
+    "m3_n2_esq3_div_longitud_dos_dec": ("longitud", "a/n_cant"),
+    "m3_n2_esq4_div_dividendo": ("masa", "total/a"),
+    "m3_n2_esq6_div_tres_datos": ("masa", "(total-c)/n_cant"),
+    "m3_n2_esq6_div_tramos_cancha": ("longitud", "a/n_cant"),
+    "m3_n3_esq1_divisor_decimal": ("dinero", "a/b"),
+    "m3_n3_esq2_div_peso_divisor_dec": ("masa", "a/b"),
+    "m3_n3_esq3_div_longitud_divisor_dec": ("longitud", "a/b"),
+    "m3_n3_esq4_div_dividendo": ("longitud", "total/a"),
+    "m3_n3_esq6_div_tres_datos": ("masa", "(total-c)/n_cant"),
+    "m3_n3_esq6_div_cuotas_decimales": ("dinero", "a/b"),
+}
+
+
+def _frames_por_grupo_dedicado(p):
+    pid = p["id"]
+    clave = _PLANTILLAS_MARCO_DEDICADO[pid]
+    if (p.get("magnitud"), p.get("formula")) != clave:
+        raise ValueError(
+            f"{pid}: se esperaba (magnitud, formula)={clave} pero la plantilla tiene "
+            f"({p.get('magnitud')!r}, {p.get('formula')!r}). El mapeo de marcos dedicados "
+            f"quedó desactualizado respecto a los datos reales -- revisar antes de generar."
+        )
+    return list(_GRUPOS_MARCO_DEDICADO[clave])
 
 
 # ── Módulo 4: conversión de unidades ─────────────────────────────────────────
