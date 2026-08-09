@@ -134,6 +134,12 @@ No repito la explicación de cada etapa — está en el documento madre. Acá so
 - Los desafíos (D1/D2/DF/DM) deben conectarse al compositor desde el primer commit, no como una fase 2 posterior — ese fue exactamente el punto donde Fase 4 se rompió (compositor conectado solo a práctica, desafíos con enunciados hardcodeados hasta el final).
 - Verificación de conexión real, no de existencia de archivo: `grep -n "_COMPOSITOR\|componer_pregunta" app/fase5/seed.py` debe dar resultado antes de dar por conectado.
 
+**Etapa 3.1 (variedad narrativa — bug crítico confirmado en producción de Fase 4, 2026-08-09, NO repetir):** Al generar los textos alternativos por plantilla (equivalente a `marcos_alternativos` / `enrich_templates_36.py` de Fase 4), 31/72 plantillas de Fase 4 quedaron con marcos narrativos que **ocultaban una variable que la fórmula necesitaba** para calcular la respuesta (ej. una plantilla con `formula="a*b"` cuyo texto alternativo solo narraba `n_cant` y `a`, en un patrón de frase escrito para una fórmula distinta del mismo grupo). El síntoma en producción, reportado por un alumno real con capturas de pantalla: el recuadro de datos (SVG) mostraba dos filas con la misma etiqueta ("Medida unitaria" repetida), una de ellas con un valor que **nunca aparecía en el enunciado**, y la "respuesta correcta" almacenada no se podía deducir del texto que el alumno leía — se derivaba de una variable fantasma. Causa raíz: el generador de variantes agrupaba varias fórmulas relacionadas-pero-distintas bajo un mismo texto base, escrito solo para la más simple del grupo.
+  - **Regla obligatoria para Fase 5**: cada grupo de variantes narrativas debe generarse por la clave exacta `(magnitud, formula)`, nunca por una agrupación aproximada o "suficientemente parecida". Antes de aceptar un texto de variante como válido, verificar programáticamente que **todas** las variables que la fórmula usa (`re.findall` sobre la fórmula, filtrado a los tokens numéricos reales) aparecen como placeholder en el texto — si falta una, es un bug, no una libertad de redacción.
+  - Si dos plantillas comparten magnitud pero tienen fórmulas distintas (por ejemplo `a*b` vs `a/n_cant`), **no** deben compartir el mismo banco de frases narrativas aunque el tema (dinero, masa, longitud...) sea el mismo.
+  - Si la representación visual (SVG/tabla) muestra más de un dato con el mismo rol semántico (ej. dos "medidas", dos "precios"), las etiquetas deben diferenciarse (`Medida A`/`Medida B`, no dos veces "Medida unitaria") — cuidado con el presupuesto de caracteres de las etiquetas SVG (`app/utils/svg_figuras.py::tabla_datos()` en Fase 4 tiene un límite duro de 15 caracteres por etiqueta; verificar si Fase 5 reutiliza el mismo helper o tiene el suyo).
+  - Este chequeo debe formar parte del arnés de tests/auditoría desde la Etapa 1, no descubrirse después con un alumno real en producción — replicar el chequeo `[formula_oculta]` de `scripts/audit_fase4_narrativas.py` (línea ~85-93) como parte de `scripts/audit_fase5_narrativas.py` (o el nombre equivalente) antes de generar el volumen final de plantillas.
+
 **Etapa 5.1 (limpieza de nombrado, específica de Fase 5):** Renombrar sistemáticamente todo lo catalogado en §2.2 y §2.3: `Fase4X` → `Fase5X` en `router.py`, funciones `_fase4` → `_fase5` en `seed.py`, mensajes de usuario visibles, comentarios/docstrings, `Fase5Service.ts`. Un solo commit dedicado a esto, separado de los cambios de contenido, para que sea revisable en un diff limpio.
 
 **Etapa 8 (cierre):** Además de lo que pide el método general, confirmar específicamente:
@@ -173,6 +179,12 @@ Fase 4):
   "completo" sin pegar el comando y su salida real.
 - La respuesta correcta de cada pregunta tiene que derivarse de la MISMA fórmula y
   valores que arman el enunciado — nunca dos generadores paralelos.
+- Cada texto narrativo alternativo de una plantilla debe mostrar TODAS las variables que
+  su fórmula usa (verificarlo programáticamente, no a ojo). Un bug real de este tipo llegó
+  a producción en Fase 4 (31/72 plantillas, ver Etapa 3.1 de PLAN_RECONSTRUCCION_FASE5.md)
+  y solo se detectó por un reporte de un alumno con captura de pantalla, meses después de
+  desplegado. No repetir: agrupar variantes narrativas por (magnitud, fórmula) exacta,
+  nunca por aproximación temática.
 - Los desafíos se conectan al compositor desde el primer commit, no como paso final.
 - Un generador que falla debe fallar ruidosamente (raise), nunca devolver contenido de
   respaldo silencioso.
