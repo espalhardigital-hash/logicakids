@@ -17,17 +17,11 @@ from ..models.sql_models import (
     PlatformSettings, User, IntentoPregunta,
 )
 from ..utils.math_utils import normalize_response, calcular_max_errores
-from ..fase2.models import NivelTeoria
-from ..fase2.schemas import (
-    Fase2Dashboard as Fase4Dashboard, Fase2ModuloInfo as Fase4ModuloInfo,
-    Fase2NivelInfo as Fase4NivelInfo, Fase2DesafioInfo as Fase4DesafioInfo,
-    Fase2PreguntaParaAlumno as Fase4PreguntaParaAlumno, Fase2AlternativaOut as Fase4AlternativaOut,
-    Fase2ResponderPregunta as Fase5ResponderPregunta, Fase2ResultadoRespuesta,
-    Fase2ContenidoLectura as Fase4ContenidoLectura, Fase2CerrarRescate as Fase4CerrarRescate
+from .schemas import (
+    Fase5Dashboard, Fase5ModuloInfo, Fase5NivelInfo, Fase5DesafioInfo,
+    Fase5PreguntaParaAlumno, Fase5AlternativaOut, Fase5ResponderPregunta,
+    Fase5ResultadoRespuesta, Fase5ContenidoLectura, Fase5CerrarRescate
 )
-
-class Fase5ResultadoRespuesta(Fase2ResultadoRespuesta):
-    success: bool = True
 
 router = APIRouter(prefix="/fase5", tags=["fase5"])
 
@@ -45,8 +39,8 @@ async def _sync_unlocked_levels(db: AsyncSession, alumno_id: int, operacion: str
             settings = user.settings or {}
             if "unlockedLevels" not in settings:
                 settings["unlockedLevels"] = {}
-            if "fase4" not in settings["unlockedLevels"]:
-                settings["unlockedLevels"]["fase4"] = {}
+            if "fase5" not in settings["unlockedLevels"]:
+                settings["unlockedLevels"]["fase5"] = {}
                 
             cat_map = {
                 "suma": "addition",
@@ -56,7 +50,7 @@ async def _sync_unlocked_levels(db: AsyncSession, alumno_id: int, operacion: str
                 "mixta": "challenge"
             }
             cat = cat_map.get(operacion, "challenge")
-            settings["unlockedLevels"]["fase4"][cat] = 6
+            settings["unlockedLevels"]["fase5"][cat] = 6
             user.settings = settings
             flag_modified(user, "settings")
             await db.flush()
@@ -90,17 +84,16 @@ MODULOS_META = {
 
 NIVELES_META = {
     (1, 1): {"nombre": "Lectura de Fracciones", "descripcion": "Lectura y modelado de numerador/denominador en polígonos simétricos."},
-    (1, 2): {"nombre": "Fracciones Equivalentes", "descripcion": "Construcción de equivalencias mediante amplificación."},
-    (1, 3): {"nombre": "Áreas y Asimetrías", "descripcion": "Áreas fraccionarias en composiciones geométricas asimétricas."},
-    (2, 1): {"nombre": "Porciones de un Grupo", "descripcion": "Cálculo de porciones unitarias (1/n) sobre grupos."},
-    (2, 2): {"nombre": "El Motor de Dos Pasos", "descripcion": "Operador compuesto (m/n de X) y algoritmo de dos pasos."},
-    (2, 3): {"nombre": "Lógica del Complemento", "descripcion": "Deducción de la fracción del resto y lo que queda."},
+    (1, 2): {"nombre": "Fracciones Equivalentes", "descripcion": "Construcción de equivalencias mediante amplificación y simplificación."},
+    (1, 3): {"nombre": "Partes de un Resto", "descripcion": "Operaciones simples de resta y porciones de la unidad."},
+    (2, 1): {"nombre": "Porciones de un Grupo", "descripcion": "Cálculo de porciones unitarias (1/n) sobre grupos discretos."},
+    (2, 2): {"nombre": "Operador Fraccionario de Cantidad", "descripcion": "Multiplicación de fracción por un entero en dos pasos."},
+    (2, 3): {"nombre": "Totalidades y Resto", "descripcion": "Deducción de la fracción del resto y lo que queda."},
     (3, 1): {"nombre": "Porcentajes Intuitivos", "descripcion": "Mapeo de porcentajes comunes: 50%, 25%, 10%."},
-    (3, 2): {"nombre": "Gráficos Circulares", "descripcion": "Lectura e interpretación de gráficos circulares."},
-    (3, 3): {"nombre": "Gráficos de Barras", "descripcion": "Comparación de tasas y lectura de gráficos de barras."},
-    (3, 4): {"nombre": "La Media Aritmética", "descripcion": "El punto de equilibrio y cálculo de promedios."},
-    (4, 1): {"nombre": "Razones y Proporciones", "descripcion": "Razones simples (a:b) y proporcionalidad directa."},
-    (4, 2): {"nombre": "Reparto de Volúmenes", "descripcion": "Reparto proporcional de volúmenes macro a escala."},
+    (3, 2): {"nombre": "Porcentajes Rápidos y Descuentos", "descripcion": "Cálculo directo de porcentajes y precios rebajados."},
+    (3, 3): {"nombre": "Promedios y Media Aritmética", "descripcion": "Cálculo de la media aritmética entre varios valores."},
+    (4, 1): {"nombre": "Razones Simples", "descripcion": "Razones simples (a:b) y proporcionalidad directa."},
+    (4, 2): {"nombre": "Reparto Proporcional", "descripcion": "Distribución de cantidades según proporciones dadas."},
     (4, 3): {"nombre": "Mezclas Complejas", "descripcion": "Homogeneización de mezclas complejas y porcentajes de volumen."},
 }
 
@@ -187,12 +180,12 @@ async def _get_progreso(db: AsyncSession, alumno_id: int, seccion: int, operacio
 # ─────────────────────────────────────────────────────────────────────────────
 # DASHBOARD
 # ─────────────────────────────────────────────────────────────────────────────
-@router.get("/dashboard", response_model=Fase4Dashboard)
+@router.get("/dashboard", response_model=Fase5Dashboard)
 async def get_dashboard(
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
-    # Cargar todos los progresos de Fase 4 del estudiante
+    # Cargar todos los progresos de Fase 5 del estudiante
     result_prog = await db.execute(
         select(ProgresoMaestria).where(and_(
             ProgresoMaestria.alumno_id == alumno.id,
@@ -201,7 +194,7 @@ async def get_dashboard(
     )
     progresos = {p.seccion: p for p in result_prog.scalars().all()}
     
-    # Cargar todas las configuraciones activas de Fase 4
+    # Cargar todas las configuraciones activas de Fase 5
     result_configs = await db.execute(
         select(ConfiguracionProgreso).where(and_(
             ConfiguracionProgreso.fase_id == FASE5_ID,
@@ -210,7 +203,7 @@ async def get_dashboard(
     )
     configs = {c.seccion: c for c in result_configs.scalars().all()}
     
-    # El primer nivel de Fase 4 se autodesbloquea si el alumno está en la Fase 4 o superior, o si es Admin
+    # El primer nivel de Fase 5 se autodesbloquea si el alumno está en la Fase 5 o superior, o si es Admin
     fase_actual_ok = alumno.fase_actual_id >= FASE5_ID
     
     modulos_list = []
@@ -221,8 +214,8 @@ async def get_dashboard(
         niveles_list = []
         desafios_list = []
         
-        # Módulos y niveles de Fase 4
-        n_ids = range(1, 5) if m_id == 3 else range(1, 4)
+        # Módulos y niveles de Fase 5 (3 niveles por módulo)
+        n_ids = range(1, 4)
         m_unlocked = False
         
         for n_id in n_ids:
@@ -242,7 +235,7 @@ async def get_dashboard(
                 else:
                     # Último del módulo anterior
                     prev_m = m_id - 1
-                    prev_n = 4 if prev_m == 3 else 3
+                    prev_n = 3
                     
                     # Check all practice levels of previous module
                     all_practice_ok = True
@@ -282,7 +275,7 @@ async def get_dashboard(
             if estado_n != "dominado":
                 all_dominated = False
                 
-            niveles_list.append(Fase4NivelInfo(
+            niveles_list.append(Fase5NivelInfo(
                 nivel_id=n_id,
                 nombre=NIVELES_META[(m_id, n_id)]["nombre"],
                 descripcion=NIVELES_META[(m_id, n_id)]["descripcion"],
@@ -349,7 +342,7 @@ async def get_dashboard(
 
             max_errores_dinamico = calcular_max_errores(cantidad_req, porc_aprobacion)
 
-            desafios_list.append(Fase4DesafioInfo(
+            desafios_list.append(Fase5DesafioInfo(
                 desafio_id=d_id,
                 nombre=d_name_map[d_id],
                 estado=estado_d,
@@ -371,7 +364,7 @@ async def get_dashboard(
         dominated_blocks = sum(1 for n in niveles_list if n.estado == "dominado") + sum(1 for d in desafios_list if d.estado == "dominado")
         pct_global = int((dominated_blocks / total_blocks) * 100)
         
-        modulos_list.append(Fase4ModuloInfo(
+        modulos_list.append(Fase5ModuloInfo(
             modulo_id=m_id,
             nombre=m_meta["nombre"],
             descripcion=m_meta["descripcion"],
@@ -391,7 +384,7 @@ async def get_dashboard(
         if alumno.fase_actual_id > FASE5_ID:
             desafio_mixto_est = "completado"
             
-    return Fase4Dashboard(
+    return Fase5Dashboard(
         alumno_nombre=alumno.nombre,
         puntos_totales=tot_puntos,
         desafio_mixto_disponible=desafio_mixto_disp,
@@ -419,7 +412,7 @@ async def _recalcular_porcentaje_fase5(db: AsyncSession, alumno_id: int, seccion
 # ─────────────────────────────────────────────────────────────────────────────
 # OBTENER PREGUNTA
 # ─────────────────────────────────────────────────────────────────────────────
-@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=Fase4PreguntaParaAlumno)
+@router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=Fase5PreguntaParaAlumno)
 async def get_pregunta(
     modulo_id: int,
     nivel_id: int,
@@ -629,7 +622,7 @@ async def get_pregunta(
     )
     alternativas_db = result_alt.scalars().all()
     alts_out = [
-        Fase4AlternativaOut(id=a.id, texto=a.texto) for a in alternativas_db
+        Fase5AlternativaOut(id=a.id, texto=a.texto) for a in alternativas_db
     ] if alternativas_db else None
     
     # Calcular timer
@@ -640,7 +633,7 @@ async def get_pregunta(
     if datos_num.get("variante", 0) > 0:
         datos_num["es_espejo"] = True
     
-    return Fase4PreguntaParaAlumno(
+    return Fase5PreguntaParaAlumno(
         id=pregunta_act.id,
         modulo_id=modulo_id,
         nivel_id=nivel_id,
@@ -819,7 +812,7 @@ async def responder_fase5(
                     es_espejo = True
                 else:
                     print(
-                        f"⚠️ Bucle espejo Fase 4 no pudo activarse: "
+                        f"⚠️ Bucle espejo Fase 5 no pudo activarse: "
                         f"estructura_padre_id={pregunta.estructura_padre_id}, "
                         f"siguiente_variante={siguiente_variante}, "
                         f"mirror_q_encontrada={mirror_q is not None}, "
@@ -950,7 +943,7 @@ async def responder_fase5(
 # ─────────────────────────────────────────────────────────────────────────────
 # CARGAR TEORÍA
 # ─────────────────────────────────────────────────────────────────────────────
-@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=Fase4ContenidoLectura)
+@router.get("/lectura/{modulo_id}/nivel/{nivel_id}", response_model=Fase5ContenidoLectura)
 async def get_lectura(
     modulo_id: int,
     nivel_id: int,
@@ -970,7 +963,7 @@ async def get_lectura(
         
     parrafos = [p.strip() for p in theory.texto_descubrimiento.split("\n") if p.strip()]
     
-    return Fase4ContenidoLectura(
+    return Fase5ContenidoLectura(
         modulo_id=modulo_id,
         nivel_id=nivel_id,
         titulo=theory.titulo,
@@ -982,16 +975,16 @@ async def get_lectura(
     )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CIERRE DE RESCATE (Fase 4)
+# CIERRE DE RESCATE (Fase 5)
 # ─────────────────────────────────────────────────────────────────────────────
 @router.post("/cerrar-rescate", response_model=Fase5ResultadoRespuesta)
 async def cerrar_rescate_fase5(
-    payload: Fase4CerrarRescate,
+    payload: Fase5CerrarRescate,
     db: AsyncSession = Depends(get_db),
     alumno: Alumno = Depends(get_current_student),
 ):
     """
-    Cierra la explicación del bloque de rescate en la Fase 4 y registra un intento virtual 'BYPASS_EXPLICACION'.
+    Cierra la explicación del bloque de rescate en la Fase 5 y registra un intento virtual 'BYPASS_EXPLICACION'.
     Esto incrementa la completitud del alumno y resetea el bucle espejo de forma fluida.
     """
     modulo_id = payload.modulo_id
@@ -1054,7 +1047,7 @@ async def cerrar_rescate_fase5(
         # Sincronización legacy settings
         await _sync_unlocked_levels(db, alumno.id, "mixta")
 
-        # Verificar si todos los 25 bloques de la Fase 4 están aprobados para habilitar graduación
+        # Verificar si todos los 25 bloques de la Fase 5 están aprobados para habilitar graduación
         result_total_aprobados = await db.execute(
             select(func.count(ProgresoMaestria.id)).where(and_(
                 ProgresoMaestria.alumno_id == alumno.id,
@@ -1101,19 +1094,19 @@ async def graduate_fase5(
     if aprobados < 25:
         raise HTTPException(
             status_code=400,
-            detail=f"Debes dominar los 25 niveles de Fase 4 (13 de práctica y 12 desafíos). Llevas {aprobados}/25.",
+            detail=f"Debes dominar los 25 niveles de Fase 5 (13 de práctica y 12 desafíos). Llevas {aprobados}/25.",
         )
 
-    result = await db.execute(select(Fase).where(Fase.orden == 5))
-    fase5 = result.scalar_one_or_none()
-    if not fase5:
-        raise HTTPException(status_code=500, detail="La Fase 5 aún no ha sido configurada.")
+    result = await db.execute(select(Fase).where(Fase.orden == 6))
+    fase6 = result.scalar_one_or_none()
+    if not fase6:
+        raise HTTPException(status_code=500, detail="La Fase 6 aún no ha sido configurada.")
 
-    alumno.fase_actual_id = fase5.id
+    alumno.fase_actual_id = fase6.id
     await db.commit()
 
     return {
-        "message": "¡Felicitaciones! ¡Has dominado la Fase 4 y avanzas a la Fase 5!",
-        "nueva_fase_id": fase5.id,
-        "nueva_fase_nombre": fase5.nombre,
+        "message": "¡Felicitaciones! ¡Has dominado la Fase 5 y avanzas a la Fase 6!",
+        "nueva_fase_id": fase6.id,
+        "nueva_fase_nombre": fase6.nombre,
     }

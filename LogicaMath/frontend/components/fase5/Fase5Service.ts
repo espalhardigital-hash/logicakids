@@ -1,6 +1,6 @@
 /**
  * Servicio API — Fase 5: Fracciones, Porcentajes y Proporciones
- * Capa de comunicación con el backend de Fase 4.
+ * Capa de comunicación con el backend de Fase 5.
  */
 
 import { fetchWithTimeout } from '../../services/apiHelper';
@@ -52,10 +52,10 @@ async function fetchDeduplicated<T>(key: string, fetchFn: () => Promise<T>): Pro
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Obtiene el dashboard de Fase 4 con sus 4 módulos y su estado.
+ * Obtiene el dashboard de Fase 5 con sus 4 módulos y su estado.
  */
 export async function getFase5Dashboard(): Promise<Fase5Dashboard> {
-  const key = 'dashboard-f4';
+  const key = 'dashboard-f5';
   return fetchDeduplicated(key, async () => {
     const res = await fetchWithTimeout(`${API_URL}/fase5/dashboard`, {
       headers: getAuthHeaders(),
@@ -134,7 +134,7 @@ export async function submitFase5CloseRescue(
 }
 
 /**
- * Gradúa al alumno de Fase 4 a Fase 5.
+ * Gradúa al alumno de Fase 5 a Fase 6.
  */
 export async function graduateFase5(): Promise<{
   message: string;

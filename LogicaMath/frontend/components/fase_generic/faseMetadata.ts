@@ -245,138 +245,21 @@ const FASE_3: FaseMetadata = {
 
 const FASE_4: FaseMetadata = {
   faseId: 4,
-  nombre: 'Fracciones, Porcentajes y Proporciones',
-  emoji: '🍕',
-  descripcion: 'Visualiza la relación "parte-todo" con fracciones, porcentajes y gráficos.',
+  nombre: 'Operatoria Decimal y Conversiones',
+  emoji: '🔢',
+  descripcion: 'Suma, resta, multiplicación, división con decimales y conversiones métricas.',
   colorPrimario: '#3B82F6',
   colorSecundario: '#1D4ED8',
-  modulos: [
-    {
-      moduloId: 1, nombre: 'La Fracción Visual', descripcion: 'Identifica y compara fracciones en figuras geométricas.', icono: 'pie', color: '#3B82F6',
-      niveles: [
-        {
-          nivelId: 1, nombre: 'Descubrimiento', descripcion: 'Identificar la fracción sombreada en figuras simétricas simples.',
-          teoria: { titulo: 'La Fracción Sombreada', parrafos: ['Una fracción representa una parte de un todo.', 'Si un cuadrado está dividido en 4 partes iguales y 1 está pintada, la fracción es 1/4.'], ejemplos: [{ enunciado: 'Círculo dividido en 3 partes, 2 pintadas', respuesta: '2/3' }], tip_pedagogico: 'Cuenta el total de partes (denominador) y las pintadas (numerador).' },
-          preguntas: [
-            { id: qid(), enunciado: 'Un rectángulo está dividido en 6 partes iguales. 2 están sombreadas. ¿Qué fracción está sombreada?', tipo: 'opcion_multiple', opciones: ['1/3', '2/6', '2/3', '1/6'], respuesta_correcta: '2/6' },
-            { id: qid(), enunciado: 'Un círculo dividido en 8 partes iguales tiene 3 pintadas. ¿Qué fracción está pintada?', tipo: 'opcion_multiple', opciones: ['3/8', '5/8', '3/5', '8/3'], respuesta_correcta: '3/8' },
-          ]
-        },
-        {
-          nivelId: 2, nombre: 'Consolidación', descripcion: 'Fracciones equivalentes visuales.',
-          teoria: { titulo: 'Fracciones Equivalentes', parrafos: ['2/4 es lo mismo que 1/2: representan la misma cantidad.', 'Si cortas cada parte en 2, el numerador y denominador se multiplican por 2.'], ejemplos: [{ enunciado: '1/2 = 2/4 = 4/8', respuesta: 'Todas representan la mitad.' }], tip_pedagogico: 'Multiplica arriba y abajo por el mismo número.' },
-          preguntas: [
-            { id: qid(), enunciado: '¿Cuál fracción es equivalente a 1/3?', tipo: 'opcion_multiple', opciones: ['2/6', '2/3', '3/6', '1/6'], respuesta_correcta: '2/6' },
-            { id: qid(), enunciado: '¿Cuál fracción es equivalente a 3/4?', tipo: 'opcion_multiple', opciones: ['6/8', '4/6', '3/8', '9/16'], respuesta_correcta: '6/8' },
-          ]
-        },
-        {
-          nivelId: 3, nombre: 'Fluidez', descripcion: 'Analizar rectángulos divididos asimétricamente.',
-          teoria: { titulo: 'Divisiones No Iguales', parrafos: ['A veces la figura NO está dividida en partes iguales.', 'Debes verificar que las partes sean del mismo tamaño antes de contar.'], tip_pedagogico: 'Si las partes no son iguales, reorganiza mentalmente la figura.' },
-          preguntas: [
-            { id: qid(), enunciado: 'Un cuadrado está dividido en 4 partes, pero 2 son más grandes que las otras. ¿Se puede decir que cada parte es 1/4?', tipo: 'opcion_multiple', opciones: ['No, porque las partes no son iguales', 'Sí, siempre', 'Solo si están pintadas'], respuesta_correcta: 'No, porque las partes no son iguales' },
-            { id: qid(), enunciado: 'Un rectángulo se dividió en 2 triángulos iguales con una diagonal. ¿Qué fracción representa cada triángulo?', tipo: 'opcion_multiple', opciones: ['1/2', '1/4', '1/3', '2/4'], respuesta_correcta: '1/2' },
-          ]
-        }
-      ]
-    },
-    {
-      moduloId: 2, nombre: 'Fracción de Cantidad', descripcion: 'Calcula fracciones de números enteros.', icono: 'divide', color: '#A855F7',
-      niveles: [
-        {
-          nivelId: 1, nombre: 'Descubrimiento', descripcion: 'Calcular 1/2, 1/3 y 1/4 de números enteros.',
-          teoria: { titulo: 'La Fracción como División', parrafos: ['1/2 de 10 = 10 ÷ 2 = 5.', '1/3 de 12 = 12 ÷ 3 = 4.', 'El denominador te dice en cuántas partes dividir.'], tip_pedagogico: 'Fracción de un número = número ÷ denominador × numerador.' },
-          preguntas: [
-            { id: qid(), enunciado: '¿Cuánto es 1/4 de 20?', tipo: 'numerico', respuesta_correcta: '5' },
-            { id: qid(), enunciado: '¿Cuánto es 1/3 de 15?', tipo: 'numerico', respuesta_correcta: '5' },
-          ]
-        },
-        {
-          nivelId: 2, nombre: 'Consolidación', descripcion: 'Fracciones compuestas (ej. 3/4 de 120).',
-          teoria: { titulo: 'Fracciones Compuestas', parrafos: ['Para calcular 3/4 de un número: divide por 4, multiplica por 3.', 'Ejemplo: 3/4 de 120 → 120 ÷ 4 = 30 → 30 × 3 = 90.'], tip_pedagogico: 'Primero divide, después multiplica.' },
-          preguntas: [
-            { id: qid(), enunciado: '¿Cuánto es 3/4 de 80?', tipo: 'numerico', respuesta_correcta: '60' },
-            { id: qid(), enunciado: 'En una clase de 30 alumnos, 2/3 son niñas. ¿Cuántas niñas hay?', tipo: 'numerico', respuesta_correcta: '20' },
-          ]
-        },
-        {
-          nivelId: 3, nombre: 'Fluidez', descripcion: 'Resolver historias con "la fracción del resto".',
-          teoria: { titulo: 'Fracción del Resto', parrafos: ['A veces te piden la fracción de lo que sobra.', 'Ejemplo: De 24 bombones, comí 1/3. Del resto, regalé 1/2.'], tip_pedagogico: 'Calcula lo que sobra primero, luego aplica la nueva fracción.' },
-          preguntas: [
-            { id: qid(), enunciado: 'De 30 figuritas, regalé 1/3. Del resto, perdí la mitad. ¿Cuántas me quedan?', tipo: 'numerico', respuesta_correcta: '10' },
-            { id: qid(), enunciado: 'Tenía 40 chocolates. Comí 1/4 y regalé 1/2 del resto. ¿Cuántos quedaron?', tipo: 'numerico', respuesta_correcta: '15' },
-          ]
-        }
-      ]
-    },
-    {
-      moduloId: 3, nombre: 'Porcentajes Rápidos', descripcion: 'Relaciona porcentajes comunes con fracciones.', icono: 'percent', color: '#F97316',
-      niveles: [
-        {
-          nivelId: 1, nombre: 'Descubrimiento', descripcion: 'Relacionar 50%, 25% y 10%.',
-          teoria: { titulo: 'Porcentajes Básicos', parrafos: ['50% = la mitad, 25% = un cuarto, 10% = una décima parte.', '50% de 60 = 30. 25% de 80 = 20. 10% de 200 = 20.'], tip_pedagogico: '50% → divide por 2. 25% → divide por 4. 10% → divide por 10.' },
-          preguntas: [
-            { id: qid(), enunciado: '¿Cuánto es el 50% de 120?', tipo: 'numerico', respuesta_correcta: '60' },
-            { id: qid(), enunciado: '¿Cuánto es el 10% de 350?', tipo: 'numerico', respuesta_correcta: '35' },
-          ]
-        },
-        {
-          nivelId: 2, nombre: 'Consolidación', descripcion: 'Extraer datos de gráficos circulares.',
-          teoria: { titulo: 'Gráficos Circulares (Pie Chart)', parrafos: ['Un gráfico circular muestra porcentajes como porciones de un pastel.', 'La suma siempre es 100%.'], tip_pedagogico: 'Si una porción dice 30%, significa 30 de cada 100.' },
-          preguntas: [
-            { id: qid(), enunciado: 'En un gráfico circular, el 40% prefiere fútbol, el 35% básquet y el resto vóley. ¿Qué porcentaje prefiere vóley?', tipo: 'numerico', respuesta_correcta: '25' },
-            { id: qid(), enunciado: 'De 200 alumnos encuestados, el 25% prefiere matemáticas. ¿Cuántos alumnos son?', tipo: 'numerico', respuesta_correcta: '50' },
-          ]
-        },
-        {
-          nivelId: 3, nombre: 'Fluidez', descripcion: 'Gráficos de barras comparativos.',
-          teoria: { titulo: 'Lectura de Gráficos de Barras', parrafos: ['Las barras muestran cantidades. La más alta = la mayor cantidad.', 'Para comparar, fíjate en la diferencia de alturas.'], tip_pedagogico: 'Lee siempre la escala del eje Y antes de responder.' },
-          preguntas: [
-            { id: qid(), enunciado: 'Un gráfico de barras muestra: Región A=450, Región B=320, Región C=530. ¿Cuántas empresas hay en total?', tipo: 'numerico', respuesta_correcta: '1300' },
-            { id: qid(), enunciado: '¿Cuántas empresas más tiene la Región C que la Región B?', tipo: 'numerico', respuesta_correcta: '210' },
-          ]
-        }
-      ]
-    },
-    {
-      moduloId: 4, nombre: 'Razón y Mezclas', descripcion: 'Proporciones y repartos en contextos cotidianos.', icono: 'beaker', color: '#10B981',
-      niveles: [
-        {
-          nivelId: 1, nombre: 'Descubrimiento', descripcion: 'Proporciones simples.',
-          teoria: { titulo: 'Proporciones', parrafos: ['Una proporción es una relación entre dos cantidades.', '"2 tazas de agua por 1 de arroz" significa que siempre mantienes esa proporción.'], tip_pedagogico: 'Multiplica ambas partes por el mismo número para escalar.' },
-          preguntas: [
-            { id: qid(), enunciado: 'Para hacer jugo necesitas 2 vasos de agua por cada 1 de concentrado. Si usas 3 vasos de concentrado, ¿cuántos de agua necesitas?', tipo: 'numerico', respuesta_correcta: '6' },
-            { id: qid(), enunciado: 'Una receta lleva 3 huevos por cada 2 tazas de harina. Si uso 6 tazas de harina, ¿cuántos huevos necesito?', tipo: 'numerico', respuesta_correcta: '9' },
-          ]
-        },
-        {
-          nivelId: 2, nombre: 'Consolidación', descripcion: 'Escalar mezclas totales.',
-          teoria: { titulo: 'Mezclas a Escala', parrafos: ['Si una mezcla tiene 2 partes azul y 3 partes rojo (5 partes total), para hacer 70 litros:', '70 ÷ 5 = 14 litros por parte. Azul = 2 × 14 = 28L. Rojo = 3 × 14 = 42L.'], tip_pedagogico: 'Suma las partes para saber el total, luego divide.' },
-          preguntas: [
-            { id: qid(), enunciado: 'Una pintura mezcla 2 partes de azul y 3 de blanco. Para hacer 50 litros, ¿cuántos litros de azul necesitas?', tipo: 'numerico', respuesta_correcta: '20' },
-            { id: qid(), enunciado: 'Una limonada lleva 1 parte de limón y 4 de agua. Para 25 vasos, ¿cuántos vasos son de limón?', tipo: 'numerico', respuesta_correcta: '5' },
-          ]
-        },
-        {
-          nivelId: 3, nombre: 'Fluidez', descripcion: 'Reparto proporcional en contextos cotidianos.',
-          teoria: { titulo: 'Reparto Proporcional', parrafos: ['Repartir proporcionalmente significa dar a cada uno según su parte.', 'Ejemplo: repartir R$100 entre Ana (2 partes) y Beto (3 partes).'], tip_pedagogico: 'Total de partes = 2+3 = 5. Cada parte = 100÷5 = 20. Ana=40, Beto=60.' },
-          preguntas: [
-            { id: qid(), enunciado: 'Se reparten R$90 entre dos amigos en proporción 1:2. ¿Cuánto recibe el que tiene la porción mayor?', tipo: 'numerico', respuesta_correcta: '60' },
-            { id: qid(), enunciado: 'Tres hermanos reparten 60 dulces en proporción 1:2:3. ¿Cuántos recibe el mayor?', tipo: 'numerico', respuesta_correcta: '30' },
-          ]
-        }
-      ]
-    }
-  ]
+  modulos: []
 };
 
-// ── FASE 5: Geometría Plana y Medidas ───────────────────────────
+// ── FASE 5: Fracciones, Porcentajes y Proporciones ───────────────
 
 const FASE_5: FaseMetadata = {
   faseId: 5,
-  nombre: 'Geometría Plana y Medidas',
-  emoji: '📐',
-  descripcion: 'Domina la cuadrícula, áreas compuestas, perímetros y escalas.',
+  nombre: 'Fracciones, Porcentajes y Proporciones',
+  emoji: '🍕',
+  descripcion: 'Visualiza la relación "parte-todo" con fracciones, porcentajes y gráficos.',
   colorPrimario: '#F43F5E',
   colorSecundario: '#E11D48',
   modulos: [

@@ -2626,6 +2626,8 @@
   max-width: 320px;
   height: 48px;
   margin: 0 auto;
+  padding: 0 14px;
+  gap: 10px;
   border-radius: 14px;
   border: 2px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
@@ -2677,14 +2679,25 @@
   color: #EF4444;
   text-decoration: line-through;
   opacity: 0.75;
+  /* Al mostrarse junto a la píldora "Era: X" el valor cede ancho en lugar de
+     desbordar la caja. */
+  font-size: 1.5rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Elementos de estado en el input */
+/* Elementos de estado en el input.
+   Iban en position:absolute sobre el valor, que está centrado: con respuestas
+   de 4-5 caracteres la píldora "Era: X" quedaba tapada y se leía "A: 1,86"
+   -- bug real reportado con captura. En flujo normal comparten fila sin
+   solaparse nunca. */
 .f4-input-status-elements {
-  position: absolute;
-  right: 18px;
+  position: static;
   display: flex;
   align-items: center;
+  flex: 0 0 auto;
   gap: 8px;
   z-index: 4;
 }
@@ -2726,6 +2739,8 @@
   box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 /* =========================================================================

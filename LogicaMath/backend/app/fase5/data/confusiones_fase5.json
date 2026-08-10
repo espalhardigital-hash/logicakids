@@ -1,0 +1,22 @@
+{
+  "fraccion_visual": [
+    {"tipo": "inversion", "factor": "invertir_numerador_denominador", "explicacion": "Confundió numerador con denominador."},
+    {"tipo": "conteo_restante", "factor": "contar_partes_no_pintadas", "explicacion": "Contó las partes sin pintar en lugar de las pintadas."},
+    {"tipo": "total_incorrecto", "factor": "sumar_uno_al_denominador", "explicacion": "Erró el conteo de porciones totales."}
+  ],
+  "fraccion_cantidad": [
+    {"tipo": "multiplicar_en_vez_de_dividir", "factor": "multiplicar_directo", "explicacion": "Multiplicó la cantidad en lugar de dividir por el denominador."},
+    {"tipo": "olvidar_numerador", "factor": "solo_dividir", "explicacion": "Calculó 1/n pero olvidó multiplicar por el numerador."},
+    {"tipo": "error_resta", "factor": "restar_mal", "explicacion": "Erró en el cálculo de la porción sobrante."}
+  ],
+  "porcentajes_promedios": [
+    {"tipo": "confusion_10_porciento", "factor": "usar_mitad", "explicacion": "Confundió el 10% con el 50%."},
+    {"tipo": "olvidar_dividir_conteo", "factor": "solo_sumar", "explicacion": "Sumó los elementos pero olvidó dividir entre el total para el promedio."},
+    {"tipo": "descuento_sin_restar", "factor": "solo_calcular_porcentaje", "explicacion": "Calculó el monto del descuento pero no lo restó del precio inicial."}
+  ],
+  "razon_mezclas": [
+    {"tipo": "suma_ingredientes", "factor": "no_escalar", "explicacion": "Sumó el incremento en lugar de multiplicar por la escala."},
+    {"tipo": "inversion_razon", "factor": "invertir_razon", "explicacion": "Aplicó la relación en sentido inverso."},
+    {"tipo": "error_total_lote", "factor": "escala_incorrecta", "explicacion": "No dividió el volumen deseado entre el volumen base de la receta."}
+  ]
+}

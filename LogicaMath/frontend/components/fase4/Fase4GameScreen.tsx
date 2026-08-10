@@ -1345,7 +1345,11 @@ const Fase4GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
 
 
 
-                    {!isChallenge && <div className="f4-scores-container"><div className="f4-score-box correct"><span className="f4-score-label">CORRECTAS</span><span className="f4-score-value">{progreso.aciertos}</span></div><div className="f4-score-box incorrect"><span className="f4-score-label">ERRORES</span><span className="f4-score-value">{feedback.resultado?.errores_sesion ?? (progreso.intentos - progreso.aciertos)}</span></div></div>}
+                    {/* En práctica libre el backend no calcula errores_sesion (solo lo hace para
+    desafíos) y devuelve 0. Como `??` solo cae al respaldo con null/undefined,
+    ese 0 ganaba y el marcador mostraba "ERRORES 0" con una respuesta errónea
+    en pantalla. Los errores de práctica se derivan del propio progreso. */}
+{!isChallenge && <div className="f4-scores-container"><div className="f4-score-box correct"><span className="f4-score-label">CORRECTAS</span><span className="f4-score-value">{progreso.aciertos}</span></div><div className="f4-score-box incorrect"><span className="f4-score-label">ERRORES</span><span className="f4-score-value">{Math.max(0, progreso.intentos - progreso.aciertos)}</span></div></div>}
                   </div>
                 )}
                 {/* Otros tipos (constructor, tokens, etc) simplificados para brevedad pero funcionales */}

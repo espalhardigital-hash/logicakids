@@ -1,7 +1,7 @@
 # theory_examples.py
 # ─────────────────────────────────────────────────────────────
-# Base de ejemplos extendidos y formateados premium para Fase 4.
-# Proporciona los ejemplos estructurados para cada módulo y nivel de Fase 4 con gráficos SVG y explicaciones amigables.
+# Base de ejemplos extendidos y formateados premium para Fase 5.
+# Proporciona los ejemplos estructurados para cada módulo y nivel de Fase 5 con gráficos SVG y explicaciones amigables.
 
 def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
     ejemplos_db = {

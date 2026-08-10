@@ -1,0 +1,1210 @@
+[
+  {
+    "id": "tpl_m1_n1_restantes",
+    "modulo_id": 1,
+    "nivel_id": 1,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "resta_partes",
+    "incognita": "partes_libres",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto",
+      "unidad",
+      "articulo"
+    ],
+    "formula": "b-a",
+    "marcos_alternativos": [
+      "{sujeto_nombre} dividió {articulo} {objeto} en {b} partes iguales y {sujeto} {a} partes. ¿Cuántas partes quedan libres?",
+      "En {articulo} {objeto} de {b} porciones, {sujeto_nombre} {sujeto} {a} porciones. ¿Cuántas porciones no se tomaron?",
+      "Una figura de {b} celdas tiene {a} celdas ocupadas. ¿Cuántas celdas están desocupadas?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n1_diferencia",
+    "modulo_id": 1,
+    "nivel_id": 1,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "diferencia_partes",
+    "incognita": "diferencia",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto",
+      "unidad",
+      "articulo"
+    ],
+    "formula": "(b-a)-a",
+    "marcos_alternativos": [
+      "En {articulo} {objeto} de {b} partes, {sujeto_nombre} {sujeto} {a} partes. ¿Cuántas partes más quedan libres que tomadas?",
+      "De {b} porciones de {objeto}, {a} fueron usadas. ¿Cuál es la diferencia entre las porciones libres ({b_minus_a}) y las usadas ({a})?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n1_suma_partes",
+    "modulo_id": 1,
+    "nivel_id": 1,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "suma_partes",
+    "incognita": "suma",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto",
+      "unidad",
+      "articulo"
+    ],
+    "formula": "a+b",
+    "marcos_alternativos": [
+      "Si sumamos las {a} partes tomadas y las {b} partes totales de {articulo} {objeto}, ¿cuál es la suma total?",
+      "En {articulo} {objeto}, {sujeto_nombre} cuenta {a} partes pintadas de un total de {b}. ¿Cuánto resulta {a} + {b}?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n1_doble_tomadas",
+    "modulo_id": 1,
+    "nivel_id": 1,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "doble_tomadas",
+    "incognita": "doble",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto",
+      "unidad",
+      "articulo"
+    ],
+    "formula": "a*2",
+    "marcos_alternativos": [
+      "Si {sujeto_nombre} {sujeto} {a} partes de {articulo} {objeto}, ¿cuántas partes serían si tomara el doble?",
+      "En {articulo} {objeto}, hay {a} partes marcadas. ¿Cuánto es el doble de las partes marcadas?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n1_triple_totales",
+    "modulo_id": 1,
+    "nivel_id": 1,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "triple_totales",
+    "incognita": "triple",
+    "campos_requeridos": [
+      "objeto",
+      "unidad",
+      "articulo"
+    ],
+    "formula": "b*3",
+    "marcos_alternativos": [
+      "Si un {objeto} tiene {b} divisiones en total, ¿cuántas divisiones suman 3 objetos idénticos?",
+      "En 3 unidades de {objeto} con {b} porciones cada una, ¿cuántas porciones totales se forman?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n1_mitad_totales",
+    "modulo_id": 1,
+    "nivel_id": 1,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "mitad_totales",
+    "incognita": "mitad",
+    "campos_requeridos": [
+      "objeto",
+      "unidad",
+      "articulo"
+    ],
+    "formula": "b//2",
+    "marcos_alternativos": [
+      "Si {articulo} {objeto} está dividida en {b} partes totales, ¿cuántas partes representan exactamente la mitad?",
+      "Para dividir en 2 partes iguales un {objeto} de {b} porciones, ¿cuántas porciones tiene cada mitad?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n2_amplif_num",
+    "modulo_id": 1,
+    "nivel_id": 2,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "amplificacion",
+    "incognita": "nuevo_numerador",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "a*c",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, una fracción tiene numerador {a} y denominador {b}. Si amplificamos ambos multiplicando por {c}, ¿cuál es el nuevo numerador?",
+      "Para {articulo} {objeto} con fracción base {a}/{b}, se multiplica el numerador {a} por el factor {c}. ¿Cuánto resulta el nuevo numerador?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n2_amplif_den",
+    "modulo_id": 1,
+    "nivel_id": 2,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "amplificacion_denominador",
+    "incognita": "nuevo_denominador",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "b*c",
+    "marcos_alternativos": [
+      "Si amplificamos la fracción {a}/{b} de {articulo} {objeto} multiplicando por {c}, ¿cuál es el nuevo denominador resultante?",
+      "En {articulo} {objeto}, al multiplicar el numerador {a} y denominador {b} por el factor {c}, ¿qué valor obtiene el denominador?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n2_suma_amplif",
+    "modulo_id": 1,
+    "nivel_id": 2,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "suma_amplificada",
+    "incognita": "suma_amplif",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(a*c)+(b*c)",
+    "marcos_alternativos": [
+      "Al amplificar la fracción {a}/{b} de {articulo} {objeto} por el factor {c}, obtenemos los nuevos términos ({a_times_c} y {b_times_c}). ¿Cuál es la suma de ambos?",
+      "En {articulo} {objeto}, si se multiplica numerador {a} y denominador {b} por {c}, ¿cuánto suman el nuevo numerador ({a_times_c}) y el nuevo denominador ({b_times_c})?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n2_dif_amplif",
+    "modulo_id": 1,
+    "nivel_id": 2,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "dif_amplificada",
+    "incognita": "dif_amplif",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(b*c)-(a*c)",
+    "marcos_alternativos": [
+      "Al amplificar la fracción {a}/{b} de {articulo} {objeto} por el factor {c}, ¿cuál es la diferencia entre el nuevo denominador ({b_times_c}) y el nuevo numerador ({a_times_c})?",
+      "En {articulo} {objeto}, resta el nuevo numerador ({a_times_c}) del nuevo denominador ({b_times_c}) al amplificar por {c}."
+    ]
+  },
+  {
+    "id": "tpl_m1_n2_doble_nuevo_num",
+    "modulo_id": 1,
+    "nivel_id": 2,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "doble_num",
+    "incognita": "doble_num",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(a*c)*2",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, si el nuevo numerador amplificado es {a_times_c} (de {a}/{b} por factor {c}), ¿cuál sería el doble de ese nuevo numerador?",
+      "En {articulo} {objeto}, multiplica por 2 el resultado de amplificar el numerador {a} por {c}."
+    ]
+  },
+  {
+    "id": "tpl_m1_n2_den_cuadruple",
+    "modulo_id": 1,
+    "nivel_id": 2,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "cuadruple_den",
+    "incognita": "cuadruple_den",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "b*4",
+    "marcos_alternativos": [
+      "Si la fracción base de {articulo} {objeto} es {a}/{b}, ¿cuál es el denominador si amplificamos por 4?",
+      "Al cuadruplicar el denominador {b} de {articulo} {objeto}, ¿cuál es el nuevo denominador?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n3_sobrante",
+    "modulo_id": 1,
+    "nivel_id": 3,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "resta_partes",
+    "incognita": "partes_restantes",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto"
+    ],
+    "formula": "b-a",
+    "marcos_alternativos": [
+      "{articulo} {objeto} fue dividida en {b} porciones totales. Si {sujeto_nombre} {sujeto} {a} porciones, ¿cuántas porciones quedan libres?",
+      "En {articulo} {objeto} de {b} partes, {a} partes están coloreadas. ¿Cuántas partes quedan sin colorear?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n3_mitad_resto",
+    "modulo_id": 1,
+    "nivel_id": 3,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "mitad_resto",
+    "incognita": "mitad_resto",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto"
+    ],
+    "formula": "(b-a)//2",
+    "marcos_alternativos": [
+      "De {b} porciones de {objeto}, {sujeto_nombre} {sujeto} {a}. De las porciones restantes ({b_minus_a}), se guardan la mitad. ¿Cuántas se guardan?",
+      "Si quedan {b_minus_a} partes libres de {objeto}, ¿cuántas representa la mitad del resto?"
+    ]
+  },
+  {
+    "id": "tpl_m1_n3_doble_resto",
+    "modulo_id": 1,
+    "nivel_id": 3,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "doble_resto",
+    "incognita": "doble_resto",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto"
+    ],
+    "formula": "(b-a)*2",
+    "marcos_alternativos": [
+      "Si las porciones sobrantes de {objeto} son {b_minus_a} (de {b} totales tras tomar {a}), ¿cuánto sería el doble de las porciones sobrantes?",
+      "Calcula 2 veces las porciones restantes ({b_minus_a}) tras tomar {a} partes de {b}."
+    ]
+  },
+  {
+    "id": "tpl_m1_n3_suma_resto_usadas",
+    "modulo_id": 1,
+    "nivel_id": 3,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "suma_resto_usadas",
+    "incognita": "suma_rest_usadas",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto"
+    ],
+    "formula": "(b-a)+a",
+    "marcos_alternativos": [
+      "Si sumas las porciones libres ({b_minus_a}) y las porciones usadas ({a}) de {articulo} {objeto}, ¿cuántas porciones obtienes en total?",
+      "Verifica el total de porciones sumando las {a} partes marcadas y las {b_minus_a} partes sin marcar."
+    ]
+  },
+  {
+    "id": "tpl_m1_n3_cuadruple_usadas",
+    "modulo_id": 1,
+    "nivel_id": 3,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "cuadruple_usadas",
+    "incognita": "cuadruple_usadas",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto"
+    ],
+    "formula": "a*4",
+    "marcos_alternativos": [
+      "Si se tomaron {a} partes de {objeto}, ¿cuántas partes serían en 4 objetos idénticos con las mismas partes tomadas?",
+      "Calcula 4 veces las {a} partes tomadas de {articulo} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m1_n3_resto_menos_usadas",
+    "modulo_id": 1,
+    "nivel_id": 3,
+    "magnitud": "fraccion_visual",
+    "operacion_correcta": "resto_menos_usadas",
+    "incognita": "resto_menos_usadas",
+    "campos_requeridos": [
+      "objeto",
+      "sujeto"
+    ],
+    "formula": "(b-a)-a",
+    "marcos_alternativos": [
+      "En {articulo} {objeto} de {b} partes, hay {b_minus_a} partes libres y {a} partes usadas. ¿En cuántas unidades supera el resto a las usadas?",
+      "Resta las partes usadas ({a}) de las partes libres ({b_minus_a}) en {articulo} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n1_porcion_unitaria",
+    "modulo_id": 2,
+    "nivel_id": 1,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "division_unitaria",
+    "incognita": "cantidad_unitaria",
+    "campos_requeridos": [
+      "objeto",
+      "contenedor"
+    ],
+    "formula": "total//b",
+    "marcos_alternativos": [
+      "{sujeto_nombre} tiene {total} {objeto} en {articulo} {contenedor} y los organiza en {b} grupos iguales. ¿Cuántos {objeto} hay en 1 grupo (1/{b})?",
+      "Para repartir {total} {objeto} en {b} cajas en partes iguales, se calcula 1/{b} de {total}. ¿Cuántos {objeto} recibe cada caja?"
+    ]
+  },
+  {
+    "id": "tpl_m2_n1_tres_grupos",
+    "modulo_id": 2,
+    "nivel_id": 1,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "tres_grupos",
+    "incognita": "tres_grupos",
+    "campos_requeridos": [
+      "objeto",
+      "contenedor"
+    ],
+    "formula": "(total//b)*3",
+    "marcos_alternativos": [
+      "Si 1/{b} de {total} {objeto} son {total_div_b}, ¿cuántos {objeto} hay en 3 grupos (3/{b})?",
+      "Multiplica por 3 el valor de 1/{b} de {total} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n1_cuatro_grupos",
+    "modulo_id": 2,
+    "nivel_id": 1,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "cuatro_grupos",
+    "incognita": "cuatro_grupos",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(total//b)*4",
+    "marcos_alternativos": [
+      "Calcula el valor de 4 grupos (4/{b}) si el total de {total} {objeto} se dividió entre {b}.",
+      "¿Cuántos {objeto} suman 4 partes unitarias de 1/{b} de {total}?"
+    ]
+  },
+  {
+    "id": "tpl_m2_n1_resto_unitaria",
+    "modulo_id": 2,
+    "nivel_id": 1,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "resto_unitaria",
+    "incognita": "resto_unitaria",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "total-(total//b)",
+    "marcos_alternativos": [
+      "De un total de {total} {objeto}, {sujeto_nombre} toma 1/{b} del grupo ({total_div_b}). ¿Cuántos {objeto} quedan fuera?",
+      "Resta la porción unitaria 1/{b} ({total_div_b}) del total de {total} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n1_mitad_unitaria",
+    "modulo_id": 2,
+    "nivel_id": 1,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "mitad_unitaria",
+    "incognita": "mitad_unitaria",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(total//b)//2",
+    "marcos_alternativos": [
+      "Si la porción unitaria 1/{b} de {total} {objeto} es {total_div_b}, ¿cuál es la mitad de esa porción unitaria?",
+      "Divide entre 2 el grupo unitario resultante de 1/{b} de {total} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n1_doble_unitaria",
+    "modulo_id": 2,
+    "nivel_id": 1,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "doble_unitaria",
+    "incognita": "doble_unitaria",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(total//b)*2",
+    "marcos_alternativos": [
+      "Calcula 2/{b} de {total} {objeto} multiplicando por 2 la porción unitaria (1/{b} = {total_div_b}).",
+      "¿Cuántos {objeto} equivalen a 2 partes unitarias de 1/{b} de {total}?"
+    ]
+  },
+  {
+    "id": "tpl_m2_n2_fraccion_grupo",
+    "modulo_id": 2,
+    "nivel_id": 2,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "multiplicacion_fraccion",
+    "incognita": "cantidad_fraccion",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(total//b)*a",
+    "marcos_alternativos": [
+      "{sujeto_nombre} necesita calcular los {a}/{b} de un grupo de {total} {objeto}. ¿A cuántos {objeto} equivale?",
+      "De una colección de {total} {objeto}, {sujeto_nombre} toma {a}/{b} del total. ¿Cuántos {objeto} tomó en total?"
+    ]
+  },
+  {
+    "id": "tpl_m2_n2_resto_operador",
+    "modulo_id": 2,
+    "nivel_id": 2,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "resto_operador",
+    "incognita": "resto_operador",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "total-((total//b)*a)",
+    "marcos_alternativos": [
+      "Si {sujeto_nombre} toma los {a}/{b} de {total} {objeto}, ¿cuántos {objeto} quedan en el grupo sobrante?",
+      "En una colección de {total} {objeto}, se apartan {a}/{b}. ¿Cuántos {objeto} NO se apartaron?"
+    ]
+  },
+  {
+    "id": "tpl_m2_n2_doble_operador",
+    "modulo_id": 2,
+    "nivel_id": 2,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "doble_operador",
+    "incognita": "doble_operador",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((total//b)*a)*2",
+    "marcos_alternativos": [
+      "Si {a}/{b} de {total} {objeto} equivalen a una porción calculada, ¿cuál sería el doble de esa cantidad de {objeto}?",
+      "Calcula 2 veces los {a}/{b} de {total} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n2_diferencia_tomados_resto",
+    "modulo_id": 2,
+    "nivel_id": 2,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "dif_tomados_resto",
+    "incognita": "dif_tomados_resto",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((total//b)*a)-(total-((total//b)*a))",
+    "marcos_alternativos": [
+      "De {total} {objeto}, se tomaron {a}/{b}. ¿Cuál es la diferencia entre los tomados y los restantes sobrantes?",
+      "Resta el resto sobrante de los {objeto} tomados ({a}/{b} de {total})."
+    ]
+  },
+  {
+    "id": "tpl_m2_n2_tres_lotes",
+    "modulo_id": 2,
+    "nivel_id": 2,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "tres_lotes",
+    "incognita": "tres_lotes",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((total//b)*a)*3",
+    "marcos_alternativos": [
+      "Si una porción de {a}/{b} de {total} {objeto} se repite en 3 lotes iguales, ¿cuánto suman los 3 lotes?",
+      "Multiplica por 3 el resultado de {a}/{b} de {total} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n2_mitad_tomados",
+    "modulo_id": 2,
+    "nivel_id": 2,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "mitad_tomados",
+    "incognita": "mitad_tomados",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((total//b)*a)//2",
+    "marcos_alternativos": [
+      "Si {a}/{b} de {total} {objeto} es la porción tomada, ¿cuánto es la mitad de esa porción de {objeto}?",
+      "Divide entre 2 el resultado de {a}/{b} sobre {total} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n3_complemento",
+    "modulo_id": 2,
+    "nivel_id": 3,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "resta_fraccion_cantidad",
+    "incognita": "cantidad_restante",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "total-((total//b)*a)",
+    "marcos_alternativos": [
+      "{sujeto_nombre} tenía {total} {objeto}. Regala {a}/{b} del total a sus amigos. ¿Cuántos {objeto} le quedan?",
+      "En un depósito de {total} {objeto}, se utilizan {a}/{b} de las existencias. ¿Cuántos {objeto} quedan guardados?"
+    ]
+  },
+  {
+    "id": "tpl_m2_n3_dada",
+    "modulo_id": 2,
+    "nivel_id": 3,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "proporcion_dada",
+    "incognita": "cantidad_dada",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(total//b)*a",
+    "marcos_alternativos": [
+      "De {total} {objeto}, {sujeto_nombre} regala {a}/{b}. ¿Cuántos {objeto} regaló específicamente?",
+      "En un grupo de {total} {objeto}, se usaron {a}/{b} del total. ¿Cuántos {objeto} se usaron?"
+    ]
+  },
+  {
+    "id": "tpl_m2_n3_mitad_complemento",
+    "modulo_id": 2,
+    "nivel_id": 3,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "mitad_complemento",
+    "incognita": "mitad_complemento",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(total-((total//b)*a))//2",
+    "marcos_alternativos": [
+      "De los {total} {objeto}, tras gastar {a}/{b}, si la mitad de lo que queda se dona, ¿cuántos {objeto} se donan?",
+      "Divide entre 2 la cantidad restante de {objeto} tras usar {a}/{b} de {total}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n3_suma_dos_lotes",
+    "modulo_id": 2,
+    "nivel_id": 3,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "suma_dos_lotes",
+    "incognita": "suma_dos_lotes",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((total//b)*a)+total",
+    "marcos_alternativos": [
+      "Si a una colección original de {total} {objeto} le sumamos otra entrega igual a los {a}/{b}, ¿cuántos {objeto} hay en total?",
+      "Suma los {a}/{b} de {total} {objeto} a la cantidad inicial {total}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n3_triple_restante",
+    "modulo_id": 2,
+    "nivel_id": 3,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "triple_restante",
+    "incognita": "triple_restante",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(total-((total//b)*a))*3",
+    "marcos_alternativos": [
+      "Tras apartar {a}/{b} de {total} {objeto}, ¿cuánto sería el triple de los {objeto} sobrantes?",
+      "Multiplica por 3 el resto de {total} {objeto} tras utilizar {a}/{b}."
+    ]
+  },
+  {
+    "id": "tpl_m2_n3_cuadruple_tomado",
+    "modulo_id": 2,
+    "nivel_id": 3,
+    "magnitud": "fraccion_cantidad",
+    "operacion_correcta": "cuadruple_tomado",
+    "incognita": "cuadruple_tomado",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((total//b)*a)*4",
+    "marcos_alternativos": [
+      "Si la porción de {a}/{b} de {total} {objeto} es calculada, ¿cuántos {objeto} serían en 4 porciones iguales?",
+      "Multiplica por 4 la porción de {a}/{b} calculada sobre {total} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m3_n1_porcentaje_directo",
+    "modulo_id": 3,
+    "nivel_id": 1,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "porcentaje_base",
+    "incognita": "monto_porcentaje",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(total*a)//100",
+    "marcos_alternativos": [
+      "{sujeto_nombre} desea calcular el {a}% de una cantidad de {total} {unidad} de {articulo} {objeto}. ¿Cuál es el resultado?",
+      "Un grupo consta de {total} {objeto}. Si el {a}% son nuevos, ¿cuántos {objeto} representa ese porcentaje?"
+    ]
+  },
+  {
+    "id": "tpl_m3_n1_complemento_pct",
+    "modulo_id": 3,
+    "nivel_id": 1,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "porcentaje_complemento",
+    "incognita": "porcentaje_restante",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "100-a",
+    "marcos_alternativos": [
+      "Si el {a}% de los {total} {objeto} son rojos, ¿qué porcentaje de los {objeto} NO son rojos?",
+      "En {articulo} {objeto}, un grupo tiene {a}% de aprobados del total {total}. ¿Qué porcentaje representa a los no aprobados?"
+    ]
+  },
+  {
+    "id": "tpl_m3_n1_monto_restante",
+    "modulo_id": 3,
+    "nivel_id": 1,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "monto_restante",
+    "incognita": "monto_restante",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "total-((total*a)//100)",
+    "marcos_alternativos": [
+      "De un total de {total} {unidad} de {articulo} {objeto}, el {a}% fue gastado. ¿Cuántos {unidad} quedan?",
+      "En un depósito de {total} {objeto}, el {a}% ya se entregó. ¿Cuántos {objeto} faltan por entregar?"
+    ]
+  },
+  {
+    "id": "tpl_m3_n1_doble_porcentaje",
+    "modulo_id": 3,
+    "nivel_id": 1,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "doble_porcentaje",
+    "incognita": "doble_porcentaje",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((total*a)//100)*2",
+    "marcos_alternativos": [
+      "Si el {a}% de {total} {unidad} de {articulo} {objeto} es calculado, ¿cuál sería el doble de ese resultado?",
+      "Calcula 2 veces el {a}% de {total} {unidad} de {articulo} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m3_n1_mitad_porcentaje",
+    "modulo_id": 3,
+    "nivel_id": 1,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "mitad_porcentaje",
+    "incognita": "mitad_porcentaje",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((total*a)//100)//2",
+    "marcos_alternativos": [
+      "Si el {a}% de {total} {unidad} de {articulo} {objeto} es obtenido, ¿cuánto es la mitad de ese valor?",
+      "Divide entre 2 el resultado de calcular el {a}% de {total} {unidad} de {articulo} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m3_n1_suma_monto_total",
+    "modulo_id": 3,
+    "nivel_id": 1,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "suma_monto_total",
+    "incognita": "suma_monto_total",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((total*a)//100)+total",
+    "marcos_alternativos": [
+      "Si sumamos el {a}% de beneficio al monto base de {total} {unidad} de {articulo} {objeto}, ¿cuál es el total final?",
+      "Añade el {a}% calculado a la cantidad original {total} {unidad} de {articulo} {objeto}."
+    ]
+  },
+  {
+    "id": "tpl_m3_n2_descuento_final",
+    "modulo_id": 3,
+    "nivel_id": 2,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "precio_con_descuento",
+    "incognita": "precio_final",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "total-((total*a)//100)",
+    "marcos_alternativos": [
+      "Un {objeto} cuesta {total} {unidad} y tiene una oferta de descuento del {a}%. ¿Cuál es su precio final a pagar?",
+      "En la tienda, {articulo} {objeto} de {total} {unidad} recibe una rebaja del {a}%. ¿Cuánto cuesta ahora con la rebaja?"
+    ]
+  },
+  {
+    "id": "tpl_m3_n2_ahorro",
+    "modulo_id": 3,
+    "nivel_id": 2,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "monto_ahorro",
+    "incognita": "ahorro",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(total*a)//100",
+    "marcos_alternativos": [
+      "Un {objeto} cuesta {total} {unidad} y tiene un descuento del {a}%. ¿Cuántos {unidad} te ahorras?",
+      "Al comprar {articulo} {objeto} de {total} {unidad} con {a}% de rebaja, ¿cuánto es el dinero ahorrado?"
+    ]
+  },
+  {
+    "id": "tpl_m3_n2_dos_productos_descuento",
+    "modulo_id": 3,
+    "nivel_id": 2,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "dos_productos",
+    "incognita": "dos_productos",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(total-((total*a)//100))*2",
+    "marcos_alternativos": [
+      "Si {articulo} {objeto} de {total} {unidad} tiene un descuento del {a}%, ¿cuánto cuestan 2 {objeto} iguales con ese descuento?",
+      "Calcula el costo total de comprar 2 artículos de {total} {unidad} cada uno con {a}% de rebaja."
+    ]
+  },
+  {
+    "id": "tpl_m3_n2_diferencia_precio_ahorro",
+    "modulo_id": 3,
+    "nivel_id": 2,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "dif_precio_ahorro",
+    "incognita": "dif_precio_ahorro",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(total-((total*a)//100))-((total*a)//100)",
+    "marcos_alternativos": [
+      "Un {objeto} de {total} {unidad} tiene descuento del {a}%. ¿Cuál es la diferencia entre el precio pagado y el ahorro obtenido?",
+      "En {articulo} {objeto} de {total} {unidad} con descuento del {a}%, resta el monto de ahorro del precio final con ese descuento."
+    ]
+  },
+  {
+    "id": "tpl_m3_n2_recargo",
+    "modulo_id": 3,
+    "nivel_id": 2,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "precio_recargo",
+    "incognita": "precio_recargo",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "total+((total*a)//100)",
+    "marcos_alternativos": [
+      "Si un {objeto} de {total} {unidad} recibe un incremento o impuesto del {a}%, ¿cuál es su costo total final?",
+      "Suma el {a}% de recargo al costo inicial de {total} {unidad}."
+    ]
+  },
+  {
+    "id": "tpl_m3_n2_tres_ahorros",
+    "modulo_id": 3,
+    "nivel_id": 2,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "tres_ahorros",
+    "incognita": "tres_ahorros",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((total*a)//100)*3",
+    "marcos_alternativos": [
+      "Si ahorras al comprar 1 {objeto} con {a}% de rebaja sobre {total} {unidad}, ¿cuánto ahorras en total al comprar 3 {objeto}?",
+      "Multiplica por 3 el ahorro unitario obtenido de {total} {unidad} al {a}%."
+    ]
+  },
+  {
+    "id": "tpl_m3_n3_promedio_tres",
+    "modulo_id": 3,
+    "nivel_id": 3,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "promedio_aritmetico",
+    "incognita": "promedio",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(a+b+c)//3",
+    "marcos_alternativos": [
+      "{sujeto_nombre} obtuvo tres puntajes en {objeto}: {a}, {b} y {c} {unidad}. ¿Cuál es el promedio obtenido?",
+      "Las medidas registradas para {articulo} {objeto} fueron {a}, {b} y {c} {unidad}. ¿Cuál es la media o promedio?"
+    ]
+  },
+  {
+    "id": "tpl_m3_n3_suma",
+    "modulo_id": 3,
+    "nivel_id": 3,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "suma_total_notas",
+    "incognita": "suma_total",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "a+b+c",
+    "marcos_alternativos": [
+      "Para calcular el promedio de las tres notas de {articulo} {objeto} ({a}, {b} y {c} {unidad}), ¿cuál es la suma total acumulada?",
+      "Antes de dividir entre 3 las notas de {articulo} {objeto} ({a}, {b} y {c} {unidad}), ¿cuántos {unidad} suman en total?"
+    ]
+  },
+  {
+    "id": "tpl_m3_n3_promedio_mas_bonus",
+    "modulo_id": 3,
+    "nivel_id": 3,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "promedio_bonus",
+    "incognita": "promedio_bonus",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((a+b+c)//3)+2",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, si el promedio de las notas {a}, {b} y {c} es calculado y el profesor otorga 2 puntos bonus, ¿cuál es la calificación final?",
+      "En {articulo} {objeto}, suma 2 puntos de bonificación al promedio de {a}, {b} y {c} {unidad}."
+    ]
+  },
+  {
+    "id": "tpl_m3_n3_doble_promedio",
+    "modulo_id": 3,
+    "nivel_id": 3,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "doble_promedio",
+    "incognita": "doble_promedio",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((a+b+c)//3)*2",
+    "marcos_alternativos": [
+      "Si la media de {articulo} {objeto} es calculada sobre {a}, {b} y {c} {unidad}, ¿cuál es el doble de dicha media?",
+      "En {articulo} {objeto}, multiplica por 2 el promedio de {a}, {b} y {c} {unidad}."
+    ]
+  },
+  {
+    "id": "tpl_m3_n3_triple_promedio",
+    "modulo_id": 3,
+    "nivel_id": 3,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "triple_promedio",
+    "incognita": "triple_promedio",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((a+b+c)//3)*3",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, si multiplicas por 3 el promedio de {a}, {b} y {c} {unidad}, ¿qué suma total recuperas?",
+      "{sujeto_nombre} obtuvo notas de {a}, {b} y {c} {unidad} en {objeto}. Multiplica el promedio de esas notas por 3."
+    ]
+  },
+  {
+    "id": "tpl_m3_n3_mitad_promedio",
+    "modulo_id": 3,
+    "nivel_id": 3,
+    "magnitud": "porcentajes_promedios",
+    "operacion_correcta": "mitad_promedio",
+    "incognita": "mitad_promedio",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((a+b+c)//3)//2",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, si el promedio obtenido entre {a}, {b} y {c} {unidad} es calculado, ¿cuál es la mitad de ese promedio?",
+      "En {articulo} {objeto}, divide entre 2 la media aritmética resultante de {a}, {b} y {c} {unidad}."
+    ]
+  },
+  {
+    "id": "tpl_m4_n1_razon_directa",
+    "modulo_id": 4,
+    "nivel_id": 1,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "escalar_razon",
+    "incognita": "segundo_ingrediente",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "b*c",
+    "marcos_alternativos": [
+      "Una receta de {objeto} requiere {a} partes de base por {b} partes de mezcla. Si preparamos {c} lotes (usando {a_times_c} partes de base), ¿cuántas partes de mezcla se necesitan?",
+      "Para preparar {objeto}, por cada {a} porciones principales se añaden {b} porciones secundarias. Al multiplicar por {c} (total base {a_times_c}), ¿cuántas porciones secundarias corresponden?"
+    ]
+  },
+  {
+    "id": "tpl_m4_n1_base",
+    "modulo_id": 4,
+    "nivel_id": 1,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "escalar_base",
+    "incognita": "primer_ingrediente",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "a*c",
+    "marcos_alternativos": [
+      "En la receta {a}:{b} para {objeto}, si escalamos por un factor de {c} (para obtener {b_times_c} partes secundarias), ¿cuántas partes de la base {a} se necesitan?",
+      "En {articulo} {objeto}, si multiplicamos por {c} la mezcla de {a} partes de base por {b} partes secundarias, ¿cuántas partes de la base se usan?"
+    ]
+  },
+  {
+    "id": "tpl_m4_n1_suma_lote",
+    "modulo_id": 4,
+    "nivel_id": 1,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "suma_lote",
+    "incognita": "suma_lote",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(a*c)+(b*c)",
+    "marcos_alternativos": [
+      "Si preparamos {c} lotes de {objeto} con {a_times_c} partes de base y {b_times_c} partes secundarias, ¿cuántas partes totales suma la mezcla?",
+      "En {articulo} {objeto}, suma las partes de base ({a_times_c}) y las partes secundarias ({b_times_c}) producidas al escalar por {c}."
+    ]
+  },
+  {
+    "id": "tpl_m4_n1_diferencia_componentes",
+    "modulo_id": 4,
+    "nivel_id": 1,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "dif_componentes",
+    "incognita": "dif_componentes",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(b*c)-(a*c)",
+    "marcos_alternativos": [
+      "En {c} lotes de {objeto} (con {a_times_c} partes base y {b_times_c} secundarias), ¿por cuántas partes superan las secundarias a la base?",
+      "En {articulo} {objeto}, resta las partes de base ({a_times_c}) de las partes secundarias ({b_times_c}) al escalar por {c}."
+    ]
+  },
+  {
+    "id": "tpl_m4_n1_doble_mezcla",
+    "modulo_id": 4,
+    "nivel_id": 1,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "doble_mezcla",
+    "incognita": "doble_mezcla",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(b*c)*2",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, si en {c} lotes se usan {b_times_c} partes secundarias, ¿cuántas partes secundarias requerirían el doble de lotes?",
+      "En {articulo} {objeto}, calcula 2 veces las {b_times_c} partes secundarias necesarias para {c} lotes."
+    ]
+  },
+  {
+    "id": "tpl_m4_n1_triple_base",
+    "modulo_id": 4,
+    "nivel_id": 1,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "triple_base",
+    "incognita": "triple_base",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(a*c)*3",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, si para {c} lotes se requieren {a_times_c} partes de base, ¿cuántas partes de base requerirían 3 producciones iguales?",
+      "En {articulo} {objeto}, multiplica por 3 las {a_times_c} partes de base calculadas."
+    ]
+  },
+  {
+    "id": "tpl_m4_n2_reparto_a",
+    "modulo_id": 4,
+    "nivel_id": 2,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "reparto_lote",
+    "incognita": "ingrediente_a_lote",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(total//(a+b))*a",
+    "marcos_alternativos": [
+      "Una mezcla de {objeto} contiene {a} {unidad} de tinte A y {b} {unidad} de tinte B (sumando {n_cant} {unidad} base). Para un contenedor de {total} {unidad}, ¿cuántos {unidad} de tinte A se usan?",
+      "En {articulo} {objeto}, se combinan {a} partes de componente A y {b} partes de componente B en una receta base de {n_cant} partes. En una producción total de {total} partes, ¿cuántas partes corresponden al componente A?"
+    ]
+  },
+  {
+    "id": "tpl_m4_n2_reparto_b",
+    "modulo_id": 4,
+    "nivel_id": 2,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "reparto_lote_b",
+    "incognita": "ingrediente_b_lote",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "(total//(a+b))*b",
+    "marcos_alternativos": [
+      "En {articulo} {objeto} con mezcla {a}:{b} (base {n_cant} {unidad}), para un lote de {total} {unidad}, ¿cuántos {unidad} del componente B se usan?",
+      "En {articulo} {objeto}, para un total de {total} partes en proporción {a} a {b} (base {n_cant}), ¿cuántas partes de componente B se necesitan?"
+    ]
+  },
+  {
+    "id": "tpl_m4_n2_diferencia_a_b",
+    "modulo_id": 4,
+    "nivel_id": 2,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "dif_a_b",
+    "incognita": "dif_a_b",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((total//(a+b))*b)-((total//(a+b))*a)",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, un lote de {total} {unidad} con proporción {a}:{b}, ¿en cuánto supera el componente B al A?",
+      "En {articulo} {objeto}, un lote de {total} {unidad} con proporción {a}:{b} entre los componentes A y B, resta la cantidad de A a la cantidad de B."
+    ]
+  },
+  {
+    "id": "tpl_m4_n2_doble_a",
+    "modulo_id": 4,
+    "nivel_id": 2,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "doble_a",
+    "incognita": "doble_a",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((total//(a+b))*a)*2",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, un lote de {total} {unidad} con proporción {a}:{b}, si calculamos la cantidad de componente A, ¿cuánto sería el doble de esa cantidad?",
+      "En {articulo} {objeto}, un lote de {total} {unidad} con razón {a}:{b}, multiplica por 2 la cantidad que corresponde al componente A."
+    ]
+  },
+  {
+    "id": "tpl_m4_n2_lote_mas_bonus",
+    "modulo_id": 4,
+    "nivel_id": 2,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "lote_bonus",
+    "incognita": "lote_bonus",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((total//(a+b))*a)+5",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, un lote de {total} {unidad} con proporción {a}:{b}, si a las partes del componente A le agregamos 5 partes extra de refuerzo, ¿cuántas partes de A hay ahora?",
+      "En {articulo} {objeto}, un lote de {total} {unidad} con razón {a}:{b}, suma 5 unidades a la cantidad que corresponde al componente A."
+    ]
+  },
+  {
+    "id": "tpl_m4_n2_mitad_a",
+    "modulo_id": 4,
+    "nivel_id": 2,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "mitad_a",
+    "incognita": "mitad_a",
+    "campos_requeridos": [
+      "objeto",
+      "unidad"
+    ],
+    "formula": "((total//(a+b))*a)//2",
+    "marcos_alternativos": [
+      "En {articulo} {objeto}, si el lote requiere partes del componente A en proporción {a}:{b} sobre {total} {unidad}, ¿cuántas partes representa la mitad de ese componente?",
+      "En {articulo} {objeto}, un contenedor de {total} {unidad} con proporción {a}:{b}, divide entre 2 la cantidad que corresponde al componente A."
+    ]
+  },
+  {
+    "id": "tpl_m4_n3_porcentaje_a",
+    "modulo_id": 4,
+    "nivel_id": 3,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "porcentaje_componente",
+    "incognita": "porcentaje_esencia",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(a*100)//(a+b)",
+    "marcos_alternativos": [
+      "{articulo} {objeto} contiene {a} partes de esencia concentrada y {b} partes de diluyente (sumando {total} partes en total). ¿Qué porcentaje representa la esencia concentrada?",
+      "En un frasco de {objeto} con {a} ml de ingrediente activo y {b} ml de agua (volumen total {total} ml), ¿cuál es el porcentaje del ingrediente activo?"
+    ]
+  },
+  {
+    "id": "tpl_m4_n3_porcentaje_b",
+    "modulo_id": 4,
+    "nivel_id": 3,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "porcentaje_diluyente",
+    "incognita": "porcentaje_agua",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "(b*100)//(a+b)",
+    "marcos_alternativos": [
+      "En {articulo} {objeto} de {a} partes de esencia y {b} partes de diluyente (total {total} partes), ¿qué porcentaje representa el diluyente?",
+      "Si {a} ml son de activo y {b} ml de agua en {total} ml de {objeto}, ¿cuál es el porcentaje de agua?"
+    ]
+  },
+  {
+    "id": "tpl_m4_n3_diferencia_pct",
+    "modulo_id": 4,
+    "nivel_id": 3,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "dif_pct",
+    "incognita": "dif_pct",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((b*100)//(a+b))-((a*100)//(a+b))",
+    "marcos_alternativos": [
+      "En {articulo} {objeto} de {total} partes (con {a} del componente A y {b} del B), el porcentaje de B es {b_pct}% y el de A es {a_pct}%. ¿Cuál es la diferencia de porcentajes?",
+      "Si el ingrediente A representa el {a_pct}% y el B el {b_pct}% de {articulo} {objeto}, resta el porcentaje de A al de B."
+    ]
+  },
+  {
+    "id": "tpl_m4_n3_doble_pct_a",
+    "modulo_id": 4,
+    "nivel_id": 3,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "doble_pct_a",
+    "incognita": "doble_pct_a",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((a*100)//(a+b))*2",
+    "marcos_alternativos": [
+      "Si el porcentaje de esencia concentrada en {objeto} es {a_pct}%, ¿cuál sería el doble de ese porcentaje?",
+      "Si el ingrediente activo representa el {a_pct}% de {articulo} {objeto}, multiplica ese porcentaje por 2."
+    ]
+  },
+  {
+    "id": "tpl_m4_n3_mitad_pct_a",
+    "modulo_id": 4,
+    "nivel_id": 3,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "mitad_pct_a",
+    "incognita": "mitad_pct_a",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "((a*100)//(a+b))//2",
+    "marcos_alternativos": [
+      "Si en {articulo} {objeto} el ingrediente concentrado ocupa el {a_pct}%, ¿cuál es la mitad de ese porcentaje?",
+      "Si la esencia concentrada representa el {a_pct}% de {articulo} {objeto}, divide ese porcentaje entre 2."
+    ]
+  },
+  {
+    "id": "tpl_m4_n3_complemento_pct",
+    "modulo_id": 4,
+    "nivel_id": 3,
+    "magnitud": "razon_mezclas",
+    "operacion_correcta": "complemento_pct",
+    "incognita": "complemento_pct",
+    "campos_requeridos": [
+      "objeto"
+    ],
+    "formula": "100-((a*100)//(a+b))",
+    "marcos_alternativos": [
+      "Si en {articulo} {objeto} el ingrediente A representa el {a_pct}% del volumen total, ¿qué porcentaje de la mezcla NO es ingrediente A?",
+      "Si la esencia concentrada ocupa el {a_pct}% de {articulo} {objeto}, resta ese porcentaje de 100%."
+    ]
+  }
+]

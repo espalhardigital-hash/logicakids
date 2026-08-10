@@ -204,6 +204,20 @@ class CompositorFase4:
             opciones_q = [0.25, 0.5, 0.75, 1.2, 1.25, 1.5, 2.0, 2.5, 3.25, 4.5]
             q_target = opciones_q[fam_idx % len(opciones_q)]
             total_val = round(q_target * n_cant + c_val, 2)
+        elif formula == "a*b" and plantilla.get("a_es_conteo"):
+            # El marco narra 'a' como una CANTIDAD DE OBJETOS ("{a} tramos",
+            # "{a} cajas", "{a} paquetes"). Un conteo no admite decimales: nadie
+            # necesita "3,72 tramos de manguera" ni compra "1,5 unidades de pan"
+            # -- bug real reportado con captura. El conteo va entero y el peso
+            # decimal recae en la medida unitaria 'b', que es la magnitud
+            # continua legítima. El producto sigue siendo exacto a 2 decimales.
+            # Todas las medidas son n/20, así que el producto por un conteo de
+            # una cifra nunca cae en un entero: el nivel sigue ejercitando la
+            # multiplicación con decimales y el resultado es siempre exacto.
+            conteos = [2, 3, 4, 5, 6, 7, 8, 9]
+            medidas = [0.35, 0.45, 0.55, 0.65, 0.85, 0.95, 1.15, 1.35, 1.45, 2.35]
+            a_val = conteos[(fam_idx + var_idx) % len(conteos)]
+            b_val = medidas[(fam_idx * 3 + var_idx) % len(medidas)]
         elif formula == "a*b":
             # Parejas exactas (a, b) cuyo producto a*b tiene MÁXIMO 2 decimales sin aproximar
             parejas_ab = [
@@ -320,7 +334,10 @@ class CompositorFase4:
             marco_str = plantilla["marco"]
 
         enunciado = marco_str.format(**campos)
-        pregunta_txt = f"{enunciado} {plantilla['pregunta'].format(**campos)}"
+        pregunta_fmt = self._ajustar_inicial_pregunta(
+            plantilla["pregunta"].format(**campos), enunciado
+        )
+        pregunta_txt = f"{enunciado} {pregunta_fmt}"
         pregunta_txt = self._contraer(pregunta_txt)
 
         # Character budget validation
@@ -340,7 +357,7 @@ class CompositorFase4:
             "resultado_num": resultado,
             "respuesta_correcta": fmt_res,
             "unidad": unit,
-            "figura_svg": self._figura_svg(plantilla, vals, unit, esc),
+            "figura_svg": self._figura_svg(plantilla, vals, unit, esc, enunciado),
         }
 
     # Operadores permitidos en las fórmulas de plantillas_fase4.json.
@@ -351,7 +368,7 @@ class CompositorFase4:
         4: "#EC4899",
     }
 
-    def _figura_svg(self, plantilla: dict, vals: dict, unidad: str, esc: dict | None = None) -> str | None:
+    def _figura_svg(self, plantilla: dict, vals: dict, unidad: str, esc: dict | None = None, marco_usado: str = "") -> str | None:
         modulo_id = plantilla["modulo_id"]
         color = self._COLOR_MODULO.get(modulo_id, "#A855F7")
 
@@ -371,13 +388,13 @@ class CompositorFase4:
                     marco=False,
                 )
 
-            filas = self._filas_conversion_svg(plantilla, vals)
+            filas = self._filas_conversion_svg(plantilla, vals, marco_usado)
             return tabla_datos(filas, titulo="Datos a unificar", color=color, marco=False)
 
         if int(plantilla.get("n_datos", 0)) < 2:
             return None
 
-        filas, titulo_tabla = self._filas_datos_svg(plantilla, vals, unidad, esc or {})
+        filas, titulo_tabla = self._filas_datos_svg(plantilla, vals, unidad, esc or {}, marco_usado)
         if len(filas) < 2:
             return None
         return tabla_datos(filas, titulo=titulo_tabla, color=color, marco=False)
@@ -400,7 +417,7 @@ class CompositorFase4:
             return "mm", "cm"
         return None
 
-    def _filas_datos_svg(self, plantilla: dict, vals: dict, unidad: str, esc: dict) -> tuple[list[tuple[str, str]], str]:
+    def _filas_datos_svg(self, plantilla: dict, vals: dict, unidad: str, esc: dict, marco_usado: str = "") -> tuple[list[tuple[str, str]], str]:
         formula = plantilla.get("formula", "")
         tokens = self._tokens_formula(plantilla)
 
@@ -413,7 +430,10 @@ class CompositorFase4:
         }
         titulo = titulos.get(plantilla.get("modulo_id", 1), "Resumen de datos")
 
-        marco_txt = plantilla.get("marco", "").lower()
+        # El texto que ve el alumno es la variante narrativa efectivamente usada,
+        # no el 'marco' base: leer del base hacía que la tabla dijera "paquetes"
+        # mientras el enunciado decía "unidades".
+        marco_txt = (marco_usado or plantilla.get("marco", "")).lower()
         if "pieza" in marco_txt:
             unit_cant = "piezas"
         elif "tramo" in marco_txt:
@@ -434,10 +454,16 @@ class CompositorFase4:
         filas = []
         for token in tokens:
             valor = vals[token]
-            
+
             if token == "n_cant":
                 etiqueta = "Cantidad"
-                texto_valor = f"{int(valor)} {unit_cant}"
+                texto_valor = f"{int(valor)} {self._sustantivo_conteo(marco_usado, valor, unit_cant)}"
+            elif token == "a" and plantilla.get("a_es_conteo"):
+                # 'a' es un conteo de objetos, no una medida: rotularlo como
+                # "Medida A: 4,2 m" contradecía el enunciado, que decía
+                # "4,2 tramos". El niño veía el mismo número con dos unidades.
+                etiqueta = "Cantidad"
+                texto_valor = f"{int(valor)} {self._sustantivo_conteo(marco_usado, valor, unit_cant)}"
             elif token in ("a", "b"):
                 # 'a' y 'b' son dos datos INDEPENDIENTES cuando la fórmula usa
                 # ambos (ej. a*b, a/b): compartir la misma etiqueta genérica
@@ -445,7 +471,9 @@ class CompositorFase4:
                 # filas con valores distintos en la tabla -- bug real
                 # reportado por un alumno (captura: dos filas "Medida
                 # unitaria" con 2,4 cm y 1,5 cm). Sufijo A/B siempre distingue.
-                colision = "a" in tokens and "b" in tokens
+                # Con 'a_es_conteo' la fila de 'a' ya se rotula "Cantidad", así
+                # que 'b' es la única medida y no necesita sufijo distintivo.
+                colision = "a" in tokens and "b" in tokens and not plantilla.get("a_es_conteo")
                 letra = "A" if token == "a" else "B"
                 if unidad in ("R$", "$", "EUR"):
                     etiqueta = f"Precio {letra}" if colision else "Precio unitario"
@@ -481,7 +509,7 @@ class CompositorFase4:
                 tokens.append(token)
         return tokens
 
-    def _filas_conversion_svg(self, plantilla: dict, vals: dict) -> list[tuple[str, str]]:
+    def _filas_conversion_svg(self, plantilla: dict, vals: dict, marco_usado: str = "") -> list[tuple[str, str]]:
         formula = plantilla.get("formula", "")
         unidades_por_formula = {
             "a*n_cant*100": {"a": "m", "n_cant": "unidades"},
@@ -505,7 +533,7 @@ class CompositorFase4:
         for token in self._tokens_formula(plantilla):
             valor = vals[token]
             if token == "n_cant":
-                texto_valor = f"{int(valor)} unidades"
+                texto_valor = f"{int(valor)} {self._sustantivo_conteo(marco_usado, valor, 'unidades')}"
             else:
                 unidad_token = unidades.get(token, "")
                 texto_valor = f"{self._fmt_visual(valor)} {unidad_token}".strip()
@@ -541,6 +569,46 @@ class CompositorFase4:
         "lata", "latas", "frasco", "frascos", "bobina", "bobinas", "costal",
         "costales", "bidón", "bidones", "tambor", "tambores",
     )
+
+    _PALABRAS_VACIAS_CONTEO = {
+        "de", "del", "la", "el", "los", "las", "un", "una", "y", "a", "por",
+        "cada", "en", "para", "con", "que", "al",
+    }
+
+    def _sustantivo_conteo(self, texto: str, valor: float, respaldo: str) -> str:
+        """Sustantivo con el que el enunciado nombra un conteo ("4 tramos").
+
+        La tabla deducía este sustantivo de una lista fija de palabras clave
+        ("pieza", "caja", "rollo"...), así que un marco que contaba "barras" o
+        "estacas" caía en el genérico "unidades" y la ficha contradecía al
+        enunciado. Leerlo del texto que ve el alumno garantiza que coincidan.
+        """
+        import re as _re
+
+        m = _re.search(rf"\b{int(valor)}\s+([a-záéíóúñ]+)", texto or "", flags=_re.IGNORECASE)
+        if m:
+            palabra = m.group(1).lower()
+            if palabra not in self._PALABRAS_VACIAS_CONTEO:
+                return palabra
+        return respaldo
+
+    def _ajustar_inicial_pregunta(self, pregunta: str, marco: str) -> str:
+        """Concuerda la mayúscula inicial de la pregunta con el cierre del marco.
+
+        La pregunta se concatena al marco narrativo, pero la mayúscula estaba
+        decidida en el JSON por plantilla, no por el marco que toca en cada
+        variante. Un marco alternativo que cierra en punto seguido de una
+        pregunta escrita en minúscula produce "...mide 0,5 m. ¿cuántos metros
+        precisa?" -- bug real reportado con captura. Si el marco cierra oración
+        (. ! ?) la pregunta abre una nueva y va en mayúscula; si cierra con coma
+        o dos puntos, la pregunta continúa la oración y va en minúscula.
+        """
+        idx = 1 if pregunta.startswith("¿") else 0
+        if idx >= len(pregunta):
+            return pregunta
+        fin = marco.rstrip()[-1:] if marco.strip() else "."
+        letra = pregunta[idx].lower() if fin in (",", ":", ";") else pregunta[idx].upper()
+        return pregunta[:idx] + letra + pregunta[idx + 1:]
 
     def _contraer(self, texto: str) -> str:
         for origen, destino in self._CONTRACCIONES:
