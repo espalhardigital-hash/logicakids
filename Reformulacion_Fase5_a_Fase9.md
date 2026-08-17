@@ -292,9 +292,15 @@ tipo_visual=pizza; al fallar devuelve es_espejo=True, intentos 1/2, pasos de
 solución y respuesta_correcta.)*
 *Pendiente:* QA visual fina por plantilla (figura↔enunciado) — E10.
 
-**E10 · Verificación integral.**
-Re-seed + auditoría (figura↔respuesta, escenarios distintos/familia, 2-3
-reformulaciones, explicaciones reales, progreso P1) + E2E + tests.
+**E10 · Verificación integral. ✅ HECHO.**
+Auditoría Fase 5 (996 preguntas): enum válido, 0 no-enteros, 0 degeneradas, 0
+duplicados, 0 doble-correcta, 144 familias × 4, escenarios distintos por familia,
+tipo_visual 100 %. E2E HTTP: acertar → +progreso (10 %); fallar → solución +
+reformulación (2 máx) → avanza sin penalizar; desafío al límite → salida honrosa
+sin reset. 34/34 tests. Backend+frontend vivos (200).
+*Pendiente (QA visual humana):* revisar en `localhost:3000` que cada figura
+encaje con su enunciado por plantilla (algunos casos escalan la unidad, p.ej.
+"×3 pizzas" mostrando 1); pulir escenario de promedio.
 
 > **Fases 6-9:** una vez validada Fase 5 como plantilla, se replica el patrón
 > (tipos visuales correctos, refuerzo, progreso P1, dificultad escalonada) fase
@@ -317,4 +323,4 @@ reformulaciones, explicaciones reales, progreso P1) + E2E + tests.
 | 2026-08-17 | DA5 teoría | **Opción A** (teoría rica y visual por nivel) |
 | 2026-08-17 | DA6 dificultad desafíos | **A1** (escalonado; CMRJ pleno solo en Simulados) |
 | 2026-08-17 | DA7 fallo de desafío | **B1** (repaso dirigido + salida honrosa; sin reset/bloqueo) + salvaguardas |
-| 2026-08-17 | Plan de implementación Fase 5 (E1–E10) | **Redactado** — pendiente de tu aprobación |
+| 2026-08-17 | Plan de implementación Fase 5 (E1–E10) | **Aprobado y EJECUTADO** (E1-E10 ✅; pendiente QA visual humana) |
