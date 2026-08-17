@@ -163,7 +163,7 @@ class CompositorFase4:
                 opciones_q = [2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0]
             else:
                 opciones_q = [0.25, 0.4, 0.5, 0.75, 0.8, 1.2, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
-            q_target = opciones_q[fam_idx % len(opciones_q)]
+            q_target = opciones_q[(fam_idx + var_idx) % len(opciones_q)]
             a_val = round(q_target * n_cant, 2)
         elif formula == "a/b":
             if es_conteo_o_discreto:
@@ -202,13 +202,13 @@ class CompositorFase4:
             # Para conteos de tramos/paquetes/unidades, el resultado DEBE ser un entero exacto (2, 3, 4, 5, 6, 8, 10).
             # Un niño de 10 años no corta "4,5 tramos iguales".
             opciones_q = [2, 3, 4, 5, 6, 8, 10]
-            q_target = opciones_q[fam_idx % len(opciones_q)]
+            q_target = opciones_q[(fam_idx + var_idx) % len(opciones_q)]
             parejas_a = [0.5, 0.8, 1.2, 1.5, 2.2, 2.5, 3.2, 4.5]
             a_val = parejas_a[(fam_idx + var_idx) % len(parejas_a)]
             total_val = round(a_val * q_target, 2)
         elif formula == "(total-c)/n_cant":
             opciones_q = [0.25, 0.5, 0.75, 1.2, 1.25, 1.5, 2.0, 2.5, 3.25, 4.5]
-            q_target = opciones_q[fam_idx % len(opciones_q)]
+            q_target = opciones_q[(fam_idx + var_idx) % len(opciones_q)]
             total_val = round(q_target * n_cant + c_val, 2)
         elif formula == "a*b" and plantilla.get("a_es_conteo"):
             # El marco narra 'a' como una CANTIDAD DE OBJETOS ("{a} tramos",
