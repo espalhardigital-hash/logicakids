@@ -775,10 +775,7 @@ async def get_pregunta_fase4(
                     Intento.alumno_id == alumno.id,
                     Intento.fase_id == FASE_DECIMALES_ID,
                     Intento.seccion == seccion,
-                    or_(
-                        Intento.es_correcta == True,
-                        Intento.respuesta_dada == "BYPASS_EXPLICACION"
-                    )
+                    Intento.es_correcta == True  # P1: solo acierto real cuenta
                 ))
             )
             solved_families = set(res_solved.scalars().all())
@@ -1118,50 +1115,46 @@ async def responder_fase4(
             # Bug 2 fix: si el bloque ya fue APROBADO (superado alguna vez), preservar
             # ese estado para que los desafíos siguientes no se re-bloqueen.
             # Solo se resetean los contadores para el nuevo intento.
-            progreso.aciertos_acumulados = 0
-            progreso.porcentaje_actual = 0
-            progreso.intentos_totales = 0
+            # E8/DA7-B1: SALIDA HONROSA (reemplaza el reset destructivo). Conserva
+            # el progreso, no bloquea; borra solo intentos INCORRECTOS de la
+            # sección (reinicia el contador de errores, preservando los aciertos)
+            # y limpia el pool para reintentar con ejercicios distintos. Mensaje
+            # positivo; early_exit -> el frontend envía al repaso dirigido.
             if progreso.estado != EstadoProgresoEnum.APROBADO:
                 progreso.estado = EstadoProgresoEnum.EN_PROGRESO
-            
-            # Borrar los intentos acumulados para evitar colisiones en la próxima sesión
+
             await db.execute(
                 delete(Intento).where(and_(
                     Intento.alumno_id == alumno.id,
                     Intento.fase_id == FASE_DECIMALES_ID,
-                    Intento.seccion == seccion
+                    Intento.seccion == seccion,
+                    Intento.es_correcta == False
                 ))
             )
-            
-            # Borrar los intentos de la tabla `IntentoPregunta` si aplica
-            result_q_ids = await db.execute(
-                select(Pregunta.id).where(and_(
-                    Pregunta.fase_id == FASE_DECIMALES_ID,
-                    Pregunta.seccion == seccion
+            await db.execute(
+                delete(PoolAsignadoAlumno).where(and_(
+                    PoolAsignadoAlumno.alumno_id == alumno.id,
+                    PoolAsignadoAlumno.seccion == seccion
                 ))
             )
-            q_ids = result_q_ids.scalars().all()
-            if q_ids:
-                await db.execute(
-                    delete(IntentoPregunta).where(and_(
-                        IntentoPregunta.alumno_id == alumno.id,
-                        IntentoPregunta.pregunta_id.in_(q_ids)
-                    ))
-                )
-            
+
             await db.commit()
-            
+
             return Fase4ResultadoRespuesta(
                 es_correcta=es_correcta,
                 respuesta_correcta=respuesta_correcta_str,
-                aciertos_acumulados=0,
-                intentos_totales=0,
-                porcentaje_actual=0,
+                aciertos_acumulados=progreso.aciertos_acumulados,
+                intentos_totales=progreso.intentos_totales,
+                porcentaje_actual=progreso.porcentaje_actual,
                 bloque_completado=False,
                 early_exit=True,
                 errores_sesion=errores_sesion,
                 max_errores_tolerados=max_errores,
-                feedback_error=feedback_mostrado,
+                feedback_error=(
+                    "¡Aún no, y está bien! Reforcemos este tema con calma y vuelve "
+                    "a intentarlo: el próximo intento traerá ejercicios distintos. "
+                    "Tu progreso se conserva."
+                ),
             )
         else:
             progreso.intentos_totales += 1
@@ -1271,10 +1264,7 @@ async def responder_fase4(
                 Intento.alumno_id == alumno.id,
                 Intento.fase_id == FASE_DECIMALES_ID,
                 Intento.seccion == seccion,
-                or_(
-                    Intento.es_correcta == True,
-                    Intento.respuesta_dada == "BYPASS_EXPLICACION"
-                )
+                Intento.es_correcta == True  # P1: solo acierto real cuenta
             ))
         )
         familias_resueltas = res_fam_resueltas.scalar() or 0
@@ -1413,10 +1403,7 @@ async def cerrar_rescate_fase4(
             Intento.alumno_id == alumno.id,
             Intento.fase_id == FASE_DECIMALES_ID,
             Intento.seccion == seccion,
-            or_(
-                Intento.es_correcta == True,
-                Intento.respuesta_dada == "BYPASS_EXPLICACION"
-            )
+            Intento.es_correcta == True  # P1: solo acierto real cuenta
         ))
     )
     familias_resueltas = res_fam_resueltas.scalar() or 0
