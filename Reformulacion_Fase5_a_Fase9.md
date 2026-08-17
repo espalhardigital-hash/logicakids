@@ -254,7 +254,15 @@ Escribir la teoría de los 12 niveles (párrafos + mini-ejemplo + diccionario 2-
 + ejemplos guiados con figura + "¿sabías?" + interactivo de calentamiento).
 *Verif.:* 0 placeholders; teoría renderiza con figuras en `/lectura`.
 
-**E8 · Desafíos escalonados + anti-frustración (DA6 A1 · DA7 B1).**
+**E8 · Desafíos anti-frustración (DA7 B1) ✅ HECHO · dificultad escalonada (DA6 A1) ⏭ pendiente (con E3).**
+Salida honrosa verificada E2E: al superar el límite de errores, `early_exit` con
+mensaje positivo, **sin reset ni bloqueo** (progreso conservado, estado
+EN_PROGRESO), se limpia el pool para reintentar con ítems distintos y se
+reinicia el contador de errores. Umbrales de aprobación: desafíos 80 %, mixto
+70 % (antes 100 %). *Pendiente:* escalonar la dificultad real N11<N12<N13 (parte
+de contenido, junto a E3).
+
+**(diseño original) E8 · Desafíos escalonados + anti-frustración (DA6 A1 · DA7 B1).**
 - Dificultad escalonada: **N11 práctica reforzada · N12 intermedio · N13
   pre-CMRJ**; CMRJ pleno solo en Simulados (Fase 9). Dejar de copiar la práctica
   con prefijo "[Desafío]".

@@ -869,46 +869,32 @@ async def responder_fase5(
             max_errores_desafio = calcular_max_errores(cantidad_req, porc_aprobacion)
             
             if errores_sesion >= max_errores_desafio:
-                # Expulsión y reinicio de progreso
+                # E8 · DA7-B1: SALIDA HONROSA (reemplaza la expulsión destructiva).
+                # Ya NO se resetea el progreso, NO se bloquea el nivel y NO se
+                # borran los intentos: el alumno conserva lo logrado. Se limpia
+                # solo el pool para que el reintento traiga ejercicios DISTINTOS
+                # (anti-círculo) y se reinicia el contador de errores de sesión
+                # (fecha_inicio) para no expulsar de inmediato al volver. El
+                # frontend usa `early_exit` para enviar al repaso dirigido del
+                # concepto flojo antes de reintentar.
                 early_exit = True
-                progreso.aciertos_acumulados = 0
-                progreso.intentos_totales = 0
-                progreso.porcentaje_actual = 0
-                progreso.estado = EstadoProgresoEnum.BLOQUEADO
-                
-                # Borrar los intentos acumulados para evitar colisiones en la próxima sesión
-                await db.execute(
-                    delete(Intento).where(and_(
-                        Intento.alumno_id == alumno.id,
-                        Intento.fase_id == FASE5_ID,
-                        Intento.seccion == seccion
-                    ))
-                )
-                
-                # Borrar los intentos de la tabla IntentoPregunta si aplica
-                result_q_ids = await db.execute(
-                    select(Pregunta.id).where(and_(
-                        Pregunta.fase_id == FASE5_ID,
-                        Pregunta.seccion == seccion
-                    ))
-                )
-                q_ids = result_q_ids.scalars().all()
-                if q_ids:
-                    await db.execute(
-                        delete(IntentoPregunta).where(and_(
-                            IntentoPregunta.alumno_id == alumno.id,
-                            IntentoPregunta.pregunta_id.in_(q_ids)
-                        ))
-                    )
-                
-                # Borrar pool asignado para obligar a sembrar desde cero en la siguiente entrada
+                soporte_avanzado = True
+                explicacion_estructurada = pregunta.explicacion_paso_a_paso or None
+                explicacion_profunda = _pasos_a_texto(pregunta.explicacion_paso_a_paso)
+                progreso.fecha_inicio = datetime.utcnow()
+
+                # Reasignar pool en la próxima entrada con ejercicios distintos.
                 await db.execute(
                     delete(PoolAsignadoAlumno).where(and_(
                         PoolAsignadoAlumno.alumno_id == alumno.id,
                         PoolAsignadoAlumno.seccion == seccion
                     ))
                 )
-                feedback_msg = f"Has cometido {errores_sesion} errores. ¡Misión abortada! El progreso de este desafío se ha reiniciado."
+                feedback_msg = (
+                    "¡Aún no, y está bien! Reforcemos este tema con calma y vuelve "
+                    "a intentarlo: el próximo intento traerá ejercicios distintos. "
+                    "Tu progreso se conserva."
+                )
                 
     # Recalcular porcentaje de completitud
     progreso.porcentaje_actual = await _recalcular_porcentaje_fase5(db, alumno.id, seccion, config.cantidad_requerida)
@@ -917,7 +903,9 @@ async def responder_fase5(
     bloque_completado = False
     fase_completada = False
     
-    if progreso.porcentaje_actual >= 100:
+    # E8/DA7: aprueba al alcanzar el umbral de la config (práctica 100 %,
+    # desafíos 80 %, mixto 70 %) — antes exigía 100 % siempre.
+    if progreso.porcentaje_actual >= (config.porcentaje_aprobacion if config else 100):
         bloque_completado = True
         progreso.estado = EstadoProgresoEnum.APROBADO
         progreso.fecha_aprobacion = datetime.utcnow()
@@ -1056,7 +1044,7 @@ async def cerrar_rescate_fase5(
     bloque_completado = False
     fase_completada = False
 
-    if progreso.porcentaje_actual >= 100:
+    if progreso.porcentaje_actual >= (config.porcentaje_aprobacion if config else 100):
         if progreso.estado != EstadoProgresoEnum.APROBADO:
             progreso.estado = EstadoProgresoEnum.APROBADO
             progreso.fecha_aprobacion = datetime.utcnow()

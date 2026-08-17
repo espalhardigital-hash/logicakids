@@ -147,6 +147,8 @@ async def seed_configuraciones_fase5(session: AsyncSession):
             orden += 1
 
     # 3. Bloques de desafíos (12 bloques)
+    # E8/DA7: umbral de aprobación 80 % (no 100 %) para que unos pocos ítems muy
+    # difíciles no impidan pasar y no se genere frustración.
     time_map = {11: 25, 12: 40, 13: 50}
     for mod_id in (1, 2, 3, 4):
         for niv_id in (11, 12, 13):
@@ -155,7 +157,7 @@ async def seed_configuraciones_fase5(session: AsyncSession):
                 fase_id=FASE5_ID,
                 seccion=sec,
                 operacion=OperacionEnum.MIXTA,
-                porcentaje_aprobacion=100.0,
+                porcentaje_aprobacion=80.0,
                 cantidad_requerida=15,
                 errores_tolerados=2,
                 orden_desbloqueo=orden,
@@ -168,12 +170,12 @@ async def seed_configuraciones_fase5(session: AsyncSession):
             session.add(cfg)
             orden += 1
 
-    # 4. Desafío mixto final (1 bloque)
+    # 4. Desafío mixto final (1 bloque). Umbral 70 %: es el examen más difícil.
     cfg_mixto = ConfiguracionProgreso(
         fase_id=FASE5_ID,
         seccion=99099,
         operacion=OperacionEnum.MIXTA,
-        porcentaje_aprobacion=100.0,
+        porcentaje_aprobacion=70.0,
         cantidad_requerida=20,
         errores_tolerados=2,
         orden_desbloqueo=orden,
