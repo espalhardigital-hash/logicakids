@@ -195,9 +195,13 @@ async def seed_preguntas_fase5(session: AsyncSession):
         for niv_id in (1, 2, 3):
             sec = mod_id * 100 + niv_id
             q_count = 0
+            # E1: cada familia = 1 original (orden_refuerzo=0) + 3 reformulaciones
+            # (1,2,3), cada una con escenario Y valores distintos. El nuevo flujo
+            # de refuerzo (E5) usa como máximo 2 reformulaciones; la 3ª es reserva
+            # para no repetir contexto ya visto.
             for fam_idx in range(12):
-                for var_idx in range(5):
-                    seed_val = 500000 + sec * 100 + fam_idx * 5 + var_idx
+                for var_idx in range(4):
+                    seed_val = 500000 + sec * 100 + fam_idx * 4 + var_idx
                     preg_data = _COMPOSITOR.componer_pregunta_practica(
                         modulo_id=mod_id,
                         nivel_id=niv_id,
@@ -212,7 +216,9 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     padre_id = f"f5_m{mod_id}_l{niv_id}_fam_{fam_idx:03d}"
 
                     datos_num = dict(preg_data["datos_numericos"])
-                    datos_num["variante"] = var_idx
+                    datos_num["variante"] = var_idx           # compat con router actual (hasta E5)
+                    datos_num["orden_refuerzo"] = var_idx     # 0=original, 1..3=reformulación
+                    datos_num["escenario_id"] = preg_data.get("escenario_id")
 
                     preg = Pregunta(
                         fase_id=FASE5_ID,
@@ -388,7 +394,18 @@ async def seed_preguntas_fase5(session: AsyncSession):
     await session.flush()
 
 
-async def run_fase5_seed(session: AsyncSession):
+async def run_fase5_seed(session: AsyncSession | None = None):
+    # El sembrador maestro (app/seed.py) invoca run_faseN_seed() SIN sesión (las
+    # demás fases auto-gestionan la suya). Tras la reestructuración de Fase 5
+    # esta función pasó a exigir `session`, lo que rompía el arranque completo
+    # del backend (TypeError -> el master hace raise -> contenedor en bucle de
+    # reinicio -> "Error de conexión" en el login). Ahora, si no se pasa sesión,
+    # se abre una propia, igual que el resto de fases.
+    if session is None:
+        async with AsyncSessionLocal() as _own_session:
+            await run_fase5_seed(_own_session)
+        return
+
     print("=================================================================")
     print(" INICIANDO SIEMBRA REESTRUCTURADA DE FASE 5 (LogicaKids Pro)")
     print("=================================================================")
