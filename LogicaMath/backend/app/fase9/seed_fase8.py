@@ -558,35 +558,42 @@ async def seed_practica_pool_fase8(session: AsyncSession):
             num_questions = 20
             
         for i in range(num_questions):
-            rng = random.Random(FASE9_ID * 100000 + seccion_id * 1000 + i * 41 + 17)
-            q_data = await _gen_fase8_pool(rng, mod_id, lvl_id)
-            
-            payload = q_data.get("metadata_visual", {})
-            payload["fase8"] = True
+            # Práctica (lvl 1-3): cada índice es una FAMILIA con 1 original +
+            # 2 variantes espejo (mismo estructura_padre_id, flag es_espejo) para
+            # que el Bucle Espejo del router (busca hermanos con es_espejo True)
+            # pueda disparar. Antes cada pregunta era familia de 1 y nunca
+            # disparaba. Desafíos (lvl>10) cuentan aciertos, sin espejo.
+            if lvl_id <= 3:
+                fam_id = f"f8_m{mod_id}_l{lvl_id}_q{i:03d}"
+                n_variantes = 3
+            else:
+                fam_id = None
+                n_variantes = 1
 
-            # El progreso de práctica libre (router.py) cuenta familias distintas vía
-            # COUNT(DISTINCT estructura_padre_id). Sin esto, la columna queda NULL para
-            # las 360 preguntas y COUNT(DISTINCT NULL)=0 -> el nivel nunca llega a 100%
-            # (bug confirmado: 0 intentos/progresos/aprobados en toda la Fase 8 histórica).
-            # Cada pregunta de práctica ya es única (seed determinístico por índice), así
-            # que basta con darle su propia familia de 1 miembro para que cuente.
-            estructura_padre_id = f"f8_m{mod_id}_l{lvl_id}_q{i:03d}" if lvl_id <= 3 else None
+            for v in range(n_variantes):
+                rng = random.Random(FASE9_ID * 100000 + seccion_id * 1000 + i * 41 + v * 911 + 17)
+                q_data = await _gen_fase8_pool(rng, mod_id, lvl_id)
 
-            p = Pregunta(
-                fase_id=FASE9_ID, seccion=seccion_id, estructura_padre_id=estructura_padre_id,
-                operacion=OperacionEnum.MIXTA,
-                tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=q_data["enunciado"],
-                respuesta_correcta=q_data["respuesta_correcta"],
-                datos_numericos=payload,
-                errores_previstos=q_data.get("errores_previstos", {}),
-                explicacion_paso_a_paso={"titulo": "Resolución", "pasos": [{"orden": 1, "texto": q_data["expl"]}]},
-                estado=StatusEnum.ACTIVO
-            )
-            for idx, alt in enumerate(q_data["alts"]):
-                is_correct = (alt == q_data["respuesta_correcta"])
-                error_msg = q_data.get("errores_previstos", {}).get(alt, "Esa alternativa es incorrecta. Vuelve a intentarlo.") if not is_correct else None
-                p.alternativas.append(Alternativa(texto=alt, es_correcta=is_correct, orden=idx+1, tipo_error=TipoErrorEnum.CALCULO if not is_correct else None, feedback_error=error_msg))
-            session.add(p)
+                payload = q_data.get("metadata_visual", {})
+                payload["fase8"] = True
+                if lvl_id <= 3:
+                    payload["es_espejo"] = v > 0
+
+                p = Pregunta(
+                    fase_id=FASE9_ID, seccion=seccion_id, estructura_padre_id=fam_id,
+                    operacion=OperacionEnum.MIXTA,
+                    tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=q_data["enunciado"],
+                    respuesta_correcta=q_data["respuesta_correcta"],
+                    datos_numericos=payload,
+                    errores_previstos=q_data.get("errores_previstos", {}),
+                    explicacion_paso_a_paso={"titulo": "Resolución", "pasos": [{"orden": 1, "texto": q_data["expl"]}]},
+                    estado=StatusEnum.ACTIVO
+                )
+                for idx, alt in enumerate(q_data["alts"]):
+                    is_correct = (alt == q_data["respuesta_correcta"])
+                    error_msg = q_data.get("errores_previstos", {}).get(alt, "Esa alternativa es incorrecta. Vuelve a intentarlo.") if not is_correct else None
+                    p.alternativas.append(Alternativa(texto=alt, es_correcta=is_correct, orden=idx+1, tipo_error=TipoErrorEnum.CALCULO if not is_correct else None, feedback_error=error_msg))
+                session.add(p)
     await session.commit()
 
 async def run_fase8_seed():

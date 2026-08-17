@@ -193,6 +193,28 @@ def fig_poligono_irregular(vertices: list[tuple[float,float]],
     return _svg_container(shp+lc, border_color=color, viewbox=vb, leyenda=unit)
 
 
+def fig_poligono_regular(n_lados: int, color: str = "#22C55E",
+                         radio: float = 5.0) -> str:
+    """Polígono REGULAR de n_lados (triángulo=3 ... octágono=8), sin cotas.
+
+    Pensado para preguntas de "cuenta los vértices/lados" y "nombra la figura":
+    el alumno debe poder contar los lados reales en la figura. Antes se dibujaba
+    siempre un cuadrado (fig_cuadrado) para todas -> la figura contradecía la
+    respuesta (un "triángulo" se veía como cuadrado de 4 vértices).
+    """
+    n = max(3, int(n_lados))
+    r = float(radio)
+    # Primer vértice arriba (-90°); para figuras de lados pares se rota medio
+    # paso para que quede con lado horizontal abajo (más natural).
+    ang0 = -math.pi / 2 + (math.pi / n if n % 2 == 0 else 0.0)
+    verts = [
+        (round(r * math.cos(ang0 + 2 * math.pi * k / n), 3),
+         round(r * math.sin(ang0 + 2 * math.pi * k / n), 3))
+        for k in range(n)
+    ]
+    return fig_poligono_irregular(verts, [None] * n, unit="", color=color)
+
+
 def fig_L(w1: float, h1: float, w2: float, h2: float, unit: str = "cm",
           color: str = "#3B82F6", ocultar_lado: int | None = None) -> str:
     """Figura en L (6 lados). ocultar_lado marca ese lado con '?'."""

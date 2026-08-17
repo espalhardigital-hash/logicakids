@@ -36,6 +36,7 @@ from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from app.fase6.theory_data import FASE6_TEORIA_DATA
 from app.utils.svg_figuras import (
     fig_rectangulo, fig_cuadrado, fig_L, fig_T,
+    fig_poligono_regular, fig_triangulo,
     color_modulo
 )
 
@@ -128,12 +129,15 @@ def _gen_practice_question(
     
     # M1 N1 (101): Nombrar figuras, contar vértices y lados
     if mod_id == 1 and lvl_id == 1:
+        # La figura DEBE coincidir con la respuesta: se dibuja el polígono
+        # regular real de N lados (antes se usaba fig_cuadrado para todas, así
+        # que un "triángulo" se veía como cuadrado y contradecía la respuesta).
         figuras = [
-            ("triángulo", 3, 3, "regular", fig_cuadrado(3, unit="cm", color=accent)),
-            ("cuadrilátero", 4, 4, "regular", fig_cuadrado(4, unit="cm", color=accent)),
-            ("pentágono", 5, 5, "regular", fig_cuadrado(5, unit="cm", color=accent)),
-            ("hexágono", 6, 6, "regular", fig_cuadrado(6, unit="cm", color=accent)),
-            ("octágono", 8, 8, "regular", fig_cuadrado(8, unit="cm", color=accent))
+            ("triángulo", 3, 3, "regular", fig_poligono_regular(3, color=accent)),
+            ("cuadrilátero", 4, 4, "regular", fig_poligono_regular(4, color=accent)),
+            ("pentágono", 5, 5, "regular", fig_poligono_regular(5, color=accent)),
+            ("hexágono", 6, 6, "regular", fig_poligono_regular(6, color=accent)),
+            ("octágono", 8, 8, "regular", fig_poligono_regular(8, color=accent))
         ]
         fig_nombre, n_lados, n_vert, _, svg_code = figuras[fam_idx % len(figuras)]
         
@@ -434,6 +438,13 @@ def _gen_practice_question(
         datos_num = {"lado": lado, "radio": r, "area_sombreada": area_esquinas}
         alts = []
         err_dict = {f"{area_circ}".replace(".", ","): "Esa es el área del círculo interior; restó del cuadrado para hallar las esquinas."}
+
+    # var_idx 0 = original; 1..3 = variantes espejo. El Bucle Espejo del router
+    # (app/fase6/router.py) busca hermanos de la misma familia con
+    # `datos_numericos.es_espejo is True`; sin este flag NUNCA disparaba
+    # (verificado: 0/7200 marcadas). Con esto, cada familia tiene 3 espejos.
+    if isinstance(datos_num, dict):
+        datos_num["es_espejo"] = var_idx > 0
 
     pregunta_dict = {
         "fase_id": 6,
