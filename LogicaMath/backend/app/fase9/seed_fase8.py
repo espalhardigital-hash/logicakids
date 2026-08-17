@@ -570,9 +570,17 @@ async def seed_practica_pool_fase8(session: AsyncSession):
                 fam_id = None
                 n_variantes = 1
 
+            seen_enun = set()
             for v in range(n_variantes):
-                rng = random.Random(FASE9_ID * 100000 + seccion_id * 1000 + i * 41 + v * 911 + 17)
-                q_data = await _gen_fase8_pool(rng, mod_id, lvl_id)
+                # dedup: enunciado distinto entre variantes de la familia.
+                q_data = None
+                for intento in range(12):
+                    rng = random.Random(FASE9_ID * 100000 + seccion_id * 1000 + i * 41 + v * 911 + intento * 101 + 17)
+                    cand = await _gen_fase8_pool(rng, mod_id, lvl_id)
+                    q_data = cand
+                    if cand["enunciado"] not in seen_enun:
+                        break
+                seen_enun.add(q_data["enunciado"])
 
                 payload = q_data.get("metadata_visual", {})
                 payload["fase8"] = True
