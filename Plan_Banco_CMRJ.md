@@ -40,27 +40,34 @@ Porcentajes/finanzas.
 
 ---
 
-## 2. El giro metodológico
+## 2. El enfoque correcto (aclarado por el usuario 2026-08-17)
 
-**Antes:** compositor genera preguntas desde plantillas+valores → resultó
-artificial y mal estructurado.
+**NO** es reemplazar el motor por un banco estático. Es **arreglar el motor**
+para que **genere** preguntas con el estilo, estructura, profundidad y nivel de
+las preguntas reales del CMRJ. Las preguntas provistas y los exámenes de años
+anteriores son **modelos de referencia** (el "estándar oro" a emular), no filas
+a insertar.
 
-**Ahora:** las preguntas son **reales, curadas y traducidas**; se guardan en la
-BD como banco. El backend deja de *inventar* y pasa a *servir* preguntas de
-calidad.
+- El compositor actual produce preguntas **superficiales y mal estructuradas** →
+  se **rediseña**, no se descarta.
+- Cada plantilla del generador debe estar **derivada de un arquetipo real** del
+  CMRJ: multi-paso, contexto real, figura pertinente, y **distractores que
+  encarnan las trampas** típicas del examen.
+- Los exámenes 2013-2025 (docx) **calibran el nivel** y alimentan los
+  **Simulados**.
+- **Objetivo:** que el alumno que completa las fases pueda **aprobar el CMRJ**.
 
-### Lo que se REUTILIZA (clave: el trabajo de reformulación NO se pierde)
-El motor pedagógico que ya construimos es **independiente de cómo nazcan las
-preguntas** y se conserva tal cual:
-- **Refuerzo al fallar** (mostrar solución paso a paso → reformulación).
-- **Progreso P1** (solo el acierto real cuenta).
-- **Salida honrosa** en desafíos (sin reset ni bloqueo).
-- **Teoría** por nivel y **visualizadores** (pizza/beaker/…).
+### Lo que se CONSERVA (la filosofía ya desarrollada)
+El motor pedagógico es **independiente de la profundidad del contenido** y se
+mantiene tal cual: **refuerzo al fallar** (solución paso a paso → reformulación),
+**progreso P1**, **salida honrosa**, **teoría** por nivel y **visualizadores**.
+Solo cambia la **calidad/profundidad de lo que el generador produce**.
 
-Solo cambia **la fuente de las preguntas**: en vez del compositor, un
-importador que lee el banco curado. Las "reformulaciones" de una familia pasan a
-ser **2-3 preguntas reales del mismo concepto** (curadas), no variantes
-generadas.
+### Alcance
+Reestructurar el **contenido** de la **Fase 4 en adelante** (4 decimales, 5
+fracciones, 6 geometría espacial, 7, 8 estadística/probabilidad, 9 simulados).
+La estructura de fases **se mantiene** (ya coincide con el temario CMRJ); lo que
+sube es la **profundidad**.
 
 ---
 
@@ -130,32 +137,37 @@ El banco propone su propio mapa ("Fase Destino": aritmética=1, fracciones=2,
 
 ---
 
-## 6. Plan por etapas (propuesto)
+## 6. Plan por etapas (rediseño del generador a nivel CMRJ)
 
-- **F0 · Prueba de concepto (1 tema):** tomar Fracciones (Bloque 4, ya con
-  figuras/SVG), estructurarlo a JSON, escribir el importador, sembrar esas
-  preguntas reales en la fase de fracciones y verlas jugables con el motor
-  actual (refuerzo/teoría/visual). Valida toda la cadena con poco riesgo.
-- **F1 · Formato + importador definitivos** a partir de la PoC.
-- **F2 · Completar transcripción/traducción** del resto de bloques y del docx
-  (por lotes temáticos).
-- **F3 · Figuras a SVG** (o embebido) para todo el banco.
-- **F4 · Volcado por fases** (según decisión T1/T2/T3) y retiro del compositor.
-- **F5 · Dificultad escalonada + Simulados** por año (del docx) como examen
-  final tipo CMRJ.
-- **F6 · QA visual + verificación integral.**
+- **F0 · Catálogo de arquetipos por fase.** Leer el material (bloques + fotos +
+  docx) y extraer, por tema/fase, los **arquetipos de pregunta** del CMRJ: qué
+  pide, estructura multi-paso, contexto, figura, dificultad y las **trampas**
+  (errores comunes → distractores). Salida: una ficha de arquetipos por fase.
+- **F1 · Prueba de concepto (1 fase).** Rediseñar el generador de **una** fase
+  (p.ej. Fase 5 fracciones, que ya tiene el motor listo) con plantillas
+  derivadas de los arquetipos: multi-paso, distractores-trampa, figura correcta,
+  explicación real. Verificar que genera variedad a nivel CMRJ y es jugable.
+- **F2 · Motor de plantillas-arquetipo.** Consolidar el patrón del generador
+  (cómo se declara un arquetipo multi-paso con sus trampas y su figura) para
+  replicarlo con rapidez y rigor.
+- **F3 · Reestructurar Fase 4 → 9** aplicando arquetipos CMRJ por fase, subiendo
+  la profundidad; conservar el motor pedagógico.
+- **F4 · Simulados (Fase 9)** con preguntas reales por año del docx (examen tipo
+  CMRJ) + dificultad escalonada N11<N12<N13 en cada fase.
+- **F5 · Figuras**: SVG (o JPG embebido) para los arquetipos que lo requieran.
+- **F6 · Verificación integral + QA visual.**
 
 ---
 
 ## 7. Decisiones abiertas (para ti)
 
-- **DB1 — Estructura de fases:** ¿T1 (reordenar al temario CMRJ), T2 (mantener
-  fases actuales), o T3 (híbrido)?
-- **DB2 — Formato fuente:** ¿JSON estructurado (recomendado, validable) o seguir
-  en Markdown como fuente?
-- **DB3 — Alcance de transcripción:** ¿completo tú la transcripción de las 276
-  fotos + docx, o lo hago yo por lotes (leyendo las imágenes)?
-- **DB4 — Figuras:** ¿priorizar SVG (más trabajo, mejor calidad) o embeber los
-  JPG recortados de entrada?
-- **DB5 — Compositor:** ¿deprecarlo del todo o dejarlo como respaldo temporal?
-- **DB6 — Punto de partida:** ¿arrancamos la PoC (F0) por **Fracciones**?
+- **DB1 — Punto de partida:** ¿arranco F0 (catálogo de arquetipos) por **todas**
+  las fases 4-9, o hago F0+F1 primero solo en **Fase 5** (fracciones) como PoC?
+- **DB2 — Material a leer para arquetipos:** ¿me baso en el **banco transcrito**
+  (41 ej.) + **docx** de exámenes, o también proceso las **276 fotos** (leyendo
+  las imágenes) para ampliar el catálogo?
+- **DB3 — Profundidad de la PoC:** ¿cuántos arquetipos por nivel apuntamos
+  (p.ej. 3-5 por nivel) para lograr variedad sin colisiones?
+- **DB4 — Figuras:** ¿SVG propio o embeber los recortes JPG del material?
+- **DB5 — Traducción:** confirmo que todo va en **español** (los modelos están en
+  portugués).
