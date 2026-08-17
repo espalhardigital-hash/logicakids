@@ -181,6 +181,39 @@ class CompositorFase5:
             return self._OPERADORES_PERMITIDOS[type(node.op)](self._narrar_nodo(node.operand, variables, pasos))
         raise ValueError(f"Nodo no permitido al narrar: {ast.dump(node)}")
 
+    def _visual_payload(self, modulo_id: int, nivel_id: int, valores: dict) -> dict:
+        """E2: figura por módulo (tipo_visual + datos que espera el visualizador
+        del frontend). Muestra el PLANTEO (contexto) sin revelar la respuesta;
+        el alumno razona sobre la figura.
+          M1 → pizza (fracción a/b); M1N2 → pizza de equivalencias (base/factor)
+          M2 → pizza (fracción del grupo)
+          M3N1/N2 → percentage_beaker; M3N3 → bar_chart (promedio)
+          M4 → ratio_grid (razón a:b)
+        """
+        a = int(valores.get("a", 0))
+        b = int(valores.get("b", 0))
+        c = int(valores.get("c", 0))
+        total = int(valores.get("total", 0))
+
+        if modulo_id == 1:
+            if nivel_id == 2 and c > 0:
+                return {"tipo_visual": "pizza", "num_base": a, "den_base": b, "factor": c}
+            cortes = b if b > 0 else 8
+            return {"tipo_visual": "pizza", "cortes": cortes,
+                    "sombreados": list(range(min(max(a, 0), cortes)))}
+        if modulo_id == 2:
+            cortes = b if b > 0 else 4
+            return {"tipo_visual": "pizza", "cortes": cortes,
+                    "sombreados": list(range(min(max(a, 0), cortes)))}
+        if modulo_id == 3:
+            if nivel_id == 3:
+                return {"tipo_visual": "bar_chart", "val_a": a, "val_b": b,
+                        "categorias": ["Nota 1", "Nota 2"]}
+            return {"tipo_visual": "percentage_beaker", "total": total if total > 0 else 100}
+        if modulo_id == 4:
+            return {"tipo_visual": "ratio_grid", "val_a": a, "val_b": b}
+        return {}
+
     def _explicar_pasos(self, plantilla: dict, valores: dict, resultado_num: float) -> list[dict]:
         """Devuelve la explicación como lista de pasos [{orden, texto}] en
         lenguaje concreto (aritmética real), no la fórmula interna."""
@@ -400,6 +433,7 @@ class CompositorFase5:
                 **valores,
                 "resultado_num": resultado_num,
                 "formula": plantilla["formula"],
+                **self._visual_payload(modulo_id, nivel_id, valores),
             }
         }
 

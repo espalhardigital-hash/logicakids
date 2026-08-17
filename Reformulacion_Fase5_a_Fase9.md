@@ -216,12 +216,13 @@ familia (hoy comparten escenario).
 *Verif.:* cada familia tiene 1 original + 2-3 reformulaciones; escenarios
 distintos dentro de la familia; 0 duplicados de enunciado por familia.
 
-**E2 · Tipos visuales por módulo (DA3).**
-El seed emite `datos_numericos.tipo_visual` + el **payload** que espera cada
-componente: M1 `pizza`, M2 `bar_chart`/`ratio_grid`, M3 `percentage_beaker`
-(+`bar_chart` promedio), M4 `ratio_grid`/`beaker`.
-*Verif.:* 100 % de las preguntas de práctica traen `tipo_visual` válido; el
-payload renderiza en cada visualizador (revisión visual).
+**E2 · Tipos visuales por módulo (DA3). ✅ HECHO (datos) · QA visual en E10.**
+`_visual_payload` en el compositor emite `tipo_visual` + payload que casa con el
+contrato de cada componente y **no revela** la respuesta: M1 `pizza`
+(cortes/sombreados; M1N2 num_base/den_base/factor), M2 `pizza`, M3 `percentage_
+beaker` (+ `bar_chart` en promedio), M4 `ratio_grid`.
+*(Verificado: 576/576 práctica con tipo_visual; claves coinciden con los props
+del `Fase5VisualizerEngine`. Falta QA visual en vivo tras rebuild — E9/E10.)*
 
 **E3 · Nueva distribución de niveles (DA4).**
 Actualizar `NIVELES_META`, `topology.py`, plantillas y generadores a la tabla
