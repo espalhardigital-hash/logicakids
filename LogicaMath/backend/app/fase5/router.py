@@ -16,6 +16,7 @@ from ..models.sql_models import (
     OperacionEnum, TipoPreguntaEnum, TipoErrorEnum,
     PlatformSettings, User, IntentoPregunta,
 )
+from ..fase2.models import NivelTeoria  # tabla niveles_teoria_pool (teoría E7)
 from ..utils.math_utils import normalize_response, calcular_max_errores
 from .schemas import (
     Fase5Dashboard, Fase5ModuloInfo, Fase5NivelInfo, Fase5DesafioInfo,
