@@ -18,12 +18,18 @@
 | **Fase 8 y 9 sembradas** | ✅ Antes NO se sembraban (imports rotos en el maestro) y Simulados estaba tapado por otro router. Corregido. |
 | **Enum crash Fase 5** | ✅ Corregido (500 en cada respuesta incorrecta). |
 
-## 2. Preguntas reales del CMRJ incluidas
-19 ejercicios del banco Pedro II (`04_Banco_Transcribido`) traducidos al español,
-verificados y añadidos a los Simulados: MDC por Euclides, MDC×MMC, criterios de
-divisibilidad, relación de Euler, corona circular, balanza, fracción del resto
-multi-paso, cadena de fracciones, problema inverso del salario, grifos, %, tipos
-sanguíneos, conteo con dados, perímetros, volumen/capacidad, etc.
+## 2. Preguntas reales del CMRJ incluidas (por temario, en cada fase)
+Del banco Pedro II (`04_Banco_Transcribido`), traducidas al español y verificadas:
+- **Simulados (Fase 9):** 19 preguntas reales (examen mixto).
+- **En el desafío final de cada fase temática** (`app/content/banco_cmrj.py` →
+  `seed_banco_cmrj`, cableado en el seed maestro, idempotente): **19 anclas**
+  repartidas — Fase 4 (2), Fase 5 (5), Fase 6 (6), Fase 7 (2), Fase 8 (4).
+  Temas: MDC/Euclides, MDC×MMC, divisibilidad, relación de Euler, corona
+  circular, balanza, fracción del resto multi-paso, %, tipos sanguíneos, dados,
+  perímetros, volumen/capacidad, decimal↔fracción, etc.
+- **Pendiente:** el grueso de las 276 fotos + docx 2013-2025 sigue sin
+  transcribir (requiere lectura por lotes de las imágenes) — es la expansión de
+  contenido que falta para "todas" las preguntas.
 
 ## 3. Conteo actual por fase
 Fase 1: 400 · 2: 8470 · 3: 9600 · 4: 5406 · 5: 996 · 6: 9150 · 7: 960 · 8: 720 · 9: 200.
