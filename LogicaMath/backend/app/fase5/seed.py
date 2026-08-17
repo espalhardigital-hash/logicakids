@@ -23,6 +23,7 @@ from app.models.sql_models import (
 from app.fase2.models import NivelTeoria, IntentoPregunta
 from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
 from app.fase5.compositor_fase5 import CompositorFase5, _coerce_tipo_error
+from app.fase5.contenido_teoria import TEORIA_FASE5
 
 FASE5_ID = 5
 _COMPOSITOR = CompositorFase5()
@@ -88,14 +89,20 @@ async def seed_teoria_fase5(session: AsyncSession):
     for mod_id, mod_nombre, mod_desc in modulos_info:
         for niv_id in (1, 2, 3):
             ejemplos = obtener_ejemplos_expandidos_fase5(mod_id, niv_id)
+            # E7: contenido real (párrafos + diccionario + "¿Sabías?") por nivel.
+            contenido = TEORIA_FASE5.get((mod_id, niv_id), {})
+            parrafos = contenido.get("parrafos") or [f"{mod_nombre}, Nivel {niv_id}."]
+            diccionario = contenido.get("diccionario") or {"concepto": "Fracciones y Razones"}
+            sabias = contenido.get("sabias")
+            advertencia = f"¿Sabías que…? {sabias}" if sabias else "Recuerda simplificar y verificar las unidades."
             teoria = NivelTeoria(
                 fase_id=FASE5_ID,
                 modulo_id=mod_id,
                 nivel_id=niv_id,
                 titulo=f"{mod_nombre} - Nivel {niv_id}",
-                texto_descubrimiento=f"Descubrimiento pedagógico de {mod_nombre}, Nivel {niv_id}",
-                diccionario={"concepto": "Fracciones y Razones"},
-                advertencia="Recuerda simplificar y verificar las unidades",
+                texto_descubrimiento="\n".join(parrafos),
+                diccionario=diccionario,
+                advertencia=advertencia,
                 ejemplos=ejemplos,
                 interactivos=[{"tipo": "simulador", "modulo": mod_id, "nivel": niv_id}]
             )

@@ -253,10 +253,12 @@ el slot cerrado; sin acierto no cuenta → P1). Respuesta lleva `explicacion`
 `_recalcular_porcentaje_fase5`: eliminada la cláusula `BYPASS_EXPLICACION`; solo
 cuentan familias con **acierto real** (original o reformulación).
 
-**E7 · Teoría rica y visual (DA5).**
-Escribir la teoría de los 12 niveles (párrafos + mini-ejemplo + diccionario 2-3
-+ ejemplos guiados con figura + "¿sabías?" + interactivo de calentamiento).
-*Verif.:* 0 placeholders; teoría renderiza con figuras en `/lectura`.
+**E7 · Teoría rica y visual (DA5). ✅ HECHO.**
+`app/fase5/contenido_teoria.py` con los 12 niveles: párrafos con mini-ejemplo,
+diccionario de 2-3 términos y "¿Sabías que…?". Cableado en `seed_teoria_fase5`.
+*(Verificado: 0 placeholders; M1N1 con 3 párrafos + 3 términos + dato.)*
+*Pendiente menor:* interactivo de calentamiento con figura (hoy simulador
+genérico) — se pulirá en QA visual.
 
 **E8 · Desafíos anti-frustración (DA7 B1) ✅ HECHO · dificultad escalonada (DA6 A1) ⏭ pendiente (con E3).**
 Salida honrosa verificada E2E: al superar el límite de errores, `early_exit` con
@@ -281,11 +283,14 @@ de contenido, junto a E3).
 *Verif.:* E2E — fallar un desafío NO resetea a cero ni bloquea; enruta a
 refuerzo; el reintento usa ítems distintos; se aprueba a ≥ umbral.
 
-**E9 · Frontend.**
-`Fase5GameScreen` / `Fase5VisualizerEngine` consumen `tipo_visual` y el nuevo
-flujo (mostrar solución → reformulación). Reemplazar/retirar la lógica de
-`Fase5MirrorModal` acorde al nuevo refuerzo.
-*Verif.:* `tsc --noEmit` limpio, `vite build` OK, prueba en `localhost:3000`.
+**E9 · Frontend. ✅ SIN REBUILD (verificado vía HTTP).**
+El frontend ya consumía `tipo_visual` y los campos de respuesta (`es_espejo`,
+`explicacion`, `soporte_avanzado`, `intentos_espejo_*`) — solo faltaban los
+datos del backend. Tras reiniciar el backend, `localhost:3000` refleja la
+reformulación sin recompilar. *(Verificado por HTTP: la pregunta trae
+tipo_visual=pizza; al fallar devuelve es_espejo=True, intentos 1/2, pasos de
+solución y respuesta_correcta.)*
+*Pendiente:* QA visual fina por plantilla (figura↔enunciado) — E10.
 
 **E10 · Verificación integral.**
 Re-seed + auditoría (figura↔respuesta, escenarios distintos/familia, 2-3
