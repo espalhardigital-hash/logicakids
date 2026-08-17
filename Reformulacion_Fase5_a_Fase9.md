@@ -306,6 +306,25 @@ encaje con su enunciado por plantilla (algunos casos escalan la unidad, p.ej.
 > (tipos visuales correctos, refuerzo, progreso P1, dificultad escalonada) fase
 > por fase.
 
+## 6. Replicación a Fases 6-9 (en curso)
+
+**Ya aplicado y verificado:**
+- **Fase 6 y 7 — Salida honrosa (DA7-B1):** reemplazado el "reset absoluto"
+  destructivo en desafíos por salida honrosa (conserva progreso, no bloquea,
+  limpia pool para ítems distintos, mensaje positivo).
+- **Fase 6 y 7 — Progreso P1 (DA1):** el bypass "rendirse" ya no cuenta como
+  resuelto (ni en el porcentaje ni en la selección de pool).
+- **Fase 5 — fix teoría:** `get_lectura` tenía un `NameError` preexistente
+  (faltaba importar `NivelTeoria`) → la teoría devolvía 500 SIEMPRE; corregido.
+- (De barridos previos: espejo reactivado en 6/7/8, figura↔respuesta corregida
+  en Fase 6 sec 101, Simulados reconstruidos, routing/sembrado 8/9.)
+
+**Pendiente por fase (para paridad con Fase 5):**
+- Explicaciones paso a paso reales (E4) en 6/7 (hoy semi-genéricas).
+- Teoría rica (E7) en 6/7/8/9 (revisar placeholders).
+- Tipos visuales correctos por pregunta (E2) y QA visual figura↔enunciado.
+- Dificultad escalonada N11<N12<N13 (E8-contenido) y banco CMRJ ampliado.
+
 ---
 
 ## 5. Registro de decisiones
