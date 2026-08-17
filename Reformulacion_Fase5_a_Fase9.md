@@ -228,10 +228,12 @@ Actualizar `NIVELES_META`, `topology.py`, plantillas y generadores a la tabla
 aprobada (M1-N3 comparar fracciones; M2-N3 problema inverso; etc.).
 *Verif.:* dashboard muestra los 12 niveles con nombres/contenidos correctos.
 
-**E4 · Explicaciones paso a paso reales.**
-Reescribir `explicacion_paso_a_paso` como pasos narrados en lenguaje infantil
-(no la fórmula cruda actual). Formato `{"pasos":[{"orden","texto"}]}`.
-*Verif.:* 0 explicaciones con nombres de variables internas o "fórmula:".
+**E4 · Explicaciones paso a paso reales. ✅ HECHO.**
+Narrador basado en el AST de la fórmula: evalúa cada sub-operación con los
+valores reales y muestra la aritmética ("10 − 4 = 6"; "48 ÷ 3 = 16").
+*(Verificado: 0 explicaciones con fórmula cruda; pasos correctos por concepto.)*
+*Pendiente menor:* narración de % muestra `total×pct` intermedio (correcto pero
+mejorable) y hay escenarios dinero↔puntaje mal mezclados (se corrige en E3).
 
 **E5 · Nuevo flujo de refuerzo en el router (reemplaza el espejo).**
 Al fallar en práctica: devolver **solución (E4) + la siguiente reformulación**
@@ -241,10 +243,9 @@ solución y **avanzar a otra familia**. Eliminar el swap por `variante` y el
 *Verif.:* E2E — fallar activa solución+reformulación; a la 3ª avanza; no hay
 bucle.
 
-**E6 · Progreso P1 (DA1).**
-`_recalcular_porcentaje_fase5`: quitar la cláusula `BYPASS_EXPLICACION`; solo
-cuentan familias con **acierto real**.
-*Verif.:* rendirse no sube el %; solo acertar (original o reformulación) suma.
+**E6 · Progreso P1 (DA1). ✅ HECHO.**
+`_recalcular_porcentaje_fase5`: eliminada la cláusula `BYPASS_EXPLICACION`; solo
+cuentan familias con **acierto real** (original o reformulación).
 
 **E7 · Teoría rica y visual (DA5).**
 Escribir la teoría de los 12 niveles (párrafos + mini-ejemplo + diccionario 2-3

@@ -60,6 +60,17 @@ class CompositorFase5:
         ast.UAdd: operator.pos,
     }
 
+    # Símbolos legibles para narrar el procedimiento paso a paso (E4).
+    _OP_SIMBOLO = {
+        ast.Add: "+",
+        ast.Sub: "−",
+        ast.Mult: "×",
+        ast.Div: "÷",
+        ast.FloorDiv: "÷",
+        ast.Mod: "resto de",
+        ast.Pow: "elevado a",
+    }
+
     def __init__(self, data_dir: str | None = None):
         if not data_dir:
             data_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -142,6 +153,49 @@ class CompositorFase5:
             return round(float(res), 2)
         except Exception as exc:
             raise ValueError(f"Error evaluando fórmula {formula!r} con valores {valores}: {exc}") from exc
+
+    @staticmethod
+    def _fmt_num(x: float) -> str:
+        return str(int(x)) if float(x).is_integer() else str(round(float(x), 2)).replace(".", ",")
+
+    def _narrar_nodo(self, node: ast.AST, variables: dict, pasos: list) -> float:
+        """Recorre el AST en post-orden evaluando con los valores reales y va
+        acumulando en `pasos` cada operación como texto legible ("20 ÷ 4 = 5").
+        Es la base de la explicación paso a paso (E4): en vez de imprimir la
+        fórmula cruda, muestra la aritmética concreta que resuelve la pregunta.
+        """
+        if isinstance(node, ast.Expression):
+            return self._narrar_nodo(node.body, variables, pasos)
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+            return float(node.value)
+        if isinstance(node, ast.Name):
+            return float(variables[node.id])
+        if isinstance(node, ast.BinOp) and type(node.op) in self._OPERADORES_PERMITIDOS:
+            izq = self._narrar_nodo(node.left, variables, pasos)
+            der = self._narrar_nodo(node.right, variables, pasos)
+            val = self._OPERADORES_PERMITIDOS[type(node.op)](izq, der)
+            simbolo = self._OP_SIMBOLO.get(type(node.op), "?")
+            pasos.append(f"{self._fmt_num(izq)} {simbolo} {self._fmt_num(der)} = {self._fmt_num(val)}")
+            return val
+        if isinstance(node, ast.UnaryOp) and type(node.op) in self._OPERADORES_PERMITIDOS:
+            return self._OPERADORES_PERMITIDOS[type(node.op)](self._narrar_nodo(node.operand, variables, pasos))
+        raise ValueError(f"Nodo no permitido al narrar: {ast.dump(node)}")
+
+    def _explicar_pasos(self, plantilla: dict, valores: dict, resultado_num: float) -> list[dict]:
+        """Devuelve la explicación como lista de pasos [{orden, texto}] en
+        lenguaje concreto (aritmética real), no la fórmula interna."""
+        local_vars = {k: float(v) for k, v in valores.items() if k in self._NOMBRES_FORMULA}
+        pasos_txt: list[str] = []
+        try:
+            arbol = ast.parse(plantilla["formula"], mode="eval")
+            self._narrar_nodo(arbol, local_vars, pasos_txt)
+        except Exception:
+            pasos_txt = []
+        pasos = [{"orden": 1, "texto": "Resolvámoslo paso a paso:"}]
+        for t in pasos_txt:
+            pasos.append({"orden": len(pasos) + 1, "texto": t})
+        pasos.append({"orden": len(pasos) + 1, "texto": f"Por eso, la respuesta correcta es {self._fmt_num(resultado_num)}."})
+        return pasos
 
     # Vocabulario contable cerrado (sustantivos hardcodeados en las plantillas
     # más las unidades de los escenarios). Verificado real: sin concordancia,
@@ -324,6 +378,10 @@ class CompositorFase5:
         rng.shuffle(opciones_meta)
         opciones = [o["texto"] for o in opciones_meta]
 
+        # E4: explicación paso a paso real (aritmética concreta), no la fórmula.
+        explicacion_pasos = self._explicar_pasos(plantilla, valores, resultado_num)
+        explicacion_texto = " ".join(p["texto"] for p in explicacion_pasos)
+
         return {
             "plantilla_id": plantilla["id"],
             "escenario_id": escenario["id"],
@@ -336,7 +394,8 @@ class CompositorFase5:
             "respuesta_correcta": ans_str,
             "opciones": opciones,
             "opciones_meta": opciones_meta,
-            "explicacion": f"Resultado obtenido mediante la fórmula: {plantilla['formula']} = {ans_str}",
+            "explicacion_pasos": explicacion_pasos,
+            "explicacion": explicacion_texto,
             "datos_numericos": {
                 **valores,
                 "resultado_num": resultado_num,

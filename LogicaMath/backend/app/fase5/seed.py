@@ -227,7 +227,7 @@ async def seed_preguntas_fase5(session: AsyncSession):
                         tipo_pregunta=tipo_preg,
                         enunciado=preg_data["enunciado"],
                         respuesta_correcta=ans_str,
-                        explicacion_paso_a_paso={"pasos": [{"orden": 1, "texto": preg_data["explicacion"]}]},
+                        explicacion_paso_a_paso={"pasos": preg_data.get("explicacion_pasos") or [{"orden": 1, "texto": preg_data["explicacion"]}]},
                         datos_numericos=datos_num,
                         estructura_padre_id=padre_id,
                         estado=StatusEnum.ACTIVO
@@ -291,7 +291,7 @@ async def seed_preguntas_fase5(session: AsyncSession):
                         tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION,
                         enunciado=f"[Desafío] {preg_data['enunciado']}",
                         respuesta_correcta=ans_str,
-                        explicacion_paso_a_paso={"pasos": [{"orden": 1, "texto": preg_data["explicacion"]}]},
+                        explicacion_paso_a_paso={"pasos": preg_data.get("explicacion_pasos") or [{"orden": 1, "texto": preg_data["explicacion"]}]},
                         datos_numericos=datos_num,
                         estructura_padre_id=padre_id,
                         estado=StatusEnum.ACTIVO
@@ -358,7 +358,7 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION,
                     enunciado=f"[Desafío Mixto Final] {preg_data['enunciado']}",
                     respuesta_correcta=ans_str,
-                    explicacion_paso_a_paso={"pasos": [{"orden": 1, "texto": preg_data["explicacion"]}]},
+                    explicacion_paso_a_paso={"pasos": preg_data.get("explicacion_pasos") or [{"orden": 1, "texto": preg_data["explicacion"]}]},
                     datos_numericos=datos_num,
                     estructura_padre_id=padre_id,
                     estado=StatusEnum.ACTIVO

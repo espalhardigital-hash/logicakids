@@ -393,6 +393,10 @@ async def get_dashboard(
     )
 
 async def _recalcular_porcentaje_fase5(db: AsyncSession, alumno_id: int, seccion: int, cantidad_req: int) -> int:
+    # E6 (DA1 · Progreso P1): solo cuentan las familias RESUELTAS correctamente.
+    # Antes también contaba `respuesta_dada == "BYPASS_EXPLICACION"` (rendirse),
+    # por lo que se podía llegar al 100 % fallando todo. Se elimina esa cláusula:
+    # rendirse tras las reformulaciones avanza a otra pregunta pero NO suma.
     res_fam_resueltas = await db.execute(
         select(func.count(func.distinct(Pregunta.estructura_padre_id)))
         .join(Intento, Intento.pregunta_id == Pregunta.id)
@@ -400,10 +404,7 @@ async def _recalcular_porcentaje_fase5(db: AsyncSession, alumno_id: int, seccion
             Intento.alumno_id == alumno_id,
             Intento.fase_id == FASE5_ID,
             Intento.seccion == seccion,
-            or_(
-                Intento.es_correcta == True,
-                Intento.respuesta_dada == "BYPASS_EXPLICACION"
-            )
+            Intento.es_correcta == True,
         ))
     )
     familias_resueltas = res_fam_resueltas.scalar() or 0
