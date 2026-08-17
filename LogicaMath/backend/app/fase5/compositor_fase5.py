@@ -12,6 +12,22 @@ import random
 import re
 from typing import Dict, Any, List
 
+from app.models.enums import TipoErrorEnum
+
+# Valores admitidos por la columna Alternativa.tipo_error (Enum). Cualquier
+# etiqueta fuera de este conjunto se guarda cruda en la BD y luego revienta
+# al LEER la fila por ORM (LookupError), tumbando /responder con un 500 en
+# cada respuesta incorrecta. Por eso el compositor coerciona SIEMPRE a un
+# miembro válido, incluso si confusiones_fase5.json es editado a mano.
+_TIPOS_ERROR_VALIDOS = {e.value for e in TipoErrorEnum}
+
+
+def _coerce_tipo_error(raw: str | None) -> str:
+    """Devuelve un miembro válido de TipoErrorEnum; 'calculo' como respaldo."""
+    if raw and raw in _TIPOS_ERROR_VALIDOS:
+        return raw
+    return "calculo"
+
 
 class CompositorFase5:
     _NOMBRES_FORMULA = {"a", "b", "c", "total", "n_cant", "parte"}
@@ -157,6 +173,17 @@ class CompositorFase5:
         texto = re.sub(r"\bde el\b", "del", texto)
         texto = re.sub(r"\ba el\b", "al", texto)
 
+        # Concordancia de artículo con el número 1: un marco fija el artículo en
+        # plural ("las {a} partes tomadas") y, cuando a=1, la concordancia de
+        # sustantivo de abajo produce "las 1 parte" (artículo plural + singular).
+        # Se corrige el artículo a singular. Verificado real: 4 enunciados.
+        _art_sing = {"las": "la", "los": "el", "unas": "una", "unos": "un"}
+        texto = re.sub(
+            r"\b(las|los|unas|unos)\s+1\b",
+            lambda m: f"{_art_sing[m.group(1).lower()]} 1",
+            texto,
+        )
+
         formas = {}
         for sing, plur in self._SINGULAR_A_PLURAL.items():
             formas[sing] = (sing, plur)
@@ -227,6 +254,13 @@ class CompositorFase5:
         marcos = plantilla.get("marcos_alternativos", [])
         marco_fmt = marcos[var_idx % len(marcos)]
         tokens_impresos = set(re.findall(r"\{(\w+)\}", marco_fmt))
+        # Constantes ENTERAS escritas literalmente en el marco (p.ej. "Divide
+        # entre 2 ...", "Calcula 4 veces ..."). No son tokens, así que el guard
+        # de coincidencia no las veía y la respuesta podía terminar valiendo
+        # exactamente ese literal ("Divide entre 2" -> respuesta 2), quedando
+        # impresa en el enunciado. Se tratan igual que un número visible.
+        _sin_tokens = re.sub(r"\{\w+\}", " ", marco_fmt)
+        literales_marco = set(re.findall(r"(?<!\d)\d+(?!\d)", _sin_tokens))
 
         # Generate numbers according to modulo and level. Cada intento debe
         # cumplir TRES condiciones: resultado entero (o el escenario es de
@@ -249,7 +283,7 @@ class CompositorFase5:
             impresos = {
                 str(int(v)) for k, v in valores.items()
                 if k in tokens_impresos and float(v).is_integer()
-            } | {v for k, v in helpers.items() if k in tokens_impresos}
+            } | {v for k, v in helpers.items() if k in tokens_impresos} | literales_marco
             sin_coincidencia = str(int(resultado_num)) not in impresos if resultado_num.is_integer() else True
             if entero_ok and sin_coincidencia:
                 break
@@ -432,7 +466,7 @@ class CompositorFase5:
                 conf = conf_list[idx % len(conf_list)] if conf_list else {}
                 distractores_meta.append({
                     "texto": str(cand_val),
-                    "tipo_error": conf.get("tipo", "calculo"),
+                    "tipo_error": _coerce_tipo_error(conf.get("tipo")),
                     "feedback_error": conf.get("explicacion", "Revisa el cálculo realizado.")
                 })
 

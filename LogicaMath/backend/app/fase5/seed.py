@@ -22,7 +22,7 @@ from app.models.sql_models import (
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta
 from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
-from app.fase5.compositor_fase5 import CompositorFase5
+from app.fase5.compositor_fase5 import CompositorFase5, _coerce_tipo_error
 
 FASE5_ID = 5
 _COMPOSITOR = CompositorFase5()
@@ -233,11 +233,12 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     opciones_meta = preg_data.get("opciones_meta", [])
                     if opciones_meta:
                         for orden_opt, meta in enumerate(opciones_meta):
+                            t_err = meta.get("tipo_error") if not meta["es_correcta"] else None
                             alt = Alternativa(
                                 pregunta_id=preg.id,
                                 texto=meta["texto"],
                                 es_correcta=meta["es_correcta"],
-                                tipo_error=meta.get("tipo_error") if not meta["es_correcta"] else None,
+                                tipo_error=_coerce_tipo_error(t_err) if t_err else None,
                                 feedback_error=meta.get("feedback_error") if not meta["es_correcta"] else None,
                                 orden=orden_opt
                             )
@@ -253,7 +254,7 @@ async def seed_preguntas_fase5(session: AsyncSession):
                             session.add(alt)
 
                     q_count += 1
-            print(f"  ✓ Módulo {mod_id} Nivel {niv_id} (sección {sec}): {q_count} preguntas sembradas.")
+            print(f"  [OK] Módulo {mod_id} Nivel {niv_id} (sección {sec}): {q_count} preguntas sembradas.")
 
     # 2. Sembrar preguntas de desafíos (12 bloques x 30 preguntas = 360)
     for mod_id in (1, 2, 3, 4):
@@ -295,11 +296,12 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     opciones_meta = preg_data.get("opciones_meta", [])
                     if opciones_meta:
                         for orden_opt, meta in enumerate(opciones_meta):
+                            t_err = meta.get("tipo_error") if not meta["es_correcta"] else None
                             alt = Alternativa(
                                 pregunta_id=preg.id,
                                 texto=meta["texto"],
                                 es_correcta=meta["es_correcta"],
-                                tipo_error=meta.get("tipo_error") if not meta["es_correcta"] else None,
+                                tipo_error=_coerce_tipo_error(t_err) if t_err else None,
                                 feedback_error=meta.get("feedback_error") if not meta["es_correcta"] else None,
                                 orden=orden_opt
                             )
@@ -315,7 +317,7 @@ async def seed_preguntas_fase5(session: AsyncSession):
                             session.add(alt)
 
                     q_count += 1
-            print(f"  ✓ Desafío {sec}: {q_count} preguntas sembradas.")
+            print(f"  [OK] Desafío {sec}: {q_count} preguntas sembradas.")
 
     # 3. Sembrar desafío mixto final (60 preguntas)
     sec_mixto = 99099
@@ -361,11 +363,12 @@ async def seed_preguntas_fase5(session: AsyncSession):
                 opciones_meta = preg_data.get("opciones_meta", [])
                 if opciones_meta:
                     for orden_opt, meta in enumerate(opciones_meta):
+                        t_err = meta.get("tipo_error") if not meta["es_correcta"] else None
                         alt = Alternativa(
                             pregunta_id=preg.id,
                             texto=meta["texto"],
                             es_correcta=meta["es_correcta"],
-                            tipo_error=meta.get("tipo_error") if not meta["es_correcta"] else None,
+                            tipo_error=_coerce_tipo_error(t_err) if t_err else None,
                             feedback_error=meta.get("feedback_error") if not meta["es_correcta"] else None,
                             orden=orden_opt
                         )
@@ -381,7 +384,7 @@ async def seed_preguntas_fase5(session: AsyncSession):
                         session.add(alt)
 
                 q_count += 1
-    print(f"  ✓ Desafío Mixto Final (sección {sec_mixto}): {q_count} preguntas sembradas.")
+    print(f"  [OK] Desafío Mixto Final (sección {sec_mixto}): {q_count} preguntas sembradas.")
     await session.flush()
 
 

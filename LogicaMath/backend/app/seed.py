@@ -943,27 +943,29 @@ async def run_seed():
         traceback.print_exc()
         raise e
 
-    # Inyectar datos semilla de la Fase 8
-    # NOTA: app.fase8.seed_fase8 no existe (app/fase8/seed.py está vacío) —
-    # preexistente, no relacionado con la corrección de Fase 4. No se re-lanza
-    # la excepción para no tumbar el resto del arranque; hace falta revisar
-    # el sembrado de Fase 8 por separado.
+    # Inyectar datos semilla de la Fase 8 (fase_id=8, "Secuencias, Combinatoria
+    # y Probabilidad"). El seed vive en app/fase9/seed_fase8.py (desajuste de
+    # numeración histórico), NO en app.fase8. Antes se importaba de app.fase8 y
+    # por eso se omitía siempre. No se re-lanza la excepción para no tumbar el
+    # arranque si el sembrado orphan fallara.
     try:
-        from app.fase8.seed_fase8 import run_fase8_seed
+        from app.fase9.seed_fase8 import run_fase8_seed
         await run_fase8_seed()
     except Exception as e:
         import traceback
-        print("⚠️  Fase 8 sin sembrado disponible (módulo app.fase8.seed_fase8 no existe), se omite:")
+        print("⚠️  Fase 8: fallo al sembrar (app.fase9.seed_fase8), se omite:")
         traceback.print_exc()
 
-    # Inyectar datos semilla de la Fase 9
-    # NOTA: app.fase9.seed_fase9 no existe — mismo caso que Fase 8, preexistente.
+    # Inyectar datos semilla de la Fase 9 (fase_id=9, "Simulados Colegio Pedro
+    # II"). El seed vive en app/fase11/seed_fase9.py (desajuste de numeración),
+    # NO en app.fase9. Antes se importaba de app.fase9.seed_fase9 (inexistente)
+    # y por eso los Simulados nunca se sembraban.
     try:
-        from app.fase9.seed_fase9 import run_fase9_seed
+        from app.fase11.seed_fase9 import run_fase9_seed
         await run_fase9_seed()
     except Exception as e:
         import traceback
-        print("⚠️  Fase 9 sin sembrado disponible (módulo app.fase9.seed_fase9 no existe), se omite:")
+        print("⚠️  Fase 9 (Simulados): fallo al sembrar (app.fase11.seed_fase9), se omite:")
         traceback.print_exc()
 
     print("=" * 60)

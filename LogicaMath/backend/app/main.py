@@ -144,8 +144,18 @@ app.include_router(fase4_router)
 app.include_router(fase5_router)
 app.include_router(fase6_router)
 app.include_router(fase7_router)
-app.include_router(fase8_router)
-app.include_router(fase9_router)
+# NOTA (barrido fases 5-9): fase8_router (prefijo /fase8, sirve fase_id=7) y
+# fase9_router (prefijo /fase9, sirve fase_id=8) son restos de una renumeración
+# anterior y están HUÉRFANOS: App.tsx enruta la Fase 8 del usuario al motor
+# genérico (contenido estático en faseMetadata.ts) y la Fase 9 del usuario a
+# fase11/Fase11GameScreen -> /fase9 -> fase_id=9 (Simulados). Peor aún,
+# fase9_router declaraba las MISMAS rutas /fase9/* que fase11_router y, al
+# registrarse primero, ganaba la resolución y dejaba los Simulados
+# (fase_id=9) INALCANZABLES. Se desregistran ambos para que /fase9 resuelva a
+# fase11_router (Simulados). Ningún componente vivo del frontend llama a estos
+# dos routers (el componente fase9 muerto llamaba a /fase8, no a /fase9).
+# app.include_router(fase8_router)   # huérfano: /fase8 -> fase_id 7 (duplicado de Fase 7)
+# app.include_router(fase9_router)   # huérfano y hacía shadowing de Simulados en /fase9
 app.include_router(fase10_router)
 app.include_router(fase11_router)
 app.include_router(simulados_router)

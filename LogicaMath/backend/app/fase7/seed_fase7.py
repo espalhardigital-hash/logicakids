@@ -421,7 +421,13 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             dx = rng.randint(1, 3)
             dy = rng.randint(1, 3)
             
-            enunciado = f"Estás en el punto A({x},{y}). Te trasladas {dx} unidades a la derecha y {dy} unidades hacia arriba. ¿Cuál es tu nueva coordenada (X,Y)?"
+            _plantillas_coord = [
+                f"Estás en el punto A({x},{y}). Te trasladas {dx} unidades a la derecha y {dy} unidades hacia arriba. ¿Cuál es tu nueva coordenada (X,Y)?",
+                f"Un robot parte de la casilla ({x},{y}) y avanza {dx} casillas a la derecha y {dy} hacia arriba. ¿En qué coordenada (X,Y) queda?",
+                f"En el mapa del tesoro, empiezas en ({x},{y}) y caminas {dx} pasos a la derecha y {dy} pasos hacia arriba. ¿Cuál es la coordenada (X,Y) final?",
+                f"Una nave está en ({x},{y}). Se mueve {dx} unidades a la derecha y {dy} unidades hacia arriba. ¿Cuál es su nueva posición (X,Y)?",
+            ]
+            enunciado = rng.choice(_plantillas_coord)
             new_x = x + dx
             new_y = y + dy
             ans_str = f"({new_x},{new_y})"
@@ -552,7 +558,13 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             rem_mins = total_mins % 60
             
             ans_str = f"{total_hours}h {rem_mins}m"
-            enunciado = f"Un viaje dura {hours1}h {mins1}m y el siguiente tramo dura {hours2}h {mins2}m. ¿Cuánto dura en total? (Formato: Xh Ym)"
+            _plantillas_tiempo = [
+                f"Un viaje dura {hours1}h {mins1}m y el siguiente tramo dura {hours2}h {mins2}m. ¿Cuánto dura en total? (Formato: Xh Ym)",
+                f"Una película dura {hours1}h {mins1}m y luego hay un documental de {hours2}h {mins2}m. ¿Cuánto tiempo suman las dos? (Formato: Xh Ym)",
+                f"Marta estudió {hours1}h {mins1}m por la mañana y {hours2}h {mins2}m por la tarde. ¿Cuánto estudió en total? (Formato: Xh Ym)",
+                f"Un tren tarda {hours1}h {mins1}m hasta la primera parada y {hours2}h {mins2}m hasta la segunda. ¿Cuál es el tiempo total? (Formato: Xh Ym)",
+            ]
+            enunciado = rng.choice(_plantillas_tiempo)
             
             wrong_hours = hours1 + hours2
             wrong_mins = mins1 + mins2
@@ -593,7 +605,13 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             t2_2_h, t2_2_m = divmod(t2_2_total, 60)
             t2_2 = f"{t2_2_h:02d}:{t2_2_m:02d}"
 
-            enunciado = f"Según el horario, la Línea A sale a las {t1_1} y luego a las {t1_2}. ¿Cuál es la frecuencia (diferencia en minutos) de la Línea A?"
+            _plantillas_freq = [
+                f"Según el horario, la Línea A sale a las {t1_1} y luego a las {t1_2}. ¿Cuál es la frecuencia (diferencia en minutos) de la Línea A?",
+                f"El primer autobús pasa a las {t1_1} y el siguiente a las {t1_2}. ¿Cada cuántos minutos pasa el autobús?",
+                f"Un tren sale a las {t1_1} y el próximo a las {t1_2}. ¿Cuántos minutos hay entre un tren y el siguiente?",
+                f"En la estación, un metro llega a las {t1_1} y el siguiente a las {t1_2}. ¿Cuál es el intervalo en minutos?",
+            ]
+            enunciado = rng.choice(_plantillas_freq)
             ans_str = str(freq)
             alts = [ans_str, str(freq + 15), str(max(5, freq - 15)), str(freq + 30)]
             alts = _dedupe_and_pad(alts, rng, lambda: str(rng.choice([10, 15, 20, 25, 30, 35, 40, 45, 50, 60])))

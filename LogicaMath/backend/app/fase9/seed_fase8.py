@@ -49,7 +49,7 @@ async def clear_fase8_data(session: AsyncSession):
 
 async def seed_teoria_niveles_fase8(session: AsyncSession):
     print("Sembrando guión de textos para Fase 8...")
-    from app.fase8.content_fase8 import niveles_teoria_fase8
+    from app.fase9.content_fase8 import niveles_teoria_fase8
     
     for data in niveles_teoria_fase8:
         nt = NivelTeoria(fase_id=FASE9_ID, **data)

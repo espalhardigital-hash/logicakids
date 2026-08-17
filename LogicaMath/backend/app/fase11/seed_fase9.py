@@ -99,44 +99,45 @@ async def inject_pedro_ii_history(session: AsyncSession):
     for l in range(1, 6):
         sections.append((3, l))
         
+    from app.fase11.banco_simulados import BANCO_SIMULADOS
+    total_banco = len(BANCO_SIMULADOS)
+    preguntas_por_seccion = 10
+
     for mod_id, lvl_id in sections:
         seccion_id = mod_id * 100 + lvl_id
-        for i in range(10): # 10 questions per exam!
-            rng = random.Random(FASE11_ID * 100000 + seccion_id * 1000 + i)
-            tipo_q = rng.choice(["hist", "calc", "log"])
-            
-            if tipo_q == "hist":
-                enunciado = "Após uma aula passeio ao Museu Nacional, um estudante decidiu calcular o volume do sarcófago que viu..."
-                ans = "64"
-                alts = ["64", "27", "16", "128"]
-            elif tipo_q == "calc":
-                enunciado = "Joana gasta el 25% de su mesada en pasajes. Si recibe R$ 120 al mes, ¿cuánto gasta en pasajes?"
-                ans = "R$ 30"
-                alts = ["R$ 30", "R$ 25", "R$ 40", "R$ 15"]
-            else:
-                enunciado = "Si hoy es martes, ¿qué día será en 100 días?"
-                ans = "Jueves"
-                alts = ["Jueves", "Viernes", "Lunes", "Miércoles"]
-                
+        # Baraja determinista del banco por sección: cada simulacro recibe
+        # `preguntas_por_seccion` preguntas DISTINTAS (sample sin reemplazo) y
+        # distintas secciones obtienen subconjuntos/órdenes diferentes. Esto
+        # elimina la repetición palabra-por-palabra del stub anterior.
+        orden = random.Random(FASE11_ID * 100000 + seccion_id).sample(
+            range(total_banco), k=min(preguntas_por_seccion, total_banco)
+        )
+        for pos, q_idx in enumerate(orden):
+            q = BANCO_SIMULADOS[q_idx]
+            rng = random.Random(FASE11_ID * 100000 + seccion_id * 100 + pos)
+            alts = [q["correcta"]] + list(q["distractores"])
+            rng.shuffle(alts)
+
             payload = {
                 "fase9": True,
-                "origen_examen": "Pedro II 2023" if rng.random() > 0.5 else "Simulacro Interno",
+                "tema": q["tema"],
+                "dificultad": q["dificultad"],
+                "origen_examen": "Colégio Militar RJ (adaptado)",
             }
-            
+
             p = Pregunta(
                 fase_id=FASE11_ID, seccion=seccion_id, operacion=OperacionEnum.MIXTA,
-                tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=f"[Q{i}] {enunciado}",
-                respuesta_correcta=ans, 
+                tipo_pregunta=TipoPreguntaEnum.MULTIPLE_OPCION, enunciado=q["enunciado"],
+                respuesta_correcta=q["correcta"],
                 datos_numericos=payload,
                 errores_previstos={},
-                explicacion_paso_a_paso={"titulo": "Resolución", "pasos": [{"orden": 1, "texto": "Explicación automática."}]},
+                explicacion_paso_a_paso={"titulo": "Resolución", "pasos": [{"orden": 1, "texto": q["explicacion"]}]},
                 estado=StatusEnum.ACTIVO
             )
-            
+
             for idx_alt, alt in enumerate(alts):
-                is_correct = (alt == ans)
-                p.alternativas.append(Alternativa(texto=alt, es_correcta=is_correct, orden=idx_alt+1))
-            
+                p.alternativas.append(Alternativa(texto=alt, es_correcta=(alt == q["correcta"]), orden=idx_alt + 1))
+
             session.add(p)
     await session.commit()
 
