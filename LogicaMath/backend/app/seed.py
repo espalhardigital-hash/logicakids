@@ -968,6 +968,18 @@ async def run_seed():
         print("⚠️  Fase 9 (Simulados): fallo al sembrar (app.fase11.seed_fase9), se omite:")
         traceback.print_exc()
 
+    # Inyectar el banco de preguntas REALES del CMRJ (Pedro II) en el desafío
+    # final de cada fase temática (4-8). Debe correr DESPUÉS de sembrar cada fase.
+    try:
+        from app.content.banco_cmrj import seed_banco_cmrj
+        from app.db.session import AsyncSessionLocal as _ASL
+        async with _ASL() as _s:
+            await seed_banco_cmrj(_s)
+    except Exception:
+        import traceback
+        print("⚠️  Banco CMRJ: fallo al inyectar, se omite:")
+        traceback.print_exc()
+
     print("=" * 60)
     print("¡Datos semilla inyectados con éxito!")
     print("=" * 60)
