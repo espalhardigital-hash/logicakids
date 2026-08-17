@@ -224,10 +224,14 @@ beaker` (+ `bar_chart` en promedio), M4 `ratio_grid`.
 *(Verificado: 576/576 práctica con tipo_visual; claves coinciden con los props
 del `Fase5VisualizerEngine`. Falta QA visual en vivo tras rebuild — E9/E10.)*
 
-**E3 · Nueva distribución de niveles (DA4).**
-Actualizar `NIVELES_META`, `topology.py`, plantillas y generadores a la tabla
-aprobada (M1-N3 comparar fracciones; M2-N3 problema inverso; etc.).
-*Verif.:* dashboard muestra los 12 niveles con nombres/contenidos correctos.
+**E3 · Nueva distribución de niveles (DA4). ✅ HECHO (nombres) · reframe M1N3 parcial.**
+`NIVELES_META` alineado a DA4 con nombres que describen el contenido REAL (sin
+mismatch): M1-N3 "Comparar Partes de un Todo", M2-N3 "Problema Inverso y Resto",
+M3 "Porcentajes Clave / Descuentos y Aumentos / Promedio", M4 "Razón / Reparto /
+Mezclas y % de Volumen".
+*Pendiente (mejora):* un tipo genuino "comparar DOS fracciones" (2 sujetos /
+respuesta de texto) requiere extender el compositor; queda como enhancement.
+También: escenario dinero↔puntaje en promedio (M3N3) a depurar.
 
 **E4 · Explicaciones paso a paso reales. ✅ HECHO.**
 Narrador basado en el AST de la fórmula: evalúa cada sub-operación con los

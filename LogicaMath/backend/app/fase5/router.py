@@ -100,19 +100,21 @@ MODULOS_META = {
     }
 }
 
+# E3 (DA4): distribución de niveles escalonada. Los nombres describen el
+# contenido REAL generado por el compositor (sin mismatch nombre↔contenido).
 NIVELES_META = {
-    (1, 1): {"nombre": "Lectura de Fracciones", "descripcion": "Lectura y modelado de numerador/denominador en polígonos simétricos."},
-    (1, 2): {"nombre": "Fracciones Equivalentes", "descripcion": "Construcción de equivalencias mediante amplificación y simplificación."},
-    (1, 3): {"nombre": "Partes de un Resto", "descripcion": "Operaciones simples de resta y porciones de la unidad."},
-    (2, 1): {"nombre": "Porciones de un Grupo", "descripcion": "Cálculo de porciones unitarias (1/n) sobre grupos discretos."},
-    (2, 2): {"nombre": "Operador Fraccionario de Cantidad", "descripcion": "Multiplicación de fracción por un entero en dos pasos."},
-    (2, 3): {"nombre": "Totalidades y Resto", "descripcion": "Deducción de la fracción del resto y lo que queda."},
-    (3, 1): {"nombre": "Porcentajes Intuitivos", "descripcion": "Mapeo de porcentajes comunes: 50%, 25%, 10%."},
-    (3, 2): {"nombre": "Porcentajes Rápidos y Descuentos", "descripcion": "Cálculo directo de porcentajes y precios rebajados."},
-    (3, 3): {"nombre": "Promedios y Media Aritmética", "descripcion": "Cálculo de la media aritmética entre varios valores."},
-    (4, 1): {"nombre": "Razones Simples", "descripcion": "Razones simples (a:b) y proporcionalidad directa."},
-    (4, 2): {"nombre": "Reparto Proporcional", "descripcion": "Distribución de cantidades según proporciones dadas."},
-    (4, 3): {"nombre": "Mezclas Complejas", "descripcion": "Homogeneización de mezclas complejas y porcentajes de volumen."},
+    (1, 1): {"nombre": "Lectura de Fracciones", "descripcion": "Leer el numerador y el denominador en una figura repartida."},
+    (1, 2): {"nombre": "Fracciones Equivalentes", "descripcion": "Amplificar y simplificar para hallar fracciones equivalentes."},
+    (1, 3): {"nombre": "Comparar Partes de un Todo", "descripcion": "Comparar partes usadas y libres de un mismo entero."},
+    (2, 1): {"nombre": "Fracción Unitaria de una Cantidad", "descripcion": "Calcular 1/n de un grupo (repartir en partes iguales)."},
+    (2, 2): {"nombre": "Fracción de una Cantidad", "descripcion": "Calcular a/b de una cantidad en dos pasos."},
+    (2, 3): {"nombre": "Problema Inverso y Resto", "descripcion": "Hallar el resto o el total a partir de la fracción tomada."},
+    (3, 1): {"nombre": "Porcentajes Clave", "descripcion": "Porcentajes comunes: 10%, 25% y 50% de una cantidad."},
+    (3, 2): {"nombre": "Descuentos y Aumentos", "descripcion": "Precio con descuento o recargo (cálculo de varios pasos)."},
+    (3, 3): {"nombre": "Promedio o Media", "descripcion": "Calcular la media aritmética de varios valores."},
+    (4, 1): {"nombre": "Razón Simple", "descripcion": "Razones simples (a:b) y proporcionalidad directa."},
+    (4, 2): {"nombre": "Reparto Proporcional", "descripcion": "Repartir una cantidad según una proporción dada."},
+    (4, 3): {"nombre": "Mezclas y % de Volumen", "descripcion": "Mezclas, escalado de recetas y porcentaje de volumen."},
 }
 
 def _seccion_operacion(modulo_id: int, nivel_id: int) -> tuple:
