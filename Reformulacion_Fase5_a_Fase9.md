@@ -235,13 +235,14 @@ valores reales y muestra la aritmética ("10 − 4 = 6"; "48 ÷ 3 = 16").
 *Pendiente menor:* narración de % muestra `total×pct` intermedio (correcto pero
 mejorable) y hay escenarios dinero↔puntaje mal mezclados (se corrige en E3).
 
-**E5 · Nuevo flujo de refuerzo en el router (reemplaza el espejo).**
-Al fallar en práctica: devolver **solución (E4) + la siguiente reformulación**
-de la familia (`orden_refuerzo`+1). Tope **2 reformulaciones**; a la 3ª, mostrar
-solución y **avanzar a otra familia**. Eliminar el swap por `variante` y el
-`MAX_ESPEJO=3` actual.
-*Verif.:* E2E — fallar activa solución+reformulación; a la 3ª avanza; no hay
-bucle.
+**E5 · Nuevo flujo de refuerzo en el router (reemplaza el espejo). ✅ HECHO.**
+Al fallar en práctica: devuelve **solución paso a paso (E4) + la siguiente
+reformulación** (orden_refuerzo+1, otro contexto). Tope **2 reformulaciones**
+(`MAX_ESPEJO=2`); a la 3ª, muestra solución y **avanza a otra familia** (marca
+el slot cerrado; sin acierto no cuenta → P1). Respuesta lleva `explicacion`
+(pasos), `intentos_espejo_actuales/max`, `soporte_avanzado`.
+*(Verificado E2E in-process: original→reformulación(chocolate)→reformulación
+(bandera)→avanza a otra familia; escenarios distintos; fallar no sube el %.)*
 
 **E6 · Progreso P1 (DA1). ✅ HECHO.**
 `_recalcular_porcentaje_fase5`: eliminada la cláusula `BYPASS_EXPLICACION`; solo

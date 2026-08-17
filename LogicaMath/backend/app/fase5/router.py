@@ -26,7 +26,25 @@ from .schemas import (
 router = APIRouter(prefix="/fase5", tags=["fase5"])
 
 FASE5_ID = 5
-MAX_ESPEJO = 3  # Intentos máximos en Bucle Espejo
+# E5 (DA2): máximo 2 reformulaciones tras el original. Secuencia al fallar:
+# original(0) -> reformulación 1 -> reformulación 2 -> (3.º fallo) avanzar a otra
+# familia. Cada familia tiene variantes 0..3 (la 3 es reserva).
+MAX_ESPEJO = 2
+
+
+def _pasos_a_texto(explicacion_paso_a_paso) -> str | None:
+    """Convierte {"pasos":[{"orden","texto"}]} en un texto legible para el
+    campo string `explicacion_profunda`. Soporta el formato antiguo {"html"}."""
+    if not explicacion_paso_a_paso:
+        return None
+    if isinstance(explicacion_paso_a_paso, dict):
+        if explicacion_paso_a_paso.get("pasos"):
+            return "\n".join(
+                str(p.get("texto", "")) for p in explicacion_paso_a_paso["pasos"] if p.get("texto")
+            )
+        if explicacion_paso_a_paso.get("html"):
+            return explicacion_paso_a_paso["html"]
+    return None
 
 async def _sync_unlocked_levels(db: AsyncSession, alumno_id: int, operacion: str):
     from sqlalchemy.orm.attributes import flag_modified
@@ -767,6 +785,8 @@ async def responder_fase5(
     es_espejo = False
     explicacion_profunda = None
     soporte_avanzado = False
+    explicacion_estructurada = None       # {"pasos":[...]} para el frontend (E5)
+    intentos_espejo_actuales = 0
     
     if es_correcta:
         # Acierto
@@ -786,50 +806,44 @@ async def responder_fase5(
             
         # Lógica especial de Práctica vs Desafíos
         if not is_challenge:
-            # MODO PRÁCTICA LIBRE: Bucle Espejo (Mirror Loop)
-            # Obtenemos la variante actual (0=original, 1, 2, 3 son espejos)
-            variante_actual = pregunta.datos_numericos.get("variante", 0)
-            
-            if variante_actual < MAX_ESPEJO:
-                # Activamos el bucle espejo reemplazando la pregunta actual del pool por su variante espejo
-                siguiente_variante = variante_actual + 1
-                
-                # Buscar la variante espejo de la misma familia en el banco de preguntas
+            # E5 · NUEVO FLUJO DE REFUERZO (reemplaza el Bucle Espejo antiguo).
+            # En CADA error se muestra la respuesta correcta + el procedimiento
+            # paso a paso, y luego se presenta una REFORMULACIÓN de la misma
+            # familia (otro contexto y valores). Máximo 2 reformulaciones; al 3.º
+            # fallo se muestra la solución y se AVANZA a otra familia (que no
+            # suma al progreso, DA1/P1). No hay reset ni bloqueo.
+            soporte_avanzado = True
+            explicacion_estructurada = pregunta.explicacion_paso_a_paso or None
+            explicacion_profunda = _pasos_a_texto(pregunta.explicacion_paso_a_paso)
+
+            orden_actual = pregunta.datos_numericos.get(
+                "orden_refuerzo", pregunta.datos_numericos.get("variante", 0)
+            )
+            intentos_espejo_actuales = orden_actual + 1
+
+            if orden_actual < MAX_ESPEJO:
+                # Servir la siguiente reformulación (otro contexto+valores).
+                siguiente = orden_actual + 1
                 result_mirror = await db.execute(
                     select(Pregunta).where(and_(
                         Pregunta.fase_id == FASE5_ID,
                         Pregunta.seccion == seccion,
                         Pregunta.estructura_padre_id == pregunta.estructura_padre_id,
-                        cast(Pregunta.datos_numericos["variante"].astext, Integer) == siguiente_variante,
+                        cast(Pregunta.datos_numericos["variante"].astext, Integer) == siguiente,
                         Pregunta.estado == StatusEnum.ACTIVO
                     ))
                 )
                 mirror_q = result_mirror.scalar_one_or_none()
-                
                 if mirror_q and pool_item:
-                    # Remplazar pregunta en el pool asignado para mantener el índice lineal
                     pool_item.pregunta_id = mirror_q.id
                     pool_item.numero_intentos = 0
                     es_espejo = True
-                else:
-                    print(
-                        f"⚠️ Bucle espejo Fase 5 no pudo activarse: "
-                        f"estructura_padre_id={pregunta.estructura_padre_id}, "
-                        f"siguiente_variante={siguiente_variante}, "
-                        f"mirror_q_encontrada={mirror_q is not None}, "
-                        f"pool_item_presente={pool_item is not None}",
-                        flush=True
-                    )
             else:
-                # Llegó al límite del bucle espejo (espejo 3). Habilitamos bypass fluido y mostramos explicación
-                explicacion_profunda = pregunta.explicacion_paso_a_paso.get("html") if pregunta.explicacion_paso_a_paso else None
-                soporte_avanzado = True
-
-            if config and config.tipo_feedback == "detallado":
-                # Tutoría IA: mostrar la explicación ya desde el primer error, sin esperar el Bucle Espejo
-                soporte_avanzado = True
-                if explicacion_profunda is None:
-                    explicacion_profunda = pregunta.explicacion_paso_a_paso.get("html") if pregunta.explicacion_paso_a_paso else None
+                # 3.º fallo: reformulaciones agotadas. Se cierra este slot para
+                # AVANZAR a otra familia. Al no haber acierto (Intento), esta
+                # familia NO cuenta para el progreso (P1). Sin reset ni bloqueo.
+                if pool_item:
+                    pool_item.respondida_correctamente = True
         else:
             # MODO DESAFÍO: Salida Temprana (Early Exit)
             # Recuperamos los intentos de error en esta sesión de desafío
@@ -935,8 +949,11 @@ async def responder_fase5(
         bloque_completado=bloque_completado,
         fase_completada=fase_completada,
         es_espejo=es_espejo,
+        intentos_espejo_actuales=intentos_espejo_actuales,
+        intentos_espejo_max=MAX_ESPEJO,
         early_exit=early_exit,
         respuesta_correcta=pregunta.respuesta_correcta,
+        explicacion=explicacion_estructurada,
         explicacion_profunda=explicacion_profunda,
         soporte_avanzado=soporte_avanzado
     )
