@@ -27,7 +27,10 @@ async def create_all():
 
 async def run_seed(fase: str):
     # Entrypoints reales según app/seed.py (algunos manejan su propia sesión).
-    if fase == "5":
+    if fase == "4":
+        from app.fase4.seed import run_fase4_seed
+        await run_fase4_seed()
+    elif fase == "5":
         from app.fase5.seed import run_fase5_seed
         async with AsyncSessionLocal() as session:
             await run_fase5_seed(session)

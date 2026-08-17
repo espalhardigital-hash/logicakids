@@ -121,16 +121,22 @@ class CompositorFase4:
         # los operandos y el resultado DEBEN ser números exactos (enteros o max 2 decimales).
         # ── Generación de valores ────────────────────────────────────────────
         n_cant = 2 + (fam_idx % 4)                      # 2..5
-        a_val = round(1.20 + (fam_idx * 0.05), 2)
-        b_val = round(0.85 + (fam_idx * 0.03), 2)
-        c_val = round(0.50 + (fam_idx * 0.02), 2)
+        # FIX raíz de la redundancia: los valores deben variar también con
+        # var_idx, no solo con fam_idx. Antes, las variantes de una familia (las
+        # "reformulaciones") tenían los MISMOS números y solo cambiaban el
+        # nombre/lugar -> "la misma pregunta cambiando el nombre". Ahora cada
+        # variante tiene números distintos (siguen siendo exactos a 2 decimales,
+        # y total > a+b+c garantiza restas positivas).
+        a_val = round(1.20 + (fam_idx * 0.05) + (var_idx * 0.13), 2)
+        b_val = round(0.85 + (fam_idx * 0.03) + (var_idx * 0.07), 2)
+        c_val = round(0.50 + (fam_idx * 0.02) + (var_idx * 0.05), 2)
         total_val = round(a_val + b_val + c_val + 1.0, 2)
 
         # Si el escenario es de naturaleza discreta (ej. fardos, paquetes enteros), usar valores integérrimos o medios
         if esc.get("naturaleza") == "discreta":
-            a_val = float(6 + (fam_idx % 5))
-            b_val = float(1 + (fam_idx % 3))
-            c_val = float(1 + (fam_idx % 2))
+            a_val = float(6 + (fam_idx % 5) + var_idx)          # varía con var_idx
+            b_val = float(1 + (fam_idx % 3) + (var_idx % 2))
+            c_val = float(1 + (fam_idx % 2) + ((var_idx + 1) % 2))
             total_val = float(a_val + b_val + c_val + 2.0)
         elif plantilla.get("magnitud") == "temperatura":
             if esc.get("id") == "termometro_fiebre" or esc.get("objeto_medible") == "el paciente":
