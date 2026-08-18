@@ -64,5 +64,22 @@
   config + (si aplica) router/frontend.
 - **E5 · Verificación integral + redeploy.**
 
-## Registro de avance (se actualiza por lote)
-- (pendiente de iniciar E1)
+## Registro de avance
+- **Banco por (fase, módulo, nivel) implementado y validado** (`app/content/banco_cmrj.py`):
+  25 preguntas verificadas (simulacro + familiarización) en fases 4-8, 0 mal
+  formadas. Seeder `seed_banco_cmrj` inyecta por módulo (simulacro → desafío del
+  módulo `mod*1000+13`; familiariza → práctica `mod*100+3`). Cableado en el maestro.
+- **docx**: volcado a texto (`Pedro II/_docx_texto.txt`, 234 marcas de pregunta),
+  PERO el OCR está muy ruidoso ("1 O"=10, "R$0, 1 O"=R$0,10) → transcribir en
+  bloque inyectaría **respuestas erróneas** en una app para niños. **Decisión
+  (D7):** solo se incorpora lo verificable; el volcado masivo del docx/fotos
+  requiere una pasada OCR más limpia o verificación humana. Incorporadas las
+  verificables del análisis + banco transcrito.
+- ⛔ **BLOQUEO DE ENTORNO:** Docker Desktop se detuvo a mitad de sesión (daemon
+  caído). No se pudo correr el re-seed en vivo ni el redeploy. **Todo el código
+  está commiteado**; al volver Docker, un `docker compose -f
+  Datos_localhost/docker-compose.local.yml up -d` + reinicio del backend aplica
+  el banco (el seeder ya está en el maestro).
+- **Pendiente (cuando haya OCR limpio / verificación):** volcado masivo de las
+  276 fotos + docx por lotes; sección "Desafío Simulacro" como sub-nivel con UI
+  dedicada (hoy las simulacro entran al desafío del módulo, que sí es alcanzable).
