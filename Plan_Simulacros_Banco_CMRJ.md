@@ -1,85 +1,66 @@
-# Plan — Banco CMRJ completo, Simulacros y "Desafío Simulacro"
+# Plan (REDISEÑADO) — Banco CMRJ, Simulacros y "Desafío Simulacro"
 
-> **Modo:** ejecución autónoma de inicio a fin (sin esperar aprobación entre
-> lotes). El usuario revisará por la noche. Este doc fija el plan y las
-> **decisiones tomadas con default recomendado** (revisables después).
-> **Fecha:** 2026-08-17.
+> **Rediseño 2026-08-18.** Docker está arriba (stack local 6 contenedores) →
+> re-seed y verificación EN VIVO restaurados. Además se confirmó que **puedo leer
+> las imágenes/PDF directamente** (render PDF→PNG con `pymupdf`), sin depender del
+> OCR ruidoso del docx. Esto cambia la estrategia de fuentes.
+> **Modo:** ejecución autónoma de inicio a fin, commit por lote, sin pedir permiso.
 
-## Objetivo
-1. **Incorporar TODAS las preguntas** de las fotos (`01_Fotos_Normalizadas`, 276)
-   y del docx de exámenes 2013-2025.
-2. **Desarrollar preguntas** basadas en las fotos (mismo corte, no clones).
-3. **Simulacros**: traer los exámenes por año → Simulados (Fase 9).
-4. **Escalera de familiarización**: preguntas *similares al simulacro pero de
-   menor dificultad*, distribuidas en las fases/módulos, para que al llegar al
-   simulacro el nivel no sea 100% extraño.
-5. **Sección "Desafío Simulacro"** por módulo: 2 preguntas profundas nivel
-   simulacro que el alumno resuelve antes de pasar; si no puede, se le da la
-   explicación paso a paso.
+## Qué cambió respecto al plan anterior
+1. **Docker vivo** → cada lote se siembra y se verifica contra la BD real, y el
+   redeploy aplica el banco (seeder ya cableado en el maestro).
+2. **Fuentes re-jerarquizadas** (tras inspeccionar el material):
+   - `CMRJ PRUEBAS ANOS ANTERIORES/*.pdf` y `Colegio Pedro II/*.pdf` = **exámenes
+     reales del CMRJ/Pedro II por año** (prova mat. 6º ano 2013-2019, pruebas
+     2020/2022-2025, Pedro II 2017-2024). Son PDF **limpios y estructurados** con
+     20 preguntas objetivas (A)-(E) c/u. → **fuente de SIMULACRO (nivel 3)**.
+   - `01_Fotos_Normalizadas/` (277) = páginas de **libro didáctico** con gabarito
+     (respuesta en rojo). Mayoría **nivel fundamental** (numeración romana,
+     propiedades, etc.). → **fuente de FAMILIARIZACIÓN (niveles 1-2)**, verificable.
+   - `04_Banco_Transcribido/` = ya incorporado (anclas actuales).
+3. **Método de lectura:** `pymupdf` renderiza cada página del PDF a PNG (dpi 150)
+   → se lee visualmente (fiel, incluye figuras) → se resuelve → se **verifica el
+   cálculo** → se traduce a español (contexto neutro) → se estructura.
 
-## Arquitectura
-- **`app/content/banco_cmrj.py`** (ya existe) crece hasta contener TODO el banco,
-  organizado `por fase → por tema → por dificultad (1..3) → nivel
-  (practica|simulacro)`. Cada ítem: enunciado_es, correcta, distractores[3],
-  explicacion (pasos), tema, dificultad, nivel, tipo_visual opcional.
-- **Importador** `seed_banco_cmrj` (ya cableado en el maestro) reparte:
-  - dificultad 1-2 (practica) → pool de práctica del módulo correspondiente.
-  - dificultad 3 (simulacro) → nueva sección **"Desafío Simulacro"** del módulo
-    (2 preguntas) + Simulados (Fase 9).
-- **Sección "Desafío Simulacro"**: `seccion = modulo*100 + 9` (109, 209, 309,
-  409…) por fase, con 2 preguntas nivel simulacro. Config con umbral y el
-  refuerzo paso-a-paso ya existente (mostrar solución al fallar).
-- **Simulacros (Fase 9)**: se amplía con los exámenes por año del docx.
+## Fuente de verdad del banco
+- **`app/content/banco_cmrj.py`** — banco curado por `fase → módulo → nivel`
+  (`familiariza` | `simulacro`). Cada ítem: enunciado_es, correcta,
+  distractores[3], explicacion (pasos), tema, dificultad(1-3), nivel, tipo_visual?.
+  Hoy: **25 preguntas verificadas** (fases 4-8), 0 mal formadas, **vivas en BD**.
+- **`app/fase11/banco_simulados.py` / `seed_fase9.py`** — Simulados (Fase 9): hoy
+  39 preguntas reales; se amplía con los exámenes por año.
+- **Inyector `seed_banco_cmrj`** (cableado en `app/seed.py`, idempotente): reparte
+  `simulacro → desafío del módulo (mod*1000+13)`; `familiariza → práctica
+  (mod*100+3)`. Verificado en vivo (25/25 colocadas, 0 mal formadas).
 
-## Decisiones tomadas (default recomendado; revisables)
-- **D1 — Fuente de fotos:** `01_Fotos_Normalizadas` (276) como canónica (las
-  WhatsApp son duplicados). Proceso por **lotes de ~12**.
-- **D2 — Idioma:** todo al **español**, contexto neutro (nombres brasileños →
-  neutros; R$ se mantiene como moneda del enunciado o se neutraliza a "monedas").
-- **D3 — Figuras:** visualizadores paramétricos de la app cuando aplique; para
-  figuras críticas (plantas, gráficos de sectores) genero **SVG propio en
-  español** (no reuso los SVG portugueses que revelan la respuesta). Preguntas
-  sin figura crítica → solo texto.
-- **D4 — Dificultad:** simulacro = **nivel 3** (CMRJ real); las "similares de
-  menor dificultad" = **niveles 1-2**, mismo tema/estructura, números más
-  amables, distribuidas en los niveles bajos del módulo.
-- **D5 — "Desafío Simulacro":** sección nueva por módulo con **2 preguntas**
-  nivel simulacro; al fallar se muestra la explicación paso a paso (refuerzo ya
-  existente). Backend primero; integración de UI se documenta si requiere
-  frontend.
-- **D6 — Deduplicación:** por enunciado normalizado (evitar repetir lo ya
-  transcrito en `04_Banco_Transcribido`).
-- **D7 — Verificación:** cada pregunta con respuesta **verificada** (cálculo
-  reproducido); descarto las que no pueda verificar o que dependan de una figura
-  que no puedo reconstruir.
+## Decisiones (default recomendado; revisables)
+- **D1 — Prioridad:** primero los **exámenes reales** (mayor valor CMRJ, más
+  limpios) → simulacros + anclas por módulo; luego las **fotos** → familiarización.
+- **D2 — Idioma/contexto:** todo español, contexto neutro (nombres → neutros;
+  R$ → "monedas"/"reales" según convenga). Se conserva la matemática exacta.
+- **D3 — Verificación obligatoria (D7 anterior):** cada pregunta con **respuesta
+  reproducida a mano**; se descarta lo no verificable o que dependa de una figura
+  no reconstruible. Nunca se inyecta una respuesta dudosa en una app para niños.
+- **D4 — Figuras:** visualizadores paramétricos de la app; para figuras críticas,
+  SVG propio en español (no reuso SVG portugués que revele la respuesta). Sin
+  figura reconstruible y crítica → se descarta.
+- **D5 — Progresión:** simulacro = nivel 3 (CMRJ real). Familiarización = niveles
+  1-2, mismo tema/estructura, números más amables (NO clones por valor).
+- **D6 — "Desafío Simulacro":** las preguntas simulacro entran al **desafío del
+  módulo** (alcanzable hoy). Sección UI dedicada = mejora opcional posterior.
+- **D7 — Dedup:** por enunciado normalizado (no repetir lo ya transcrito).
 
-## Etapas (todas autónomas)
-- **E1 · Procesar las 276 fotos por lotes** (~12/lote): extraer todas las
-  preguntas legibles → traducir → estructurar → append a `banco_cmrj.py`
-  (por fase/tema/dificultad/nivel). Commit por lote.
-- **E2 · Procesar el docx** (exámenes por año) → simulacros → ampliar Fase 9.
-- **E3 · Escalera de familiarización:** por cada arquetipo simulacro, versión(es)
-  de menor dificultad distribuidas en niveles 1-2 de la fase.
-- **E4 · Sección "Desafío Simulacro"** por módulo (2 preguntas nivel 3) — seed +
-  config + (si aplica) router/frontend.
-- **E5 · Verificación integral + redeploy.**
+## Etapas (autónomas, commit por lote)
+- **E1 · Exámenes de matemática CMRJ (PDF) por año** — render→leer→verificar→
+  traducir→estructurar. Empezar por 2019, 2018, 2017… → banco_simulados (Fase 9)
+  + anclas simulacro por módulo/fase temática. Lote = 1 examen (~20 preguntas).
+- **E2 · Exámenes Pedro II (2017-2024)** — íd.
+- **E3 · Fotos de libro (familiarización)** por lotes de ~10 → niveles 1-2 por tema.
+- **E4 · Redeploy + verificación en vivo** tras cada lote (conteos, 0 mal formadas,
+  lectura ORM ok, sin dobles-correctas).
+- **E5 · (Opcional) Sección "Desafío Simulacro"** con UI dedicada.
 
 ## Registro de avance
-- **Banco por (fase, módulo, nivel) implementado y validado** (`app/content/banco_cmrj.py`):
-  25 preguntas verificadas (simulacro + familiarización) en fases 4-8, 0 mal
-  formadas. Seeder `seed_banco_cmrj` inyecta por módulo (simulacro → desafío del
-  módulo `mod*1000+13`; familiariza → práctica `mod*100+3`). Cableado en el maestro.
-- **docx**: volcado a texto (`Pedro II/_docx_texto.txt`, 234 marcas de pregunta),
-  PERO el OCR está muy ruidoso ("1 O"=10, "R$0, 1 O"=R$0,10) → transcribir en
-  bloque inyectaría **respuestas erróneas** en una app para niños. **Decisión
-  (D7):** solo se incorpora lo verificable; el volcado masivo del docx/fotos
-  requiere una pasada OCR más limpia o verificación humana. Incorporadas las
-  verificables del análisis + banco transcrito.
-- ⛔ **BLOQUEO DE ENTORNO:** Docker Desktop se detuvo a mitad de sesión (daemon
-  caído). No se pudo correr el re-seed en vivo ni el redeploy. **Todo el código
-  está commiteado**; al volver Docker, un `docker compose -f
-  Datos_localhost/docker-compose.local.yml up -d` + reinicio del backend aplica
-  el banco (el seeder ya está en el maestro).
-- **Pendiente (cuando haya OCR limpio / verificación):** volcado masivo de las
-  276 fotos + docx por lotes; sección "Desafío Simulacro" como sub-nivel con UI
-  dedicada (hoy las simulacro entran al desafío del módulo, que sí es alcanzable).
+- ✅ Docker vivo; banco (25) vivo tras redeploy; frontend 200.
+- ✅ Método PDF→PNG validado (CMRJ mat. 2019 Q01=25→(A), Q02=9→(B) verificadas).
+- ⏳ En curso: E1 (exámenes de matemática por año).
