@@ -404,7 +404,7 @@ def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var
     rng = random.Random(seed_val)
     sec = modulo_id * 100 + nivel_id
     fam_id = f"f4_m{modulo_id}_l{nivel_id}_fam_{fam_idx:03d}"
-    es_espejo = (var_idx > 0)
+    es_espejo = False  # SISTEMA ESPEJO ELIMINADO (variedad de pool, no clones-espejo)
     personaje = NOMBRES_POOL[(fam_idx + var_idx) % len(NOMBRES_POOL)]
 
     # ── Compositor: ÚNICA fuente del enunciado, la respuesta y la explicación ──

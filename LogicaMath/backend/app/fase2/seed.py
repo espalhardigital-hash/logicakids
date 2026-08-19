@@ -1922,9 +1922,10 @@ async def seed_practica_pool(session: AsyncSession):
         for fam in range(1, 121):
             padre_id = f"f2_m{mod}_l{niv}_fam_{fam:03d}"
             
-            # 1 original (variante 0, es_espejo=False) + 3 mirrors (variantes 1,2,3, es_espejo=True)
+            # SISTEMA ESPEJO ELIMINADO: 4 variantes (valores distintos) como
+            # variedad del pool; ninguna se marca es_espejo.
             for var in range(4):
-                es_espejo = (var > 0)
+                es_espejo = False
                 seed = mod * 10000 + niv * 1000 + fam * 10 + var
                 
                 rng = random.Random(seed)

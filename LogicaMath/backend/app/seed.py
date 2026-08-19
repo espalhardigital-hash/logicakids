@@ -27,13 +27,13 @@ from app.auth import get_password_hash
 SEED_VERSIONS_KEY = "database_seed_versions"
 SEED_VERSIONS = {
     "fase_1": "20260601_v1",
-    "fase_2": "20260609_v2",
-    "fase_3": "20260619_v1",
-    "fase_4": "20260721_v2",
+    "fase_2": "20260818_noespejo",
+    "fase_3": "20260818_noespejo2",
+    "fase_4": "20260818_noespejo",
     "fase_5": "20260724_v1",
-    "fase_6": "20260724_v1",
-    "fase_7": "20260609_v1",
-    "fase_8": "20260609_v1",
+    "fase_6": "20260818_noespejo",
+    "fase_7": "20260818_noespejo",
+    "fase_8": "20260818_noespejo",
     "fase_9": "20260609_v1",
     "fase_10": "20260724_v1",
     "fase_11": "20260609_v1"

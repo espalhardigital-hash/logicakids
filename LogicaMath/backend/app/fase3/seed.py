@@ -990,7 +990,7 @@ def generate_practice_question(modulo_id: int, nivel_id: int, fam: int, var: int
     seed = FASE3_ID * 100000 + modulo_id * 1000 + nivel_id * 100 + fam * 10 + var
     rng = random.Random(seed)
     
-    es_espejo = var > 0
+    es_espejo = False  # SISTEMA ESPEJO ELIMINADO (variedad de pool, no clones-espejo)
     prefix = "[ESPEJO] " if es_espejo else ""
     
     # Obtener el contexto correspondiente a la familia (fam) para que original y espejos coincidan en el tema
@@ -1182,7 +1182,7 @@ async def seed_preguntas_practica(session: AsyncSession):
                         respuesta_correcta=q_data["respuesta_correcta"],
                         estructura_padre_id=padre_id,
                         datos_numericos={
-                            "es_espejo": var > 0,
+                            "es_espejo": False,  # SISTEMA ESPEJO ELIMINADO
                             "variante": var,
                             "valores": q_data["valores"]
                         },

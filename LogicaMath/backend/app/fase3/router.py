@@ -616,7 +616,7 @@ async def get_pregunta_fase3(
         espejo_pregunta = None
         
         # Bucle Espejo (solo si el último intento falló y no fue bypass)
-        if latest_attempt and not latest_attempt.es_correcta and latest_attempt.respuesta_dada != "BYPASS_EXPLICACION":
+        if False:  # SISTEMA ESPEJO ELIMINADO: no se sirven hermanos-espejo tras un fallo
             result_q = await db.execute(select(Pregunta).where(Pregunta.id == latest_attempt.pregunta_id))
             failed_pregunta = result_q.scalar_one_or_none()
             

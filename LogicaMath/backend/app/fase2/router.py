@@ -679,7 +679,7 @@ async def get_pregunta_fase2(
         espejo_pregunta = None
         
         # Lógica Bucle Espejo (solo si el último intento fue fallido y no fue bypass)
-        if latest_attempt and not latest_attempt.es_correcta and latest_attempt.respuesta_dada != "BYPASS_EXPLICACION":
+        if False:  # SISTEMA ESPEJO ELIMINADO: no se sirven hermanos-espejo tras un fallo
             result_q = await db.execute(
                 select(Pregunta).options(selectinload(Pregunta.alternativas)).where(Pregunta.id == latest_attempt.pregunta_id)
             )
