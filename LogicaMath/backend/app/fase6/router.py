@@ -662,49 +662,10 @@ async def get_pregunta_fase6(
             )
             latest_attempt = result.scalar_one_or_none()
 
+        # SISTEMA ESPEJO ELIMINADO (reducto retirado): ya no se sirven hermanos-
+        # espejo tras un fallo. Al fallar se muestra la solución y se avanza a otra
+        # familia. `espejo_pregunta` se mantiene en None por compatibilidad del flujo.
         espejo_pregunta = None
-        
-        # Lógica Bucle Espejo (solo si el último intento fue fallido y no fue bypass)
-        if latest_attempt and not latest_attempt.es_correcta and latest_attempt.respuesta_dada != "BYPASS_EXPLICACION":
-            result_q = await db.execute(
-                select(Pregunta).options(selectinload(Pregunta.alternativas)).where(Pregunta.id == latest_attempt.pregunta_id)
-            )
-            failed_pregunta = result_q.scalar_one_or_none()
-            
-            if failed_pregunta and failed_pregunta.estructura_padre_id:
-                # Contar cuántos intentos lleva en esta misma familia de preguntas
-                res_fam = await db.execute(
-                    select(Intento)
-                    .join(Pregunta, Intento.pregunta_id == Pregunta.id)
-                    .where(and_(
-                        Intento.alumno_id == alumno.id,
-                        Pregunta.estructura_padre_id == failed_pregunta.estructura_padre_id
-                    ))
-                    .order_by(Intento.fecha.desc(), Intento.id.desc())
-                )
-                family_attempts = res_fam.scalars().all()
-                attempts_count = len(family_attempts)
-
-                # Si lleva menos del máximo permitido en el bucle espejo y el último falló
-                if attempts_count > 0 and not family_attempts[0].es_correcta and attempts_count < (MAX_ESPEJO + 1):
-                    # Obtener las preguntas del pool para esta familia
-                    result_fam_qs = await db.execute(
-                        select(Pregunta).options(selectinload(Pregunta.alternativas))
-                        .where(and_(
-                            Pregunta.estructura_padre_id == failed_pregunta.estructura_padre_id,
-                            Pregunta.estado == StatusEnum.ACTIVO
-                        ))
-                    )
-                    family_questions = result_fam_qs.scalars().all()
-                    
-                    attempted_ids = {a.pregunta_id for a in family_attempts}
-                    unattempted_mirrors = [
-                        q for q in family_questions
-                        if q.id not in attempted_ids and q.datos_numericos and q.datos_numericos.get("es_espejo") is True
-                    ]
-
-                    if unattempted_mirrors:
-                        espejo_pregunta = random.choice(unattempted_mirrors)
 
         if espejo_pregunta:
             pregunta_elex = espejo_pregunta

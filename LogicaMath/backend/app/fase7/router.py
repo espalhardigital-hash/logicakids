@@ -1330,9 +1330,10 @@ async def get_pregunta_fase6(
 
         
 
-        # L├│gica Bucle Espejo (solo si el ├║ltimo intento fue fallido y no fue bypass)
+        # SISTEMA ESPEJO ELIMINADO (reducto retirado): el bloque siguiente queda
+        # inerte; ya no se sirven hermanos-espejo tras un fallo.
 
-        if latest_attempt and not latest_attempt.es_correcta and latest_attempt.respuesta_dada != "BYPASS_EXPLICACION":
+        if False:
 
             result_q = await db.execute(
 

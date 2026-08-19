@@ -439,12 +439,12 @@ def _gen_practice_question(
         alts = []
         err_dict = {f"{area_circ}".replace(".", ","): "Esa es el área del círculo interior; restó del cuadrado para hallar las esquinas."}
 
-    # var_idx 0 = original; 1..3 = variantes espejo. El Bucle Espejo del router
-    # (app/fase6/router.py) busca hermanos de la misma familia con
-    # `datos_numericos.es_espejo is True`; sin este flag NUNCA disparaba
-    # (verificado: 0/7200 marcadas). Con esto, cada familia tiene 3 espejos.
+    # SISTEMA ESPEJO ELIMINADO: las 4 variantes (valores distintos por var_idx)
+    # quedan como variedad legítima del pool, NO como espejos-clon. Ninguna se
+    # marca es_espejo, de modo que el lookup de hermanos del router queda inerte
+    # y no hay reducto espejo en datos.
     if isinstance(datos_num, dict):
-        datos_num["es_espejo"] = var_idx > 0
+        datos_num["es_espejo"] = False
 
     pregunta_dict = {
         "fase_id": 6,

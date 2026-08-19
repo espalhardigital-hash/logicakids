@@ -754,8 +754,9 @@ async def seed_practica_pool_fase7(session: AsyncSession):
 
                 payload = q_data.get("metadata_visual", {})
                 payload["fase7"] = True
-                if lvl_id <= 3:
-                    payload["es_espejo"] = v > 0
+                # SISTEMA ESPEJO ELIMINADO: las variantes (enunciados distintos)
+                # quedan como variedad del pool; ninguna se marca es_espejo.
+                payload["es_espejo"] = False
 
                 p = Pregunta(
                     fase_id=FASE7_ID, seccion=seccion_id, estructura_padre_id=fam_id,
