@@ -2017,4 +2017,73 @@ BANCO_SIMULADOS = [
         "explicacion": "De 7:00 a 12:00 son 300 min. Con recreo r: 7×(2r) + r = 15r = 300 → r = 20 min.",
         "dificultad": 2,
     },
+
+    # ==========================================================================
+    # EXAMEN REAL COLÉGIO PEDRO II - MATEMÁTICA 2020 (admissão 6º ano)
+    # 7 preguntas de matemática (Q11-Q20), traducidas y VERIFICADAS. Se omiten
+    # Q14 (patrones de desbloqueo), Q18 (árbol Minecraft) y Q19 (área en malla).
+    # ==========================================================================
+    {
+        "tema": "Perímetro del rectángulo",
+        "origen": "Pedro II 2020 - Q11",
+        "enunciado": "Un teclado virtual proyecta un rectángulo de 2,68 dm × 1,05 dm. ¿Cuál es su perímetro, en dm?",
+        "correcta": "7,46",
+        "distractores": ["3,73", "2,81", "1,63"],
+        "explicacion": "Perímetro = 2 × (2,68 + 1,05) = 2 × 3,73 = 7,46 dm.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Optimización de compras",
+        "origen": "Pedro II 2020 - Q12",
+        "enunciado": "Se comprarán mouse, audífonos y teclado para dos hijos. Mouses: A R$39,90, B R$54,50, C R$89,00. Audífonos: A R$59,90, B R$99,00, C R$129,90. Teclados: A R$135,00, B R$189,50. Bianca quiere los audífonos más caros y Breno el mouse más caro; en lo demás se gasta lo mínimo. ¿Cuál es la diferencia entre lo gastado con Bianca y con Breno?",
+        "correcta": "R$ 20,90",
+        "distractores": ["R$ 20,10", "R$ 21,10", "R$ 21,90"],
+        "explicacion": "Bianca: 129,90 + 39,90 + 135,00 = 304,80. Breno: 89,00 + 59,90 + 135,00 = 283,90. Diferencia: 20,90.",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Progresión geométrica (duplicar)",
+        "origen": "Pedro II 2020 - Q13",
+        "enunciado": "Dos hermanas seleccionaron 12 docenas de fotos para publicar en 4 días. Cada día publicaron el doble que el día anterior. ¿Cuántas publicaron el último día?",
+        "correcta": "64 fotos",
+        "distractores": ["32 fotos", "16 fotos", "8 fotos"],
+        "explicacion": "12 docenas = 120 fotos. x + 2x + 4x + 8x = 15x = 120 → x = 8. Último día: 8x = 64.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Horarios (llegada más temprana)",
+        "origen": "Pedro II 2020 - Q15",
+        "enunciado": "Alguien llega a la parada a las 9:20. La línea 750D sale a las 9:25 y tarda 47 min; la 570D sale a las 9:32 y tarda 41 min. Eligiendo la opción que la deje más temprano en el trabajo, ¿a qué hora llega?",
+        "correcta": "10 horas y 12 minutos",
+        "distractores": ["10 horas y 2 minutos", "10 horas y 3 minutos", "10 horas y 13 minutos"],
+        "explicacion": "750D: 9:25 + 47 = 10:12. 570D: 9:32 + 41 = 10:13. La más temprana es 10:12.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Fracción del resto",
+        "origen": "Pedro II 2020 - Q16",
+        "enunciado": "En una encuesta a 180 estudiantes, 1/4 prefiere Facebook, 1/3 Instagram y el resto Twitter. ¿Qué fracción prefiere Twitter?",
+        "correcta": "5/12",
+        "distractores": ["2/7", "5/7", "7/12"],
+        "explicacion": "Twitter = 1 − 1/4 − 1/3 = 12/12 − 3/12 − 4/12 = 5/12.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Máximo común divisor (bolsitas)",
+        "origen": "Pedro II 2020 - Q17",
+        "enunciado": "Se reparten piezas en bolsitas, con un solo tipo por bolsita y la misma cantidad en cada una, usando la mínima cantidad de bolsitas. Hay 15 espaciadores, 20 tuercas y 30 tornillos. ¿Cuántas bolsitas se necesitan?",
+        "correcta": "13 bolsitas",
+        "distractores": ["17 bolsitas", "9 bolsitas", "5 bolsitas"],
+        "explicacion": "Máximo por bolsita = mcd(15,20,30) = 5. Bolsitas: 15/5 + 20/5 + 30/5 = 3 + 4 + 6 = 13.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Crecimiento porcentual (gráfico)",
+        "origen": "Pedro II 2020 - Q20",
+        "enunciado": "Un gráfico muestra empresas por región en 2018 (total 276): Sudeste 146, Sur 60, Nordeste 40, Centro-Oeste 21 y Norte ?. En la región Norte había 2 en 2014 con un crecimiento del 350%. ¿Cuántas había en 2018?",
+        "correcta": "9",
+        "distractores": ["7", "8", "10"],
+        "explicacion": "Crecimiento del 350% → 2 × (1 + 3,5) = 2 × 4,5 = 9. (También: 276 − 146 − 60 − 40 − 21 = 9.)",
+        "dificultad": 2,
+    },
 ]
