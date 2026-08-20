@@ -2251,4 +2251,82 @@ BANCO_SIMULADOS = [
         "explicacion": "1 h 25 min = 85 min. Se encienden en 0, 20, 40, 60 y 80. A los 85 min siguen encendidos solo los de 60 (hasta 90) y 80 (hasta 110): 2 celulares.",
         "dificultad": 3,
     },
+
+    # ==========================================================================
+    # EXAMEN REAL COLÉGIO PEDRO II - MATEMÁTICA 2017 (admissão 6º ano)
+    # 8 preguntas de matemática (Q11-Q20), traducidas y VERIFICADAS (con gabarito
+    # oficial). Se omiten Q14 (leer alturas en regla) y Q20 (área en malla).
+    # ==========================================================================
+    {
+        "tema": "Regla de tres (peso)",
+        "origen": "Pedro II 2017 - Q11",
+        "enunciado": "Alguien quiere perder 30 kilos y planea perder 250 gramos por semana. ¿Cuántas semanas necesita?",
+        "correcta": "120 semanas",
+        "distractores": ["150 semanas", "180 semanas", "200 semanas"],
+        "explicacion": "30 kg = 30.000 g. 30.000 ÷ 250 = 120 semanas.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Porcentaje de descuento (tiempo)",
+        "origen": "Pedro II 2017 - Q12",
+        "enunciado": "En un juego, producir una pera tarda 5 horas en el primer nivel. En el segundo nivel el tiempo de producción baja 10%. ¿Cuánto tarda producir una pera en el segundo nivel?",
+        "correcta": "4 horas y 30 minutos",
+        "distractores": ["4 horas y 5 minutos", "4 horas y 10 minutos", "4 horas y 55 minutos"],
+        "explicacion": "5 h × 0,90 = 4,5 h = 4 h 30 min.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Expresión numérica y divisibilidad",
+        "origen": "Pedro II 2017 - Q13",
+        "enunciado": "El resultado de la expresión 571 − [ 134 − (321 ÷ 3) + 5 ] es un número divisible por:",
+        "correcta": "7",
+        "distractores": ["2", "5", "6"],
+        "explicacion": "321 ÷ 3 = 107. 134 − 107 + 5 = 32. 571 − 32 = 539 = 7 × 77, divisible por 7.",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Resta con datos faltantes",
+        "origen": "Pedro II 2017 - Q15",
+        "enunciado": "Una aerolínea transportó pasajeros a una ciudad en un trimestre: enero 268.357, marzo 298.452 y el total del trimestre fue 935.003. ¿Cuántos transportó en febrero?",
+        "correcta": "368.194",
+        "distractores": ["366.809", "371.894", "568.102"],
+        "explicacion": "Febrero = 935.003 − 268.357 − 298.452 = 368.194.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Operaciones y condiciones",
+        "origen": "Pedro II 2017 - Q16",
+        "enunciado": "En una máquina, todo número que entra se multiplica por sí mismo y luego se le resta el equivalente a dos decenas y media (25). Si entró el mayor número natural de dos cifras iguales menor que media centena (50), ¿qué número salió?",
+        "correcta": "1911",
+        "distractores": ["63", "943", "1936"],
+        "explicacion": "El mayor número de dos cifras iguales menor que 50 es 44. 44² − 25 = 1936 − 25 = 1911.",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Suma de fracciones (volumen)",
+        "origen": "Pedro II 2017 - Q17",
+        "enunciado": "Se usan 7 vasos de 400 ml. Se llenan con estas fracciones de su capacidad: 7/8, 6/8, 5/8, 4/8, 3/8, 2/8 y 1/8. ¿Cuál es el volumen total de agua usado?",
+        "correcta": "1400 ml",
+        "distractores": ["1125 ml", "1425 ml", "1450 ml"],
+        "explicacion": "Suma de fracciones = (7+6+5+4+3+2+1)/8 = 28/8 = 3,5. Volumen = 3,5 × 400 = 1400 ml.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "División con resto (cajas)",
+        "origen": "Pedro II 2017 - Q18",
+        "enunciado": "Se cuentan objetos: 66 latas, 48 vasos plásticos y 42 envases de jugo. Se guardan en cajas de máximo 3 decenas (30) cada una, con un solo tipo por caja. ¿Cuál es la menor cantidad de cajas?",
+        "correcta": "7",
+        "distractores": ["5", "6", "8"],
+        "explicacion": "Latas: 66 → 3 cajas (30+30+6). Vasos: 48 → 2 cajas. Envases: 42 → 2 cajas. Total: 3 + 2 + 2 = 7.",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Porcentaje del total",
+        "origen": "Pedro II 2017 - Q19",
+        "enunciado": "En una escuela, la distribución de alumnos por región es: Centro 15%, Sur 5%, Norte 40%, Oeste 35%. El porcentaje restante corresponde a 137 alumnos de otros municipios. ¿Cuál es el total de alumnos?",
+        "correcta": "2740",
+        "distractores": ["6850", "13015", "13510"],
+        "explicacion": "Los porcentajes dados suman 95%; el resto 5% = 137 alumnos → total = 137 ÷ 0,05 = 2740.",
+        "dificultad": 2,
+    },
 ]
