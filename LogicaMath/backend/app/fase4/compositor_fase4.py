@@ -349,6 +349,12 @@ class CompositorFase4:
         # Character budget validation
         self.validar_composicion(plantilla, esc, texto_enunciado=pregunta_txt)
 
+        # En una conversión la RESPUESTA está en la unidad del RESULTADO, que no
+        # siempre es la unidad del enunciado (`unit`). Ej.: km→m la respuesta va
+        # en metros; cm+mm→cm la respuesta va en centímetros. La etiqueta de las
+        # alternativas debe usar esa unidad, no la de origen del enunciado.
+        unidad_respuesta = self._unidad_resultado(plantilla) or unit
+
         return {
             "plantilla_id": plantilla["id"],
             "escenario_id": esc["id"],
@@ -362,7 +368,7 @@ class CompositorFase4:
             "valores": vals,
             "resultado_num": resultado,
             "respuesta_correcta": fmt_res,
-            "unidad": unit,
+            "unidad": unidad_respuesta,
             "figura_svg": self._figura_svg(plantilla, vals, unit, esc, enunciado),
         }
 
@@ -404,6 +410,34 @@ class CompositorFase4:
         if len(filas) < 2:
             return None
         return tabla_datos(filas, titulo=titulo_tabla, color=color, marco=False)
+
+    # Unidad en la que queda el RESULTADO de cada fórmula de conversión.
+    # Distingue "bajar/subir" (resultado = unidad destino) de las "mixtas" con
+    # división (a+b/K: resultado en la unidad MAYOR, la de 'a'). Las fórmulas de
+    # operatoria pura (a+b, a*b, ...) NO están aquí: su resultado conserva la
+    # unidad del escenario (dinero, longitud, etc.).
+    _UNIDAD_RESULTADO_POR_FORMULA = {
+        "a*10": "mm",            # cm -> mm
+        "a*100": "cm",           # m  -> cm
+        "a*1000": "m",           # km -> m
+        "a*1000+b": "m",         # km + m -> m
+        "a*1000-b": "m",         # km - m -> m
+        "a*n_cant*100": "cm",    # m  -> cm (doble)
+        "a*n_cant/100": "m",     # cm -> m  (doble)
+        "a+b/10": "cm",          # cm + mm -> cm
+        "a+b/100": "m",          # m + cm  -> m
+        "a+b/100+c/100": "m",    # m + cm + ... -> m
+        "a-b/100": "m",          # m - cm  -> m
+        "a/10": "cm",            # mm -> cm
+        "a/100": "m",            # cm -> m
+        "a/1000": "km",          # m  -> km
+        "total/100": "m",        # cm -> m  (inversa)
+        "total/1000": "km",      # m  -> km (inversa)
+    }
+
+    def _unidad_resultado(self, plantilla: dict) -> str | None:
+        """Unidad del resultado si la plantilla es de conversión; None si no."""
+        return self._UNIDAD_RESULTADO_POR_FORMULA.get(plantilla.get("formula", ""))
 
     def _unidades_conversion(self, plantilla: dict) -> tuple[str, str] | None:
         pid = plantilla.get("id", "")
