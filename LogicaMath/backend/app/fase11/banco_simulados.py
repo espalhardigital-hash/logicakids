@@ -2329,4 +2329,74 @@ BANCO_SIMULADOS = [
         "explicacion": "Los porcentajes dados suman 95%; el resto 5% = 137 alumnos → total = 137 ÷ 0,05 = 2740.",
         "dificultad": 2,
     },
+
+    # ==========================================================================
+    # EXAMEN REAL COLÉGIO PEDRO II - MATEMÁTICA 2023 (admissão 6º ano)
+    # 7 preguntas de matemática (Q11-Q20), traducidas y VERIFICADAS. Se omiten
+    # Q12 (área del castillo en malla), Q14 (contar sólidos) y Q19 (fracción de
+    # figura dividida): figuras no reconstruibles en texto.
+    # ==========================================================================
+    {
+        "tema": "Coordenadas y desplazamientos",
+        "origen": "Pedro II 2023 - Q11",
+        "enunciado": "En una cuadrícula (cada cuadrado = una cuadra), desde la Casa la Panadería está 2 cuadras al Este y 3 al Norte, y la Escuela está 6 cuadras al Este y 6 al Norte. Ana siempre pasa primero por la Panadería al ir a la Escuela. ¿Cuál trayecto NO sirve para ir a la Escuela pasando por la Panadería?",
+        "correcta": "3 al Este, 2 al Norte, 3 al Este y 4 al Norte",
+        "distractores": ["3 al Norte, 2 al Este, 3 al Norte y 4 al Este", "2 al Este, 6 al Norte y 4 al Este", "3 al Norte, 6 al Este y 3 al Norte"],
+        "explicacion": "La Panadería está en (2,3) y la Escuela en (6,6). Los otros trayectos pasan por (2,3); el de '3 Este, 2 Norte, 3 Este, 4 Norte' recorre (3,0)→(3,2)→(6,2)→(6,6), sin tocar (2,3).",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Operación inversa (calculadora)",
+        "origen": "Pedro II 2023 - Q13",
+        "enunciado": "Paula digitó un número en la calculadora, lo multiplicó por 7, sumó 13, dividió el resultado entre 3 y obtuvo 30. ¿Qué número digitó?",
+        "correcta": "11",
+        "distractores": ["25", "17", "15"],
+        "explicacion": "30 × 3 = 90; 90 − 13 = 77; 77 ÷ 7 = 11.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Porcentaje del resto (gráfico)",
+        "origen": "Pedro II 2023 - Q15",
+        "enunciado": "En una encuesta, 40 niños respondieron con qué frecuencia oyen música por radio: 75% 'a veces', 20% 'siempre' y el resto 'nunca'. ¿Cuántos respondieron 'nunca'?",
+        "correcta": "2 niños",
+        "distractores": ["4 niños", "5 niños", "6 niños"],
+        "explicacion": "Nunca = 100% − 75% − 20% = 5%. 5% de 40 = 2 niños.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "División con resto (ahorro)",
+        "origen": "Pedro II 2023 - Q16",
+        "enunciado": "Kauê ahorra 3 reales por día para un juguete de 140 reales. ¿Después de cuánto tiempo junta lo necesario?",
+        "correcta": "6 semanas y 5 días",
+        "distractores": ["5 semanas y 3 días", "5 semanas y 6 días", "6 semanas y 3 días"],
+        "explicacion": "140 ÷ 3 = 46,7 → necesita 47 días (47×3 = 141 ≥ 140). 47 días = 6 semanas (42) + 5 días.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Ecuación (precios)",
+        "origen": "Pedro II 2023 - Q17",
+        "enunciado": "Thiago compró 4 libros y 2 cuadernos. Cada cuaderno costó R$18,00 y los 4 libros tenían el mismo precio. Si pagó R$457,00 por los 6 productos, ¿cuánto cuesta cada libro?",
+        "correcta": "R$ 105,25",
+        "distractores": ["R$ 15,25", "R$ 19,75", "R$ 114,25"],
+        "explicacion": "Cuadernos: 2×18 = 36. Libros: 457 − 36 = 421. Cada libro: 421 ÷ 4 = 105,25.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Proporción (mezcla)",
+        "origen": "Pedro II 2023 - Q18",
+        "enunciado": "Para hacer pintura morada se mezclan 2 porciones de azul y 3 de rojo (todas del mismo tamaño). Se obtuvieron 70 litros. ¿Cuánta pintura azul se usó?",
+        "correcta": "28 litros",
+        "distractores": ["14 litros", "42 litros", "140 litros"],
+        "explicacion": "Son 5 porciones = 70 L → cada porción 14 L. Azul: 2 × 14 = 28 L.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "División con resto (consumo)",
+        "origen": "Pedro II 2023 - Q20",
+        "enunciado": "Pietro bebe 2 bebidas al día, todos los días. Para todo el mes de diciembre (31 días), comprando cajas de 27 unidades, ¿cuál es la cantidad mínima de cajas?",
+        "correcta": "3",
+        "distractores": ["4", "5", "6"],
+        "explicacion": "Diciembre: 2 × 31 = 62 bebidas. 62 ÷ 27 = 2,3 → 3 cajas (2 cajas = 54 < 62).",
+        "dificultad": 2,
+    },
 ]
