@@ -2086,4 +2086,82 @@ BANCO_SIMULADOS = [
         "explicacion": "Crecimiento del 350% → 2 × (1 + 3,5) = 2 × 4,5 = 9. (También: 276 − 146 − 60 − 40 − 21 = 9.)",
         "dificultad": 2,
     },
+
+    # ==========================================================================
+    # EXAMEN REAL COLÉGIO PEDRO II - MATEMÁTICA 2019 (admissão 6º ano)
+    # 8 preguntas de matemática (Q11-Q20), traducidas y VERIFICADAS. Se omiten
+    # Q18 (área del sarcófago en malla) y Q19 (planificación → figura).
+    # ==========================================================================
+    {
+        "tema": "Conversión de tiempo",
+        "origen": "Pedro II 2019 - Q11",
+        "enunciado": "Un video de 1 h 40 min se dividió en 6 capítulos de igual duración. ¿Cuánto duró cada capítulo?",
+        "correcta": "16 minutos y 40 segundos",
+        "distractores": ["16 minutos y 6 segundos", "16 minutos y 7 segundos", "16 minutos y 20 segundos"],
+        "explicacion": "1 h 40 min = 100 min = 6000 s. 6000 ÷ 6 = 1000 s = 16 min 40 s.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Lectura de datos (resta)",
+        "origen": "Pedro II 2019 - Q12",
+        "enunciado": "El total de indígenas en Brasil en 2010 era 896,7 mil, distribuidos así: Norte 342,8; Nordeste 232,7; Centro-Oeste 143,4; Sudeste 99,1; y Sur (que faltó en el gráfico). ¿Cuál es la diferencia entre Centro-Oeste y Sur?",
+        "correcta": "64.700",
+        "distractores": ["78.700", "134.400", "818.000"],
+        "explicacion": "Sur = 896,7 − 342,8 − 232,7 − 143,4 − 99,1 = 78,7 mil. Diferencia: 143,4 − 78,7 = 64,7 mil = 64.700.",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Cálculo de costos (entradas)",
+        "origen": "Pedro II 2019 - Q13",
+        "enunciado": "Se llevará a 35 estudiantes a una exposición. El bus cobra R$70,00 por estudiante (gratis para los 2 adultos que acompañan). La entrada cuesta R$30,50 (adultos) y la media entrada R$15,25 (estudiantes). ¿Cuál es el gasto total?",
+        "correcta": "R$ 3.044,75",
+        "distractores": ["R$ 2.983,75", "R$ 3.517,50", "R$ 3.578,50"],
+        "explicacion": "Bus: 35×70 = 2450. Estudiantes: 35×15,25 = 533,75. Adultos: 2×30,50 = 61. Total: 2450 + 533,75 + 61 = 3.044,75.",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Divisibilidad (razón 2:1)",
+        "origen": "Pedro II 2019 - Q14",
+        "enunciado": "Cuatro clases tienen 28, 25, 27 y 29 estudiantes. En una de ellas hay exactamente dos niñas por cada niño. ¿Cuál es esa clase (por su número de estudiantes)?",
+        "correcta": "La de 27 estudiantes",
+        "distractores": ["La de 28 estudiantes", "La de 25 estudiantes", "La de 29 estudiantes"],
+        "explicacion": "Dos niñas por niño → el total debe ser múltiplo de 3. Solo 27 lo es (18 niñas y 9 niños).",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Expresión numérica (dinero)",
+        "origen": "Pedro II 2019 - Q15",
+        "enunciado": "Una familia reservó R$170,00 para entradas. Compró 3 enteras a R$20,00 y 4 medias a R$10,00. ¿Qué expresión da el dinero que sobró?",
+        "correcta": "170 − [ (3 × 20) + (4 × 10) ]",
+        "distractores": ["170 − 3 × 20 + 4 × 10", "170 + 3 × 20 − 4 × 10", "(170 + 3 × 20) + (4 × 10)"],
+        "explicacion": "Se gastó (3×20) + (4×10). Lo que sobró es 170 menos ese total: 170 − [(3×20)+(4×10)] = 170 − 100 = 70.",
+        "dificultad": 2,
+    },
+    {
+        "tema": "Razonamiento lógico (fechas)",
+        "origen": "Pedro II 2019 - Q16",
+        "enunciado": "Cuatro artistas nacieron el 4 de agosto, el 29 de agosto, el 1 de septiembre y el 29 de diciembre. Aleijadinho y Portinari cumplen el mismo día pero en meses distintos; Aleijadinho y Burle Marx cumplen el mismo mes pero en días distintos. ¿Qué día nació Tarsila?",
+        "correcta": "1 de septiembre",
+        "distractores": ["4 de agosto", "29 de agosto", "29 de diciembre"],
+        "explicacion": "Aleijadinho = 29 de agosto (mismo día 29 que Portinari en dic., mismo mes agosto que Burle Marx el día 4). Portinari = 29 dic, Burle Marx = 4 ago, así que Tarsila = 1 de septiembre.",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Fracciones de un total (tabla)",
+        "origen": "Pedro II 2019 - Q17",
+        "enunciado": "De 4600 escarabajos, 1/4 son azules, 3/8 negros, y las cantidades de morados, verdes y marrones son iguales entre sí. ¿Cuál afirmación es correcta?",
+        "correcta": "Hay 1725 escarabajos negros",
+        "distractores": ["Hay 575 escarabajos azules", "La fracción de verdes es 1/2", "La fracción de morados es 2/8"],
+        "explicacion": "Negros: 3/8 × 4600 = 1725. (Azules: 1/4 × 4600 = 1150; morados/verdes/marrones: cada uno 1/8 = 575.)",
+        "dificultad": 3,
+    },
+    {
+        "tema": "Conteo (permutaciones)",
+        "origen": "Pedro II 2019 - Q20",
+        "enunciado": "En una pared hay 4 cuadros distintos, uno al lado del otro. Se retiran todos y luego se recolocan sin recordar el orden. ¿De cuántas maneras diferentes se pueden colocar lado a lado?",
+        "correcta": "24",
+        "distractores": ["8", "12", "16"],
+        "explicacion": "Es el número de ordenaciones de 4 elementos: 4! = 4 × 3 × 2 × 1 = 24.",
+        "dificultad": 2,
+    },
 ]
