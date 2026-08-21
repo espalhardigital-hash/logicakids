@@ -43,6 +43,7 @@ class CompositorFase5:
         "tpl_m1_n1_diferencia",
         "tpl_m1_n3_resto_menos_usadas",
         "tpl_m2_n2_diferencia_tomados_resto",
+        "tpl_m3_n2_diferencia_precio_ahorro",
         "tpl_m4_n1_diferencia_componentes",
         "tpl_m4_n2_diferencia_a_b",
         "tpl_m4_n3_diferencia_pct",
@@ -285,7 +286,44 @@ class CompositorFase5:
             correcta = singular if numero == "1" else plural
             return f"{numero} {correcta}"
 
-        return patron.sub(_concordar, texto)
+        texto = patron.sub(_concordar, texto)
+
+        # Concordancia de género del pronombre interrogativo con el sustantivo:
+        # los marcos genéricos escriben "¿Cuántos {sustantivo}...?" pero muchos
+        # sustantivos son femeninos (monedas, partes, porciones, ...). Verificado
+        # real: 22 preguntas F5 con "¿Cuántos monedas". Corrige a "¿Cuántas".
+        _fem = {
+            "monedas", "moneda", "partes", "parte", "porciones", "porción",
+            "celdas", "celda", "cajas", "caja", "manzanas", "manzana",
+            "naranjas", "naranja", "canicas", "canica", "tazas", "taza",
+            "franjas", "franja", "parcelas", "parcela", "rebanadas", "rebanada",
+            "divisiones", "división", "flores", "flor", "galletas", "galleta",
+            "pizzas", "pizza",
+        }
+        _mas = {
+            "caramelos", "caramelo", "libros", "libro", "estudiantes",
+            "grupos", "grupo", "lotes", "lote", "vasos", "vaso",
+            "cristales", "cristal", "cuadrados", "cuadrado", "gramos",
+            "gramo", "litros", "litro",
+        }
+
+        def _concordar_pronombre(m: re.Match) -> str:
+            pron, susta = m.group(1), m.group(2)
+            palabra = susta.lower()
+            if palabra in _fem:
+                base = "Cuántas" if pron[0] == "C" else "cuántas"
+            elif palabra in _mas:
+                base = "Cuántos" if pron[0] == "C" else "cuántos"
+            else:
+                return m.group(0)
+            return f"{base} {susta}"
+
+        texto = re.sub(
+            r"\b([Cc]uánt[oa]s)\s+([A-Za-zÁÉÍÓÚÑáéíóúñ]+)\b",
+            _concordar_pronombre,
+            texto,
+        )
+        return texto
 
     def _valores_auxiliares(self, valores: dict) -> dict:
         """Cadenas auxiliares que algunos marcos narrativos imprimen (p.ej.
@@ -472,9 +510,10 @@ class CompositorFase5:
                 return {"a": 1, "b": b, "total": total}
             elif nivel_id == 2:
                 b = rng.choice([3, 4, 5, 10])
-                # tpl_m2_n2_diferencia_tomados_resto: k*(2a-b) exige a >= b/2
-                # para que "tomados" no sea menor que "restantes".
-                a = rng.randint(-(-b // 2), b - 1) if resta_ordenada else rng.randint(2, b - 1)
+                # tpl_m2_n2_diferencia_tomados_resto: k*(2a-b) exige 2a>b para
+                # que "tomados" > "restantes" ESTRICTO. Con 2a==b la diferencia
+                # sería 0 y "en cuánto superan" carece de sentido.
+                a = rng.randint(b // 2 + 1, b - 1) if resta_ordenada else rng.randint(2, b - 1)
                 k = rng.randint(3, 8)
                 total = b * k
                 return {"a": a, "b": b, "total": total}
@@ -491,7 +530,12 @@ class CompositorFase5:
                 total = rng.choice(totals_valid)
                 return {"a": a, "total": total}
             elif nivel_id == 2:
-                a = rng.choice([10, 20, 25, 30, 40, 50])
+                # tpl_m3_n2_diferencia_precio_ahorro: (total - t*a/100) - (t*a/100) = total*(1-2a/100)
+                # exige a < 50 ESTRICTO (con a==50, precio pagado = ahorro, dif=0).
+                opciones_a = [10, 20, 25, 30, 40, 50]
+                if resta_ordenada:
+                    opciones_a = [x for x in opciones_a if x < 50]
+                a = rng.choice(opciones_a)
                 totals_valid = [t for t in [40, 50, 60, 80, 100, 120, 150, 200] if (a * t) % 100 == 0]
                 total = rng.choice(totals_valid)
                 return {"a": a, "total": total}
@@ -505,11 +549,14 @@ class CompositorFase5:
         else:  # modulo_id == 4
             if nivel_id == 1:
                 a = rng.choice([1, 2, 3])
-                # tpl_m4_n1_diferencia_componentes: c*(b-a) exige b >= a para
-                # que "secundarias" no sea menor que "base".
+                # tpl_m4_n1_diferencia_componentes: c*(b-a) exige b > a ESTRICTO
+                # para que "secundarias" SUPEREN a "base". Con b == a la resta
+                # da 0 y "por cuántas partes superan" no tiene sentido (bug real
+                # detectado en 8 preguntas). Si no hay b>a válido, se usa el
+                # mayor b posible como fallback.
                 if resta_ordenada:
-                    opciones_b = [x for x in (2, 3, 4, 5) if x >= a]
-                    b = rng.choice(opciones_b) if opciones_b else a
+                    opciones_b = [x for x in (2, 3, 4, 5) if x > a]
+                    b = rng.choice(opciones_b) if opciones_b else max(a + 1, 2)
                 else:
                     b = rng.choice([2, 3, 4, 5])
                 c = rng.choice([2, 3, 4])
@@ -517,11 +564,10 @@ class CompositorFase5:
                 return {"a": a, "b": b, "c": c, "total": total}
             elif nivel_id == 2:
                 a = rng.choice([1, 2, 3])
-                # tpl_m4_n2_diferencia_a_b: k*(b-a) exige b >= a para que
-                # "componente B" no sea menor que "componente A".
+                # tpl_m4_n2_diferencia_a_b: k*(b-a) exige b > a ESTRICTO.
                 if resta_ordenada:
-                    opciones_b = [x for x in (2, 3, 4) if x >= a]
-                    b = rng.choice(opciones_b) if opciones_b else a
+                    opciones_b = [x for x in (2, 3, 4) if x > a]
+                    b = rng.choice(opciones_b) if opciones_b else max(a + 1, 2)
                 else:
                     b = rng.choice([2, 3, 4])
                 k = rng.randint(3, 8)
@@ -531,10 +577,11 @@ class CompositorFase5:
             else:  # nivel 3: mezclas y % de volumen
                 target_total = rng.choice([4, 5, 8, 10, 20, 25, 50])
                 valid_a = [x for x in range(1, target_total) if (x * 100) % target_total == 0]
-                # tpl_m4_n3_diferencia_pct: pct_b - pct_a exige b >= a, es
-                # decir a <= total/2, o el porcentaje de B sale menor que A.
+                # tpl_m4_n3_diferencia_pct: pct_b - pct_a exige b > a ESTRICTO
+                # (a < total/2). Con a == total/2 el % de B iguala al de A y la
+                # diferencia es 0 → "resta el % de A al de B" da 0 sin sentido.
                 if resta_ordenada:
-                    valid_a = [x for x in valid_a if x <= target_total - x] or valid_a
+                    valid_a = [x for x in valid_a if x < target_total - x] or valid_a
                 a = rng.choice(valid_a)
                 b = target_total - a
                 total = target_total
