@@ -244,6 +244,10 @@ class CompositorFase5:
         "parcela": "parcelas", "taza": "tazas", "litro": "litros",
         "gramo": "gramos", "vaso": "vasos", "cuadrado": "cuadrados",
         "rebanada": "rebanadas",
+        # Contenedores y objetos mod2/mod3 que aparecen tras "los/las" o cifras:
+        "bolsa": "bolsas", "equipo": "equipos", "estante": "estantes",
+        "alcancía": "alcancías", "canasta": "canastas", "artículo": "artículos",
+        "dispositivo": "dispositivos", "cuenta": "cuentas", "archivo": "archivos",
     }
 
     def _normalizar_texto(self, texto: str) -> str:
@@ -287,6 +291,25 @@ class CompositorFase5:
             return f"{numero} {correcta}"
 
         texto = patron.sub(_concordar, texto)
+
+        # Concordancia número artículo-sustantivo: "los bolsa" → "los bolsas".
+        # Un marco imprime "en {articulo} {contenedor}" con articulo="los" para
+        # mod2 (concuerda con el OBJETO plural) pero contenedor es singular.
+        # Verificado real: 21 preguntas F5 con "los bolsa", "las caja", etc.
+        _pluralizables = "|".join(re.escape(s) for s in self._SINGULAR_A_PLURAL)
+        texto = re.sub(
+            r"\b(los|las)\s+(" + _pluralizables + r")\b",
+            lambda m: f"{m.group(1)} {self._SINGULAR_A_PLURAL[m.group(2)]}",
+            texto,
+            flags=re.IGNORECASE,
+        )
+        # Mismo bug con cifras: "los 80 dispositivo" → "los 80 dispositivos"
+        texto = re.sub(
+            r"\b(los|las)\s+(\d+)\s+(" + _pluralizables + r")\b",
+            lambda m: f"{m.group(1)} {m.group(2)} {self._SINGULAR_A_PLURAL[m.group(3)]}",
+            texto,
+            flags=re.IGNORECASE,
+        )
 
         # Concordancia de género del pronombre interrogativo con el sustantivo:
         # los marcos genéricos escriben "¿Cuántos {sustantivo}...?" pero muchos
