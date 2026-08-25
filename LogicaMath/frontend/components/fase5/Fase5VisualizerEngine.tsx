@@ -10,6 +10,7 @@ import { Fase5InteractiveBarChart } from './Fase5InteractiveBarChart';
 import { ContextualPercentageVisualizer } from './ContextualPercentageVisualizer';
 import { FractionPercentageVisualizer } from './FractionPercentageVisualizer';
 import { RatioGridVisualizer } from './RatioGridVisualizer';
+import { CollectionGridVisualizer } from './CollectionGridVisualizer';
 
 const SHAPES = ['circle', 'square', 'pentagon', 'hexagon'] as const;
 // Referencia estable: evita recrear una función nueva en cada render cuando
@@ -24,6 +25,44 @@ export const getDeterministicShape = (seedText: string): 'circle' | 'square' | '
   }
   const index = Math.abs(hash) % SHAPES.length;
   return SHAPES[index];
+};
+
+export const getSemanticShape = (seedText: string): 'circle' | 'square' | 'pentagon' | 'hexagon' => {
+  const lower = (seedText || '').toLowerCase();
+  if (
+    lower.includes('pizza') ||
+    lower.includes('rueda') ||
+    lower.includes('tarta') ||
+    lower.includes('pastel circular') ||
+    lower.includes('disco') ||
+    lower.includes('reloj') ||
+    lower.includes('pastel') ||
+    lower.includes('torta')
+  ) {
+    return 'circle';
+  }
+  if (
+    lower.includes('barra') ||
+    lower.includes('chocolate') ||
+    lower.includes('ventana') ||
+    lower.includes('bandera') ||
+    lower.includes('parcela') ||
+    lower.includes('terreno') ||
+    lower.includes('cinta') ||
+    lower.includes('rectángulo') ||
+    lower.includes('rectangulo') ||
+    lower.includes('cuadrado') ||
+    lower.includes('tabla')
+  ) {
+    return 'square';
+  }
+  if (lower.includes('pentágono') || lower.includes('pentagono')) {
+    return 'pentagon';
+  }
+  if (lower.includes('hexágono') || lower.includes('hexagono')) {
+    return 'hexagon';
+  }
+  return getDeterministicShape(seedText);
 };
 
 export const isDiscreteQuestion = (enunciado: string): boolean => {
@@ -103,7 +142,7 @@ export const Fase5VisualizerEngine: React.FC<Props> = ({
               setInteractiveSelectedCount?.(selectedCount);
             }}
             color={moduleColor}
-            shape={getDeterministicShape(pregunta.enunciado)}
+            shape={getSemanticShape(pregunta.enunciado)}
           />
 
           <div 
@@ -123,12 +162,7 @@ export const Fase5VisualizerEngine: React.FC<Props> = ({
             <span className="text-slate-400 text-xs font-black tracking-[0.2em] block mb-2">
               SOMBREA EXACTAMENTE LA FRACCIÓN:
             </span>
-            <span 
-              style={{ color: moduleColor, textShadow: `0 0 15px ${moduleColor}60` }} 
-              className="text-4xl font-sans font-black tracking-wider block"
-            >
-              {pregunta.respuesta_correcta}
-            </span>
+            <span className="text-2xl font-sans font-black tracking-wider block text-slate-200">Selecciona las partes necesarias</span>
           </div>
         </>
       );
@@ -170,9 +204,18 @@ export const Fase5VisualizerEngine: React.FC<Props> = ({
       const num_base = pregunta.datos_numericos.num_base;
       const den_base = pregunta.datos_numericos.den_base;
       const factor = pregunta.datos_numericos.factor;
-      const num_eq = num_base * factor;
+      const incognita = pregunta.datos_numericos.incognita || '';
       const den_eq = den_base * factor;
-      const shape = getDeterministicShape(pregunta.enunciado);
+      const shape = getSemanticShape(pregunta.enunciado);
+
+      // Determinamos qué mostrar en la fracción de la derecha para no hacer spoiler
+      let rightLabel = '? / ?';
+      if (incognita === 'nuevo_numerador') {
+        rightLabel = `? / ${den_eq}`;
+      } else if (incognita === 'nuevo_denominador' || incognita === 'cuadruple_den') {
+        rightLabel = `${num_base * factor} / ?`;
+      }
+
       return (
         <div className="flex items-center justify-center gap-6 my-4 scale-[0.9] origin-top">
           <div className="flex flex-col items-center">
@@ -186,17 +229,20 @@ export const Fase5VisualizerEngine: React.FC<Props> = ({
             />
             <span className="text-slate-300 font-black text-lg">{num_base}/{den_base}</span>
           </div>
-          <div className="text-4xl font-black text-purple-400" style={{ color: moduleColor }}>=</div>
+          <div className="flex flex-col items-center justify-center">
+            <span className="text-xs font-bold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full mb-1">× {factor}</span>
+            <div className="text-3xl font-black" style={{ color: moduleColor }}>=</div>
+          </div>
           <div className="flex flex-col items-center">
             <PizzaFractionVisualizer
               slices={den_eq}
-              initialSombreados={Array.from({ length: num_eq }, (_, i) => i)}
+              initialSombreados={[]}
               interactive={false}
               hideText={true}
               color={moduleColor}
               shape={shape}
             />
-            <span className="text-slate-300 font-black text-lg">{num_eq}/{den_eq}</span>
+            <span className="text-amber-400 font-black text-lg">{rightLabel}</span>
           </div>
         </div>
       );
@@ -213,7 +259,7 @@ export const Fase5VisualizerEngine: React.FC<Props> = ({
           setInteractiveSelectedCount?.(selectedCount);
         }}
         color={moduleColor}
-        shape={getDeterministicShape(pregunta.enunciado)}
+        shape={getSemanticShape(pregunta.enunciado)}
       />
     );
   }
@@ -252,10 +298,15 @@ export const Fase5VisualizerEngine: React.FC<Props> = ({
       <Fase5InteractiveBarChart
         valA={pregunta.datos_numericos?.val_a || 0}
         valB={pregunta.datos_numericos?.val_b || 0}
+        valC={pregunta.datos_numericos?.val_c}
         categorias={pregunta.datos_numericos?.categorias}
         moduleColor={moduleColor}
       />
     );
+  }
+
+  if (tipoVisual === 'collection_grid') {
+    return <CollectionGridVisualizer pregunta={pregunta} moduleColor={moduleColor} />;
   }
 
   if (tipoVisual === 'pie') {

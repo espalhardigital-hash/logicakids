@@ -94,20 +94,6 @@ export async function submitFase6Answer(
 }
 
 /**
- * Cierra el bloque de rescate y avanza.
- */
-export async function closeFase6Rescate(
-  moduloId: number, nivelId: number, preguntaId: number
-): Promise<Fase6AnswerResult> {
-  const res = await fetchWithTimeout(`${API_URL}/fase6/cerrar-rescate`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ modulo_id: moduloId, nivel_id: nivelId, pregunta_id: preguntaId }),
-  });
-  return handleResponse<Fase6AnswerResult>(res);
-}
-
-/**
  * Obtiene el contenido de lectura/teoría de un nivel.
  */
 export async function getFase6Reading(

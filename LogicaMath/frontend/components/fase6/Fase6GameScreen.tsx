@@ -9,9 +9,9 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import './Fase6Styles.css';
-import { getFase6Question, submitFase6Answer, getFase6Reading, closeFase6Rescate, graduateFase6 } from './Fase6Service';
+import { getFase6Question, submitFase6Answer, getFase6Reading, graduateFase6 } from './Fase6Service';
 import { Fase6TheoryModal } from './Fase6TheoryModal';
-import { Fase6MirrorModal } from './Fase6MirrorModal';
+import { Fase6FeedbackLockModal } from './Fase6FeedbackLockModal';
 import type {
   Fase6Pregunta,
   Fase6AnswerResult,
@@ -73,81 +73,6 @@ const keypadVariants: any = {
 const keyVariants = {
   hidden: { opacity: 0, y: 10 },
   show: { opacity: 1, y: 0 }
-};
-
-// ─── Componente: Modal de Rescate (Explicación Profunda) ──────────────────
-
-const Fase6RescateModal: React.FC<{
-  explicacion: any;
-  moduleColor: string;
-  onClose: () => void;
-}> = ({ explicacion, moduleColor, onClose }) => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }}
-      className="f6-feedback-overlay"
-      style={{ zIndex: 1000 }}
-    >
-      <motion.div 
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        className="f6-feedback-card rescate glass-card"
-        style={{ 
-          maxWidth: '550px', 
-          width: '90%', 
-          padding: '40px',
-          borderTop: `6px solid ${moduleColor}`
-        }}
-      >
-        <div className="f6-feedback-emoji" style={{ fontSize: '3rem', marginBottom: '20px' }}>💡</div>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '10px' }}>
-          {explicacion.titulo || '¡Vamos a repasar!'}
-        </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '30px', fontSize: '1.1rem' }}>
-          No te preocupes, el Bucle Espejo está aquí para ayudarte a entender el concepto.
-        </p>
-
-        <div className="f6-rescate-pasos" style={{ textAlign: 'left', marginBottom: '40px' }}>
-          {explicacion.pasos?.map((p: any, idx: number) => (
-            <div key={idx} style={{ 
-              display: 'flex', 
-              gap: '15px', 
-              marginBottom: '15px', 
-              background: 'rgba(255,255,255,0.03)',
-              padding: '15px',
-              borderRadius: '12px',
-              borderLeft: `4px solid ${moduleColor}80`
-            }}>
-              <span style={{ fontWeight: 900, color: moduleColor }}>{p.orden || (idx + 1)}.</span>
-              <span style={{ color: '#fff', lineHeight: 1.4 }}>{p.texto}</span>
-            </div>
-          ))}
-        </div>
-
-        <button
-          className="f6-submit-btn"
-          onClick={onClose}
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: '18px',
-            borderRadius: '20px',
-            background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
-            color: 'white',
-            border: 'none',
-            fontWeight: 800,
-            fontSize: '1.1rem',
-            cursor: 'pointer',
-            boxShadow: `0 8px 24px ${moduleColor}30`
-          }}
-        >
-          ¡Entendido, continuar! →
-        </button>
-      </motion.div>
-    </motion.div>
-  );
 };
 
 // ─── Componente: Modal de Salida Temprana (Early Exit) ─────────────────────
@@ -492,7 +417,7 @@ const Fase6PhaseGraduationModal: React.FC<{
           borderTop: '6px solid #10B981',
           textAlign: 'center',
           boxShadow: '0 0 40px rgba(16, 185, 129, 0.15)',
-          overflowY: 'auto',
+          overflow: 'hidden',
           maxHeight: '90vh'
         }}
       >
@@ -677,12 +602,6 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   const [isInitialReading, setIsInitialReading] = useState(true);
   const [readingData, setReadingData] = useState<Fase6Lectura | null>(null);
   const [userAvatar, setUserAvatar] = useState<string | undefined>(undefined);
-  const [showRescate, setShowRescate] = useState(false);
-  const [showMirrorModal, setShowMirrorModal] = useState(false);
-  const [mirrorPregunta, setMirrorPregunta] = useState<Fase6Pregunta | null>(null);
-  const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string | undefined>(undefined);
-  const [lastQuestionEnunciado, setLastQuestionEnunciado] = useState<string | undefined>(undefined);
-  const [lastWrongAnswer, setLastWrongAnswer] = useState<string | undefined>(undefined);
   const [showEarlyExit, setShowEarlyExit] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [isFaseCompletada, setIsFaseCompletada] = useState(false);
@@ -822,17 +741,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         porcentaje: data.porcentaje_actual,
       });
 
-      if (data.datos_numericos?.es_espejo) {
-        setMirrorPregunta(data);
-        setShowMirrorModal(true);
-        setPregunta(data); // <-- FIX: Set it to data so the background UI renders behind the modal
-        setLoading(false);
-        return;
-      }
-
       setPregunta(data);
-      setShowMirrorModal(false);
-      setMirrorPregunta(null);
       // Sync dynamic required count from backend config
       if (data.cantidad_requerida) setMaxAciertos(data.cantidad_requerida);
       
@@ -896,18 +805,10 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         loadPregunta();
       }
     } else {
-      if (feedback.resultado?.soporte_avanzado) {
-        setShowRescate(true);
-      } else if (isChallenge) { 
+      if (isChallenge) { 
         loadPregunta(); 
-      } else if (feedback.resultado?.es_espejo) {
-        setLastCorrectAnswer(feedback.resultado?.respuesta_correcta);
-        loadPregunta();
       } else {
-        setRespuesta('');
-        setTokensSeleccionados([]);
-        setSelectedAltId(null);
-        setTimeout(() => inputRef.current?.focus(), 100);
+        loadPregunta();
       }
     }
   }, [feedback, onBack, onComplete, pregunta, paso, loadPregunta, isChallenge, navigate, setShowEarlyExit, setShowCompletion, setIsFaseCompletada, setShowGraduation]);
@@ -922,7 +823,9 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   const handleSubmit = useCallback(async () => {
     if (!pregunta) return;
     if (feedback.visible) {
-      handleFeedbackClose();
+      // La corrección de un error solo puede cerrarse desde su modal cuando
+      // terminaron los 10 segundos y se recorrieron todos los pasos.
+      if (feedback.esCorrecta || feedback.isError) handleFeedbackClose();
       return;
     }
 
@@ -972,13 +875,6 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         setShaking(true);
         setTimeout(() => setShaking(false), 450);
         setFeedback({ visible: true, esCorrecta: false, resultado });
-        if (!isChallenge && resultado.es_espejo) {
-          setLastQuestionEnunciado(pregunta.enunciado);
-          setLastWrongAnswer(respuesta || String(selectedAltId || ''));
-        }
-        if (isChallenge) {
-          autoAdvanceTimeoutRef.current = setTimeout(() => handleFeedbackClose(), 1500);
-        }
       }
     } catch (error: any) {
       setFeedback({
@@ -1231,7 +1127,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
             Reintentar
           </button>
         </div>
-      ) : !pregunta && !showMirrorModal && !showReading ? (
+      ) : !pregunta && !showReading ? (
         <div className="f6-loading">
           <div className="f6-spinner" style={{ borderTopColor: moduleColor }} />
           <span>Preparando siguiente desafío…</span>
@@ -1533,7 +1429,7 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                        {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((num) => (
                          <button key={num} onClick={() => handleKeypadInput(num.toString())} disabled={feedback.visible} className="aspect-square rounded-[1.5rem] bg-white/5 border border-white/10 text-4xl font-black text-white">{num}</button>
                        ))}
-                       <button onClick={() => handleKeypadInput('.')} disabled={feedback.visible} className="aspect-square rounded-[1.5rem] bg-white/5 border border-white/10 text-4xl font-black text-white">.</button>
+                       <button title="Separador decimal (también se acepta punto desde el teclado)" aria-label="Coma decimal" onClick={() => handleKeypadInput(',')} disabled={feedback.visible} className="aspect-square rounded-[1.5rem] bg-white/5 border border-white/10 text-4xl font-black text-white">,</button>
                        <button onClick={() => handleKeypadInput('0')} disabled={feedback.visible} className="aspect-square rounded-[1.5rem] bg-white/5 border border-white/10 text-4xl font-black text-white">0</button>
                        <button onClick={handleBackspace} disabled={feedback.visible} className="aspect-square rounded-[1.5rem] bg-red-500/10 text-red-400 flex items-center justify-center"><Delete size={28} /></button>
                      </div>
@@ -1641,20 +1537,8 @@ const Fase6GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         {showReading && readingData && (
           <Fase6TheoryModal readingData={readingData} moduleColor={moduleColor} onClose={() => setShowReading(false)} onAbort={() => isInitialReading ? onBack() : setShowReading(false)} isInitialReading={isInitialReading} isEvaluatorMode={isEvaluatorMode} userAvatar={userAvatar} />
         )}
-        {showRescate && feedback.resultado?.explicacion && (
-          <Fase6RescateModal explicacion={feedback.resultado.explicacion} moduleColor={moduleColor} onClose={async () => {
-            if (pregunta?.id) try { await closeFase6Rescate(moduloId, nivelId, pregunta.id); } catch(e){}
-            setShowRescate(false); loadPregunta();
-          }} />
-        )}
-        {showMirrorModal && mirrorPregunta && (
-          <Fase6MirrorModal pregunta={mirrorPregunta} moduleColor={moduleColor} lastCorrectAnswer={lastCorrectAnswer} lastQuestionEnunciado={lastQuestionEnunciado} lastWrongAnswer={lastWrongAnswer} onClose={(res) => {
-            if (res) {
-              setProgreso({ aciertos: res.aciertos_acumulados, intentos: res.intentos_totales, porcentaje: res.porcentaje_actual });
-              if (res.soporte_avanzado) { setFeedback({ visible: true, esCorrecta: false, resultado: res }); setShowRescate(true); setShowMirrorModal(false); }
-              else { setShowMirrorModal(false); loadPregunta(); }
-            } else setShowMirrorModal(false);
-          }} />
+        {feedback.visible && !feedback.esCorrecta && !feedback.isError && feedback.resultado && (
+          <Fase6FeedbackLockModal resultado={feedback.resultado} moduleColor={moduleColor} onContinue={handleFeedbackClose} />
         )}
         {showEarlyExit && (
           <Fase6EarlyExitModal 

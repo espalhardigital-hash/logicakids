@@ -35,7 +35,7 @@
     "formula": "(b-a)-a",
     "marcos_alternativos": [
       "En {articulo} {objeto} de {b} partes, {sujeto_nombre} {sujeto} {a} partes. ¿Cuántas partes más quedan libres que tomadas?",
-      "De {b} porciones de {objeto}, {a} fueron usadas. ¿Cuál es la diferencia entre las porciones libres ({b_minus_a}) y las usadas ({a})?"
+      "De {b} porciones de {objeto}, {a} fueron usadas. ¿Cuál es la diferencia entre las porciones libres y las usadas?"
     ]
   },
   {
@@ -43,18 +43,18 @@
     "modulo_id": 1,
     "nivel_id": 1,
     "magnitud": "fraccion_visual",
-    "operacion_correcta": "suma_partes",
-    "incognita": "suma",
+    "operacion_correcta": "partes_para_entero",
+    "incognita": "partes_faltantes",
     "campos_requeridos": [
       "objeto",
       "sujeto",
       "unidad",
       "articulo"
     ],
-    "formula": "a+b",
+    "formula": "b-a",
     "marcos_alternativos": [
-      "Si sumamos las {a} partes tomadas y las {b} partes totales de {articulo} {objeto}, ¿cuál es la suma total?",
-      "En {articulo} {objeto}, {sujeto_nombre} cuenta {a} partes pintadas de un total de {b}. ¿Cuánto resulta {a} + {b}?"
+      "Para completar {articulo} {objeto} entera de {b} partes, si {sujeto_nombre} ya tiene {a} partes, ¿cuántas partes le faltan para completar el entero?",
+      "En {articulo} {objeto} dividida en {b} partes iguales, hay {a} partes listas. ¿Cuántas partes faltan para tener todas las partes?"
     ]
   },
   {
@@ -90,7 +90,7 @@
     ],
     "formula": "b*3",
     "marcos_alternativos": [
-      "Si un {objeto} tiene {b} divisiones en total, ¿cuántas divisiones suman 3 objetos idénticos?",
+      "Si {articulo} {objeto} tiene {b} divisiones en total, ¿cuántas divisiones suman 3 objetos idénticos?",
       "En 3 unidades de {objeto} con {b} porciones cada una, ¿cuántas porciones totales se forman?"
     ]
   },
@@ -108,8 +108,8 @@
     ],
     "formula": "b//2",
     "marcos_alternativos": [
-      "Si {articulo} {objeto} está dividida en {b} partes totales, ¿cuántas partes representan exactamente la mitad?",
-      "Para dividir en 2 partes iguales un {objeto} de {b} porciones, ¿cuántas porciones tiene cada mitad?"
+      "Si {articulo} {objeto} se divide en {b} partes totales, ¿cuántas partes representan exactamente la mitad?",
+      "Para dividir en 2 partes iguales {articulo} {objeto} de {b} porciones, ¿cuántas porciones tiene cada mitad?"
     ]
   },
   {
@@ -121,7 +121,8 @@
     "incognita": "nuevo_numerador",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "a*c",
     "marcos_alternativos": [
@@ -138,7 +139,8 @@
     "incognita": "nuevo_denominador",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "b*c",
     "marcos_alternativos": [
@@ -154,12 +156,13 @@
     "operacion_correcta": "suma_amplificada",
     "incognita": "suma_amplif",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "(a*c)+(b*c)",
     "marcos_alternativos": [
-      "Al amplificar la fracción {a}/{b} de {articulo} {objeto} por el factor {c}, obtenemos los nuevos términos ({a_times_c} y {b_times_c}). ¿Cuál es la suma de ambos?",
-      "En {articulo} {objeto}, si se multiplica numerador {a} y denominador {b} por {c}, ¿cuánto suman el nuevo numerador ({a_times_c}) y el nuevo denominador ({b_times_c})?"
+      "Al amplificar la fracción {a}/{b} de {articulo} {objeto} por el factor {c}, ¿cuánto suman el nuevo numerador y el nuevo denominador?",
+      "En {articulo} {objeto}, si se amplifica la fracción {a}/{b} multiplicando por {c}, ¿cuál es la suma de los nuevos términos obtenidos?"
     ]
   },
   {
@@ -170,12 +173,13 @@
     "operacion_correcta": "dif_amplificada",
     "incognita": "dif_amplif",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "(b*c)-(a*c)",
     "marcos_alternativos": [
-      "Al amplificar la fracción {a}/{b} de {articulo} {objeto} por el factor {c}, ¿cuál es la diferencia entre el nuevo denominador ({b_times_c}) y el nuevo numerador ({a_times_c})?",
-      "En {articulo} {objeto}, resta el nuevo numerador ({a_times_c}) del nuevo denominador ({b_times_c}) al amplificar por {c}."
+      "Al amplificar la fracción {a}/{b} de {articulo} {objeto} por el factor {c}, ¿cuál es la diferencia entre el nuevo denominador y el nuevo numerador?",
+      "En {articulo} {objeto}, al amplificar {a}/{b} por el factor {c}, resta el nuevo numerador del nuevo denominador."
     ]
   },
   {
@@ -186,12 +190,13 @@
     "operacion_correcta": "doble_num",
     "incognita": "doble_num",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "(a*c)*2",
     "marcos_alternativos": [
-      "En {articulo} {objeto}, si el nuevo numerador amplificado es {a_times_c} (de {a}/{b} por factor {c}), ¿cuál sería el doble de ese nuevo numerador?",
-      "En {articulo} {objeto}, multiplica por 2 el resultado de amplificar el numerador {a} por {c}."
+      "En {articulo} {objeto}, si amplificamos la fracción {a}/{b} por el factor {c}, ¿cuál sería el doble del nuevo numerador?",
+      "En {articulo} {objeto}, calcula el doble del resultado de amplificar el numerador {a} por {c}."
     ]
   },
   {
@@ -202,7 +207,8 @@
     "operacion_correcta": "cuadruple_den",
     "incognita": "cuadruple_den",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "b*4",
     "marcos_alternativos": [
@@ -219,11 +225,12 @@
     "incognita": "partes_restantes",
     "campos_requeridos": [
       "objeto",
-      "sujeto"
+      "sujeto",
+      "articulo"
     ],
     "formula": "b-a",
     "marcos_alternativos": [
-      "{articulo} {objeto} fue dividida en {b} porciones totales. Si {sujeto_nombre} {sujeto} {a} porciones, ¿cuántas porciones quedan libres?",
+      "{articulo} {objeto} se dividió en {b} porciones totales. Si {sujeto_nombre} {sujeto} {a} porciones, ¿cuántas porciones quedan libres?",
       "En {articulo} {objeto} de {b} partes, {a} partes están coloreadas. ¿Cuántas partes quedan sin colorear?"
     ]
   },
@@ -236,12 +243,13 @@
     "incognita": "mitad_resto",
     "campos_requeridos": [
       "objeto",
-      "sujeto"
+      "sujeto",
+      "articulo"
     ],
     "formula": "(b-a)//2",
     "marcos_alternativos": [
-      "De {b} porciones de {objeto}, {sujeto_nombre} {sujeto} {a}. De las porciones restantes ({b_minus_a}), se guardan la mitad. ¿Cuántas se guardan?",
-      "Si quedan {b_minus_a} partes libres de {objeto}, ¿cuántas representa la mitad del resto?"
+      "De {b} porciones de {articulo} {objeto}, {sujeto_nombre} {sujeto} {a}. De las porciones restantes, se guarda la mitad. ¿Cuántas se guardan?",
+      "Si en {articulo} {objeto} de {b} partes quedan libres las partes no tomadas tras usar {a}, ¿cuántas representa la mitad de ese resto?"
     ]
   },
   {
@@ -253,12 +261,13 @@
     "incognita": "doble_resto",
     "campos_requeridos": [
       "objeto",
-      "sujeto"
+      "sujeto",
+      "articulo"
     ],
     "formula": "(b-a)*2",
     "marcos_alternativos": [
-      "Si las porciones sobrantes de {objeto} son {b_minus_a} (de {b} totales tras tomar {a}), ¿cuánto sería el doble de las porciones sobrantes?",
-      "Calcula 2 veces las porciones restantes ({b_minus_a}) tras tomar {a} partes de {b}."
+      "Si tras tomar {a} partes de {b} en {articulo} {objeto} calculamos el sobrante, ¿cuánto sería el doble de las porciones sobrantes?",
+      "Calcula 2 veces las porciones restantes tras tomar {a} partes de {b} en {articulo} {objeto}."
     ]
   },
   {
@@ -270,12 +279,13 @@
     "incognita": "suma_rest_usadas",
     "campos_requeridos": [
       "objeto",
-      "sujeto"
+      "sujeto",
+      "articulo"
     ],
     "formula": "(b-a)+a",
     "marcos_alternativos": [
-      "Si sumas las porciones libres ({b_minus_a}) y las porciones usadas ({a}) de {articulo} {objeto}, ¿cuántas porciones obtienes en total?",
-      "Verifica el total de porciones sumando las {a} partes marcadas y las {b_minus_a} partes sin marcar."
+      "Si sumas las porciones libres y las {a} porciones usadas de {articulo} {objeto} de {b} partes, ¿cuántas porciones obtienes en total?",
+      "Verifica el total de porciones sumando las {a} partes marcadas y las partes sin marcar de {articulo} {objeto} de {b} divisiones."
     ]
   },
   {
@@ -287,11 +297,12 @@
     "incognita": "cuadruple_usadas",
     "campos_requeridos": [
       "objeto",
-      "sujeto"
+      "sujeto",
+      "articulo"
     ],
     "formula": "a*4",
     "marcos_alternativos": [
-      "Si se tomaron {a} partes de {objeto}, ¿cuántas partes serían en 4 objetos idénticos con las mismas partes tomadas?",
+      "Si se tomaron {a} partes de {articulo} {objeto}, ¿cuántas partes serían en 4 objetos idénticos con las mismas partes tomadas?",
       "Calcula 4 veces las {a} partes tomadas de {articulo} {objeto}."
     ]
   },
@@ -304,12 +315,13 @@
     "incognita": "resto_menos_usadas",
     "campos_requeridos": [
       "objeto",
-      "sujeto"
+      "sujeto",
+      "articulo"
     ],
     "formula": "(b-a)-a",
     "marcos_alternativos": [
-      "En {articulo} {objeto} de {b} partes, hay {b_minus_a} partes libres y {a} partes usadas. ¿En cuántas unidades supera el resto a las usadas?",
-      "Resta las partes usadas ({a}) de las partes libres ({b_minus_a}) en {articulo} {objeto}."
+      "En {articulo} {objeto} de {b} partes, se usaron {a} partes. ¿En cuántas unidades supera la cantidad de partes libres a las usadas?",
+      "En {articulo} {objeto} de {b} partes, resta las partes usadas ({a}) de las partes que quedaron libres."
     ]
   },
   {
@@ -325,7 +337,7 @@
     ],
     "formula": "total//b",
     "marcos_alternativos": [
-      "{sujeto_nombre} tiene {total} {objeto} en {articulo} {contenedor} y los organiza en {b} grupos iguales. ¿Cuántos {objeto} hay en 1 grupo (1/{b})?",
+      "{sujeto_nombre} tiene {total} {objeto} en su {contenedor} y los organiza en {b} grupos iguales. ¿Cuántos {objeto} hay en 1 grupo (1/{b})?",
       "Para repartir {total} {objeto} en {b} cajas en partes iguales, se calcula 1/{b} de {total}. ¿Cuántos {objeto} recibe cada caja?"
     ]
   },
@@ -342,8 +354,8 @@
     ],
     "formula": "(total//b)*3",
     "marcos_alternativos": [
-      "Si 1/{b} de {total} {objeto} son {total_div_b}, ¿cuántos {objeto} hay en 3 grupos (3/{b})?",
-      "Multiplica por 3 el valor de 1/{b} de {total} {objeto}."
+      "Si se divide un total de {total} {objeto} en {b} grupos iguales, ¿cuántos {objeto} hay en 3 de esos grupos (3/{b})?",
+      "Calcula 3/{b} de una colección de {total} {objeto}."
     ]
   },
   {
@@ -358,7 +370,7 @@
     ],
     "formula": "(total//b)*4",
     "marcos_alternativos": [
-      "Calcula el valor de 4 grupos (4/{b}) si el total de {total} {objeto} se dividió entre {b}.",
+      "Calcula el valor de 4 grupos (4/{b}) si el total de {total} {objeto} se divide en {b} partes iguales.",
       "¿Cuántos {objeto} suman 4 partes unitarias de 1/{b} de {total}?"
     ]
   },
@@ -374,8 +386,8 @@
     ],
     "formula": "total-(total//b)",
     "marcos_alternativos": [
-      "De un total de {total} {objeto}, {sujeto_nombre} toma 1/{b} del grupo ({total_div_b}). ¿Cuántos {objeto} quedan fuera?",
-      "Resta la porción unitaria 1/{b} ({total_div_b}) del total de {total} {objeto}."
+      "De un total de {total} {objeto}, {sujeto_nombre} toma 1/{b} del grupo. ¿Cuántos {objeto} quedan sin tomar?",
+      "Resta la porción unitaria de 1/{b} del total de {total} {objeto}."
     ]
   },
   {
@@ -390,8 +402,8 @@
     ],
     "formula": "(total//b)//2",
     "marcos_alternativos": [
-      "Si la porción unitaria 1/{b} de {total} {objeto} es {total_div_b}, ¿cuál es la mitad de esa porción unitaria?",
-      "Divide entre 2 el grupo unitario resultante de 1/{b} de {total} {objeto}."
+      "Si calculamos la porción unitaria 1/{b} de {total} {objeto}, ¿cuál es la mitad exacta de esa porción unitaria?",
+      "Divide entre 2 la cantidad correspondiente a 1/{b} de {total} {objeto}."
     ]
   },
   {
@@ -406,7 +418,7 @@
     ],
     "formula": "(total//b)*2",
     "marcos_alternativos": [
-      "Calcula 2/{b} de {total} {objeto} multiplicando por 2 la porción unitaria (1/{b} = {total_div_b}).",
+      "Calcula 2/{b} de un grupo de {total} {objeto}.",
       "¿Cuántos {objeto} equivalen a 2 partes unitarias de 1/{b} de {total}?"
     ]
   },
@@ -454,7 +466,7 @@
     ],
     "formula": "((total//b)*a)*2",
     "marcos_alternativos": [
-      "Si {a}/{b} de {total} {objeto} equivalen a una porción calculada, ¿cuál sería el doble de esa cantidad de {objeto}?",
+      "Si calculamos {a}/{b} de {total} {objeto}, ¿cuál sería el doble de esa cantidad de {objeto}?",
       "Calcula 2 veces los {a}/{b} de {total} {objeto}."
     ]
   },
@@ -519,7 +531,7 @@
     "formula": "total-((total//b)*a)",
     "marcos_alternativos": [
       "{sujeto_nombre} tenía {total} {objeto}. Regala {a}/{b} del total a sus amigos. ¿Cuántos {objeto} le quedan?",
-      "En un depósito de {total} {objeto}, se utilizan {a}/{b} de las existencias. ¿Cuántos {objeto} quedan guardados?"
+      "En un depósito de {total} {objeto}, se utilizan {a}/{b} de las existencias. ¿Cuántos {objeto} quedan disponibles?"
     ]
   },
   {
@@ -611,7 +623,8 @@
     "incognita": "monto_porcentaje",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(total*a)//100",
     "marcos_alternativos": [
@@ -627,7 +640,8 @@
     "operacion_correcta": "porcentaje_complemento",
     "incognita": "porcentaje_restante",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "100-a",
     "marcos_alternativos": [
@@ -644,7 +658,8 @@
     "incognita": "monto_restante",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "total-((total*a)//100)",
     "marcos_alternativos": [
@@ -661,7 +676,8 @@
     "incognita": "doble_porcentaje",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((total*a)//100)*2",
     "marcos_alternativos": [
@@ -678,7 +694,8 @@
     "incognita": "mitad_porcentaje",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((total*a)//100)//2",
     "marcos_alternativos": [
@@ -695,7 +712,8 @@
     "incognita": "suma_monto_total",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((total*a)//100)+total",
     "marcos_alternativos": [
@@ -712,7 +730,8 @@
     "incognita": "precio_final",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "total-((total*a)//100)",
     "marcos_alternativos": [
@@ -729,7 +748,8 @@
     "incognita": "ahorro",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(total*a)//100",
     "marcos_alternativos": [
@@ -746,7 +766,8 @@
     "incognita": "dos_productos",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(total-((total*a)//100))*2",
     "marcos_alternativos": [
@@ -763,7 +784,8 @@
     "incognita": "dif_precio_ahorro",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(total-((total*a)//100))-((total*a)//100)",
     "marcos_alternativos": [
@@ -814,7 +836,8 @@
     "incognita": "promedio",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(a+b+c)//3",
     "marcos_alternativos": [
@@ -831,7 +854,8 @@
     "incognita": "suma_total",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "a+b+c",
     "marcos_alternativos": [
@@ -848,7 +872,8 @@
     "incognita": "promedio_bonus",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((a+b+c)//3)+2",
     "marcos_alternativos": [
@@ -865,7 +890,8 @@
     "incognita": "doble_promedio",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((a+b+c)//3)*2",
     "marcos_alternativos": [
@@ -882,7 +908,8 @@
     "incognita": "triple_promedio",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((a+b+c)//3)*3",
     "marcos_alternativos": [
@@ -899,7 +926,8 @@
     "incognita": "mitad_promedio",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((a+b+c)//3)//2",
     "marcos_alternativos": [
@@ -933,7 +961,8 @@
     "incognita": "primer_ingrediente",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "a*c",
     "marcos_alternativos": [
@@ -950,7 +979,8 @@
     "incognita": "suma_lote",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(a*c)+(b*c)",
     "marcos_alternativos": [
@@ -967,7 +997,8 @@
     "incognita": "dif_componentes",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(b*c)-(a*c)",
     "marcos_alternativos": [
@@ -984,7 +1015,8 @@
     "incognita": "doble_mezcla",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(b*c)*2",
     "marcos_alternativos": [
@@ -1001,7 +1033,8 @@
     "incognita": "triple_base",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(a*c)*3",
     "marcos_alternativos": [
@@ -1018,7 +1051,8 @@
     "incognita": "ingrediente_a_lote",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(total//(a+b))*a",
     "marcos_alternativos": [
@@ -1035,7 +1069,8 @@
     "incognita": "ingrediente_b_lote",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "(total//(a+b))*b",
     "marcos_alternativos": [
@@ -1052,7 +1087,8 @@
     "incognita": "dif_a_b",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((total//(a+b))*b)-((total//(a+b))*a)",
     "marcos_alternativos": [
@@ -1069,7 +1105,8 @@
     "incognita": "doble_a",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((total//(a+b))*a)*2",
     "marcos_alternativos": [
@@ -1086,7 +1123,8 @@
     "incognita": "lote_bonus",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((total//(a+b))*a)+5",
     "marcos_alternativos": [
@@ -1103,7 +1141,8 @@
     "incognita": "mitad_a",
     "campos_requeridos": [
       "objeto",
-      "unidad"
+      "unidad",
+      "articulo"
     ],
     "formula": "((total//(a+b))*a)//2",
     "marcos_alternativos": [
@@ -1119,7 +1158,8 @@
     "operacion_correcta": "porcentaje_componente",
     "incognita": "porcentaje_esencia",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "(a*100)//(a+b)",
     "marcos_alternativos": [
@@ -1135,7 +1175,8 @@
     "operacion_correcta": "porcentaje_diluyente",
     "incognita": "porcentaje_agua",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "(b*100)//(a+b)",
     "marcos_alternativos": [
@@ -1151,7 +1192,8 @@
     "operacion_correcta": "dif_pct",
     "incognita": "dif_pct",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "((b*100)//(a+b))-((a*100)//(a+b))",
     "marcos_alternativos": [
@@ -1167,7 +1209,8 @@
     "operacion_correcta": "doble_pct_a",
     "incognita": "doble_pct_a",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "((a*100)//(a+b))*2",
     "marcos_alternativos": [
@@ -1183,7 +1226,8 @@
     "operacion_correcta": "mitad_pct_a",
     "incognita": "mitad_pct_a",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "((a*100)//(a+b))//2",
     "marcos_alternativos": [
@@ -1199,7 +1243,8 @@
     "operacion_correcta": "complemento_pct",
     "incognita": "complemento_pct",
     "campos_requeridos": [
-      "objeto"
+      "objeto",
+      "articulo"
     ],
     "formula": "100-((a*100)//(a+b))",
     "marcos_alternativos": [

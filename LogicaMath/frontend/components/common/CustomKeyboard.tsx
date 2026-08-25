@@ -8,6 +8,7 @@ interface CustomKeyboardProps {
   onSubmit: () => void;
   disabled?: boolean;
   submitDisabled?: boolean;
+  allowDecimal?: boolean;
 }
 
 const containerVariants: any = {
@@ -34,7 +35,8 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
   onDelete,
   onSubmit,
   disabled = false,
-  submitDisabled = false
+  submitDisabled = false,
+  allowDecimal = false,
 }) => {
   // Numbers structured in grid layout matching image: 7-8-9, 4-5-6, 1-2-3
   const numbers = ['7', '8', '9', '4', '5', '6', '1', '2', '3'];
@@ -46,10 +48,11 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="w-full bg-[#1e293b]/40 backdrop-blur-2xl border border-white/10 rounded-[2.2rem] p-5 grid grid-cols-3 gap-4 shadow-2xl select-none"
+        className="w-full bg-[#1e293b]/40 backdrop-blur-2xl border border-white/10 rounded-[2.2rem] p-5 shadow-2xl select-none"
       >
-        {/* Buttons 1 to 9 */}
-        {numbers.map((num) => (
+        <div className="grid grid-cols-3 gap-4">
+          {/* Buttons 1 to 9 */}
+          {numbers.map((num) => (
           <motion.button
             key={num}
             type="button"
@@ -62,10 +65,12 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
           >
             {num}
           </motion.button>
-        ))}
+          ))}
+        </div>
 
-        {/* Bottom Row - Left: Backspace/Delete */}
-        <motion.button
+        <div className={`grid gap-4 mt-4 ${allowDecimal ? 'grid-cols-4' : 'grid-cols-3'}`}>
+          {/* Bottom Row - Left: Backspace/Delete */}
+          <motion.button
           type="button"
           data-testid="delete-numpad"
           variants={keyVariants}
@@ -76,10 +81,21 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
           className="aspect-square rounded-[1.5rem] bg-[#1e293b]/20 border border-red-500/30 text-red-400 flex items-center justify-center cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed select-none"
         >
           <Delete size={28} />
-        </motion.button>
+          </motion.button>
+
+          {allowDecimal && <motion.button
+            type="button"
+            data-testid="decimal-numpad"
+            variants={keyVariants}
+            whileHover={!disabled ? { scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.08)' } : {}}
+            whileTap={!disabled ? { scale: 0.95 } : {}}
+            onClick={() => !disabled && onNumberPress(',')}
+            disabled={disabled}
+            className="aspect-square rounded-[1.5rem] bg-[#1e293b]/50 border border-white/5 text-3xl font-black text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+          >,</motion.button>}
 
         {/* Bottom Row - Center: 0 */}
-        <motion.button
+          <motion.button
           type="button"
           variants={keyVariants}
           whileHover={!disabled ? { scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.08)' } : {}}
@@ -89,10 +105,10 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
           className="aspect-square rounded-[1.5rem] bg-[#1e293b]/50 border border-white/5 text-4xl font-black text-white flex items-center justify-center cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed select-none font-sans"
         >
           0
-        </motion.button>
+          </motion.button>
 
         {/* Bottom Row - Right: Confirm/Submit (Bright Blue Solid) */}
-        <motion.button
+          <motion.button
           type="button"
           data-testid="submit-numpad"
           variants={keyVariants}
@@ -103,7 +119,8 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
           className="aspect-square rounded-[1.5rem] bg-[#2563eb] hover:bg-blue-600 text-white flex items-center justify-center cursor-pointer transition-all disabled:opacity-30 disabled:cursor-not-allowed select-none border-none"
         >
           <ArrowRight size={32} />
-        </motion.button>
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* Centered Small Label below */}

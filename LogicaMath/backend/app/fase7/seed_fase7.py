@@ -725,12 +725,9 @@ async def seed_practica_pool_fase7(session: AsyncSession):
             num_questions = 20
             
         for i in range(num_questions):
-            # Práctica (lvl 1-3): cada índice es una FAMILIA con 1 original +
-            # 2 variantes espejo (mismo estructura_padre_id, flag es_espejo). El
-            # Bucle Espejo del router busca hermanos con datos_numericos.es_espejo
-            # is True; antes cada pregunta era familia de 1 y el espejo NUNCA
-            # disparaba (0 hermanos). Desafíos (lvl>10) no usan espejo (cuentan
-            # aciertos), así que quedan como familia nula.
+            # Cada índice es una familia conceptual. Las tres formulaciones de
+            # práctica amplían la variedad: no son preguntas espejo ni se
+            # activan después de un error.
             if lvl_id <= 3:
                 fam_id = f"f7_m{mod_id}_l{lvl_id}_q{i:03d}"
                 n_variantes = 3
@@ -752,11 +749,16 @@ async def seed_practica_pool_fase7(session: AsyncSession):
                         break
                 seen_enun.add(q_data["enunciado"])
 
-                payload = q_data.get("metadata_visual", {})
-                payload["fase7"] = True
-                # SISTEMA ESPEJO ELIMINADO: las variantes (enunciados distintos)
-                # quedan como variedad del pool; ninguna se marca es_espejo.
-                payload["es_espejo"] = False
+                payload = dict(q_data.get("metadata_visual", {}))
+                svg_data = payload.get("svg_base64")
+                payload.update({
+                    "fase7": True,
+                    "plantilla_id": fam_id or f"f7_m{mod_id}_l{lvl_id}_q{i:03d}",
+                    "requiere_figura": bool(svg_data),
+                    "tipo_visual": "imagen" if svg_data else "textual",
+                    "url": svg_data,
+                })
+                payload.pop("es_espejo", None)
 
                 p = Pregunta(
                     fase_id=FASE7_ID, seccion=seccion_id, estructura_padre_id=fam_id,

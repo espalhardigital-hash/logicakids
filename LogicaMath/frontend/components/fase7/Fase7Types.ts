@@ -73,17 +73,14 @@ export interface Fase7AnswerResult {
   es_correcta: boolean;
   respuesta_correcta?: string;
   explicacion?: Record<string, any>;
+  explicacion_profunda?: string;
+  pausa_obligatoria_segundos: number;
   feedback_error?: string;
   aciertos_acumulados: number;
   intentos_totales: number;
   porcentaje_actual: number;
   bloque_completado: boolean;
   fase_completada: boolean;
-  // Bucle Espejo
-  es_espejo: boolean;
-  intentos_espejo_actuales: number;
-  intentos_espejo_max: number;
-  soporte_avanzado: boolean;
   // Early Exit
   early_exit?: boolean;
   errores_sesion?: number;

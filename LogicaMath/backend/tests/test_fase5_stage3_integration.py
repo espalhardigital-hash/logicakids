@@ -1,5 +1,5 @@
 """
-Test de verificación para la Etapa 3: Desbloqueo de Pool, Bucle Espejo y Topología Canónica.
+Test de verificación para la Etapa 3: Desbloqueo de pool y topología canónica.
 Verifica que los 12 bloques de práctica y 12 de desafío estén definidos y accesibles en la topología.
 """
 

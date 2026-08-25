@@ -21,16 +21,12 @@ from ..utils.math_utils import normalize_response, calcular_max_errores
 from .schemas import (
     Fase5Dashboard, Fase5ModuloInfo, Fase5NivelInfo, Fase5DesafioInfo,
     Fase5PreguntaParaAlumno, Fase5AlternativaOut, Fase5ResponderPregunta,
-    Fase5ResultadoRespuesta, Fase5ContenidoLectura, Fase5CerrarRescate
+    Fase5ResultadoRespuesta, Fase5ContenidoLectura
 )
 
 router = APIRouter(prefix="/fase5", tags=["fase5"])
 
 FASE5_ID = 5
-# E5 (DA2): máximo 2 reformulaciones tras el original. Secuencia al fallar:
-# original(0) -> reformulación 1 -> reformulación 2 -> (3.º fallo) avanzar a otra
-# familia. Cada familia tiene variantes 0..3 (la 3 es reserva).
-MAX_ESPEJO = 2
 
 
 def _pasos_a_texto(explicacion_paso_a_paso) -> str | None:
@@ -414,12 +410,9 @@ async def get_dashboard(
     )
 
 async def _recalcular_porcentaje_fase5(db: AsyncSession, alumno_id: int, seccion: int, cantidad_req: int) -> int:
-    # E6 (DA1 · Progreso P1): solo cuentan las familias RESUELTAS correctamente.
-    # Antes también contaba `respuesta_dada == "BYPASS_EXPLICACION"` (rendirse),
-    # por lo que se podía llegar al 100 % fallando todo. Se elimina esa cláusula:
-    # rendirse tras las reformulaciones avanza a otra pregunta pero NO suma.
-    res_fam_resueltas = await db.execute(
-        select(func.count(func.distinct(Pregunta.estructura_padre_id)))
+    # El dominio se mide por preguntas acertadas, no por variantes o rescates.
+    res_preguntas_resueltas = await db.execute(
+        select(func.count(func.distinct(Pregunta.id)))
         .join(Intento, Intento.pregunta_id == Pregunta.id)
         .where(and_(
             Intento.alumno_id == alumno_id,
@@ -428,8 +421,8 @@ async def _recalcular_porcentaje_fase5(db: AsyncSession, alumno_id: int, seccion
             Intento.es_correcta == True,
         ))
     )
-    familias_resueltas = res_fam_resueltas.scalar() or 0
-    return min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
+    preguntas_resueltas = res_preguntas_resueltas.scalar() or 0
+    return min(100, int((preguntas_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
 # ─────────────────────────────────────────────────────────────────────────────
 # OBTENER PREGUNTA
@@ -581,29 +574,20 @@ async def get_pregunta(
         if not preguntas_db:
             raise HTTPException(status_code=404, detail="No se encontraron preguntas en el banco para este nivel.")
             
-        # Si es modo Práctica Libre (var=0 es la original)
+        # La batería libre usa cualquier pregunta activa del nivel.
         if not is_challenge:
-            # Seleccionar familias únicas
-            familias = list(set(p.estructura_padre_id for p in preguntas_db if p.estructura_padre_id))
-            random.shuffle(familias)
-            selected_fams = familias[:config.cantidad_requerida]
-            
-            # Sembrar las preguntas originales de esas familias (variante=0)
-            for fam_id in selected_fams:
-                fam_q = [p for p in preguntas_db if p.estructura_padre_id == fam_id and p.datos_numericos.get("variante") == 0]
-                if fam_q:
-                    q = fam_q[0]
-                    pa = PoolAsignadoAlumno(
-                        alumno_id=alumno.id,
-                        pregunta_id=q.id,
-                        fase_id=FASE5_ID,
-                        seccion=seccion,
-                        operacion=operacion,
-                        respondida_correctamente=False
-                    )
-                    db.add(pa)
+            random.shuffle(preguntas_db)
+            for q in preguntas_db[:config.cantidad_requerida]:
+                db.add(PoolAsignadoAlumno(
+                    alumno_id=alumno.id,
+                    pregunta_id=q.id,
+                    fase_id=FASE5_ID,
+                    seccion=seccion,
+                    operacion=operacion,
+                    respondida_correctamente=False,
+                ))
         else:
-            # En Desafíos sembramos aleatoriamente sin espejo inicial
+            # En desafíos sembramos preguntas aleatorias del bloque.
             random.shuffle(preguntas_db)
             selected_qs = preguntas_db[:config.cantidad_requerida]
             for q in selected_qs:
@@ -632,7 +616,7 @@ async def get_pregunta(
         pool_pendientes = [p for p in pool if not p.respondida_correctamente]
         
     if not pool_pendientes:
-        raise HTTPException(status_code=404, detail="No hay suficientes preguntas de la variante original (0) disponibles en el banco para completar este nivel.")
+        raise HTTPException(status_code=404, detail="No hay preguntas disponibles en el banco para completar este nivel.")
 
     # 5. Tomar la primera pendiente
     pool_item = pool_pendientes[0]
@@ -652,8 +636,6 @@ async def get_pregunta(
     tiempo_limite = config.tiempo_default_segundos
     
     datos_num = dict(pregunta_act.datos_numericos) if pregunta_act.datos_numericos else {}
-    if datos_num.get("variante", 0) > 0:
-        datos_num["es_espejo"] = True
     
     return Fase5PreguntaParaAlumno(
         id=pregunta_act.id,
@@ -785,11 +767,8 @@ async def responder_fase5(
     pool_item = result_pool.scalar_one_or_none()
     
     early_exit = False
-    es_espejo = False
     explicacion_profunda = None
-    soporte_avanzado = False
     explicacion_estructurada = None       # {"pasos":[...]} para el frontend (E5)
-    intentos_espejo_actuales = 0
     
     if es_correcta:
         # Acierto
@@ -807,47 +786,16 @@ async def responder_fase5(
             pool_item.numero_intentos += 1
             pool_item.respondida_alguna_vez = True
             
-        # Lógica especial de Práctica vs Desafíos
-        if not is_challenge:
-            # E5 · NUEVO FLUJO DE REFUERZO (reemplaza el Bucle Espejo antiguo).
-            # En CADA error se muestra la respuesta correcta + el procedimiento
-            # paso a paso, y luego se presenta una REFORMULACIÓN de la misma
-            # familia (otro contexto y valores). Máximo 2 reformulaciones; al 3.º
-            # fallo se muestra la solución y se AVANZA a otra familia (que no
-            # suma al progreso, DA1/P1). No hay reset ni bloqueo.
-            soporte_avanzado = True
-            explicacion_estructurada = pregunta.explicacion_paso_a_paso or None
-            explicacion_profunda = _pasos_a_texto(pregunta.explicacion_paso_a_paso)
+        # Todo error muestra una explicación y luego avanza a otra pregunta.
+        explicacion_estructurada = pregunta.explicacion_paso_a_paso or None
+        explicacion_profunda = _pasos_a_texto(pregunta.explicacion_paso_a_paso)
+        if pool_item:
+            pool_item.respondida_correctamente = True
+            pool_item.respondida_alguna_vez = True
 
-            orden_actual = pregunta.datos_numericos.get(
-                "orden_refuerzo", pregunta.datos_numericos.get("variante", 0)
-            )
-            intentos_espejo_actuales = orden_actual + 1
-
-            if orden_actual < MAX_ESPEJO:
-                # Servir la siguiente reformulación (otro contexto+valores).
-                siguiente = orden_actual + 1
-                result_mirror = await db.execute(
-                    select(Pregunta).where(and_(
-                        Pregunta.fase_id == FASE5_ID,
-                        Pregunta.seccion == seccion,
-                        Pregunta.estructura_padre_id == pregunta.estructura_padre_id,
-                        cast(Pregunta.datos_numericos["variante"].astext, Integer) == siguiente,
-                        Pregunta.estado == StatusEnum.ACTIVO
-                    ))
-                )
-                mirror_q = result_mirror.scalar_one_or_none()
-                if mirror_q and pool_item:
-                    pool_item.pregunta_id = mirror_q.id
-                    pool_item.numero_intentos = 0
-                    es_espejo = True
-            else:
-                # 3.º fallo: reformulaciones agotadas. Se cierra este slot para
-                # AVANZAR a otra familia. Al no haber acierto (Intento), esta
-                # familia NO cuenta para el progreso (P1). Sin reset ni bloqueo.
-                if pool_item:
-                    pool_item.respondida_correctamente = True
-        else:
+        # Los desafíos conservan la salida honrosa, pero la explicación y la
+        # pausa obligatoria ocurren antes de mostrarla.
+        if is_challenge:
             # MODO DESAFÍO: Salida Temprana (Early Exit)
             # Recuperamos los intentos de error en esta sesión de desafío
             result_errors = await db.execute(
@@ -878,12 +826,7 @@ async def responder_fase5(
                 # solo el pool para que el reintento traiga ejercicios DISTINTOS
                 # (anti-círculo) y se reinicia el contador de errores de sesión
                 # (fecha_inicio) para no expulsar de inmediato al volver. El
-                # frontend usa `early_exit` para enviar al repaso dirigido del
-                # concepto flojo antes de reintentar.
                 early_exit = True
-                soporte_avanzado = True
-                explicacion_estructurada = pregunta.explicacion_paso_a_paso or None
-                explicacion_profunda = _pasos_a_texto(pregunta.explicacion_paso_a_paso)
                 progreso.fecha_inicio = datetime.utcnow()
 
                 # Reasignar pool en la próxima entrada con ejercicios distintos.
@@ -916,7 +859,7 @@ async def responder_fase5(
         # Sincronización legacy settings
         await _sync_unlocked_levels(db, alumno.id, "mixta")
         
-        # Verificar si todos los 25 bloques de la Fase 4 están aprobados para habilitar graduación
+        # Verificar si todos los 25 bloques de la Fase 5 están aprobados para habilitar graduación
         result_total_aprobados = await db.execute(
             select(func.count(ProgresoMaestria.id)).where(and_(
                 ProgresoMaestria.alumno_id == alumno.id,
@@ -926,7 +869,7 @@ async def responder_fase5(
         )
         total_aprobados = result_total_aprobados.scalar()
         if total_aprobados >= 25:
-            # Notifica que la fase fue completada, la graduación explícita será mediante /fase4/graduate
+            # Notifica que la fase fue completada; la graduación explícita usa /fase5/graduate.
             fase_completada = True
                 
     await db.commit()
@@ -939,14 +882,11 @@ async def responder_fase5(
         porcentaje_actual=progreso.porcentaje_actual,
         bloque_completado=bloque_completado,
         fase_completada=fase_completada,
-        es_espejo=es_espejo,
-        intentos_espejo_actuales=intentos_espejo_actuales,
-        intentos_espejo_max=MAX_ESPEJO,
         early_exit=early_exit,
         respuesta_correcta=pregunta.respuesta_correcta,
         explicacion=explicacion_estructurada,
         explicacion_profunda=explicacion_profunda,
-        soporte_avanzado=soporte_avanzado
+        pausa_obligatoria_segundos=0 if es_correcta else 10,
     )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -981,107 +921,6 @@ async def get_lectura(
         tip_pedagogico=theory.advertencia,
         diccionario=getattr(theory, 'diccionario', None),
         interactivos=theory.interactivos,
-    )
-
-# ─────────────────────────────────────────────────────────────────────────────
-# CIERRE DE RESCATE (Fase 5)
-# ─────────────────────────────────────────────────────────────────────────────
-@router.post("/cerrar-rescate", response_model=Fase5ResultadoRespuesta)
-async def cerrar_rescate_fase5(
-    payload: Fase5CerrarRescate,
-    db: AsyncSession = Depends(get_db),
-    alumno: Alumno = Depends(get_current_student),
-):
-    """
-    Cierra la explicación del bloque de rescate en la Fase 5 y registra un intento virtual 'BYPASS_EXPLICACION'.
-    Esto incrementa la completitud del alumno y resetea el bucle espejo de forma fluida.
-    """
-    modulo_id = payload.modulo_id
-    nivel_id = payload.nivel_id
-    seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
-    config = await _get_config(db, seccion, operacion)
-    progreso = await _get_progreso(db, alumno.id, seccion, operacion)
-
-    result_q = await db.execute(
-        select(Pregunta).options(selectinload(Pregunta.alternativas)).where(Pregunta.id == payload.pregunta_id)
-    )
-    pregunta = result_q.scalar_one_or_none()
-    if not pregunta:
-        raise HTTPException(status_code=404, detail="Pregunta no encontrada.")
-
-    # 1. Registrar el bypass como un intento fallido especial
-    intento = Intento(
-        alumno_id=alumno.id,
-        pregunta_id=payload.pregunta_id,
-        respuesta_dada="BYPASS_EXPLICACION",
-        es_correcta=False,
-        fase_id=FASE5_ID,
-        seccion=seccion,
-        operacion=operacion,
-        tipo_error=TipoErrorEnum.CALCULO,
-        feedback_mostrado="Bypass de Explicación",
-        explicacion_mostrada=None,
-        tiempo_respuesta_segundos=0.0,
-    )
-    db.add(intento)
-    await db.flush()
-
-    progreso.intentos_totales += 1
-
-    # 2. Marcar la pregunta en el pool asignado para que avance en get_pregunta
-    result_pool = await db.execute(
-        select(PoolAsignadoAlumno).where(and_(
-            PoolAsignadoAlumno.alumno_id == alumno.id,
-            PoolAsignadoAlumno.pregunta_id == payload.pregunta_id
-        ))
-    )
-    pool_item = result_pool.scalar_one_or_none()
-    if pool_item:
-        pool_item.respondida_correctamente = True
-        pool_item.respondida_alguna_vez = True
-
-    # 3. Recalcular completitud
-    cantidad_req = config.cantidad_requerida if config else 15
-    progreso.porcentaje_actual = await _recalcular_porcentaje_fase5(db, alumno.id, seccion, cantidad_req)
-
-    bloque_completado = False
-    fase_completada = False
-
-    if progreso.porcentaje_actual >= (config.porcentaje_aprobacion if config else 100):
-        if progreso.estado != EstadoProgresoEnum.APROBADO:
-            progreso.estado = EstadoProgresoEnum.APROBADO
-            progreso.fecha_aprobacion = datetime.utcnow()
-        bloque_completado = True
-        
-        # Sincronización legacy settings
-        await _sync_unlocked_levels(db, alumno.id, "mixta")
-
-        # Verificar si todos los 25 bloques de la Fase 5 están aprobados para habilitar graduación
-        result_total_aprobados = await db.execute(
-            select(func.count(ProgresoMaestria.id)).where(and_(
-                ProgresoMaestria.alumno_id == alumno.id,
-                ProgresoMaestria.fase_id == FASE5_ID,
-                ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
-            ))
-        )
-        total_aprobados = result_total_aprobados.scalar()
-        if total_aprobados >= 25:
-            fase_completada = True
-
-    await db.commit()
-
-    return Fase5ResultadoRespuesta(
-        es_correcta=False,
-        respuesta_correcta=pregunta.respuesta_correcta,
-        aciertos_acumulados=progreso.aciertos_acumulados,
-        intentos_totales=progreso.intentos_totales,
-        porcentaje_actual=progreso.porcentaje_actual,
-        bloque_completado=bloque_completado,
-        fase_completada=fase_completada,
-        es_espejo=False,
-        intentos_espejo_actuales=0,
-        intentos_espejo_max=MAX_ESPEJO,
-        soporte_avanzado=False,
     )
 
 # ─────────────────────────────────────────────────────────────────────────────

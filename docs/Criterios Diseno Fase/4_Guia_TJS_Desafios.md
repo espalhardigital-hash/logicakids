@@ -3,6 +3,8 @@
 
 # Tomo 4: Guía de Desafíos TJS — LogicaKids Pro
 
+> **Prelación para Fases 5 y 6 (2026-08-23):** las menciones a Bucle Espejo o Bloque de Rescate son históricas y no aplican. Los desafíos y la práctica usan corrección obligatoria de 10 segundos tras cada error; ver [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](../ESTADO_IMPLEMENTACION_FASES_5_6.md).
+
 > **Versión:** 1.0 | **Última actualización:** 2026-07-24 | **Prioridad documental:** 4
 
 > Nota de autoridad documental: Este documento define el **Modelo B — Evaluación de Juicio Situacional (TJS)**, ámbito **Fases 4 a 11** de LogicaKids Pro. En caso de conflicto con el Tomo 1 (`1_Documento_Rector_Pedagogico.md`) para las Fases 4 a 11, **prevalece este Tomo 4**. Para las Fases 1 a 3, el Tomo 1 (Modelo A — Evaluación de Fluidez) sigue siendo la fuente de verdad exclusiva.

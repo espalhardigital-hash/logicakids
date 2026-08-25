@@ -10,7 +10,6 @@ import type {
   Fase5AnswerPayload,
   Fase5AnswerResult,
   Fase5Lectura,
-  Fase5CerrarRescate,
 } from './Fase5Types';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -115,22 +114,6 @@ export async function getFase5Reading(
     );
     return handleResponse<Fase5Lectura>(res);
   });
-}
-
-/**
- * Cierra de forma segura el bucle de rescate (Mirror Loop).
- */
-export async function submitFase5CloseRescue(
-  moduloId: number,
-  nivelId: number,
-  preguntaId: number
-): Promise<Fase5CerrarRescate> {
-  const res = await fetchWithTimeout(`${API_URL}/fase5/cerrar-rescate`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ modulo_id: moduloId, nivel_id: nivelId, pregunta_id: preguntaId }),
-  });
-  return handleResponse<Fase5CerrarRescate>(res);
 }
 
 /**

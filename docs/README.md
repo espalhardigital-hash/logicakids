@@ -15,7 +15,10 @@
 | Versión y fuentes de datos UI | [`RULES AGENTES/APP_VERSION.md`](../RULES%20AGENTES/APP_VERSION.md) | |
 | Permisos de herramientas del agente | [`RULES AGENTES/gemini.md`](../RULES%20AGENTES/gemini.md) | No sustituye el manual unificado |
 | **Cómo reestructurar una fase (método)** | [`docs/reestructuracionGeneralFases.md`](./reestructuracionGeneralFases.md) | **Normativo.** Orden de planeación por etapas con gates, anti-patrones y reglas de delegación. Leer **antes** de reestructurar cualquier fase |
+| **Auditoría y certificación de una fase** | [`docs/PROTOCOLO_AUDITORIA_Y_CERTIFICACION_FASES.md`](./PROTOCOLO_AUDITORIA_Y_CERTIFICACION_FASES.md) | **Normativo.** Evidencia exigida desde generador hasta recorrido real del alumno; leer antes de declarar una fase operable |
 | **Criterios de teoría, ejemplos guiados y visuales** | [`docs/Criterios Diseno Fase/5_Criterios_Teoria_Ejemplos_y_Visuales.md`](./Criterios%20Diseno%20Fase/5_Criterios_Teoria_Ejemplos_y_Visuales.md) | **Normativo.** T3 (cero scroll) y T4 (ventana fija), anti-revelación en SVG, coherencia de enunciados |
+| **Estado implementado de Fases 5 y 6** | [`docs/ESTADO_IMPLEMENTACION_FASES_5_6.md`](./ESTADO_IMPLEMENTACION_FASES_5_6.md) | **Vigente.** Sustituye preguntas espejo por corrección obligatoria de 10 s y documenta el banco local auditado |
+| **Estado implementado de Fase 7** | [`docs/ESTADO_IMPLEMENTACION_FASE7.md`](./ESTADO_IMPLEMENTACION_FASE7.md) | **Vigente.** Corrección obligatoria de 10 s, banco visual auditable y cero scroll vertical |
 | Memoria de implementación de Fase 4 | [`implementacionfase4.md`](../implementacionfase4.md) | Qué se construyó y por qué; complementa la auditoría |
 | Histórico de reestructuración global 9→11 fases | [`docs/reestructuraciondefases.md`](./reestructuraciondefases.md) | **Ejecución parcial; no normativo.** Fase 4 cerrada; alineación física 7–11 pendiente |
 | Auditoría de implementación de Fase 4 | [`auditoriafase4.md`](../auditoriafase4.md) | Evidencia histórica aprobada; no es plan activo |

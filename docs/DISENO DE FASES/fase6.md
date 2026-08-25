@@ -1,36 +1,35 @@
-# Especificación de Interfaz de Usuario: Fase 6 — Geometría Plana, Espacial y Medidas Físicas
+# Fase 6 — Geometría plana multiforme y áreas
 
-Esta especificación detalla la arquitectura pedagógica, reglas de diseño visual y modelos interactivos para la **Fase 6 de LogicaKids Pro**, enfocada en dominar el espacio bidimensional y tridimensional: perímetros, áreas en malla cuadrillada, figuras compuestas (Tangram), cubos unitarios, volumen y magnitudes físicas.
+> **Estado:** implementada y auditada localmente el 2026-08-23.
+> **Fuente de estado:** [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](../ESTADO_IMPLEMENTACION_FASES_5_6.md).
+> Esta ficha reemplaza versiones históricas con contenido 3D, volumen, Tangram o magnitudes físicas, que no pertenecen a la Fase 6 vigente.
 
----
+## Propósito
 
-## 1. Propósito Pedagógico
+El estudiante reconoce propiedades de figuras planas, calcula perímetros, interpreta áreas en malla y descompone figuras compuestas. Cada pregunta muestra las medidas y la figura necesarias para resolverla, sin revelar el procedimiento.
 
-* **Objetivo General**: Dominar la conservación de la superficie, el cálculo de perímetros, la descomposición de polígonos complejos, el conteo de cubos unitarios en 3D (estética Voxel/Minecraft) y la lectura de magnitudes físicas (monto, masa, temperatura).
+## Módulos y niveles
 
-### 1.1. Estructura Completa de Módulos y Niveles
+| Módulo | Niveles | Aprendizaje central |
+|---|---:|---|
+| 1. Perímetro y borde | 4 | Lados, vértices, clasificación y perímetro de figuras planas |
+| 2. Área en malla | 3 | Conteo y composición de unidades cuadradas |
+| 3. Figuras compuestas | 5 | Descomposición, suma y resta de áreas |
+| 4. Conversión y pantallas | 3 | Lectura de medidas, equivalencias y resolución encadenada |
 
-| Módulo | Nivel 1: Descubrimiento | Nivel 2: Consolidación | Nivel 3: Fluidez / Avanzado | Nivel 4: Especialización |
-| :--- | :--- | :--- | :--- | :--- |
-| **1. Reconocimiento 3D y Perímetros** | **1.1 Conteo directo**: Conteo directo sobre bordes de cuadrículas cuadradas simples. | **1.2 Cálculo analítico**: Perímetros sumando magnitudes de polígonos irregulares. | **1.3 Moldes 3D**: Identificación de poliedros y planificaciones desplegadas. | — |
-| **2. Área en Malha y Patrones** | **2.1 Conteo analítico**: Conteo de unidades confinadas en cuadrículas densas. | **2.2 Fusión de sectores**: Fusión de sectores triangulares (mitades = enteros). | **2.3 Sucesiones 3D**: Patrones de crecimiento espacial en capas. | — |
-| **3. Cubos Unitarios y Volumen** | **3.1 Concepto de volumen**: Conteo de cubos unitarios en prismas compactos (`u³`). | **3.2 Bloques ocultos**: Detección de bloques ocultos por perspectivas isométricas. | **3.3 Volumen y líquidos**: Relación entre volumen cúbico y capacidad (`1 dm³ = 1 L`). | — |
-| **4. Figuras Compuestas y Medidas** | **4.1 Descomposición y Tangram**: Descomposición de polígonos y conservación del área. | **4.2 Áreas sombreadas**: Cálculo por resta geométrica (Área Mayor - Área Menor). | **4.3 Simetría y Medidas**: Ejes de simetría, balanzas y termómetros. | — |
+Cada módulo incluye desafíos estándar, avanzado y de maestría, más un desafío mixto de fase.
 
----
+## Contrato de contenido y UX
 
-## 2. Pautas de Diseño de la Interfaz Visual
+1. El banco local contiene 9.150 preguntas: 7.200 de práctica y 1.950 de desafíos.
+2. Toda pregunta tiene `plantilla_id`, `requiere_figura` y `tipo_visual`; una figura requerida se inserta como SVG inline con las medidas reales de la pregunta.
+3. No existen preguntas espejo, rutas de rescate ni progreso obtenido por bypass. Un error genera explicación obligatoria de 10 segundos, con respuesta correcta y pasos paginados.
+4. Toda pantalla de teoría, práctica, desafío, feedback y graduación cabe sin scroll vertical. Teoría, diccionario y explicaciones largas se reparten en diapositivas.
+5. Las respuestas decimales se muestran con coma. El teclado visual incorpora coma decimal y el campo acepta punto desde teclado físico.
+6. La figura presenta los datos, no el resultado, la operación ejecutada ni flechas que indiquen la solución.
 
-### 2.1. El Tablero de Rejilla y Renderizador SVG Inline
-* **Visualizador**: Rejilla neón dinámica renderizada en línea mediante SVG (`bd_minio §1.3`).
-* **Interactividad**: Permite iluminar bordes para perímetros y rellenar cuadraditos para áreas.
+## Evidencia de publicación local
 
-### 2.2. Visualizador Isométrico 3D (Voxel / Minecraft)
-* **Visualizador**: Escena isométrica de bloques 3D con sombras direccionales.
-* **Interactividad**: Rotación en 360° y corte por capas horizontales para contar cubos ocultos.
-
----
-
-## 3. Control de Cambios y Alineación
-
-* **Actualización 2026-07-27:** Asignada la **Fase 6** oficialmente a **Geometría Plana, Espacial y Medidas Físicas**, consolidando perímetros, mallas, Tangram y cubos unitarios 3D.
+- 28 pruebas de contrato del banco aprobadas.
+- 0 enunciados vacíos, 0 respuestas vacías, 0 figuras requeridas ausentes y 0 datos de pregunta espejo tras el resembrado.
+- Backend y frontend se reconstruyen con `Datos_localhost/docker-compose.local.yml`.

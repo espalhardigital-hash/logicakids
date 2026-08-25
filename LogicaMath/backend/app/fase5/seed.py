@@ -104,7 +104,7 @@ async def seed_teoria_fase5(session: AsyncSession):
                 diccionario=diccionario,
                 advertencia=advertencia,
                 ejemplos=ejemplos,
-                interactivos=[{"tipo": "simulador", "modulo": mod_id, "nivel": niv_id}]
+                interactivos=[]
             )
             session.add(teoria)
     await session.flush()
@@ -199,18 +199,15 @@ async def seed_configuraciones_fase5(session: AsyncSession):
 async def seed_preguntas_fase5(session: AsyncSession):
     print("Generando y sembrando preguntas de Fase 5 con CompositorFase5...")
 
-    # 1. Sembrar preguntas de práctica (12 bloques x 60 preguntas = 720)
+    # 1. Práctica: 12 familias (6 base + 6 de transferencia) × 5 variantes.
     for mod_id in (1, 2, 3, 4):
         for niv_id in (1, 2, 3):
             sec = mod_id * 100 + niv_id
             q_count = 0
-            # E1: cada familia = 1 original (orden_refuerzo=0) + 3 reformulaciones
-            # (1,2,3), cada una con escenario Y valores distintos. El nuevo flujo
-            # de refuerzo (E5) usa como máximo 2 reformulaciones; la 3ª es reserva
-            # para no repetir contexto ya visto.
+            # Las variaciones son preguntas independientes de la batería.
             for fam_idx in range(12):
-                for var_idx in range(4):
-                    seed_val = 500000 + sec * 100 + fam_idx * 4 + var_idx
+                for var_idx in range(5):
+                    seed_val = 500000 + sec * 100 + fam_idx * 5 + var_idx
                     preg_data = _COMPOSITOR.componer_pregunta_practica(
                         modulo_id=mod_id,
                         nivel_id=niv_id,
@@ -225,9 +222,8 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     padre_id = f"f5_m{mod_id}_l{niv_id}_fam_{fam_idx:03d}"
 
                     datos_num = dict(preg_data["datos_numericos"])
-                    datos_num["variante"] = var_idx           # compat con router actual (hasta E5)
-                    datos_num["orden_refuerzo"] = var_idx     # 0=original, 1..3=reformulación
                     datos_num["escenario_id"] = preg_data.get("escenario_id")
+                    datos_num["plantilla_id"] = preg_data["plantilla_id"]
 
                     preg = Pregunta(
                         fase_id=FASE5_ID,
@@ -271,15 +267,16 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     q_count += 1
             print(f"  [OK] Módulo {mod_id} Nivel {niv_id} (sección {sec}): {q_count} preguntas sembradas.")
 
-    # 2. Sembrar preguntas de desafíos (12 bloques x 30 preguntas = 360)
+    # 2. Desafíos: las 12 familias, con tres versiones cada una. Así un
+    # desafío mide transferencia y no solo seis patrones conocidos.
     for mod_id in (1, 2, 3, 4):
         for niv_id in (11, 12, 13):
             sec = mod_id * 1000 + niv_id
             target_niv = (niv_id - 10)  # Maps 11->1, 12->2, 13->3
             q_count = 0
-            for fam_idx in range(6):
-                for var_idx in range(5):
-                    seed_val = 600000 + sec * 100 + fam_idx * 5 + var_idx
+            for fam_idx in range(12):
+                for var_idx in range(3):
+                    seed_val = 600000 + sec * 100 + fam_idx * 3 + var_idx
                     preg_data = _COMPOSITOR.componer_pregunta_practica(
                         modulo_id=mod_id,
                         nivel_id=target_niv,
@@ -291,7 +288,7 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     ans_str = preg_data["respuesta_correcta"]
                     padre_id = f"f5_d{sec}_q{q_count:03d}"
                     datos_num = dict(preg_data["datos_numericos"])
-                    datos_num["variante"] = var_idx
+                    datos_num["plantilla_id"] = preg_data["plantilla_id"]
 
                     preg = Pregunta(
                         fase_id=FASE5_ID,
@@ -334,31 +331,25 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     q_count += 1
             print(f"  [OK] Desafío {sec}: {q_count} preguntas sembradas.")
 
-    # 3. Sembrar desafío mixto final (60 preguntas)
+    # 3. Mixto final: una evidencia de cada familia de cada nivel (144).
     sec_mixto = 99099
     q_count = 0
     for mod_id in (1, 2, 3, 4):
         for niv_id in (1, 2, 3):
-            for var_idx in range(5):
-                seed_val = 700000 + mod_id * 1000 + niv_id * 100 + var_idx
-                # fam_idx variaba con mod_id (constante para los 3 niveles y
-                # las 5 variantes de un mismo módulo): las 60 preguntas del
-                # examen final salían de solo 12 plantillas (1 por módulo x
-                # nivel) en vez de las 72 disponibles. Al variar también con
-                # niv_id y var_idx se recorren varias plantillas por bloque.
-                fam_idx = niv_id * 5 + var_idx
+            for fam_idx in range(12):
+                seed_val = 700000 + mod_id * 1000 + niv_id * 100 + fam_idx
                 preg_data = _COMPOSITOR.componer_pregunta_practica(
                     modulo_id=mod_id,
                     nivel_id=niv_id,
                     fam_idx=fam_idx,
-                    var_idx=var_idx,
+                    var_idx=fam_idx % 3,
                     seed_val=seed_val
                 )
 
                 ans_str = preg_data["respuesta_correcta"]
                 padre_id = f"f5_mixto_q{q_count:03d}"
                 datos_num = dict(preg_data["datos_numericos"])
-                datos_num["variante"] = var_idx
+                datos_num["plantilla_id"] = preg_data["plantilla_id"]
 
                 preg = Pregunta(
                     fase_id=FASE5_ID,

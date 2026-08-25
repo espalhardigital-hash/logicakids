@@ -80,7 +80,7 @@ from .schemas import (
 
     Fase7ContenidoLectura, Fase7DesafioInfo,
 
-    Fase7AlternativaOut, Fase7CerrarRescate,
+    Fase7AlternativaOut,
 
 )
 
@@ -91,8 +91,6 @@ router = APIRouter(prefix="/fase7", tags=["fase7"])
 
 
 FASE7_ID = 7
-
-MAX_ESPEJO = 3  # Intentos m├íximos en Bucle Espejo
 
 
 
@@ -1889,7 +1887,7 @@ async def responder_fase7(
 
             tipo_error_detectado=tipo_error.value if tipo_error else None,
 
-            es_espejo=bool(es_variante_espejo),
+            es_espejo=False,
 
             tiempo_respuesta=payload.tiempo_respuesta_segundos
 
@@ -2230,23 +2228,18 @@ async def responder_fase7(
 
                 max_errores_tolerados=max_errores,
 
+                explicacion=pregunta.explicacion_paso_a_paso if not es_correcta else None,
+
                 feedback_error=feedback_mostrado,
+
+                pausa_obligatoria_segundos=0 if es_correcta else 10,
 
             )
 
 
 
-    # Pr├íctica Libre (1-10): No contamos intentos ni aciertos si es una variante espejo 
-
-    # para no penalizar el "Score" visual del alumno en modo entrenamiento.
-
-    es_variante_espejo = (pregunta.datos_numericos and pregunta.datos_numericos.get("es_espejo"))
-
-    
-
-    if not es_variante_espejo:
-
-        progreso.intentos_totales += 1
+    # Todo intento cuenta. Un fallo se corrige y avanza a una pregunta nueva.
+    progreso.intentos_totales += 1
 
     
 
@@ -2360,49 +2353,7 @@ async def responder_fase7(
 
 
 
-        # Sincronizar espejo visual heredado
-
         await _sync_unlocked_levels(db, alumno.id, operacion)
-
-
-
-    espejo = False
-
-    intentos_espejo = 0
-
-    soporte_avanzado = False
-
-
-
-    if not es_correcta and modulo_id in (1, 2, 3) and pregunta.estructura_padre_id:
-
-        res_fam = await db.execute(
-
-            select(Intento)
-
-            .join(Pregunta, Intento.pregunta_id == Pregunta.id)
-
-            .where(and_(
-
-                Intento.alumno_id == alumno.id,
-
-                Pregunta.estructura_padre_id == pregunta.estructura_padre_id
-
-            ))
-
-            .order_by(Intento.fecha.desc(), Intento.id.desc())
-
-        )
-
-        family_attempts = res_fam.scalars().all()
-
-        intentos_espejo = len(family_attempts)
-
-        
-
-        espejo = intentos_espejo > 0
-
-        soporte_avanzado = intentos_espejo >= (MAX_ESPEJO + 1)
 
 
 
@@ -2416,7 +2367,7 @@ async def responder_fase7(
 
         respuesta_correcta=respuesta_correcta_str,
 
-        explicacion=pregunta.explicacion_paso_a_paso if (not es_correcta and soporte_avanzado) else None,
+        explicacion=pregunta.explicacion_paso_a_paso if not es_correcta else None,
 
         feedback_error=feedback_mostrado,
 
@@ -2430,13 +2381,7 @@ async def responder_fase7(
 
         fase_completada=fase_completada,
 
-        es_espejo=espejo,
-
-        intentos_espejo_actuales=intentos_espejo,
-
-        intentos_espejo_max=MAX_ESPEJO,
-
-        soporte_avanzado=soporte_avanzado,
+        pausa_obligatoria_segundos=0 if es_correcta else 10,
 
         paso_aprobado=paso_aprobado,
 
@@ -2456,11 +2401,9 @@ async def responder_fase7(
 
 
 
-@router.post("/cerrar-rescate", response_model=Fase7ResultadoRespuesta)
+async def _legacy_cerrar_rescate_eliminado(
 
-async def cerrar_rescate_fase6(
-
-    payload: Fase7CerrarRescate,
+    payload: Fase7ResponderPregunta,
 
     db: AsyncSession = Depends(get_db),
 

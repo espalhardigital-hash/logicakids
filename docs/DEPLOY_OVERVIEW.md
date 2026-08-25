@@ -45,6 +45,20 @@ sudo docker compose -p <nombre_proyecto> up -d --build backend frontend
 
 Evita proyectos Docker duplicados por el nombre de carpeta.
 
+## Operación local vigente
+
+La verificación de Fases 5 y 6 se realiza exclusivamente con el compose local:
+
+```powershell
+docker compose -f D:\Antigravity\APP_Logica_Matematicas_kids\Datos_localhost\docker-compose.local.yml up -d --build
+```
+
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:8000`
+- PostgreSQL: `localhost:5433`
+
+Después de modificar un seeder, reconstruir el backend y resembrar solo la fase afectada. El procedimiento y las cautelas para Fases 5 y 6 están en [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](./ESTADO_IMPLEMENTACION_FASES_5_6.md).
+
 ## Variables de entorno (nombres, no valores)
 
 | Variable | Uso |

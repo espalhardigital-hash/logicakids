@@ -39,16 +39,16 @@ TEORIA_FASE5 = {
     },
     (1, 3): {
         "parrafos": [
-            "Para comparar partes de un mismo entero, cuenta cuántas partes tiene cada una.",
-            "Con el mismo denominador, la fracción con mayor numerador es la mayor.",
-            "Ejemplo: en un chocolate de 8 partes, 5/8 es más que 3/8, porque 5 partes es más que 3.",
+            "Un entero se divide en partes iguales: las partes tomadas y las partes que quedan (el resto) siempre suman el total.",
+            "Para analizar un entero, compara las partes usadas con las libres y calcula sus relaciones (dobles, mitades y diferencias).",
+            "Ejemplo: en un chocolate de 8 partes, si tomas 2, quedan 6 libres; el resto (6) supera a las usadas (2) en 4 partes.",
         ],
         "diccionario": {
-            "Comparar": "Decidir cuál cantidad es mayor, menor o si son iguales.",
-            "Mayor que (>)": "Tiene más cantidad.",
-            "Menor que (<)": "Tiene menos cantidad.",
+            "Resto": "Las partes que quedan libres tras tomar una porción.",
+            "Diferencia": "La cantidad en que una parte supera a la otra.",
+            "Mitad del resto": "Dividir las partes sobrantes en 2 grupos iguales.",
         },
-        "sabias": "Con igual denominador, más numerador siempre significa más cantidad.",
+        "sabias": "Las partes tomadas más las partes libres siempre reconstruyen el entero completo.",
     },
     (2, 1): {
         "parrafos": [

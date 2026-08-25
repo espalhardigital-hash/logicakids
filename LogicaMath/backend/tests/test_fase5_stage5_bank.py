@@ -22,16 +22,17 @@ def test_no_identity_formula_templates():
         assert p["formula"].strip() not in identidades, f"Plantilla {p['id']} usa fórmula identidad: {p['formula']}"
 
 
-def test_at_least_6_templates_per_level():
-    """BUG-27: Cada (módulo, nivel) debe contar con al menos 6 plantillas distintas."""
+def test_at_least_12_templates_per_level():
+    """Cada nivel combina seis familias base y seis de transferencia."""
     data_dir = os.path.join(os.path.dirname(__file__), "..", "app", "fase5", "data")
     with open(os.path.join(data_dir, "plantillas_fase5.json"), "r", encoding="utf-8") as f:
         plantillas = json.load(f)
 
+    comp = CompositorFase5()
     for m in (1, 2, 3, 4):
         for n in (1, 2, 3):
-            pl_nivel = [p for p in plantillas if p["modulo_id"] == m and p["nivel_id"] == n]
-            assert len(pl_nivel) >= 6, f"Módulo {m} Nivel {n} tiene solo {len(pl_nivel)} plantillas (se exigen ≥ 6)"
+            pl_nivel = [p for p in comp.plantillas if p["modulo_id"] == m and p["nivel_id"] == n]
+            assert len(pl_nivel) >= 12, f"Módulo {m} Nivel {n} tiene solo {len(pl_nivel)} plantillas (se exigen ≥ 12)"
 
 
 def test_variedad_enunciados_por_bloque():

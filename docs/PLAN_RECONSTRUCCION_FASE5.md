@@ -1,6 +1,6 @@
 # Plan de Reconstrucción — Fase 5 (Fracciones, Porcentajes y Proporciones)
 
-> **Estado:** propuesta lista para implementar. Etapa 0 (inventario de acoplamiento) ya ejecutada con evidencia real, ver §2.
+> **Estado:** implementada y verificada localmente el 2026-08-23. Este documento se conserva como plan e inventario histórico; el estado vigente está en [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](./ESTADO_IMPLEMENTACION_FASES_5_6.md).
 > **Método normativo a seguir:** [`docs/reestructuracionGeneralFases.md`](./reestructuracionGeneralFases.md) — **léelo completo antes de escribir una sola línea**. Este documento no repite ese método; lo aplica a la Fase 5 con datos concretos y define el orden de ejecución.
 > **Mapa canónico:** [`docs/MAPA_CANONICO_FASES.md`](./MAPA_CANONICO_FASES.md) — `fase_id=5` = "Fracciones, Porcentajes y Proporciones" (`app/fase5/`, frontend `Fase5GameScreen.tsx`). Esto es lo correcto hoy; no re-numerar.
 > **Precedente directo:** la Fase 4 (Decimales) ya pasó por exactamente este mismo problema y ya está cerrada — ver [`auditoriafase4.md`](../auditoriafase4.md), [`implementacionfase4.md`](../implementacionfase4.md), y el compositor real en `LogicaMath/backend/app/fase4/compositor_fase4.py` + `LogicaMath/backend/app/fase4/data/*.json` como referencia arquitectónica a replicar.

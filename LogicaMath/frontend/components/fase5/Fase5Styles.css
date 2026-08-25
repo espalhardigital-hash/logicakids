@@ -17,7 +17,8 @@
 
 /* Base Wrapper for Selector & Play screen */
 .f5-screen-wrapper {
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   width: 100%;
   background-color: var(--f5-bg-deep);
   background-image:
@@ -25,10 +26,33 @@
     radial-gradient(ellipse at 85% 85%, rgba(37, 99, 235, 0.08) 0%, transparent 60%);
   color: var(--f5-text-primary);
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  padding: 24px;
+  padding: 12px;
   position: relative;
-  overflow-y: auto;
+  overflow: hidden;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contrato Fase 5: la pantalla de trabajo nunca se desplaza. El contenido
+   didáctico se divide en tarjetas/pasos sucesivos. */
+.f5-screen-wrapper > main {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: 12px !important;
+}
+
+.f5-screen-wrapper > main > .grid {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0 !important;
+}
+
+.f5-screen-wrapper > main > .grid > * {
+  min-height: 0 !important;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 /* Spinner and Loading */
@@ -86,7 +110,8 @@
   top: 0;
   z-index: 50;
   backdrop-filter: blur(16px);
-  margin-bottom: 32px;
+  margin-bottom: 12px;
+  flex: 0 0 auto;
   border-radius: 20px;
 }
 
@@ -879,8 +904,8 @@
 /* Body */
 .f5-reading-body {
   flex-grow: 1;
-  padding: 10px 14px;
-  overflow-y: auto;
+  padding: 10px 16px;
+  overflow: hidden;
   position: relative;
 }
 
@@ -948,7 +973,7 @@
   font-weight: 900;
   letter-spacing: 0.8px;
   color: var(--f5-text-muted);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .f5-example-box {
@@ -956,8 +981,8 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-left: 4px solid var(--f5-purple-accent);
   border-radius: 12px;
-  padding: 8px 12px;
-  margin-bottom: 6px;
+  padding: 10px 14px;
+  margin-bottom: 0px;
 }
 
 .f5-example-box-layout {
@@ -982,7 +1007,7 @@
 
 .f5-example-visuals.wide svg {
   max-width: 100% !important;
-  max-height: 140px !important;
+  max-height: 130px !important;
   width: auto !important;
   height: auto !important;
 }
@@ -992,13 +1017,13 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .f5-example-visuals-row svg {
-  max-width: 370px !important;
-  max-height: 210px !important;
-  width: 100% !important;
+  max-width: 320px !important;
+  max-height: 130px !important;
+  width: auto !important;
   height: auto !important;
   display: block;
   margin: 0 auto !important;
@@ -1610,7 +1635,7 @@
 }
 
 /* =========================================================================
-   ESTILOS PREMIUM DE ENTRADA INTERACTIVA FASE 4 (MIRROR MODAL & INPUTS)
+   ESTILOS PREMIUM DE ENTRADA INTERACTIVA FASE 5
    ========================================================================= */
 
 .f5-feedback-overlay {
@@ -1623,20 +1648,6 @@
   backdrop-filter: blur(20px) !important;
   z-index: 1100;
   overflow: hidden !important; /* Bloquea scroll en overlay */
-}
-
-.f5-mirror-modal-card {
-  background: rgba(255, 255, 255, 0.02) !important;
-  backdrop-filter: blur(40px) !important;
-  border-radius: 40px !important;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
-  overflow: hidden !important; /* Evita scroll interno */
-  max-height: 96vh; /* No desborda pantalla */
-}
-
-.f5-mirror-modal-card h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .f5-numeric-input-wrap {
@@ -1750,22 +1761,6 @@
   font-weight: 800;
   font-size: 0.85rem;
   margin-right: 10px;
-}
-
-/* Responsivo para el modal */
-@media (max-width: 768px) {
-  .f5-mirror-modal-card {
-    padding: 20px !important;
-    border-radius: 30px !important;
-  }
-  
-  .f5-mirror-modal-card .flex-col.md:flex-row {
-    gap: 20px !important;
-  }
-  
-  .f5-mirror-modal-card h2 {
-    font-size: 1.5rem !important;
-  }
 }
 
 /* Responsivo y optimización de inputs de juego Fase 4 */

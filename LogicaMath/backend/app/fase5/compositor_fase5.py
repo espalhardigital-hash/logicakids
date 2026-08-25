@@ -80,6 +80,11 @@ class CompositorFase5:
             self.escenarios = json.load(f)
         with open(os.path.join(data_dir, "plantillas_fase5.json"), "r", encoding="utf-8") as f:
             self.plantillas = json.load(f)
+        # El banco histórico tenía seis familias por nivel. Las extensiones
+        # añaden familias de transferencia sin alterar las plantillas ya
+        # auditadas; conservar esta identidad permite medir cobertura real.
+        from .plantillas_extendidas import build_extended_templates
+        self.plantillas.extend(build_extended_templates())
         with open(os.path.join(data_dir, "confusiones_fase5.json"), "r", encoding="utf-8") as f:
             self.confusiones = json.load(f)
         with open(os.path.join(data_dir, "nombres_fase5.json"), "r", encoding="utf-8") as f:
@@ -182,12 +187,12 @@ class CompositorFase5:
             return self._OPERADORES_PERMITIDOS[type(node.op)](self._narrar_nodo(node.operand, variables, pasos))
         raise ValueError(f"Nodo no permitido al narrar: {ast.dump(node)}")
 
-    def _visual_payload(self, modulo_id: int, nivel_id: int, valores: dict) -> dict:
+    def _visual_payload(self, modulo_id: int, nivel_id: int, valores: dict, plantilla: dict | None = None) -> dict:
         """E2: figura por módulo (tipo_visual + datos que espera el visualizador
         del frontend). Muestra el PLANTEO (contexto) sin revelar la respuesta;
         el alumno razona sobre la figura.
           M1 → pizza (fracción a/b); M1N2 → pizza de equivalencias (base/factor)
-          M2 → pizza (fracción del grupo)
+          M2 → colección agrupada (fracción de una cantidad)
           M3N1/N2 → percentage_beaker; M3N3 → bar_chart (promedio)
           M4 → ratio_grid (razón a:b)
         """
@@ -198,21 +203,37 @@ class CompositorFase5:
 
         if modulo_id == 1:
             if nivel_id == 2 and c > 0:
-                return {"tipo_visual": "pizza", "num_base": a, "den_base": b, "factor": c}
+                incognita = plantilla.get("incognita", "") if plantilla else ""
+                return {
+                    "tipo_visual": "pizza",
+                    "num_base": a,
+                    "den_base": b,
+                    "factor": c,
+                    "incognita": incognita,
+                }
             cortes = b if b > 0 else 8
             return {"tipo_visual": "pizza", "cortes": cortes,
                     "sombreados": list(range(min(max(a, 0), cortes)))}
         if modulo_id == 2:
-            cortes = b if b > 0 else 4
-            return {"tipo_visual": "pizza", "cortes": cortes,
-                    "sombreados": list(range(min(max(a, 0), cortes)))}
+            grupos = b if b > 0 else 4
+            return {
+                "tipo_visual": "collection_grid",
+                "total": total,
+                "grupos": grupos,
+                "grupos_destacados": min(max(a, 0), grupos),
+            }
         if modulo_id == 3:
             if nivel_id == 3:
                 return {"tipo_visual": "bar_chart", "val_a": a, "val_b": b,
-                        "categorias": ["Nota 1", "Nota 2"]}
+                        "val_c": c, "categorias": ["Nota 1", "Nota 2", "Nota 3"]}
             return {"tipo_visual": "percentage_beaker", "total": total if total > 0 else 100}
         if modulo_id == 4:
-            return {"tipo_visual": "ratio_grid", "val_a": a, "val_b": b}
+            return {
+                "tipo_visual": "ratio_grid",
+                "ratio_a": a,
+                "ratio_b": b,
+                "factor": c if c > 1 else None,
+            }
         return {}
 
     def _explicar_pasos(self, plantilla: dict, valores: dict, resultado_num: float) -> list[dict]:
@@ -346,6 +367,22 @@ class CompositorFase5:
             _concordar_pronombre,
             texto,
         )
+
+        # Corrección de artículos indefinidos con sustantivos femeninos:
+        texto = re.sub(
+            r"\bun\s+(pizza|barra de chocolate|ventana|bandera|parcela|rebanada|flor|cuenta|caja|moneda|parte|porción|celda)\b",
+            r"una \1",
+            texto,
+            flags=re.IGNORECASE,
+        )
+        texto = re.sub(
+            r"\bUn\s+(pizza|barra de chocolate|ventana|bandera|parcela|rebanada|flor|cuenta|caja|moneda|parte|porción|celda)\b",
+            r"Una \1",
+            texto,
+        )
+        # Corrección de participio con sujeto masculino ("el pastel dividida" -> "el pastel dividido"):
+        texto = re.sub(r"\b(el\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+)\s+(está|fue)\s+dividida\b", r"\1 \2 dividido", texto, flags=re.IGNORECASE)
+        texto = re.sub(r"\b(El\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+)\s+(está|fue)\s+dividida\b", r"\1 \2 dividido", texto)
         return texto
 
     def _valores_auxiliares(self, valores: dict) -> dict:
@@ -492,16 +529,22 @@ class CompositorFase5:
             "explicacion": explicacion_texto,
             "datos_numericos": {
                 **valores,
+                "plantilla_id": plantilla["id"],
+                "habilidad": plantilla.get("habilidad", plantilla.get("operacion_correcta")),
+                "requiere_figura": True,
                 "resultado_num": resultado_num,
                 "formula": plantilla["formula"],
-                **self._visual_payload(modulo_id, nivel_id, valores),
+                **self._visual_payload(modulo_id, nivel_id, valores, plantilla=plantilla),
             }
         }
 
     def _generar_valores(self, plantilla: dict, fam_idx: int, var_idx: int, rng: random.Random) -> dict:
         modulo_id = plantilla["modulo_id"]
         nivel_id = plantilla["nivel_id"]
-        resta_ordenada = plantilla["id"] in self._PLANTILLAS_RESTA_ORDENADA
+        resta_ordenada = (
+            plantilla["id"] in self._PLANTILLAS_RESTA_ORDENADA
+            or (plantilla["id"].startswith("tplx_") and "diferencia" in plantilla["id"])
+        )
 
         if modulo_id == 1:
             if nivel_id == 1:
@@ -512,45 +555,71 @@ class CompositorFase5:
                 a = rng.randint(1, b // 2 - 1) if resta_ordenada else rng.randint(1, b - 1)
                 return {"a": a, "b": b}
             elif nivel_id == 2:
-                a = rng.randint(1, 4)
                 b = rng.choice([5, 6, 8])
-                c = rng.choice([2, 3, 4])
+                a = rng.randint(1, b - 1)
+                if plantilla.get("id") == "tpl_m1_n2_den_cuadruple":
+                    c = 4
+                else:
+                    c = rng.choice([2, 3, 4])
                 return {"a": a, "b": b, "c": c}
             else:  # nivel 3
                 b = rng.choice([6, 8, 10, 12])
-                # tpl_m1_n3_resto_menos_usadas: misma restricción que arriba
-                # -- "¿en cuántas unidades supera el resto a las usadas?"
-                # exige b-2a > 0. Bug real: sin esta cota a podía superar b/2
-                # y el resultado negativo colgaba _generar_distractores en un
-                # bucle infinito.
-                a = rng.randint(1, b // 2 - 1) if resta_ordenada else rng.randint(1, b - 2)
+                # tpl_m1_n3_mitad_resto: exige que (b - a) sea estrictamente par
+                # para que (b-a)//2 no trunque decimales (BUG-M1-01).
+                if plantilla.get("id") == "tpl_m1_n3_mitad_resto":
+                    pares_validos = [x for x in range(2, b - 1, 2)]
+                    a = rng.choice(pares_validos) if pares_validos else 2
+                elif resta_ordenada:
+                    a = rng.randint(1, b // 2 - 1)
+                else:
+                    a = rng.randint(1, b - 2)
                 return {"a": a, "b": b}
         elif modulo_id == 2:
             if nivel_id == 1:
                 b = rng.choice([2, 3, 4, 5, 10])
-                k = rng.randint(4, 12)
+                if plantilla.get("id") == "tpl_m2_n1_mitad_unitaria":
+                    # k = total // b debe ser estrictamente par para que la mitad sea entera exacta
+                    k = rng.choice([4, 6, 8, 10, 12])
+                else:
+                    k = rng.randint(4, 12)
                 total = b * k
                 return {"a": 1, "b": b, "total": total}
             elif nivel_id == 2:
                 b = rng.choice([3, 4, 5, 10])
-                # tpl_m2_n2_diferencia_tomados_resto: k*(2a-b) exige 2a>b para
-                # que "tomados" > "restantes" ESTRICTO. Con 2a==b la diferencia
-                # sería 0 y "en cuánto superan" carece de sentido.
-                a = rng.randint(b // 2 + 1, b - 1) if resta_ordenada else rng.randint(2, b - 1)
-                k = rng.randint(3, 8)
+                if plantilla.get("id") == "tpl_m2_n2_mitad_tomados":
+                    # (total // b) * a = k * a debe ser par; usamos k par
+                    k = rng.choice([4, 6, 8])
+                    a = rng.randint(2, b - 1)
+                elif resta_ordenada:
+                    # tpl_m2_n2_diferencia_tomados_resto: k*(2a-b) exige 2a>b para
+                    # que "tomados" > "restantes" ESTRICTO. Con 2a==b la diferencia
+                    # sería 0 y "en cuánto superan" carece de sentido.
+                    a = rng.randint(b // 2 + 1, b - 1)
+                    k = rng.randint(3, 8)
+                else:
+                    a = rng.randint(2, b - 1)
+                    k = rng.randint(3, 8)
                 total = b * k
                 return {"a": a, "b": b, "total": total}
             else:  # nivel 3
                 b = rng.choice([3, 4, 5, 8])
-                a = rng.randint(1, b - 1)
-                k = rng.randint(4, 10)
+                if plantilla.get("id") == "tpl_m2_n3_mitad_complemento":
+                    # k * (b - a) debe ser estrictamente par
+                    k = rng.choice([4, 6, 8, 10])
+                    a = rng.randint(1, b - 1)
+                else:
+                    a = rng.randint(1, b - 1)
+                    k = rng.randint(4, 10)
                 total = b * k
                 return {"a": a, "b": b, "total": total}
         elif modulo_id == 3:
             if nivel_id == 1:
                 a = rng.choice([10, 20, 25, 50])
                 totals_valid = [t for t in [40, 60, 80, 100, 120, 160, 200] if (a * t) % 100 == 0]
-                total = rng.choice(totals_valid)
+                if plantilla.get("id") == "tpl_m3_n1_mitad_porcentaje":
+                    # ((total * a) // 100) debe ser estrictamente par
+                    totals_valid = [t for t in totals_valid if ((t * a) // 100) % 2 == 0]
+                total = rng.choice(totals_valid) if totals_valid else 100
                 return {"a": a, "total": total}
             elif nivel_id == 2:
                 # tpl_m3_n2_diferencia_precio_ahorro: (total - t*a/100) - (t*a/100) = total*(1-2a/100)
@@ -563,26 +632,37 @@ class CompositorFase5:
                 total = rng.choice(totals_valid)
                 return {"a": a, "total": total}
             else:  # nivel 3: promedios de 3 notas
-                a = rng.randint(12, 18)
-                b = rng.randint(12, 18)
-                c_base = rng.randint(12, 18)
-                rem = (a + b + c_base) % 3
-                c = c_base + ((3 - rem) if rem != 0 else 0)
-                return {"a": a, "b": b, "c": c}
+                if plantilla.get("id") == "tpl_m3_n3_mitad_promedio":
+                    # El promedio (a + b + c) // 3 debe ser estrictamente par
+                    target_prom = rng.choice([12, 14, 16, 18])
+                    diff1 = rng.randint(-3, 3)
+                    diff2 = rng.randint(-3, 3)
+                    diff3 = -(diff1 + diff2)
+                    a = target_prom + diff1
+                    b = target_prom + diff2
+                    c = target_prom + diff3
+                    return {"a": a, "b": b, "c": c}
+                else:
+                    a = rng.randint(12, 18)
+                    b = rng.randint(12, 18)
+                    c_base = rng.randint(12, 18)
+                    rem = (a + b + c_base) % 3
+                    c = c_base + ((3 - rem) if rem != 0 else 0)
+                    return {"a": a, "b": b, "c": c}
         else:  # modulo_id == 4
             if nivel_id == 1:
                 a = rng.choice([1, 2, 3])
                 # tpl_m4_n1_diferencia_componentes: c*(b-a) exige b > a ESTRICTO
-                # para que "secundarias" SUPEREN a "base". Con b == a la resta
-                # da 0 y "por cuántas partes superan" no tiene sentido (bug real
-                # detectado en 8 preguntas). Si no hay b>a válido, se usa el
-                # mayor b posible como fallback.
                 if resta_ordenada:
                     opciones_b = [x for x in (2, 3, 4, 5) if x > a]
                     b = rng.choice(opciones_b) if opciones_b else max(a + 1, 2)
                 else:
                     b = rng.choice([2, 3, 4, 5])
-                c = rng.choice([2, 3, 4])
+                if plantilla.get("id") == "tpl_m4_n1_mitad_a":
+                    # a * c debe ser par
+                    c = rng.choice([2, 4]) if a % 2 != 0 else rng.choice([2, 3, 4])
+                else:
+                    c = rng.choice([2, 3, 4])
                 total = a * c
                 return {"a": a, "b": b, "c": c, "total": total}
             elif nivel_id == 2:
@@ -593,17 +673,21 @@ class CompositorFase5:
                     b = rng.choice(opciones_b) if opciones_b else max(a + 1, 2)
                 else:
                     b = rng.choice([2, 3, 4])
-                k = rng.randint(3, 8)
+                if plantilla.get("id") == "tpl_m4_n2_mitad_a":
+                    # k * a debe ser estrictamente par
+                    k = rng.choice([4, 6, 8])
+                else:
+                    k = rng.randint(3, 8)
                 n_cant = a + b
                 total = n_cant * k
                 return {"a": a, "b": b, "n_cant": n_cant, "total": total}
             else:  # nivel 3: mezclas y % de volumen
                 target_total = rng.choice([4, 5, 8, 10, 20, 25, 50])
                 valid_a = [x for x in range(1, target_total) if (x * 100) % target_total == 0]
-                # tpl_m4_n3_diferencia_pct: pct_b - pct_a exige b > a ESTRICTO
-                # (a < total/2). Con a == total/2 el % de B iguala al de A y la
-                # diferencia es 0 → "resta el % de A al de B" da 0 sin sentido.
-                if resta_ordenada:
+                if plantilla.get("id") == "tpl_m4_n3_mitad_pct_a":
+                    # (a * 100 // target_total) debe ser estrictamente par
+                    valid_a = [x for x in valid_a if ((x * 100) // target_total) % 2 == 0] or valid_a
+                elif resta_ordenada:
                     valid_a = [x for x in valid_a if x < target_total - x] or valid_a
                 a = rng.choice(valid_a)
                 b = target_total - a

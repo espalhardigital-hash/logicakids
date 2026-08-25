@@ -3,6 +3,8 @@
 
 # Tomo 2: Arquitectura Backend y Admin — LogicaKids Pro
 
+> **Prelación para Fases 5 y 6 (2026-08-23):** las rutas, banderas y diagramas de Bucle Espejo / Rescate de este tomo son legado y no aplican. La API vigente devuelve corrección, pasos y `pausa_obligatoria_segundos: 10` tras un error; no expone endpoints de rescate. Ver [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](../ESTADO_IMPLEMENTACION_FASES_5_6.md).
+
 > **Versión:** 4.0 (Consolidada) | **Última actualización:** 2026-06-08 | **Prioridad documental:** 2
 >
 > **Dependencia:** Las reglas pedagógicas de aprobación, desbloqueo, Early Exit, Bucle Espejo y Overrides están definidas en el [Documento Rector](1_Documento_Rector_Pedagogico.md). Este tomo implementa y rige exclusivamente las lógicas de servidor, Base de Datos, Endpoints y el Panel de Administrador.
@@ -1430,11 +1432,10 @@ GET /api/ai/admin/alumnos/{alumno_id}/insights
 * Las configuraciones deben consumirse desde base de datos en cada sesión.
 * El campo `seccion` debe calcularse de forma determinística.
 * **Dinero y Sanitización en Base de Datos:** Las preguntas con dinero deben usar centavos, no float. Cualquier entrada decimal de moneda ingresada por el administrador en la consola de edición (ej. `"2.50"`, `"5,00"`) se convertirá y guardará automáticamente como enteros en centavos (`250`, `500`) en la base de datos para preservar la precisión matemática exacta en el motor de juego.
-* **Explicación Sin Bloqueo:** La explicación profunda en Práctica Libre se concibe como un recurso pedagógico de desbloqueo, no de evaluación; por lo tanto, no debe condicionarse a un campo anti-spam de transcripción forzada en el cliente, asegurando la fluidez y continuidad del aprendizaje.
-* **UX de Feedback de Respuestas (Práctica Libre):**
-  * Respuesta **correcta** → checkmark verde inline + auto-advance automático en **500ms**.
-  * Respuesta **incorrecta** → cruz roja + `Era: X` inline indefinidamente. El alumno debe pulsar **Enter / botón `→`** para avanzar. Esto garantiza que analice el error antes de continuar al Bucle Espejo.
-  * El botón `→` del teclado numérico y `Enter` están mapeados como `handleSubmit → handleFeedbackClose → loadPregunta` cuando `feedback.visible = true`.
+* **Corrección obligatoria ante el error:** La explicación profunda no requiere transcripción anti-spam, pero sí una pausa de lectura de **10 segundos**. Debe mostrar respuesta correcta y pasos; no se puede cerrar con Enter ni con un botón hasta que termine el tiempo y se visiten todas sus páginas.
+* **UX de feedback de respuestas (Práctica Libre):**
+  * Respuesta **correcta** → confirmación breve y avance según el flujo del nivel.
+  * Respuesta **incorrecta** → modal de corrección con la solución; al terminar la pausa, continúa con una pregunta nueva. No existe bucle espejo, rescate ni bypass de progreso.
 
 ---
 
@@ -1449,13 +1450,10 @@ Se debe simular una sesión de *Desafío 1* y verificar que el sistema aborte ma
 * **Aserción:** El tercer response HTTP debe contener obligatoriamente `"early_exit": true` y `"aciertos_acumulados": 0`.
 * **Aserción de DB:** Verificar que los registros en `intentos` para la sesión actual fueron purgados.
 
-### 14.2. Pruebas de Bucle Espejo (Práctica Libre)
-Se debe simular una sesión de *Práctica Libre* para comprobar la escalada de la variante espejo.
-* **Escenario:** Alumno falla 4 veces consecutivas la misma familia.
-* **Pasos:**
-  1. Fallo 1: Verificar que se recibe `"respuesta_correcta"` y `"activar_rescate": false`.
-  2. Fallo 2 y 3: Verificar que se incrementa `fallas_consecutivas`.
-  3. Fallo 4: Verificar que se recibe `"activar_rescate": true` y `"bypass_avance": true`.
+### 14.2. Pruebas de corrección obligatoria (Práctica Libre)
+Se debe simular una respuesta incorrecta y comprobar que el contrato devuelve `respuesta_correcta`, explicación y `pausa_obligatoria_segundos = 10`.
+* **Aserción de progreso:** el intento fallido no aumenta aciertos ni acredita familia dominada.
+* **Aserción de frontend:** la acción de continuar y las teclas de envío no cierran el modal antes de que termine la pausa y se recorran los pasos.
 
 ### 14.3. Pruebas de Aprobación Retrógada (Retro-Approval)
 Para el panel administrativo, verificar el mecanismo en cascada inversa.

@@ -3,6 +3,8 @@
 
 # Guía de Arquitectura y Construcción: Nueva Fase (Basado en Fase 2)
 
+> **Alcance actualizado (2026-08-23):** toda referencia de esta guía a Bucle Espejo, Rescate, `es_espejo`, clones por error o `/cerrar-rescate` está **derogada para Fases 5 y 6**. Para esas fases prevalece [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](../ESTADO_IMPLEMENTACION_FASES_5_6.md): corrección obligatoria de 10 segundos, nueva pregunta tras el error y progreso solo por acierto. Esta guía conserva esas secciones como diseño histórico de fases anteriores.
+
 Este documento detalla la lógica, estructura y los pasos técnicos necesarios para construir una nueva Fase (por ejemplo, Fase 3 o Fase 4) dentro del proyecto "Lógica Matemáticas Kids", tomando como modelo la arquitectura madura de la Fase 2.
 
 ---

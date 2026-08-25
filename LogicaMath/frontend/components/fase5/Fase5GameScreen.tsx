@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getFase5Question, submitFase5Answer, getFase5Reading, submitFase5CloseRescue, graduateFase5 } from './Fase5Service';
+import { getFase5Question, submitFase5Answer, getFase5Reading, graduateFase5 } from './Fase5Service';
 import { Fase5Pregunta, Fase5AnswerResult, Fase5Lectura } from './Fase5Types';
 import { Fase5VisualizerEngine, getDeterministicShape, isDiscreteQuestion } from './Fase5VisualizerEngine';
 import { Fase5TheoryModal } from './Fase5TheoryModal';
-import { Fase5MirrorModal } from './Fase5MirrorModal';
+import { Fase5FeedbackLockModal } from './Fase5FeedbackLockModal';
 import { CustomKeyboard } from '../common/CustomKeyboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, BookOpen, Key, Sparkles, Trophy, Star, Target, Award, Compass, Clock, FastForward } from 'lucide-react';
@@ -24,67 +24,6 @@ const MODULE_COLORS: Record<number, string> = {
   2: '#A855F7', // Violeta (Conservado)
   3: '#F97316', // Naranja vívido
   4: '#10B981', // Verde vívido
-};
-
-const Fase5RescateModal: React.FC<{
-  explicacion: string | undefined;
-  moduleColor: string;
-  onClose: () => void;
-}> = ({ explicacion, moduleColor, onClose }) => {
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }}
-      className="f2-feedback-overlay"
-      style={{ zIndex: 1000 }}
-    >
-      <motion.div 
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        className="f2-feedback-card rescate glass-card"
-        style={{ 
-          maxWidth: '550px', 
-          width: '90%', 
-          padding: '40px',
-          borderTop: `6px solid ${moduleColor}`,
-          maxHeight: '85vh',
-          overflowY: 'auto'
-        }}
-      >
-        <div className="f2-feedback-emoji" style={{ fontSize: '3rem', marginBottom: '20px' }}>💡</div>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '10px' }}>
-          ¡Vamos a repasar!
-        </h2>
-        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '30px', fontSize: '1.1rem' }}>
-          No te preocupes, el Bucle Espejo está aquí para ayudarte a entender el concepto.
-        </p>
-
-        <div className="f5-rescate-html" style={{ textAlign: 'left', marginBottom: '40px', color: '#fff', lineHeight: 1.6 }}
-             dangerouslySetInnerHTML={safeHtml(explicacion || '')} />
-
-        <button
-          className="f2-submit-btn"
-          onClick={onClose}
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: '18px',
-            borderRadius: '20px',
-            background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
-            color: 'white',
-            border: 'none',
-            fontWeight: 800,
-            fontSize: '1.1rem',
-            cursor: 'pointer',
-            boxShadow: `0 8px 24px ${moduleColor}30`
-          }}
-        >
-          ¡Entendido, continuar! →
-        </button>
-      </motion.div>
-    </motion.div>
-  );
 };
 
 interface FeedbackState {
@@ -450,7 +389,7 @@ const Fase5PhaseGraduationModal: React.FC<{
           borderTop: '6px solid #10B981',
           textAlign: 'center',
           boxShadow: '0 0 40px rgba(16, 185, 129, 0.25)',
-          overflowY: 'auto',
+          overflow: 'hidden',
           maxHeight: '90vh'
         }}
       >
@@ -652,16 +591,8 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
 
   const [showEarlyExit, setShowEarlyExit] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
-  // Bucle Espejo — estados del modal (patrón Fase 2)
-  const [showMirrorModal, setShowMirrorModal] = useState(false);
-  const [mirrorPregunta, setMirrorPregunta] = useState<Fase5Pregunta | null>(null);
-  const [isExplanationMode, setIsExplanationMode] = useState(false);
-  const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string | undefined>(undefined);
-  const [lastQuestionEnunciado, setLastQuestionEnunciado] = useState<string | undefined>(undefined);
-  const [lastWrongAnswer, setLastWrongAnswer] = useState<string | undefined>(undefined);
   const [showGraduation, setShowGraduation] = useState(false);
   const [selectedAltId, setSelectedAltId] = useState<number | null>(null);
-  const [showRescate, setShowRescate] = useState(false);
   const [selectedPolygonIds, setSelectedPolygonIds] = useState<number[]>([]);
 
   // Memos de metadatos para la pantalla Splash Premium
@@ -807,17 +738,7 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
         }));
       }
 
-      if (q.datos_numericos?.es_espejo) {
-        setMirrorPregunta(q);
-        setShowMirrorModal(true);
-        setPregunta(q);
-        setLoading(false);
-        return;
-      }
-
       setPregunta(q);
-      setShowMirrorModal(false);
-      setMirrorPregunta(null);
       
       if (q.tiene_cronometro && q.tiempo_limite_segundos) {
         setTimer(q.tiene_cronometro && !showReading ? q.tiempo_limite_segundos : null);
@@ -904,8 +825,6 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
       return;
     }
 
-    setFeedback({ visible: false, esCorrecta: false });
-
     if (feedback.resultado?.fase_completada) {
       setShowGraduation(true);
       return;
@@ -916,36 +835,15 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
       return;
     }
 
-    if (feedback.esCorrecta) {
-      loadNextQuestion();
-    } else {
-      if (feedback.resultado?.soporte_avanzado) {
-        setShowRescate(true);
-      } else if (isChallenge) {
-        loadNextQuestion();
-      } else if (feedback.resultado?.es_espejo) {
-        setLastCorrectAnswer(feedback.resultado?.respuesta_correcta);
-        loadNextQuestion();
-      } else {
-        setRespuestaNum('');
-        setRespuestaDen('');
-        setSelectedAltId(null);
-        setSelectedPolygonIds([]);
-        setVisualState(null);
-      }
-    }
-  }, [feedback, navigate, isChallenge, loadNextQuestion]);
+    setFeedback({ visible: false, esCorrecta: false });
+    loadNextQuestion();
+  }, [feedback, loadNextQuestion]);
 
 
 
   useEffect(() => {
     if (feedback.visible) {
       if (feedback.esCorrecta && (feedback.resultado?.fase_completada || feedback.resultado?.bloque_completado)) {
-        const timer = setTimeout(() => {
-          handleFeedbackClose();
-        }, 2000);
-        return () => clearTimeout(timer);
-      } else if (!feedback.esCorrecta && feedback.resultado?.es_espejo) {
         const timer = setTimeout(() => {
           handleFeedbackClose();
         }, 2000);
@@ -1068,14 +966,6 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
         setTimeout(() => setShaking(false), 450);
         setFeedback({ visible: true, esCorrecta: false, resultado });
         
-        if (!isChallenge && resultado.es_espejo && pregunta) {
-          setLastQuestionEnunciado(pregunta.enunciado);
-          setLastWrongAnswer(respuestaNum || respuestaDen || String(selectedAltId || ''));
-        }
-        
-        if (isChallenge) {
-          setTimeout(() => handleFeedbackClose(), 1500);
-        }
       }
     } catch (error: any) {
       setFeedback({
@@ -1087,21 +977,6 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
     }
   }, [pregunta, moduloId, nivelId, respuestaNum, respuestaDen, interactiveSelectedCount, timer, feedback, handleFeedbackClose, visualState, selectedPolygonIds, selectedAltId]);
 
-  const handleBypassRescue = async () => {
-    try {
-      setLoading(true);
-      const res = await submitFase5CloseRescue(moduloId, nivelId, pregunta?.id || 0);
-      if (res.success) {
-        setFeedback({ visible: false, esCorrecta: false });
-        loadNextQuestion();
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleAltSelect = (textoAlt: string) => {
     if (feedback.visible) return;
     handleSubmit(textoAlt);
@@ -1110,7 +985,10 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
   const handleNumberPress = (num: string) => {
     if (feedback.visible) return;
     if (activeInputField === 'num') {
-      setRespuestaNum(prev => prev.length < 5 ? prev + num : prev);
+      setRespuestaNum(prev => {
+        if (num === ',' && (prev.includes(',') || prev.includes('.'))) return prev;
+        return prev.length < 5 ? prev + num : prev;
+      });
     } else {
       setRespuestaDen(prev => prev.length < 5 ? prev + num : prev);
     }
@@ -1362,8 +1240,6 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
 
       {/* Main game board */}
       <main className="flex-grow flex flex-col items-center justify-center p-4 z-10 relative">
-
-
         {isInteractiveLayout ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full max-w-4xl min-h-[400px]">
             {/* Left Column: Interactive Visualizer */}
@@ -1397,8 +1273,11 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
               />
             </motion.div>
 
-            {/* Right Column: Giant Purple Confirmation Button */}
+            {/* Right Column: Confirmation Button and Scores */}
             <div className="flex flex-col items-center justify-center">
+              <section className="mb-6 w-full max-w-[440px] rounded-3xl border border-white/10 bg-slate-950/55 px-6 py-5 text-center shadow-xl" aria-label="Enunciado de la pregunta">
+                <p className="text-lg font-bold leading-relaxed text-slate-100">{pregunta.enunciado}</p>
+              </section>
               <button
                 onClick={() => handleSubmit()}
                 className="group relative flex items-center justify-center gap-4 w-full max-w-[280px] py-4 px-6 text-white font-sans font-black text-xl rounded-2xl transform active:scale-[0.95] transition-all duration-150 cursor-pointer overflow-hidden border-2 border-white/10"
@@ -1411,20 +1290,15 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
                     : `0 8px 20px rgba(168, 85, 247, 0.3)`
                 }}
               >
-                {/* Micro-sparkle ambient hover effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                
-                <span>{feedback.visible ? ((feedback.esCorrecta || isChallenge) ? 'Continuar →' : (feedback.resultado?.es_espejo ? 'Activando repaso...' : 'Intentar de nuevo ↺')) : 'CONFIRMAR'}</span>
-                
-                {/* Integrated checkmark circle */}
+                <span>{feedback.visible ? 'Continuar →' : 'CONFIRMAR'}</span>
                 <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-transparent flex-shrink-0">
                   <span className="text-white text-base font-black">
-                    {feedback.visible ? ((feedback.esCorrecta || isChallenge) ? '→' : (feedback.resultado?.es_espejo ? '...' : '↺')) : '✓'}
+                    {feedback.visible ? '→' : '✓'}
                   </span>
                 </div>
               </button>
 
-              {/* Embedded score widgets for normal module questions */}
               {!isChallenge && (
                 <div className="f5-scores-container max-w-[400px] mt-8 w-full">
                   <div className="f5-score-box correct">
@@ -1476,124 +1350,111 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
               />
               
               <p className="text-lg font-bold text-center mt-6 text-slate-200" dangerouslySetInnerHTML={safeHtml((pregunta.enunciado || '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'))} />
-
-              {/* Relocated input container for improved UX */}
-              {!pregunta.alternativas && pregunta.tipo_pregunta !== 'multiple_opcion' && pregunta.datos_numericos?.tipo_visual !== 'shapes' && pregunta.datos_numericos?.tipo_visual !== 'non_homogeneous_polygon' && (
-                <div className="mt-6">
-                  {showFractionInput ? (
-                    <div className="f5-fraction-input-box">
-                      <input
-                        type="text"
-                        readOnly
-                        placeholder="?"
-                        value={respuestaNum}
-                        onClick={() => setActiveInputField('num')}
-                        className={`f5-fraction-input-field ${activeInputField === 'num' ? 'focused' : ''}`}
-                      />
-                      <div className="f5-fraction-line" />
-                      <input
-                        type="text"
-                        readOnly
-                        placeholder="?"
-                        value={respuestaDen}
-                        onClick={() => setActiveInputField('den')}
-                        className={`f5-fraction-input-field ${activeInputField === 'den' ? 'focused' : ''}`}
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-full max-w-[200px]">
-                      <input
-                        type="text"
-                        readOnly
-                        placeholder="Respuesta"
-                        value={respuestaNum}
-                        className="w-full bg-white/5 border border-purple-500/30 rounded-2xl p-4 text-center text-white font-black text-xl outline-none"
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
             </motion.div>
 
             {/* Interactive input area */}
             <div className="flex flex-col items-center justify-center">
-              {pregunta.datos_numericos?.tipo_visual === 'shapes' || pregunta.datos_numericos?.tipo_visual === 'non_homogeneous_polygon' ? (
-                <div className="w-full flex flex-col items-center gap-8">
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md">
-
-                    
-                    <button
-                      onClick={() => handleSubmit()}
-                      className="group relative flex items-center justify-center gap-4 w-full max-w-[280px] py-4 px-6 text-white font-sans font-black text-xl rounded-2xl border-2 border-white/10 transform active:scale-[0.95] transition-all duration-150 cursor-pointer overflow-hidden"
-                      style={{
-                        background: feedback.visible 
-                          ? (feedback.esCorrecta ? '#10B981' : '#EF4444') 
-                          : `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
-                        boxShadow: feedback.visible 
-                          ? (feedback.esCorrecta ? '0 8px 20px rgba(16, 185, 129, 0.3)' : '0 8px 20px rgba(239, 68, 68, 0.3)') 
-                          : `0 8px 20px rgba(168, 85, 247, 0.3)`
-                      }}
-                    >
-                      {/* Micro-sparkle ambient hover effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                      
-                      <span>{feedback.visible ? ((feedback.esCorrecta || isChallenge) ? 'Continuar →' : (feedback.resultado?.es_espejo ? 'Activando repaso...' : 'Intentar de nuevo ↺')) : 'CONFIRMAR'}</span>
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-transparent flex-shrink-0">
-                        <span className="text-white text-base font-black">
-                          {feedback.visible ? ((feedback.esCorrecta || isChallenge) ? '→' : (feedback.resultado?.es_espejo ? '...' : '↺')) : '✓'}
-                        </span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              ) : pregunta.tipo_pregunta === 'multiple_opcion' && pregunta.alternativas ? (
-                (() => {
-                  const isVisualMultipleChoice = pregunta.alternativas.some(alt => alt.texto.includes('<svg'));
-                  return (
-                    <div className="flex flex-col h-full justify-between w-full">
-                      <div className={isVisualMultipleChoice ? "grid grid-cols-2 gap-4 w-full" : "w-full space-y-4"}>
-                        {pregunta.alternativas.map(alt => (
-                          <button
-                            key={alt.id}
-                            onClick={() => setSelectedAltId(alt.id)}
-                            disabled={feedback.visible}
-                            className={`w-full py-5 px-6 bg-white/5 hover:bg-white/10 border rounded-2xl font-black text-xl text-white transition-all cursor-pointer flex items-center justify-center ${
-                              isVisualMultipleChoice ? 'text-center' : 'text-left'
-                            } ${
-                              selectedAltId === alt.id 
-                                ? 'border-purple-500 bg-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.3)]' 
-                                : 'border-white/10 hover:border-purple-500/30 active:scale-[0.98]'
-                            }`}
-                            dangerouslySetInnerHTML={safeHtml(alt.texto)}
-                          />
-                        ))}
-                      </div>
+              {pregunta.tipo_pregunta === 'multiple_opcion' && pregunta.alternativas && pregunta.alternativas.length > 0 ? (
+                <div className="flex flex-col h-full justify-between w-full">
+                  <div className="w-full space-y-4">
+                    {pregunta.alternativas.map(alt => (
                       <button
-                        onClick={() => handleSubmit()}
-                        disabled={!feedback.visible && selectedAltId === null}
-                        className="group relative flex items-center justify-center gap-4 w-full max-w-[280px] mx-auto py-4 px-6 text-white font-sans font-black text-xl rounded-2xl border-2 border-white/10 transform active:scale-[0.95] transition-all duration-150 cursor-pointer overflow-hidden mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-                        style={{
-                          background: feedback.visible 
-                            ? (feedback.esCorrecta ? '#10B981' : '#EF4444') 
-                            : `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
-                          boxShadow: feedback.visible 
-                            ? (feedback.esCorrecta ? '0 8px 20px rgba(16, 185, 129, 0.3)' : '0 8px 20px rgba(239, 68, 68, 0.3)') 
-                            : (selectedAltId !== null ? `0 8px 20px rgba(168, 85, 247, 0.3)` : 'none')
-                        }}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                        <span>{feedback.visible ? ((feedback.esCorrecta || isChallenge) ? 'Continuar →' : (feedback.resultado?.es_espejo ? 'Activando repaso...' : 'Intentar de nuevo ↺')) : 'CONFIRMAR'}</span>
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-transparent flex-shrink-0">
-                          <span className="text-white text-base font-black">
-                            {feedback.visible ? ((feedback.esCorrecta || isChallenge) ? '→' : (feedback.resultado?.es_espejo ? '...' : '↺')) : '✓'}
+                        key={alt.id}
+                        onClick={() => setSelectedAltId(alt.id)}
+                        disabled={feedback.visible}
+                        className={`w-full py-5 px-6 bg-white/5 hover:bg-white/10 border rounded-2xl font-black text-xl text-white transition-all cursor-pointer flex items-center justify-center ${
+                          selectedAltId === alt.id 
+                            ? 'border-purple-500 bg-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.3)]' 
+                            : 'border-white/10 hover:border-purple-500/30 active:scale-[0.98]'
+                        }`}
+                        dangerouslySetInnerHTML={safeHtml(alt.texto)}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => handleSubmit()}
+                    disabled={!feedback.visible && selectedAltId === null}
+                    className="group relative flex items-center justify-center gap-4 w-full max-w-[280px] mx-auto py-4 px-6 text-white font-sans font-black text-xl rounded-2xl border-2 border-white/10 transform active:scale-[0.95] transition-all duration-150 cursor-pointer overflow-hidden mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      background: feedback.visible 
+                        ? (feedback.esCorrecta ? '#10B981' : '#EF4444') 
+                        : `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`,
+                      boxShadow: feedback.visible 
+                        ? (feedback.esCorrecta ? '0 8px 20px rgba(16, 185, 129, 0.3)' : '0 8px 20px rgba(239, 68, 68, 0.3)') 
+                        : (selectedAltId !== null ? `0 8px 20px rgba(168, 85, 247, 0.3)` : 'none')
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                    <span>{feedback.visible ? 'Continuar →' : 'CONFIRMAR'}</span>
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-transparent flex-shrink-0">
+                      <span className="text-white text-base font-black">
+                        {feedback.visible ? '→' : '✓'}
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              ) : (
+                <div className="w-full flex flex-col items-center gap-4">
+                  {/* Visual input display area above keypad */}
+                  <div className="w-full max-w-[280px] flex flex-col items-center justify-center">
+                    {showFractionInput ? (
+                      <div className="flex flex-col items-center gap-1.5 w-full">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                          Tu Respuesta (Fracción)
+                        </span>
+                        <div className="f5-fraction-input-box w-full">
+                          <input
+                            type="text"
+                            readOnly
+                            placeholder="?"
+                            value={respuestaNum}
+                            onClick={() => setActiveInputField('num')}
+                            className={`f5-fraction-input-field ${activeInputField === 'num' ? 'focused' : ''}`}
+                          />
+                          <div className="f5-fraction-line" />
+                          <input
+                            type="text"
+                            readOnly
+                            placeholder="?"
+                            value={respuestaDen}
+                            onClick={() => setActiveInputField('den')}
+                            className={`f5-fraction-input-field ${activeInputField === 'den' ? 'focused' : ''}`}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 mt-0.5">
+                          <span 
+                            onClick={() => setActiveInputField('num')}
+                            className={`cursor-pointer transition-colors ${activeInputField === 'num' ? 'text-purple-400 underline underline-offset-2' : 'hover:text-slate-200'}`}
+                          >
+                            Numerador
+                          </span>
+                          <span>•</span>
+                          <span 
+                            onClick={() => setActiveInputField('den')}
+                            className={`cursor-pointer transition-colors ${activeInputField === 'den' ? 'text-purple-400 underline underline-offset-2' : 'hover:text-slate-200'}`}
+                          >
+                            Denominador
                           </span>
                         </div>
-                      </button>
-                    </div>
-                  );
-                })()
-              ) : (
-                <div className="w-full flex flex-col items-center gap-8">
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1.5 w-full">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                          Tu Respuesta
+                        </span>
+                        <div 
+                          className={`w-full bg-slate-900/80 border-2 rounded-2xl py-3 px-6 text-center text-3xl font-black font-sans transition-all duration-200 shadow-lg ${
+                            feedback.visible 
+                              ? (feedback.esCorrecta ? 'border-emerald-500 text-emerald-400 shadow-emerald-500/20' : 'border-rose-500 text-rose-400 shadow-rose-500/20') 
+                              : 'border-purple-500/50 text-white shadow-purple-500/10'
+                          }`}
+                        >
+                          {respuestaNum || <span className="text-slate-600">?</span>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Keypad */}
                   <CustomKeyboard
                     onNumberPress={handleNumberPress}
@@ -1601,6 +1462,7 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
                     onSubmit={() => handleSubmit()}
                     disabled={feedback.visible}
                     submitDisabled={showFractionInput ? (!respuestaNum || !respuestaDen) : !respuestaNum}
+                    allowDecimal={!showFractionInput && /[,.]/.test(pregunta.respuesta_correcta || '')}
                   />
                 </div>
               )}
@@ -1622,8 +1484,6 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
           </div>
         )}
       </main>
-
-
 
       {/* Interactive Rich Theory Modal */}
       <AnimatePresence>
@@ -1697,50 +1557,12 @@ export const Fase5GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
         )}
       </AnimatePresence>
 
-      {/* Bucle Espejo Modal — patrón estándar Fase 2 */}
       <AnimatePresence>
-        {showMirrorModal && mirrorPregunta && (
-          <Fase5MirrorModal
-            pregunta={mirrorPregunta}
+        {feedback.visible && !feedback.esCorrecta && !feedback.isError && feedback.resultado && (
+          <Fase5FeedbackLockModal
+            resultado={feedback.resultado}
             moduleColor={moduleColor}
-            moduloId={moduloId}
-            nivelId={nivelId}
-            lastCorrectAnswer={lastCorrectAnswer}
-            lastQuestionEnunciado={lastQuestionEnunciado}
-            lastWrongAnswer={lastWrongAnswer}
-            selectedPolygonIds={selectedPolygonIds}
-            onClose={(res) => {
-              setShowMirrorModal(false);
-              setMirrorPregunta(null);
-              if (res?.soporte_avanzado) {
-                setFeedback({ visible: false, esCorrecta: false, resultado: res });
-                setShowRescate(true);
-              } else if (!isExplanationMode) {
-                loadNextQuestion();
-              }
-              setIsExplanationMode(false);
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Rescate Modal — patrón estándar Fase 2 */}
-      <AnimatePresence>
-        {showRescate && (
-          <Fase5RescateModal
-            explicacion={feedback.resultado?.explicacion_profunda}
-            moduleColor={moduleColor}
-            onClose={async () => {
-              if (pregunta?.id) {
-                try {
-                  await submitFase5CloseRescue(moduloId, nivelId, pregunta.id);
-                } catch (e) {
-                  console.error(e);
-                }
-              }
-              setShowRescate(false);
-              loadNextQuestion();
-            }}
+            onContinue={handleFeedbackClose}
           />
         )}
       </AnimatePresence>

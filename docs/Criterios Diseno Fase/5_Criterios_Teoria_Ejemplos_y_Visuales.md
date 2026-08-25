@@ -144,7 +144,7 @@ Prohibido explícitamente:
 | Altura controlada | ≤ 140 px en desafíos; dentro del presupuesto visual en teoría |
 | Legibilidad | Una figura diminuta no apoya: o se ve bien, o no va |
 | Sin texto cortado | Verificar que el SVG no recorte etiquetas |
-| Consistencia por flujo | Mismo criterio en práctica, batería, espejo y desafío |
+| Consistencia por flujo | Mismo criterio en práctica, desafío, teoría y corrección bloqueada |
 
 ### 5.3. Figura recurrente de fase
 
@@ -217,10 +217,10 @@ Todo cambio de UX se rastrea **por flujo, no por componente**. El mismo contenid
 
 1. Pantalla principal de práctica
 2. Batería de práctica libre
-3. Bucle espejo
-4. Bloque de rescate
-5. Desafíos de módulo (D1 / D2 / DF)
-6. Desafío mixto (DM)
+3. Corrección obligatoria tras error
+4. Desafíos de módulo (D1 / D2 / DF)
+5. Desafío mixto (DM)
+6. Finalización y graduación
 7. Vistas admin / preview
 
 > Si se corrige solo una vista, el alumno sigue viendo el defecto en otra. La misma pregunta no puede verse correcta en un lugar y rota en otro.

@@ -129,17 +129,12 @@ class Fase5ResultadoRespuesta(BaseModel):
     bloque_completado: bool = False
     fase_completada: bool = False
 
-    # Bucle Espejo (Mirror Loop)
-    es_espejo: bool = False
-    intentos_espejo_actuales: int = 0
-    intentos_espejo_max: int = 3
-    soporte_avanzado: bool = False
-
     # Early Exit (Desafíos)
     early_exit: bool = False
     errores_sesion: int = 0
     max_errores_tolerados: int = 0
     explicacion_profunda: Optional[str] = None
+    pausa_obligatoria_segundos: int = 0
 
     success: bool = True
 
@@ -158,10 +153,3 @@ class Fase5ContenidoLectura(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-
-class Fase5CerrarRescate(BaseModel):
-    modulo_id: int
-    nivel_id: int
-    pregunta_id: int
-    success: Optional[bool] = True
-    mensaje: str = "Bucle espejo superado con éxito"

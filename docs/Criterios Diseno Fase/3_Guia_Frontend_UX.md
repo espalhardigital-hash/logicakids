@@ -1216,8 +1216,24 @@ El modelo anterior basado en `ScoreRecord`, `CategoryProgress`, `/scores`, `cate
 * estados pedagógicos resueltos por backend;
 * visualización explícita de intervenciones administrativas.
 
+---
+
 ### 11.1. Estandarización de la Fase 1
 En la arquitectura legacy, la **Fase 1 (Aritmética Básica)** se trataba como una sección monolítica única (`seccion = 1`) y no admitía la flexibilidad de progresar a través de niveles de dificultad estructurados por operación. Con la actualización implementada:
 * La Fase 1 ha sido migrada a la estructura modular dinámica, de modo que cada una de las 4 operaciones principales actúa como un módulo con múltiples niveles de dificultad (secciones `101..105` para Suma, `201..205` para Resta, `301..306` para Multiplicación y `401..405` para División).
 * El Panel de Estadísticas consume estos bloques académicos de manera granular e individualizada.
 * Se implementa un **mecanismo de migración automática de base de datos** para retrocompatibilidad, de modo que los alumnos antiguos con avances aprobados en la sección legacy `1` de una operación heredan automáticamente el estado `APROBADO` en todos los niveles dinámicos de esa operación.
+
+---
+
+## 12. Regla de interfaz vigente para corrección y pantalla fija
+
+Para Fases 5 y 6, y como patrón para las siguientes fases:
+
+1. Un error abre una corrección modal con respuesta y pasos, bloqueada 10 segundos. Enter, confirmación y clics de fondo no pueden omitirla.
+2. La corrección se pagina cuando supera tres pasos; el botón Continuar requiere estar en la última página.
+3. La pantalla de juego, teoría, corrección, finalización y graduación no muestra scroll vertical. Si el contenido no cabe, se crean diapositivas o pantallas consecutivas.
+4. Toda entrada solicitada por el contenido debe existir en la interfaz. Las respuestas decimales usan coma en la experiencia visual y aceptan punto desde teclado físico.
+5. Un visual requerido forma parte del contrato de la pregunta: no se renderiza un enunciado dependiente de figura si la figura no está disponible.
+
+La referencia de implementación y verificación está en [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](../ESTADO_IMPLEMENTACION_FASES_5_6.md).

@@ -17,7 +17,6 @@ from app.fase5.schemas import (
     Fase5ResponderPregunta,
     Fase5ResultadoRespuesta,
     Fase5ContenidoLectura,
-    Fase5CerrarRescate,
 )
 
 
@@ -131,7 +130,7 @@ def test_fase5_responder_pregunta_schema():
 
 
 def test_fase5_resultado_respuesta_schema():
-    """BUG-12: router.py envía early_exit, explicacion_profunda, errores_sesion, max_errores_tolerados."""
+    """El resultado de un error incluye explicación y la pausa pedagógica obligatoria."""
     resultado = Fase5ResultadoRespuesta(
         es_correcta=True,
         respuesta_correcta="1/2",
@@ -143,17 +142,14 @@ def test_fase5_resultado_respuesta_schema():
         porcentaje_actual=50,
         bloque_completado=False,
         fase_completada=False,
-        es_espejo=False,
-        intentos_espejo_actuales=0,
-        intentos_espejo_max=3,
-        soporte_avanzado=False,
         early_exit=False,
         errores_sesion=0,
         max_errores_tolerados=2,
         explicacion_profunda="Explicación detallada de rescate",
+        pausa_obligatoria_segundos=10,
     )
     assert resultado.early_exit is False
-    assert resultado.explicacion_profunda == "Explicación detallada de rescate"
+    assert resultado.pausa_obligatoria_segundos == 10
 
 
 def test_fase5_contenido_lectura_schema():
@@ -170,13 +166,3 @@ def test_fase5_contenido_lectura_schema():
     )
     assert lectura.parrafos == ["Una fracción representa partes de un todo."]
     assert lectura.diccionario["Numerador"] == "Partes tomadas"
-
-
-def test_fase5_cerrar_rescate_schema():
-    rescate = Fase5CerrarRescate(
-        modulo_id=1,
-        nivel_id=1,
-        pregunta_id=42,
-        success=True,
-    )
-    assert rescate.success is True

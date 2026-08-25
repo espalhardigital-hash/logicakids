@@ -1,6 +1,6 @@
 """
 Test de verificación para la Etapa 1: Reanimación del Seeder de Fase 5.
-Verifica que seed.py genere 1140 preguntas, 25 configuraciones y 12 teorías sin excepciones.
+Verifica que seed.py genere 1296 preguntas, 25 configuraciones y 12 teorías sin excepciones.
 """
 
 import pytest
@@ -107,7 +107,7 @@ def test_configuracion_seeding_count_and_orden():
 
 
 def test_preguntas_seeding_count_and_family_structure():
-    """BUG-02: Genera 1140 preguntas de Fase 5 y valida conteo, estado y estructura de familia."""
+    """Genera 1296 preguntas con doce familias por nivel."""
     comp = CompositorFase5()
     preguntas = []
 
@@ -134,14 +134,14 @@ def test_preguntas_seeding_count_and_family_structure():
                     )
                     preguntas.append(p)
 
-    # 2. Desafíos: 12 bloques x 30 = 360
+    # 2. Desafíos: 12 bloques x 36 = 432
     for mod_id in (1, 2, 3, 4):
         for niv_id in (11, 12, 13):
             sec = mod_id * 1000 + niv_id
             target_niv = (niv_id - 10)
-            for fam_idx in range(6):
-                for var_idx in range(5):
-                    seed_val = 600000 + sec * 100 + fam_idx * 5 + var_idx
+            for fam_idx in range(12):
+                for var_idx in range(3):
+                    seed_val = 600000 + sec * 100 + fam_idx * 3 + var_idx
                     data = comp.componer_pregunta_practica(mod_id, target_niv, fam_idx, var_idx, seed_val)
                     p = Pregunta(
                         fase_id=5,
@@ -157,14 +157,14 @@ def test_preguntas_seeding_count_and_family_structure():
                     )
                     preguntas.append(p)
 
-    # 3. Desafío Mixto Final: 60
+    # 3. Desafío Mixto Final: 144
     sec_mixto = 99099
     q_count = 0
     for mod_id in (1, 2, 3, 4):
         for niv_id in (1, 2, 3):
-            for var_idx in range(5):
-                seed_val = 700000 + mod_id * 1000 + niv_id * 100 + var_idx
-                data = comp.componer_pregunta_practica(mod_id, niv_id, mod_id, var_idx, seed_val)
+            for fam_idx in range(12):
+                seed_val = 700000 + mod_id * 1000 + niv_id * 100 + fam_idx
+                data = comp.componer_pregunta_practica(mod_id, niv_id, fam_idx, fam_idx % 3, seed_val)
                 p = Pregunta(
                     fase_id=5,
                     seccion=sec_mixto,
@@ -180,6 +180,6 @@ def test_preguntas_seeding_count_and_family_structure():
                 preguntas.append(p)
                 q_count += 1
 
-    assert len(preguntas) == 1140  # 720 + 360 + 60 = 1140
+    assert len(preguntas) == 1296  # 720 + 432 + 144
     assert all(p.estado == StatusEnum.ACTIVO for p in preguntas)
     assert all(p.explicacion_paso_a_paso is not None for p in preguntas)

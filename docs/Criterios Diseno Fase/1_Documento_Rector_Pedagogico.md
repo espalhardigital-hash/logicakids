@@ -3,6 +3,8 @@
 
 # Tomo 1: Documento Rector Pedagógico — LogicaKids Pro
 
+> **Prelación para Fases 5 y 6 (2026-08-23):** las descripciones históricas de Bucle Espejo o Bloque de Rescate no aplican. La norma vigente es corrección explicada y bloqueada 10 segundos, sin bypass ni pregunta espejo; ver [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](../ESTADO_IMPLEMENTACION_FASES_5_6.md).
+
 > **Versión:** 4.0 (Consolidada) | **Última actualización:** 2026-06-08 | **Prioridad documental:** 1 (Máxima)
 
 > Nota de autoridad documental: Este documento es la fuente principal de verdad pedagógica y conceptual de LogicaKids Pro. Para el Modelo B de evaluación en la Zona de Desafíos (Fases 4 a 11), prevalece el Tomo 4 (`4_Guia_TJS_Desafios.md`). En caso de conflicto, prevalece primero este Documento Rector Conceptual (y el Tomo 4 en su ámbito), luego el Blueprint Técnico, luego el Manual del Administrador y finalmente la Guía UX/UI.
@@ -527,7 +529,7 @@ Cuando el equipo pedagógico y técnico comience el diseño de una nueva fase, d
 * [ ] Feedbacks de acierto y error para interactivos.
 * [ ] Pool de práctica libre con exactamente 120 familias por nivel.
   > 🔴 **DEROGACIÓN NORMATIVA (A0 #2 — Fase 4):** Para la Fase 4, la norma de "120 familias por nivel" se deroga y se establece en **72 familias por nivel (288 por fase)**. Justificación: 72 familias derivadas de $\ge 6$ esquemas generadores independientes garantizan mayor variedad didáctica real que 120 familias derivadas de 1 solo esquema monótono.
-* [ ] Cada familia debe tener 1 pregunta original y 3 variantes espejo.
+* [ ] Cada familia debe declarar su identidad estructural. Las variantes contextuales pueden cambiar valores o escenario, pero nunca se sirven como respuesta automática a un error.
 * [ ] Cada pregunta de práctica debe tener `explicacion_profunda`.
 * [ ] Cada práctica con interacción textual debe tener `tokens_texto` y `tokens_correctos`.
 * [ ] Pool de desafíos con mínimo 150 preguntas por desafío.

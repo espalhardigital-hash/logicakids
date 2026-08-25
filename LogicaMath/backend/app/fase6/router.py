@@ -8,9 +8,8 @@ Responsabilidades:
   - Dashboard con los 4 módulos (niveles de práctica y de desafíos).
   - Contenido de teoría dinámico desde la tabla NivelTeoria.
   - Obtener preguntas (desde BD para práctica libre y desafíos).
-  - Validar respuestas:
-    - Bucle Espejo (Mirror Loop) en modo Práctica Libre.
-    - Salida Temprana (Early Exit) en modo Desafío con reinicio de progreso.
+  - Validar respuestas y mostrar una corrección obligatoria tras cada error.
+  - Salida Temprana (Early Exit) en modo Desafío con reinicio de progreso.
   - Graduación a Fase 3 (requiere 26 niveles dominados).
 """
 
@@ -39,14 +38,12 @@ from .schemas import (
     Fase6PreguntaParaAlumno, Fase6Token,
     Fase6ResponderPregunta, Fase6ResultadoRespuesta,
     Fase6ContenidoLectura, Fase6DesafioInfo,
-    Fase6AlternativaOut, Fase6CerrarRescate,
+    Fase6AlternativaOut,
 )
 
 router = APIRouter(prefix="/fase6", tags=["fase6"])
 
 FASE6_ID = 6
-MAX_ESPEJO = 3  # Intentos máximos en Bucle Espejo
-
 # ─────────────────────────────────────────────────────────────────────────────
 # HELPER DE SINCRONIZACIÓN CON CONFIGURACIONES HEREDADAS (unlockedLevels)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -472,7 +469,7 @@ async def get_lectura_fase6(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ENDPOINT 3 — Obtener Pregunta (Práctica con Bucle Espejo y Desafíos aleatorios)
+# ENDPOINT 3 — Obtener pregunta y desafíos aleatorios
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.get("/modulo/{modulo_id}/nivel/{nivel_id}/pregunta", response_model=Fase6PreguntaParaAlumno)
@@ -486,7 +483,7 @@ async def get_pregunta_fase6(
     """
     Devuelve la siguiente pregunta para un módulo y nivel (o desafío) dados.
     Cargado dinámicamente desde el pool pre-sembrado en la base de datos.
-    Soporta Bucle Espejo en práctica libre y selección aleatoria en desafíos.
+    Sirve práctica libre y selección aleatoria en desafíos.
     """
     seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
     config = await _get_config(db, seccion, operacion)
@@ -662,50 +659,31 @@ async def get_pregunta_fase6(
             )
             latest_attempt = result.scalar_one_or_none()
 
-        # SISTEMA ESPEJO ELIMINADO (reducto retirado): ya no se sirven hermanos-
-        # espejo tras un fallo. Al fallar se muestra la solución y se avanza a otra
-        # familia. `espejo_pregunta` se mantiene en None por compatibilidad del flujo.
-        espejo_pregunta = None
+        # Seleccionar una nueva familia; un fallo siempre recibe explicación y
+        # después continúa con otra pregunta, sin reintentos equivalentes.
+        result_qs = await db.execute(
+            select(Pregunta).options(selectinload(Pregunta.alternativas)).where(and_(
+                Pregunta.fase_id == FASE6_ID,
+                Pregunta.seccion == seccion,
+                Pregunta.estado == StatusEnum.ACTIVO,
+            ))
+        )
+        preguntas = result_qs.scalars().all()
+        if not preguntas:
+            raise HTTPException(status_code=404, detail="No hay preguntas en el pool para este nivel.")
 
-        if espejo_pregunta:
-            pregunta_elex = espejo_pregunta
-        else:
-            # Seleccionar una nueva familia (pregunta original: es_espejo = False)
-            result_qs = await db.execute(
-                select(Pregunta).options(selectinload(Pregunta.alternativas))
-                .where(and_(
-                    Pregunta.fase_id == FASE6_ID,
-                    Pregunta.seccion == seccion,
-                    Pregunta.estado == StatusEnum.ACTIVO
-                ))
-            )
-            preguntas = result_qs.scalars().all()
-            if not preguntas:
-                raise HTTPException(status_code=404, detail="No hay preguntas en el pool para este nivel.")
-
-            originales = [q for q in preguntas if not q.datos_numericos or q.datos_numericos.get("es_espejo") is not True]
-            if not originales:
-                originales = preguntas
-
-            # Familias ya RESUELTAS correctamente (P1: rendirse/bypass no cuenta
-            # como resuelta, por lo que esas familias pueden volver a servirse).
-            res_solved = await db.execute(
-                select(Pregunta.estructura_padre_id)
-                .join(Intento, Intento.pregunta_id == Pregunta.id)
-                .where(and_(
-                    Intento.alumno_id == alumno.id,
-                    Intento.fase_id == FASE6_ID,
-                    Intento.seccion == seccion,
-                    Intento.es_correcta == True,
-                ))
-            )
-            solved_families = set(res_solved.scalars().all())
-
-            unsolved_originales = [o for o in originales if o.estructura_padre_id not in solved_families]
-            if not unsolved_originales:
-                unsolved_originales = originales
-
-            pregunta_elex = random.choice(unsolved_originales)
+        # Las familias ya dominadas se evitan mientras haya otras disponibles.
+        res_solved = await db.execute(
+            select(Pregunta.estructura_padre_id).join(Intento, Intento.pregunta_id == Pregunta.id).where(and_(
+                Intento.alumno_id == alumno.id,
+                Intento.fase_id == FASE6_ID,
+                Intento.seccion == seccion,
+                Intento.es_correcta == True,
+            ))
+        )
+        solved_families = set(res_solved.scalars().all())
+        candidatos = [q for q in preguntas if q.estructura_padre_id not in solved_families] or preguntas
+        pregunta_elex = random.choice(candidatos)
 
         pasos_encadenados = None
         if modulo_id == 4:
@@ -771,9 +749,8 @@ async def responder_fase6(
     alumno: Alumno = Depends(get_current_student),
 ):
     """
-    Valida la respuesta del alumno, calcula aciertos, e implementa:
-    - Bucle Espejo (Mirror Loop) en modo Práctica Libre (1-10).
-    - Lógica de Salida Temprana (Early Exit) en modo Desafío (11-13) con reinicio de progreso.
+    Valida la respuesta, calcula aciertos y entrega corrección obligatoria al fallar.
+    En desafíos aplica la salida temprana cuando ya no es posible aprobar.
     """
     modulo_id = payload.modulo_id
     nivel_id = payload.nivel_id
@@ -872,7 +849,6 @@ async def responder_fase6(
                 feedback_mostrado = pregunta.errores_previstos.get("calculo", "Revisa tus cálculos e inténtalo de nuevo.")
 
     # INTEGRACIÓN DE INTENTOPREGUNTA E INTENTOPASO (MÓDULO 4 CONSTRUCTOR)
-    es_variante_espejo = (pregunta.datos_numericos and pregunta.datos_numericos.get("es_espejo"))
     if tipo_pregunta == "constructor_soluciones_chained":
         # Buscar o crear IntentoPregunta
         result_ip = await db.execute(
@@ -905,7 +881,6 @@ async def responder_fase6(
             respuesta_dada=payload.respuesta_dada,
             es_correcta=es_correcta,
             tipo_error_detectado=tipo_error.value if tipo_error else None,
-            es_espejo=bool(es_variante_espejo),
             tiempo_respuesta=payload.tiempo_respuesta_segundos
         )
         db.add(intento_paso)
@@ -1102,12 +1077,8 @@ async def responder_fase6(
                 feedback_error=feedback_mostrado,
             )
 
-    # Práctica Libre (1-10): No contamos intentos ni aciertos si es una variante espejo 
-    # para no penalizar el "Score" visual del alumno en modo entrenamiento.
-    es_variante_espejo = (pregunta.datos_numericos and pregunta.datos_numericos.get("es_espejo"))
-    
-    if not es_variante_espejo:
-        progreso.intentos_totales += 1
+    # Todo intento real forma parte del progreso, incluidos los errores.
+    progreso.intentos_totales += 1
     
     ya_resuelta = False
     if es_correcta:
@@ -1169,161 +1140,26 @@ async def responder_fase6(
             if res_aprob.scalar() >= 24:
                 fase_completada = True
 
-        # Sincronizar espejo visual heredado
         await _sync_unlocked_levels(db, alumno.id, operacion)
-
-    espejo = False
-    intentos_espejo = 0
-    soporte_avanzado = False
-
-    if not es_correcta and modulo_id in (1, 2, 3) and pregunta.estructura_padre_id:
-        res_fam = await db.execute(
-            select(Intento)
-            .join(Pregunta, Intento.pregunta_id == Pregunta.id)
-            .where(and_(
-                Intento.alumno_id == alumno.id,
-                Pregunta.estructura_padre_id == pregunta.estructura_padre_id
-            ))
-            .order_by(Intento.fecha.desc(), Intento.id.desc())
-        )
-        family_attempts = res_fam.scalars().all()
-        intentos_espejo = len(family_attempts)
-        
-        espejo = intentos_espejo > 0
-        soporte_avanzado = intentos_espejo >= (MAX_ESPEJO + 1)
 
     await db.commit()
 
     return Fase6ResultadoRespuesta(
         es_correcta=es_correcta,
         respuesta_correcta=respuesta_correcta_str,
-        explicacion=pregunta.explicacion_paso_a_paso if (not es_correcta and soporte_avanzado) else None,
+        explicacion=pregunta.explicacion_paso_a_paso if not es_correcta else None,
         feedback_error=feedback_mostrado,
         aciertos_acumulados=progreso.aciertos_acumulados,
         intentos_totales=progreso.intentos_totales,
         porcentaje_actual=progreso.porcentaje_actual,
         bloque_completado=bloque_completado,
         fase_completada=fase_completada,
-        es_espejo=espejo,
-        intentos_espejo_actuales=intentos_espejo,
-        intentos_espejo_max=MAX_ESPEJO,
-        soporte_avanzado=soporte_avanzado,
+        pausa_obligatoria_segundos=0 if es_correcta else 10,
         paso_aprobado=paso_aprobado,
         valor_paso1_congelado=valor_paso1_congelado,
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ENDPOINT 4.5 — Cerrar Rescate (Bypass sin anti-spam)
-# ─────────────────────────────────────────────────────────────────────────────
-
-@router.post("/cerrar-rescate", response_model=Fase6ResultadoRespuesta)
-async def cerrar_rescate_fase6(
-    payload: Fase6CerrarRescate,
-    db: AsyncSession = Depends(get_db),
-    alumno: Alumno = Depends(get_current_student),
-):
-    """
-    Cierra la explicación del bloque de rescate y registra un intento virtual 'BYPASS_EXPLICACION'.
-    Esto incrementa la completitud del alumno y resetea el bucle espejo de forma fluida.
-    """
-    modulo_id = payload.modulo_id
-    nivel_id = payload.nivel_id
-    seccion, operacion = _seccion_operacion(modulo_id, nivel_id)
-    config = await _get_config(db, seccion, operacion)
-    progreso = await _get_or_create_progreso(db, alumno.id, seccion, operacion)
-
-    result_q = await db.execute(
-        select(Pregunta).options(selectinload(Pregunta.alternativas)).where(Pregunta.id == payload.pregunta_id)
-    )
-    pregunta = result_q.scalar_one_or_none()
-    if not pregunta:
-        raise HTTPException(status_code=404, detail="Pregunta no encontrada.")
-
-    # Registrar el bypass como un intento fallido especial
-    intento = Intento(
-        alumno_id=alumno.id,
-        pregunta_id=payload.pregunta_id,
-        respuesta_dada="BYPASS_EXPLICACION",
-        es_correcta=False,
-        fase_id=FASE6_ID,
-        seccion=seccion,
-        operacion=operacion,
-        tipo_error=TipoErrorEnum.CALCULO,
-        feedback_mostrado="Bypass de Explicación",
-        explicacion_mostrada=None,
-        tiempo_respuesta_segundos=0.0,
-    )
-    db.add(intento)
-    await db.flush()
-
-    progreso.intentos_totales += 1
-
-    if config:
-        cantidad_req = config.cantidad_requerida
-    else:
-        global_cfg = await _get_global_config(db)
-        pl_cfg = global_cfg.get("practica_libre", {})
-        cantidad_req = pl_cfg.get("cantidad_requerida", 15)
-
-    # Calcular progreso por completitud (familias resueltas con éxito o bypass)
-    res_fam_resueltas = await db.execute(
-        select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-        .join(Intento, Intento.pregunta_id == Pregunta.id)
-        .where(and_(
-            Intento.alumno_id == alumno.id,
-            Intento.fase_id == FASE6_ID,
-            Intento.seccion == seccion,
-            # E6/DA1 · Progreso P1: solo cuenta el acierto real (antes también
-            # contaba el bypass "rendirse" -> se podía llegar al 100% fallando).
-            Intento.es_correcta == True,
-        ))
-    )
-    familias_resueltas = res_fam_resueltas.scalar() or 0
-
-    progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
-
-    bloque_completado = False
-    fase_completada = False
-
-    if progreso.porcentaje_actual >= 100:
-        if progreso.estado != EstadoProgresoEnum.APROBADO:
-            progreso.estado = EstadoProgresoEnum.APROBADO
-            progreso.fecha_aprobacion = datetime.utcnow()
-        bloque_completado = True
-        
-        await db.flush()
-        res_aprob = await db.execute(
-            select(func.count(ProgresoMaestria.id)).where(and_(
-                ProgresoMaestria.alumno_id == alumno.id,
-                ProgresoMaestria.fase_id == FASE6_ID,
-                ProgresoMaestria.estado == EstadoProgresoEnum.APROBADO
-            ))
-        )
-        if res_aprob.scalar() >= 24:
-            fase_completada = True
-
-        # Sincronizar espejo visual heredado
-        await _sync_unlocked_levels(db, alumno.id, operacion)
-
-    await db.commit()
-
-    return Fase6ResultadoRespuesta(
-        es_correcta=False,
-        respuesta_correcta=pregunta.respuesta_correcta,
-        aciertos_acumulados=progreso.aciertos_acumulados,
-        intentos_totales=progreso.intentos_totales,
-        porcentaje_actual=progreso.porcentaje_actual,
-        bloque_completado=bloque_completado,
-        fase_completada=fase_completada,
-        es_espejo=False,
-        intentos_espejo_actuales=0,
-        intentos_espejo_max=MAX_ESPEJO,
-        soporte_avanzado=False,
-    )
-
-
-# ─────────────────────────────────────────────────────────────────────────────
 # ENDPOINT 5 — Graduación a Fase 7 (Exige 24 niveles aprobados)
 # ─────────────────────────────────────────────────────────────────────────────
 

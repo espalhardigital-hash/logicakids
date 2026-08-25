@@ -106,6 +106,23 @@ export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
     return chunks;
   };
 
+  const paginateParagraphs = (paragraphs: string[]) => paragraphs.flatMap((paragraph) => {
+    if (paragraph.length <= 420) return [paragraph];
+    const sentences = paragraph.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [paragraph];
+    const pages: string[] = [];
+    let current = '';
+    for (const sentence of sentences) {
+      if (current && current.length + sentence.length > 420) {
+        pages.push(current.trim());
+        current = sentence;
+      } else {
+        current += sentence;
+      }
+    }
+    if (current.trim()) pages.push(current.trim());
+    return pages;
+  });
+
   const renderInteractiveBarChart = (globalIdx: number) => {
     const valA = 100;
     const valB = 150;
@@ -299,7 +316,7 @@ export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
   };
 
   const slides = useMemo(() => {
-    const s: { type: string; data: any }[] = [];
+    const s: { type: string; data: any; exampleIndex?: number; totalExamples?: number }[] = [];
     const parrafosRaw = readingData.parrafos || [];
     const sepIdx = parrafosRaw.indexOf('---');
     
@@ -312,48 +329,44 @@ export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
     }
     
     const ejemplosRaw = readingData.ejemplos || [];
-    const ejemploChunks = chunkArray(ejemplosRaw, 2);
+    const ejemploChunks = chunkArray(ejemplosRaw, 1);
     
-    // Slide 1: Teoría Parte 1 (Con diccionario)
-    s.push({ 
-      type: 'intro', 
-      data: { 
-        parrafos: parrafosParte1, 
-        mostrarDiccionario: true 
-      } 
+    // Cada pantalla contiene una pieza de lectura acotada. Nunca se oculta
+    // texto debajo del borde ni se exige desplazamiento vertical.
+    paginateParagraphs(parrafosParte1).forEach((paragraph) => {
+      s.push({ type: 'intro', data: { parrafos: [paragraph], mostrarDiccionario: false } });
+    });
+
+    const dictionaryEntries = Object.entries(readingData.diccionario || {});
+    chunkArray(dictionaryEntries, 3).forEach((entries) => {
+      s.push({ type: 'intro', data: { parrafos: [], mostrarDiccionario: true, diccionario: Object.fromEntries(entries) } });
     });
     
-    // Slide 2: Ejemplos 1 y 2
-    if (ejemploChunks.length > 0) {
-      s.push({ type: 'examples', data: ejemploChunks[0] });
-    }
+    // Cada ejemplo en su propia slide independiente (Regla T3: Cero scroll vertical)
+    ejemploChunks.forEach((chunk, index) => {
+      s.push({ 
+        type: 'examples', 
+        data: chunk,
+        exampleIndex: index + 1,
+        totalExamples: ejemplosRaw.length
+      });
+    });
     
     // Slide 3: Teoría Parte 2 (Si existe, sin diccionario)
-    if (parrafosParte2.length > 0) {
-      s.push({ 
-        type: 'intro', 
-        data: { 
-          parrafos: parrafosParte2, 
-          mostrarDiccionario: false 
-        } 
-      });
-    }
-    
-    // Slide 4: Ejemplos 3 y 4 (Si existen)
-    if (ejemploChunks.length > 1) {
-      s.push({ type: 'examples', data: ejemploChunks[1] });
-    }
-    
-    // Si no hubiera ejemplos en absoluto (caso borde)
-    if (ejemplosRaw.length === 0) {
-      s.push({ type: 'examples', data: [] });
-    }
+    paginateParagraphs(parrafosParte2).forEach((paragraph) => {
+      s.push({ type: 'intro', data: { parrafos: [paragraph], mostrarDiccionario: false } });
+    });
 
-    // Interactivos prácticos
+    // Interactivos prácticos SOLO SI TIENEN CONTENIDO REAL (enunciado/pregunta y respuesta definida)
     if (readingData.interactivos && readingData.interactivos.length > 0) {
-      const withIndex = readingData.interactivos.map((item, index) => ({ ...item, globalIndex: index }));
-      const chunks = chunkArray(withIndex, 1);
-      chunks.forEach(c => s.push({ type: 'interactives', data: c }));
+      const validInteractivos = readingData.interactivos.filter(
+        (item: any) => (item.enunciado || item.pregunta) && (item.respuesta !== undefined)
+      );
+      if (validInteractivos.length > 0) {
+        const withIndex = validInteractivos.map((item: any, index: number) => ({ ...item, globalIndex: index }));
+        const chunks = chunkArray(withIndex, 1);
+        chunks.forEach((c: any) => s.push({ type: 'interactives', data: c }));
+      }
     }
 
     if (readingData.tip_pedagogico) {
@@ -487,11 +500,11 @@ export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
                   <p key={idx} className="f5-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
                 ))}
 
-                {(currentSlide.data === null || currentSlide.data?.mostrarDiccionario) && readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
+                {(currentSlide.data === null || currentSlide.data?.mostrarDiccionario) && (currentSlide.data?.diccionario || readingData.diccionario) && Object.keys(currentSlide.data?.diccionario || readingData.diccionario).length > 0 && (
                   <div className="f5-reading-dictionary">
                     <h3>🔍 DICCIONARIO MATEMÁTICO:</h3>
                     <div className="f5-dict-grid">
-                      {Object.entries(readingData.diccionario).map(([termino, definicion], idx) => (
+                      {Object.entries(currentSlide.data?.diccionario || readingData.diccionario).map(([termino, definicion], idx) => (
                         <div key={idx} className="f5-dict-card" style={{ borderColor: `${moduleColor}33` }}>
                           <div className="f5-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
                           <div className="f5-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion as string) }} />
@@ -516,7 +529,7 @@ export const Fase5TheoryModal: React.FC<Fase5TheoryModalProps> = ({
               >
                 {currentSlide.data.length > 0 ? (
                   <div className="f5-reading-examples">
-                    <h3>📐 EJEMPLOS ILUSTRADOS:</h3>
+                    <h3>📐 EJEMPLO ILUSTRADO {(currentSlide as any).exampleIndex ? `(${(currentSlide as any).exampleIndex} de ${(currentSlide as any).totalExamples})` : ''}:</h3>
                     {currentSlide.data.map((ex: any, idx: number) => {
                       let fractionVisualizer = null;
                       let hideEnunciadoSvg = false;

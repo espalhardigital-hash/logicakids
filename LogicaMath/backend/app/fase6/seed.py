@@ -4,7 +4,7 @@ Cumple strictly con las Secciones 8, 9 y 12 de docs/reestructuraciondefases.md.
 
 Volumetría:
   - 4 Módulos, 15 Niveles de Teoría en niveles_teoria_pool.
-  - 15 Niveles de Práctica × 120 familias × 4 variantes (1 original + 3 espejo) = 7.200 preguntas.
+  - 15 niveles de práctica × 120 familias × 4 variantes contextuales = 7.200 preguntas.
   - 13 Bloques de Desafíos (12 de módulo + 1 Mixto de Fase 99099) × 150 = 1.950 preguntas.
   - Total: 9.150 preguntas en la tabla `preguntas` con `estructura_padre_id` SIEMPRE poblado (NUNCA NULL).
   - 29 filas en `configuracion_progreso` (15 de práctica + 13 de desafíos + 1 fallback seccion=0).
@@ -439,12 +439,11 @@ def _gen_practice_question(
         alts = []
         err_dict = {f"{area_circ}".replace(".", ","): "Esa es el área del círculo interior; restó del cuadrado para hallar las esquinas."}
 
-    # SISTEMA ESPEJO ELIMINADO: las 4 variantes (valores distintos por var_idx)
-    # quedan como variedad legítima del pool, NO como espejos-clon. Ninguna se
-    # marca es_espejo, de modo que el lookup de hermanos del router queda inerte
-    # y no hay reducto espejo en datos.
+    # Contrato explícito para auditar la familia y su dependencia visual.
     if isinstance(datos_num, dict):
-        datos_num["es_espejo"] = False
+        datos_num["plantilla_id"] = fam_id_str
+        datos_num["requiere_figura"] = "<svg" in enunciado.lower()
+        datos_num["tipo_visual"] = "inline_svg" if datos_num["requiere_figura"] else "textual"
 
     pregunta_dict = {
         "fase_id": 6,
@@ -523,7 +522,12 @@ def _gen_challenge_question(
         "tipo_pregunta": tipo_preg,
         "enunciado": enunciado,
         "respuesta_correcta": ans_str,
-        "datos_numericos": {"a": a, "b": b, "resultado": res_val},
+        "datos_numericos": {
+            "a": a, "b": b, "resultado": res_val,
+            "plantilla_id": fam_id_str,
+            "requiere_figura": True,
+            "tipo_visual": "inline_svg",
+        },
         "errores_previstos": err_dict,
         "explicacion_paso_a_paso": {
             "titulo": "Resolución del Desafío",
@@ -639,7 +643,7 @@ async def seed_fase6_full() -> None:
                 cantidad_requerida=15,
                 porcentaje_aprobacion=100,
                 orden_desbloqueo=lvl_id,
-                tipo_feedback="bucle_espejo",
+                tipo_feedback="feedback_bloqueado",
                 usa_cronometro=False,
                 tiempo_default_segundos=0,
                 errores_tolerados=None,
@@ -698,7 +702,7 @@ async def seed_fase6_full() -> None:
             cantidad_requerida=15,
             porcentaje_aprobacion=100,
             orden_desbloqueo=0,
-            tipo_feedback="bucle_espejo",
+            tipo_feedback="feedback_bloqueado",
             usa_cronometro=False,
             tiempo_default_segundos=0,
             errores_tolerados=None,

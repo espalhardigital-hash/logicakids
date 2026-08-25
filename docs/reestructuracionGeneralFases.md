@@ -232,7 +232,7 @@ Teoría, ejemplos guiados, figuras. Reglas completas en [`5_Criterios_Teoria_Eje
 
 ### Etapa 7 — Barrido por flujo, no por componente
 
-El mismo contenido reaparece en: práctica libre · batería · bucle espejo · bloque de rescate · desafíos de módulo · desafío mixto · vistas admin/preview.
+El mismo contenido reaparece en: práctica libre · batería · corrección obligatoria · desafíos de módulo · desafío mixto · finalización/graduación · vistas admin/preview.
 
 > **Gate 7:** la misma pregunta se ve correcta en **todos** los flujos donde aparece.
 
@@ -328,3 +328,17 @@ Lo que la Fase 4 sí dejó como ganancia reutilizable:
 > **Construir el arnés de verificación primero, desacoplar antes de mover, y no aceptar nunca "está hecho" sin la salida del comando que lo demuestra.**
 
 Todo lo demás de este documento es desarrollo de esa frase.
+
+---
+
+## 9. Adenda aplicada — Fases 5 y 6 (2026-08-23)
+
+La ejecución de Fases 5 y 6 confirmó y precisa el método:
+
+1. **Las preguntas espejo quedan derogadas como mecanismo pedagógico.** Un error no dispara un hermano de la misma pregunta, un rescate ni un bypass. Muestra solución, pasos y un bloqueo de lectura de 10 segundos.
+2. **El Gate 6 requiere paginación real.** `overflow: hidden` solo es válido si cada unidad de contenido está completa en una diapositiva; ocultar texto no cumple T3.
+3. **El Gate 7 ya no incluye flujo espejo o rescate.** La matriz mínima es práctica, desafío, desafío mixto, teoría, corrección bloqueada, finalización y graduación.
+4. **El contrato de publicación incorpora visuales.** Cada pregunta debe declarar familia, necesidad de figura y tipo visual; una figura requerida ausente bloquea la publicación.
+5. **La evidencia debe incluir datos resembrados.** No basta probar el generador: se consulta la base local para confirmar enunciados, respuestas, contrato visual y ausencia de datos espejo.
+
+El estado verificable y los comandos locales están en [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](./ESTADO_IMPLEMENTACION_FASES_5_6.md).

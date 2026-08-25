@@ -24,7 +24,7 @@ export interface Fase5Pregunta {
   tiene_cronometro: boolean;
   tiempo_limite_segundos?: number;
   datos_numericos?: {
-    tipo_visual?: 'pizza' | 'thermometer' | 'pie' | 'percentage_thermometer' | 'beaker' | 'percentage_beaker' | 'non_homogeneous_polygon' | 'shapes' | 'bar_chart' | 'contextual_bar' | 'fraction_percentage';
+    tipo_visual?: 'pizza' | 'thermometer' | 'pie' | 'percentage_thermometer' | 'beaker' | 'percentage_beaker' | 'non_homogeneous_polygon' | 'shapes' | 'bar_chart' | 'contextual_bar' | 'fraction_percentage' | 'ratio_grid' | 'collection_grid';
     cortes?: number;
     sombreados?: number[];
     nivel?: number;
@@ -60,11 +60,11 @@ export interface Fase5AnswerResult {
   porcentaje_actual: number;
   bloque_completado: boolean;
   fase_completada: boolean;
-  es_espejo: boolean;
   early_exit: boolean;
   respuesta_correcta: string;
+  explicacion?: { pasos?: { orden: number; texto: string }[] };
   explicacion_profunda?: string;
-  soporte_avanzado?: boolean;
+  pausa_obligatoria_segundos: number;
 }
 
 export interface Fase5NivelInfo {
@@ -117,8 +117,3 @@ export interface Fase5Lectura {
   interactivos?: { enunciado: string; respuesta: string; feedback_acierto: string; feedback_error: string }[];
 }
 
-export interface Fase5CerrarRescate {
-  modulo_id: number;
-  nivel_id: number;
-  success?: boolean;
-}

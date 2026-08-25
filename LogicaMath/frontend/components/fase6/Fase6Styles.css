@@ -710,7 +710,9 @@
 
 /* ── PANTALLA DE JUEGO ──────────────────────────────────── */
 .f6-game-screen {
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
   background: var(--f6-bg-deep);
   background-image:
     radial-gradient(ellipse at 30% 20%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
@@ -782,6 +784,8 @@
 /* Área de pregunta */
 .f6-game-body {
   flex-grow: 1;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1049,17 +1053,6 @@
   color: var(--f6-text-secondary);
   margin-bottom: 20px;
   line-height: 1.5;
-}
-
-.f6-feedback-espejo {
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px solid rgba(251, 191, 36, 0.3);
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 0.82rem;
-  color: #fbbf24;
-  margin-bottom: 20px;
-  text-align: left;
 }
 
 .f6-feedback-btn {
@@ -1647,7 +1640,9 @@
 .flashcard-mode {
   display: flex;
   flex-direction: column;
-  min-height: 650px;
+  height: min(650px, calc(100dvh - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
   max-height: 95vh;
   width: 90vw;
   max-width: 800px;
@@ -1670,8 +1665,8 @@
 .flashcard-body {
   flex: 1;
   position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
+  min-height: 0;
+  overflow: hidden;
   padding-bottom: 1rem;
 }
 
@@ -2456,80 +2451,6 @@
     width: 100%;
     max-width: 320px;
     margin: 0 auto;
-  }
-}
-
-/* ── MODAL DE PREGUNTAS ESPEJO (MIRROR MODAL) ── */
-
-.mirror-modal-overlay {
-  background: rgba(10, 11, 14, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-  overflow: hidden !important; /* Bloquea scroll en overlay */
-}
-
-.f6-mirror-modal-card {
-  background: rgba(255, 255, 255, 0.02) !important;
-  backdrop-filter: blur(40px) !important;
-  border-radius: 40px !important;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
-  overflow: hidden !important; /* Evita scroll interno */
-  max-height: 96vh; /* No desborda pantalla */
-}
-
-.f6-mirror-reveal-box {
-  animation: slideDownFade 0.5s ease-out;
-}
-
-@keyframes slideDownFade {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.f6-mirror-modal-card h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.f6-status-badge.correct {
-  background: #10B981;
-  color: white;
-}
-
-.f6-status-badge.incorrect {
-  background: #EF4444;
-  color: white;
-}
-
-.f6-era-pill {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #EF4444;
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-weight: 800;
-  font-size: 0.85rem;
-  margin-right: 10px;
-}
-
-/* Animación para el botón de siguiente variante */
-.f6-mirror-modal-card button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsivo para el modal */
-@media (max-width: 768px) {
-  .f6-mirror-modal-card {
-    padding: 20px !important;
-    border-radius: 30px !important;
-  }
-  
-  .f6-mirror-modal-card .flex-col.md:flex-row {
-    gap: 20px !important;
-  }
-  
-  .f6-mirror-modal-card h2 {
-    font-size: 1.5rem !important;
   }
 }
 

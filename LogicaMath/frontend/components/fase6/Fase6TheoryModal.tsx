@@ -47,7 +47,11 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
 
   const slides = useMemo(() => {
     const s: { type: string; data: any }[] = [];
-    s.push({ type: 'intro', data: null });
+    const paragraphChunks = chunkArray(readingData.parrafos || [], 2);
+    paragraphChunks.forEach((chunk) => s.push({ type: 'intro', data: chunk }));
+    if (paragraphChunks.length === 0) s.push({ type: 'intro', data: [] });
+    const dictionaryEntries = Object.entries(readingData.diccionario || {});
+    chunkArray(dictionaryEntries, 3).forEach((chunk) => s.push({ type: 'dictionary', data: chunk }));
     
     if (readingData.ejemplos && readingData.ejemplos.length > 0) {
       const chunks = chunkArray(readingData.ejemplos, 1);
@@ -207,23 +211,25 @@ export const Fase6TheoryModal: React.FC<Fase6TheoryModalProps> = ({
                 transition={{ duration: 0.3 }}
                 className="f6-flashcard-content"
               >
-                {readingData.parrafos.map((p, idx) => (
+                {currentSlide.data.map((p: string, idx: number) => (
                   <p key={idx} className="f6-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
                 ))}
+              </motion.div>
+            )}
 
-                {readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
-                  <div className="f6-reading-dictionary">
-                    <h3>📖 EL DICCIONARIO DEL NIVEL:</h3>
-                    <div className="f6-dict-grid">
-                      {Object.entries(readingData.diccionario).map(([termino, definicion], idx) => (
-                        <div key={idx} className="f6-dict-card" style={{ borderColor: `${moduleColor}55` }}>
-                          <div className="f6-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
-                          <div className="f6-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion as string) }} />
-                        </div>
-                      ))}
-                    </div>
+            {currentSlide?.type === 'dictionary' && (
+              <motion.div key={`dictionary-${currentStep}`} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="f6-flashcard-content">
+                <div className="f6-reading-dictionary" style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
+                  <h3>📖 EL DICCIONARIO DEL NIVEL:</h3>
+                  <div className="f6-dict-grid">
+                    {currentSlide.data.map(([termino, definicion]: [string, string], idx: number) => (
+                      <div key={idx} className="f6-dict-card" style={{ borderColor: `${moduleColor}55` }}>
+                        <div className="f6-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
+                        <div className="f6-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion) }} />
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
               </motion.div>
             )}
 

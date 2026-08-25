@@ -84,13 +84,19 @@ const getRatioTheme = (enunciado: string) => {
 };
 
 export const RatioGridVisualizer: React.FC<Props> = ({ pregunta, moduleColor }) => {
-  const { agua = 3, limon = 1, factor = 2 } = pregunta.datos_numericos || {};
+  const data = pregunta.datos_numericos || {};
+  // El backend entrega ratio_a/ratio_b. Conservamos val_a/val_b solo para
+  // preguntas antiguas mientras se reconstruye el banco local.
+  const ratioA = Math.max(1, Number(data.ratio_a ?? data.val_a ?? 1));
+  const ratioB = Math.max(1, Number(data.ratio_b ?? data.val_b ?? 1));
+  const factor = Number(data.factor || 1);
   const { labelA, colorA, labelB, colorB } = getRatioTheme(pregunta.enunciado);
 
-  const baseA = limon;
-  const baseB = agua;
-  const dupA = limon * factor;
-  const dupB = agua * factor;
+  const baseA = ratioA;
+  const baseB = ratioB;
+  const hasScaledRecipe = factor > 1;
+  const dupA = ratioA * factor;
+  const dupB = ratioB * factor;
 
   const renderBlocks = (countA: number, countB: number) => {
     const total = countA + countB;
@@ -128,34 +134,32 @@ export const RatioGridVisualizer: React.FC<Props> = ({ pregunta, moduleColor }) 
         {/* Receta Base */}
         <div className="flex flex-col items-center gap-2 flex-1">
           <span style={{ color: moduleColor }} className="text-xs font-black uppercase tracking-wider">
-            Base ({baseB}:{baseA})
+            Razón ({baseA}:{baseB})
           </span>
           {renderBlocks(baseA, baseB)}
         </div>
 
         {/* Separador */}
-        <div className="flex items-center justify-center text-3xl font-black text-slate-600">
-          ➔
-        </div>
+        {hasScaledRecipe && <div className="flex items-center justify-center text-3xl font-black text-slate-600">➔</div>}
 
         {/* Receta Proporcional */}
-        <div className="flex flex-col items-center gap-2 flex-1">
+        {hasScaledRecipe && <div className="flex flex-col items-center gap-2 flex-1">
           <span className="text-xs font-black uppercase tracking-wider text-purple-400">
-            Duplicado ({dupB}:{dupA})
+            Escalado ×{factor} ({dupA}:{dupB})
           </span>
           {renderBlocks(dupA, dupB)}
-        </div>
+        </div>}
       </div>
 
       {/* Leyenda explicativa al pie */}
       <div className="flex justify-center gap-6 mt-4 pt-3 border-t border-slate-800/80 w-full text-[10px] font-bold text-slate-400">
         <div className="flex items-center gap-1.5">
           <div className="w-3.5 h-3.5 rounded-sm border border-white/5" style={{ backgroundColor: colorA }} />
-          <span>{labelA}: {baseA} base / {dupA} final</span>
+          <span>{labelA}: {baseA}{hasScaledRecipe ? ` → ${dupA}` : ''}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3.5 h-3.5 rounded-sm border border-white/5" style={{ backgroundColor: colorB }} />
-          <span>{labelB}: {baseB} base / {dupB} final</span>
+          <span>{labelB}: {baseB}{hasScaledRecipe ? ` → ${dupB}` : ''}</span>
         </div>
       </div>
     </div>

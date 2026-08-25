@@ -91,18 +91,6 @@ class Fase6ResponderPregunta(BaseModel):
 
 
 # ============================================================
-# CIERRE DE RESCATE (Fase 2)
-# ============================================================
-
-class Fase6CerrarRescate(BaseModel):
-    """Payload que envía el alumno para omitir la explicación de rescate."""
-    modulo_id: int
-    nivel_id: int
-    pregunta_id: int
-
-
-
-# ============================================================
 # RESULTADO DE RESPUESTA (Fase 2)
 # ============================================================
 
@@ -111,6 +99,8 @@ class Fase6ResultadoRespuesta(BaseModel):
     es_correcta: bool
     respuesta_correcta: Optional[str] = None
     explicacion: Optional[Dict[str, Any]] = None
+    explicacion_profunda: Optional[str] = None
+    pausa_obligatoria_segundos: int = 0
 
     # Feedback de error pedagógico (Tutor Invisible)
     feedback_error: Optional[str] = None
@@ -121,12 +111,6 @@ class Fase6ResultadoRespuesta(BaseModel):
     porcentaje_actual: int
     bloque_completado: bool = False
     fase_completada: bool = False
-
-    # Bucle Espejo (Mirror Loop) — solo para práctica libre
-    es_espejo: bool = False
-    intentos_espejo_actuales: int = 0
-    intentos_espejo_max: int = 3
-    soporte_avanzado: bool = False
 
     # Early Exit — solo para desafíos
     early_exit: bool = False
