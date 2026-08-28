@@ -12,14 +12,15 @@ export const CollectionGridVisualizer: React.FC<Props> = ({ pregunta, moduleColo
   const data = pregunta.datos_numericos || {};
   const total = Math.max(1, Number(data.total || 0));
   const groups = Math.max(1, Number(data.grupos || data.b || 1));
+  const itemLabel = String(data.etiqueta_elementos || 'elementos');
   const perGroup = Math.max(1, Math.floor(total / groups));
   const visibleGroups = Math.min(groups, 10);
   const itemLimit = 12;
 
   return (
-    <figure className="w-full max-w-[560px] mx-auto rounded-3xl border border-sky-300/20 bg-slate-900/70 p-4 shadow-xl" aria-label={`Colección de ${total} objetos agrupada en ${groups} grupos iguales`}>
+    <figure className="w-full max-w-[560px] mx-auto rounded-3xl border border-sky-300/20 bg-slate-900/70 p-4 shadow-xl" aria-label={`Colección de ${total} ${itemLabel} agrupada en ${groups} grupos iguales`}>
       <figcaption className="mb-3 text-center text-xs font-black uppercase tracking-[0.18em] text-slate-300">
-        {total} objetos en {groups} grupos iguales
+        {total} {itemLabel} en {groups} grupos iguales
       </figcaption>
       <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(visibleGroups, 5)}, minmax(0, 1fr))` }}>
         {Array.from({ length: visibleGroups }, (_, groupIndex) => (

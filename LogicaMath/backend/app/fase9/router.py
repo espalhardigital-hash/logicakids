@@ -33,6 +33,10 @@ from ..models.sql_models import (
     PlatformSettings, User,
 )
 from ..utils.math_utils import normalize_response, calcular_max_errores
+from ..core.progression import (
+    PRACTICE_REQUIRED_CORRECT_ANSWERS,
+    calculate_progress_percentage,
+)
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from .schemas import (
     Fase9Dashboard, Fase9ModuloInfo, Fase9NivelInfo,
@@ -42,7 +46,9 @@ from .schemas import (
     Fase9AlternativaOut, Fase9CerrarRescate,
 )
 
-router = APIRouter(prefix="/fase9", tags=["fase8"])
+# El contenido de este módulo es la Fase 8 pedagógica.  Fase 9 se reserva
+# para simulados y es atendida por `fase11.router` bajo /fase9.
+router = APIRouter(prefix="/fase8", tags=["fase8"])
 
 fase8_ID = 8
 MAX_ESPEJO = 3  # Intentos máximos en Bucle Espejo
@@ -123,8 +129,8 @@ async def _get_global_config(db: AsyncSession) -> dict:
     if not settings:
         return {
             "practica_libre": {
-                "cantidad_requerida": 15,
-                "porcentaje_aprobacion": 80,
+                "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+                "porcentaje_aprobacion": 100,
                 "usa_cronometro": False,
                 "tiempo_default_segundos": 15,
                 "tipo_feedback": "simple"
@@ -297,7 +303,7 @@ async def get_fase8_dashboard(
                 estado = "bloqueado"
                 porcentaje = 0
                 aciertos = 0
-                requeridos = pl_cfg.get("cantidad_requerida", 15)
+                requeridos = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
             elif progreso is None:
                 estado = "en_progreso" if _is_nivel_unlocked(progresos, mod_id, niv_id) else "bloqueado"
                 porcentaje = 0
@@ -665,54 +671,9 @@ async def get_pregunta_fase8(
             )
             latest_attempt = result.scalar_one_or_none()
 
-        espejo_pregunta = None
-        
-        # Lógica Bucle Espejo (solo si el último intento fue fallido y no fue bypass)
-        if latest_attempt and not latest_attempt.es_correcta and latest_attempt.respuesta_dada != "BYPASS_EXPLICACION":
-            result_q = await db.execute(
-                select(Pregunta).options(selectinload(Pregunta.alternativas)).where(Pregunta.id == latest_attempt.pregunta_id)
-            )
-            failed_pregunta = result_q.scalar_one_or_none()
-            
-            if failed_pregunta and failed_pregunta.estructura_padre_id:
-                # Contar cuántos intentos lleva en esta misma familia de preguntas
-                res_fam = await db.execute(
-                    select(Intento)
-                    .join(Pregunta, Intento.pregunta_id == Pregunta.id)
-                    .where(and_(
-                        Intento.alumno_id == alumno.id,
-                        Pregunta.estructura_padre_id == failed_pregunta.estructura_padre_id
-                    ))
-                    .order_by(Intento.fecha.desc(), Intento.id.desc())
-                )
-                family_attempts = res_fam.scalars().all()
-                attempts_count = len(family_attempts)
-
-                # Si lleva menos del máximo permitido en el bucle espejo y el último falló
-                if attempts_count > 0 and not family_attempts[0].es_correcta and attempts_count < (MAX_ESPEJO + 1):
-                    # Obtener las preguntas del pool para esta familia
-                    result_fam_qs = await db.execute(
-                        select(Pregunta).options(selectinload(Pregunta.alternativas))
-                        .where(and_(
-                            Pregunta.estructura_padre_id == failed_pregunta.estructura_padre_id,
-                            Pregunta.estado == StatusEnum.ACTIVO
-                        ))
-                    )
-                    family_questions = result_fam_qs.scalars().all()
-                    
-                    attempted_ids = {a.pregunta_id for a in family_attempts}
-                    unattempted_mirrors = [
-                        q for q in family_questions
-                        if q.id not in attempted_ids and q.datos_numericos and q.datos_numericos.get("es_espejo") is True
-                    ]
-
-                    if unattempted_mirrors:
-                        espejo_pregunta = random.choice(unattempted_mirrors)
-
-        if espejo_pregunta:
-            pregunta_elex = espejo_pregunta
-        else:
-            # Seleccionar una nueva familia (pregunta original: es_espejo = False)
+        # Tras un error se muestra la explicación de la pregunta original;
+        # nunca se redirige a una variante espejo.
+        if True:
             result_qs = await db.execute(
                 select(Pregunta).options(selectinload(Pregunta.alternativas))
                 .where(and_(
@@ -725,9 +686,7 @@ async def get_pregunta_fase8(
             if not preguntas:
                 raise HTTPException(status_code=404, detail="No hay preguntas en el pool para este nivel.")
 
-            originales = [q for q in preguntas if not q.datos_numericos or q.datos_numericos.get("es_espejo") is not True]
-            if not originales:
-                originales = preguntas
+            originales = preguntas
 
             # Buscar familias ya tratadas (correctas o con bypass de explicación)
             res_solved = await db.execute(
@@ -784,7 +743,7 @@ async def get_pregunta_fase8(
                 pl_cfg = global_cfg.get("practica_libre", {})
                 tiene_crono = pl_cfg.get("usa_cronometro", False)
                 tiempo_lim = pl_cfg.get("tiempo_default_segundos", 15)
-                cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+                cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
         if not tiene_crono:
             tiempo_lim = None
@@ -919,7 +878,9 @@ async def responder_fase9(
                 feedback_mostrado = pregunta.errores_previstos.get("calculo", "Revisa tus cálculos e inténtalo de nuevo.")
 
     # INTEGRACIÓN DE INTENTOPREGUNTA E INTENTOPASO (MÓDULO 4 CONSTRUCTOR)
-    es_variante_espejo = (pregunta.datos_numericos and pregunta.datos_numericos.get("es_espejo"))
+    # La Fase 8 no admite variantes espejo: todo intento se atribuye al ítem
+    # original y recibe devolución pedagógica.
+    es_variante_espejo = False
     if tipo_pregunta == "constructor_soluciones_chained":
         # Buscar o crear IntentoPregunta
         result_ip = await db.execute(
@@ -1154,12 +1115,9 @@ async def responder_fase9(
 
 
     else:
-        # Práctica Libre (1-10): No contamos intentos ni aciertos si es una variante espejo 
-        # para no penalizar el "Score" visual del alumno en modo entrenamiento.
-        es_variante_espejo = (pregunta.datos_numericos and pregunta.datos_numericos.get("es_espejo"))
-        
-        if not es_variante_espejo:
-            progreso.intentos_totales += 1
+        # Cada intento de práctica pertenece a la pregunta original seleccionada.
+        es_variante_espejo = False
+        progreso.intentos_totales += 1
         
         ya_resuelta = False
         if es_correcta:
@@ -1183,26 +1141,13 @@ async def responder_fase9(
         else:
             global_cfg = await _get_global_config(db)
             pl_cfg = global_cfg.get("practica_libre", {})
-            cantidad_req = pl_cfg.get("cantidad_requerida", 15)
-            porc_aprobacion = pl_cfg.get("porcentaje_aprobacion", 80)
+            cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
+            porc_aprobacion = pl_cfg.get("porcentaje_aprobacion", 100)
 
-        # NUEVO CÁLCULO DE PROGRESO POR COMPLETITUD (Familias únicas resueltas con éxito o bypass)
-        res_fam_resueltas = await db.execute(
-            select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-            .join(Intento, Intento.pregunta_id == Pregunta.id)
-            .where(and_(
-                Intento.alumno_id == alumno.id,
-                Intento.fase_id == fase8_ID,
-                Intento.seccion == seccion,
-                or_(
-                    Intento.es_correcta == True,
-                    Intento.respuesta_dada == "BYPASS_EXPLICACION"
-                )
-            ))
+        progreso.porcentaje_actual = calculate_progress_percentage(
+            progreso.aciertos_acumulados,
+            cantidad_req,
         )
-        familias_resueltas = res_fam_resueltas.scalar() or 0
-        
-        progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
         bloque_completado = False
         fase_completada = False
@@ -1231,21 +1176,8 @@ async def responder_fase9(
         intentos_espejo = 0
         soporte_avanzado = False
 
-        if not es_correcta and modulo_id in (1, 2, 3) and pregunta.estructura_padre_id:
-            res_fam = await db.execute(
-                select(Intento)
-                .join(Pregunta, Intento.pregunta_id == Pregunta.id)
-                .where(and_(
-                    Intento.alumno_id == alumno.id,
-                    Pregunta.estructura_padre_id == pregunta.estructura_padre_id
-                ))
-                .order_by(Intento.fecha.desc(), Intento.id.desc())
-            )
-            family_attempts = res_fam.scalars().all()
-            intentos_espejo = len(family_attempts)
-            
-            espejo = intentos_espejo > 0
-            soporte_avanzado = (config and config.tipo_feedback == "detallado") or intentos_espejo >= (MAX_ESPEJO + 1)
+        if not es_correcta:
+            soporte_avanzado = True
 
         await db.commit()
 
@@ -1319,25 +1251,12 @@ async def cerrar_rescate_fase8(
     else:
         global_cfg = await _get_global_config(db)
         pl_cfg = global_cfg.get("practica_libre", {})
-        cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+        cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
-    # Calcular progreso por completitud (familias resueltas con éxito o bypass)
-    res_fam_resueltas = await db.execute(
-        select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-        .join(Intento, Intento.pregunta_id == Pregunta.id)
-        .where(and_(
-            Intento.alumno_id == alumno.id,
-            Intento.fase_id == fase8_ID,
-            Intento.seccion == seccion,
-            or_(
-                Intento.es_correcta == True,
-                Intento.respuesta_dada == "BYPASS_EXPLICACION"
-            )
-        ))
+    progreso.porcentaje_actual = calculate_progress_percentage(
+        progreso.aciertos_acumulados,
+        cantidad_req,
     )
-    familias_resueltas = res_fam_resueltas.scalar() or 0
-    
-    progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
     bloque_completado = False
     fase_completada = False

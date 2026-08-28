@@ -252,7 +252,10 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
             }
         ],
         # Nivel 3: Áreas fraccionarias en composiciones geométricas asimétricas
-        (1, 3): [
+        # Material visual heredado sobre particiones no homogéneas. Se conserva
+        # fuera de la topología pública; el nivel 1.3 vigente trabaja
+        # complemento y relaciones entre partes.
+        (1, 30): [
             {
                 "enunciado": "Un cuadrado se dividió en <span class=\"keyword-highlight\">4 partes</span>, pero 2 son el doble de grandes que las otras. ¿Cada parte representa 1/4?<br/>"
                              "<svg width='100' height='100' viewBox='0 0 100 100' style='margin:10px auto; display:block; border:2px solid #4B5563; background:#1F2937;'>"
@@ -370,6 +373,41 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
             }
         ],
 
+        (1, 3): [
+            {
+                "enunciado": "Una tira tiene <span class=\"keyword-highlight\">8 partes iguales</span>: 3 están coloreadas. ¿Cuántas quedan libres?",
+                "pasos": [
+                    {"orden": 1, "texto": "Identificamos el total: <span class=\"keyword-highlight\">8 partes</span>."},
+                    {"orden": 2, "texto": "Restamos las 3 partes coloreadas: <span class=\"keyword-highlight\">8 − 3 = 5</span>."},
+                    {"orden": 3, "texto": "Quedan <span class=\"keyword-highlight\">5 partes libres</span>. Comprobación: 3 + 5 = 8."}
+                ]
+            },
+            {
+                "enunciado": "Un panel tiene 10 secciones iguales y 4 están ocupadas. ¿Cuál es la diferencia entre las secciones libres y las ocupadas?",
+                "pasos": [
+                    {"orden": 1, "texto": "Hallamos las libres: <span class=\"keyword-highlight\">10 − 4 = 6</span>."},
+                    {"orden": 2, "texto": "Comparamos libres y ocupadas: <span class=\"keyword-highlight\">6 − 4 = 2</span>."},
+                    {"orden": 3, "texto": "Hay <span class=\"keyword-highlight\">2 secciones libres más</span> que ocupadas."}
+                ]
+            },
+            {
+                "enunciado": "Una bandera tiene 12 franjas iguales y 4 están pintadas. Se usarán todas las pintadas y la mitad de las franjas libres. ¿Cuántas franjas se usarán?",
+                "pasos": [
+                    {"orden": 1, "texto": "Franjas libres: <span class=\"keyword-highlight\">12 − 4 = 8</span>."},
+                    {"orden": 2, "texto": "La mitad de las libres es <span class=\"keyword-highlight\">8 ÷ 2 = 4</span>."},
+                    {"orden": 3, "texto": "Sumamos las 4 pintadas y esas 4 libres: <span class=\"keyword-highlight\">4 + 4 = 8 franjas</span>."}
+                ]
+            },
+            {
+                "enunciado": "Un mosaico tiene 6 piezas iguales y 2 están marcadas. Dos mosaicos idénticos conservan la misma distribución. ¿Cuántas piezas quedan sin marcar entre ambos?",
+                "pasos": [
+                    {"orden": 1, "texto": "En un mosaico quedan <span class=\"keyword-highlight\">6 − 2 = 4</span> piezas sin marcar."},
+                    {"orden": 2, "texto": "Hay dos mosaicos iguales: <span class=\"keyword-highlight\">4 × 2 = 8</span>."},
+                    {"orden": 3, "texto": "Entre ambos quedan <span class=\"keyword-highlight\">8 piezas sin marcar</span>."}
+                ]
+            }
+        ],
+
 
 
         # --- MÓDULO 2: FRACCIÓN DE CANTIDAD ---
@@ -392,11 +430,11 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Calcula <span class=\"keyword-highlight\">1/5 de 50 soldados</span>.",
+                "enunciado": "Calcula <span class=\"keyword-highlight\">1/5 de 50 fichas</span>.",
                 "pasos": [
-                    {"orden": 1, "texto": "Dividimos los 50 soldados en 5 batallones idénticos: <span class=\"keyword-highlight\">50 ÷ 5 = 10</span>."},
-                    {"orden": 2, "texto": "Tomamos un batallón: 10 soldados."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">10 soldados</span>."}
+                    {"orden": 1, "texto": "Dividimos las 50 fichas en 5 grupos idénticos: <span class=\"keyword-highlight\">50 ÷ 5 = 10</span>."},
+                    {"orden": 2, "texto": "Tomamos un grupo: 10 fichas."},
+                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">10 fichas</span>."}
                 ]
             },
             {
@@ -525,7 +563,7 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
             }
         ],
         # Nivel 2: Lectura e interpretación de gráficos circulares
-        (3, 2): [
+        (3, 20): [
             {
                 "enunciado": "En un gráfico circular, el <span class=\"keyword-highlight\">40%</span> prefiere fútbol, el <span class=\"keyword-highlight\">35%</span> básquet y el resto vóley. ¿Qué porcentaje prefiere vóley?<br/>"
                              "<svg width='100' height='100' viewBox='0 0 100 100' style='margin:10px auto; display:block; filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.4));'>"
@@ -570,7 +608,7 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
             }
         ],
         # Nivel 3: Comparación de tasas en gráficos de barras
-        (3, 3): [
+        (3, 30): [
             {
                 "enunciado": "Un gráfico de barras muestra: Región A = <span class=\"keyword-highlight\">450</span>, Región B = <span class=\"keyword-highlight\">320</span>, Región C = <span class=\"keyword-highlight\">530</span>. ¿Cuántas empresas hay en total?<br/>"
                              "<svg width='180' height='100' viewBox='0 0 180 100' style='margin:10px auto; display:block; background:#1F2937; border-radius:10px; padding:5px;'>"
@@ -622,7 +660,7 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
             }
         ],
         # Nivel 4: El Punto de Equilibrio - Media Aritmética
-        (3, 4): [
+        (3, 40): [
             {
                 "enunciado": "Calcula el promedio de libros leídos por tres niños: <span class=\"keyword-highlight\">3, 7 y 5 libros</span>.<br/>"
                              "<svg width='300' height='120' viewBox='0 0 200 80' style='margin:10px auto; display:block;'>"
@@ -675,6 +713,78 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
                     {"orden": 1, "texto": "Sumamos los dulces de las tres bolsas: <span class=\"keyword-highlight\">6 + 8 + 10 = 24</span>."},
                     {"orden": 2, "texto": "Dividimos la suma entre las 3 bolsas: <span class=\"keyword-highlight\">24 ÷ 3 = 8</span>."},
                     {"orden": 3, "texto": "El promedio de dulces es: <span class=\"keyword-highlight\">8 dulces</span>."}
+                ]
+            }
+        ],
+
+        # Nivel 2 vigente: descuentos y recargos.
+        (3, 2): [
+            {
+                "enunciado": "Una mochila cuesta <span class=\"keyword-highlight\">80 soles</span> y tiene 25% de descuento. ¿Cuál es el precio final?",
+                "pasos": [
+                    {"orden": 1, "texto": "El 25% es la cuarta parte: <span class=\"keyword-highlight\">80 ÷ 4 = 20</span> soles de descuento."},
+                    {"orden": 2, "texto": "Restamos el descuento: <span class=\"keyword-highlight\">80 − 20 = 60</span>."},
+                    {"orden": 3, "texto": "El precio final es <span class=\"keyword-highlight\">60 soles</span>."}
+                ]
+            },
+            {
+                "enunciado": "Un juego cuesta 50 soles y recibe un recargo del 20%. ¿Cuánto se paga en total?",
+                "pasos": [
+                    {"orden": 1, "texto": "Calculamos el 20% de 50: <span class=\"keyword-highlight\">50 × 20 ÷ 100 = 10</span>."},
+                    {"orden": 2, "texto": "Un recargo se suma: <span class=\"keyword-highlight\">50 + 10 = 60</span>."},
+                    {"orden": 3, "texto": "Se pagan <span class=\"keyword-highlight\">60 soles</span>."}
+                ]
+            },
+            {
+                "enunciado": "Un libro de 120 soles tiene 10% de descuento. ¿Cuánto dinero se ahorra?",
+                "pasos": [
+                    {"orden": 1, "texto": "El 10% equivale a dividir entre 10."},
+                    {"orden": 2, "texto": "Calculamos <span class=\"keyword-highlight\">120 ÷ 10 = 12</span>."},
+                    {"orden": 3, "texto": "El ahorro es de <span class=\"keyword-highlight\">12 soles</span>."}
+                ]
+            },
+            {
+                "enunciado": "Dos entradas cuestan 40 soles cada una y tienen 25% de descuento. ¿Cuánto se ahorra entre las dos?",
+                "pasos": [
+                    {"orden": 1, "texto": "Ahorro en una entrada: <span class=\"keyword-highlight\">40 ÷ 4 = 10</span> soles."},
+                    {"orden": 2, "texto": "Son dos entradas: <span class=\"keyword-highlight\">10 × 2 = 20</span>."},
+                    {"orden": 3, "texto": "El ahorro total es de <span class=\"keyword-highlight\">20 soles</span>."}
+                ]
+            }
+        ],
+
+        # Nivel 3 vigente: media aritmética y lectura de tres datos.
+        (3, 3): [
+            {
+                "enunciado": "Tres estudiantes leyeron <span class=\"keyword-highlight\">3, 7 y 5 libros</span>. ¿Cuál es el promedio?",
+                "pasos": [
+                    {"orden": 1, "texto": "Sumamos los datos: <span class=\"keyword-highlight\">3 + 7 + 5 = 15</span>."},
+                    {"orden": 2, "texto": "Hay tres estudiantes: <span class=\"keyword-highlight\">15 ÷ 3 = 5</span>."},
+                    {"orden": 3, "texto": "El promedio es <span class=\"keyword-highlight\">5 libros</span>."}
+                ]
+            },
+            {
+                "enunciado": "Tres equipos obtuvieron 12, 18 y 15 puntos. ¿Cuál fue su promedio?",
+                "pasos": [
+                    {"orden": 1, "texto": "Sumamos: <span class=\"keyword-highlight\">12 + 18 + 15 = 45</span>."},
+                    {"orden": 2, "texto": "Dividimos entre los tres equipos: <span class=\"keyword-highlight\">45 ÷ 3 = 15</span>."},
+                    {"orden": 3, "texto": "El promedio fue <span class=\"keyword-highlight\">15 puntos</span>."}
+                ]
+            },
+            {
+                "enunciado": "Tres recorridos duraron 20, 30 y 40 minutos. ¿Cuál fue la duración promedio?",
+                "pasos": [
+                    {"orden": 1, "texto": "Total: <span class=\"keyword-highlight\">20 + 30 + 40 = 90</span> minutos."},
+                    {"orden": 2, "texto": "Repartimos entre tres recorridos: <span class=\"keyword-highlight\">90 ÷ 3 = 30</span>."},
+                    {"orden": 3, "texto": "La duración promedio fue <span class=\"keyword-highlight\">30 minutos</span>."}
+                ]
+            },
+            {
+                "enunciado": "Los datos son 6, 9 y 12. Antes de promediar, ¿cuánto suman y cuál es el promedio?",
+                "pasos": [
+                    {"orden": 1, "texto": "La suma es <span class=\"keyword-highlight\">6 + 9 + 12 = 27</span>."},
+                    {"orden": 2, "texto": "Dividimos entre tres: <span class=\"keyword-highlight\">27 ÷ 3 = 9</span>."},
+                    {"orden": 3, "texto": "Suma: 27; promedio: <span class=\"keyword-highlight\">9</span>."}
                 ]
             }
         ],
@@ -809,4 +919,27 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
             }
         ]
     }
-    return ejemplos_db.get((modulo_id, nivel_id), [])
+    ejemplos = ejemplos_db.get((modulo_id, nivel_id), [])
+    if (modulo_id, nivel_id) == (1, 2):
+        # Los dos primeros ejemplos conservan las comparaciones gráficas. Los
+        # dos siguientes enseñan las rutas nuevas del banco: inferir un factor
+        # y detectar una equivalencia falsa, en lugar de repetir multiplicaciones.
+        ejemplos = ejemplos[:2] + [
+            {
+                "enunciado": "Completa <span class=\"keyword-highlight\">3/5 = ?/20</span>. El factor no está escrito: debes descubrirlo comparando los denominadores.",
+                "pasos": [
+                    {"orden": 1, "texto": "Compara los denominadores: <span class=\"keyword-highlight\">20 ÷ 5 = 4</span>. Ese es el factor común."},
+                    {"orden": 2, "texto": "Aplica el mismo factor al numerador: <span class=\"keyword-highlight\">3 × 4 = 12</span>."},
+                    {"orden": 3, "texto": "La equivalencia completa es <span class=\"keyword-highlight\">3/5 = 12/20</span>."},
+                ],
+            },
+            {
+                "enunciado": "Un estudiante afirma que <span class=\"keyword-highlight\">2/7 = 7/21</span>. ¿Cómo verificamos y corregimos su propuesta?",
+                "pasos": [
+                    {"orden": 1, "texto": "El denominador cambió por <span class=\"keyword-highlight\">21 ÷ 7 = 3</span>."},
+                    {"orden": 2, "texto": "El numerador también debe multiplicarse por 3: <span class=\"keyword-highlight\">2 × 3 = 6</span>, no 7."},
+                    {"orden": 3, "texto": "La propuesta correcta es <span class=\"keyword-highlight\">2/7 = 6/21</span>. Ambos términos cambian con el mismo factor."},
+                ],
+            },
+        ]
+    return ejemplos

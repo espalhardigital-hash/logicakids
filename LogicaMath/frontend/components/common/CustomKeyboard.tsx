@@ -42,7 +42,7 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
   const numbers = ['7', '8', '9', '4', '5', '6', '1', '2', '3'];
 
   return (
-    <div className="flex flex-col items-center select-none w-full max-w-[340px] mx-auto">
+    <div className="f5-custom-keyboard flex flex-col items-center select-none w-full max-w-[340px] mx-auto">
       {/* Keyboard Grid Panel */}
       <motion.div 
         variants={containerVariants}
@@ -73,6 +73,7 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
           <motion.button
           type="button"
           data-testid="delete-numpad"
+          aria-label="Borrar último dígito"
           variants={keyVariants}
           whileHover={!disabled ? { scale: 1.05, backgroundColor: 'rgba(239, 68, 68, 0.15)' } : {}}
           whileTap={!disabled ? { scale: 0.95 } : {}}
@@ -86,6 +87,7 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
           {allowDecimal && <motion.button
             type="button"
             data-testid="decimal-numpad"
+            aria-label="Separador decimal"
             variants={keyVariants}
             whileHover={!disabled ? { scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.08)' } : {}}
             whileTap={!disabled ? { scale: 0.95 } : {}}
@@ -111,6 +113,7 @@ export const CustomKeyboard: React.FC<CustomKeyboardProps> = ({
           <motion.button
           type="button"
           data-testid="submit-numpad"
+          aria-label="Confirmar respuesta"
           variants={keyVariants}
           whileHover={!disabled && !submitDisabled ? { scale: 1.05, boxShadow: '0 0 20px rgba(37, 99, 235, 0.5)' } : {}}
           whileTap={!disabled && !submitDisabled ? { scale: 0.95 } : {}}

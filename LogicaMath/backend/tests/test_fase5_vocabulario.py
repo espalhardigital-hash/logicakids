@@ -29,6 +29,8 @@ _AUXILIARES_EXPR = {
     "b_minus_a": "b - a",
     "a_times_c": "a * c",
     "b_times_c": "b * c",
+    "a_times_c_plus_1": "a * c + 1",
+    "b_times_c_minus_1": "b * c - 1",
     "total_div_b": "total // b",
     "a_pct": "(a * 100) // (a + b)",
     "b_pct": "(b * 100) // (a + b)",
@@ -56,6 +58,32 @@ def _cubierto(node: ast.AST, impresos: set) -> bool:
     if isinstance(node, ast.UnaryOp):
         return _cubierto(node.operand, impresos)
     return False
+
+
+def _cierre_equivalencia(impresos: set) -> set:
+    """Infiere datos recuperables al comparar términos equivalentes.
+
+    M1N2 oculta deliberadamente el factor: mostrar ``b`` y ``b*c`` permite
+    deducir ``c`` por división. Este cierre evita que la prueba antigua exija
+    imprimir el factor y vuelva triviales las preguntas.
+    """
+    conocidos = set(impresos)
+    if "a_times_c_plus_1" in conocidos:
+        conocidos.add("a_times_c")
+    if "b_times_c_minus_1" in conocidos:
+        conocidos.add("b_times_c")
+    for _ in range(4):
+        if ({"a", "a_times_c"} <= conocidos) or ({"b", "b_times_c"} <= conocidos):
+            conocidos.add("c")
+        if {"a_times_c", "c"} <= conocidos:
+            conocidos.add("a")
+        if {"b_times_c", "c"} <= conocidos:
+            conocidos.add("b")
+        if {"a", "c"} <= conocidos:
+            conocidos.add("a_times_c")
+        if {"b", "c"} <= conocidos:
+            conocidos.add("b_times_c")
+    return conocidos
 
 
 def _componer_todo(fams=6, vars_=2):
@@ -126,6 +154,8 @@ def test_sin_marcos_que_oculten_variables_de_formula():
         alt_list = p.get("marcos_alternativos") or []
         for f in alt_list:
             impresos = set(re.findall(r"\{([a-zA-Z_0-9]+)\}", f))
+            if p["modulo_id"] == 1 and p["nivel_id"] == 2:
+                impresos = _cierre_equivalencia(impresos)
             if not _cubierto(arbol, impresos):
                 alertas.append(f"{p['id']} (formula={p['formula']!r}): marco {f!r} no da suficiente información")
     assert not alertas, f"Variantes narrativas que ocultan variables de fórmula:\n" + "\n".join(alertas)

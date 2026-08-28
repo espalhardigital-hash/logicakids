@@ -1,6 +1,6 @@
 import React, { useState, Component, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Zap, Brain, BookOpen, PieChart, Square, Box, Map, Lightbulb, GraduationCap, Calculator, Layers, User as UserIcon, X, HelpCircle } from 'lucide-react';
+import { Lock, Zap, Brain, BookOpen, PieChart, Square, Map, Lightbulb, GraduationCap, Calculator, Layers, User as UserIcon, X, HelpCircle } from 'lucide-react';
 import { User } from '../../types';
 import { getAvatarUrl, getCurrentUserFull } from '../../services/storageService';
 
@@ -156,9 +156,9 @@ export default function PhaseMapScreen({
     },
     {
       index: 7,
-      title: 'Geometría Espacial, Volumen y Magnitudes',
-      description: 'Visualización 3D, sólidos geométricos, conteo de bloques y volumen espacial.',
-      icon: Box,
+      title: 'Coordenadas, Rutas y Tiempo',
+      description: 'Plano cartesiano, desplazamientos, lectura de rutas y cálculo del tiempo.',
+      icon: Map,
       color: 'bg-indigo-500',
       textColor: 'text-indigo-400',
       shadow: 'shadow-indigo-500/50',

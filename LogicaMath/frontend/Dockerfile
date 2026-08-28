@@ -28,6 +28,10 @@ ENV VITE_API_URL=$VITE_API_URL
 # Desactivar generación de Source Maps para reducir sustancialmente el consumo de RAM en la compilación
 ENV GENERATE_SOURCEMAP=false
 
+# El contenedor de producción solo se publica si los contratos de interfaz,
+# pedagogía y cero-scroll están aprobados.
+RUN npm test -- --run
+
 # Compilar la aplicación de React/Vite (esto crea la carpeta /dist internamente)
 RUN npm run build
 

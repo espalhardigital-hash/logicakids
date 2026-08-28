@@ -1,97 +1,196 @@
-"""
-Script de Auditoría Profunda Multicriterio de las 9,600 Preguntas de la Fase 5 (Local DB)
-Basado en RULES AGENTES/deep_analise_pro.md §8 (Bug Hunting) y §15 (Data Discipline)
+"""Auditoría publicable de la Fase 5 sobre la base local activa.
+
+Falla con código distinto de cero ante cualquier defecto. Comprueba el banco
+completo, alternativas, retroalimentación, teoría, configuración y contratos
+UX que no pueden observarse solo con una fórmula correcta.
 """
 
-import sys
-import os
+from __future__ import annotations
+
+import asyncio
 import json
 import re
-import psycopg2
+import sys
+from collections import Counter
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from sync_helpers import load_env_file, rewrite_db_url
+from sqlalchemy import text
 
-def main():
-    print("=" * 85)
-    print("🔬 AUDITORÍA PROFUNDA MULTICRITERIO: FASE 5 (9,600 PREGUNTAS)")
-    print("=" * 85)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-    loc_env = load_env_file("Datos_localhost/.env.local")
-    loc_url = rewrite_db_url(loc_env["DATABASE_URL"], "localhost", 5433)
-    loc_conn = psycopg2.connect(loc_url)
-    cur = loc_conn.cursor()
+from app.db.session import AsyncSessionLocal
 
-    cur.execute("""
-        SELECT p.id, p.seccion, p.sub_nivel, p.operacion, p.tipo_pregunta, 
-               p.enunciado, p.respuesta_correcta, p.datos_numericos
-        FROM preguntas p
-        WHERE p.fase_id = 5
-        ORDER BY p.seccion, p.sub_nivel, p.id;
-    """)
-    questions = cur.fetchall()
-    total_q = len(questions)
-    print(f"[*] Total de preguntas en Fase 5: {total_q}")
 
-    bad_svg_tags = []
-    svg_overflow = []
-    missing_values = []
-    broken_urls = []
-    corrupt_encoding = []
-    invalid_mult_choice = []
-    invalid_numeric_ans = []
+EXPECTED_SECTIONS = {
+    **{module * 100 + level: 65 for module in range(1, 5) for level in range(1, 4)},
+    **{
+        module * 1000 + challenge: (65 if (module, challenge) == (1, 12) else 39)
+        for module in range(1, 5)
+        for challenge in (11, 12, 13)
+    },
+    99099: 156,
+}
+EXPECTED_TOTAL = sum(EXPECTED_SECTIONS.values())
 
-    svg_tag_regex = re.compile(r'<svg([^>]*)>', re.IGNORECASE)
+FORBIDDEN_TEXT = (
+    re.compile(r"¿Cuánto es (?:las|los)\b", re.IGNORECASE),
+    re.compile(r"(?:regala|dona)[^?!.]*estudiantes", re.IGNORECASE),
+    re.compile(r"(?:gasta|gastó|gastado)[^?!.]*caramelos", re.IGNORECASE),
+    re.compile(r"\b(?:pregunta|ítem) espejo\b", re.IGNORECASE),
+    re.compile(r"\{[A-Za-z_][A-Za-z0-9_]*\}"),
+    re.compile(r"\b(?:undefined|nan|null)\b|\[object Object\]", re.IGNORECASE),
+)
 
-    for q in questions:
-        q_id, seccion, sub_nivel, operacion, tipo_p, text, resp_corr, datos_num = q
 
-        # A. Inspección de SVG
-        svg_matches = svg_tag_regex.findall(text)
-        for attr_str in svg_matches:
-            # Detectar si tiene width y height fijos que puedan causar distorsión de viewBox
-            if 'width=' in attr_str and 'height=' in attr_str:
-                if 'height="auto"' not in attr_str and "height='auto'" not in attr_str and 'max-width' not in attr_str:
-                    bad_svg_tags.append((q_id, seccion, sub_nivel, attr_str[:120]))
+async def run() -> None:
+    failures: list[str] = []
+    async with AsyncSessionLocal() as session:
+        rows = (await session.execute(text("""
+            SELECT p.id, p.seccion, p.tipo_pregunta::text AS tipo_pregunta,
+                   p.enunciado, p.respuesta_correcta, p.datos_numericos,
+                   p.explicacion_paso_a_paso, p.estructura_padre_id,
+                   count(a.id) AS option_count,
+                   count(a.id) FILTER (WHERE a.es_correcta) AS correct_count,
+                   count(DISTINCT a.texto) AS distinct_option_count,
+                   count(a.id) FILTER (
+                     WHERE NOT a.es_correcta
+                       AND (a.feedback_error IS NULL OR btrim(a.feedback_error) = '')
+                   ) AS wrong_without_feedback
+            FROM preguntas p
+            LEFT JOIN alternativas a ON a.pregunta_id = p.id
+            WHERE p.fase_id = 5
+            GROUP BY p.id
+            ORDER BY p.seccion, p.id
+        """))).mappings().all()
 
-        # B. Valores Faltantes / Placeholders
-        if re.search(r'undefined|NaN|null|\[object Object\]|\{\s*val\s*\}|\?\?|__', text, re.IGNORECASE):
-            missing_values.append((q_id, seccion, sub_nivel, "Placeholder o valor faltante"))
+        section_counts = Counter(int(row["seccion"]) for row in rows)
+        if len(rows) != EXPECTED_TOTAL:
+            failures.append(f"total de preguntas={len(rows)}; esperado={EXPECTED_TOTAL}")
+        if dict(sorted(section_counts.items())) != dict(sorted(EXPECTED_SECTIONS.items())):
+            failures.append(f"conteos por sección no coinciden: {dict(sorted(section_counts.items()))}")
 
-        # C. URLs locales en imágenes
-        if 'http://localhost' in text or 'http://127.0.0.1' in text:
-            broken_urls.append((q_id, seccion, sub_nivel, "URL de imagen local"))
+        seen_stems: set[tuple[int, str]] = set()
+        for row in rows:
+            qid = row["id"]
+            section = int(row["seccion"])
+            stem = (row["enunciado"] or "").strip()
+            answer = (row["respuesta_correcta"] or "").strip()
+            data = row["datos_numericos"] or {}
+            explanation = row["explicacion_paso_a_paso"] or {}
 
-        # D. Codificación corrupta
-        if re.search(r'\b\?[a-z]|\?[A-Z]', text):
-            corrupt_encoding.append((q_id, seccion, sub_nivel, "Carácter corrupto con ?"))
+            if not stem or not answer:
+                failures.append(f"pregunta {qid}: enunciado o respuesta vacío")
+                continue
+            if any(pattern.search(stem) for pattern in FORBIDDEN_TEXT):
+                failures.append(f"pregunta {qid}: enunciado no publicable: {stem}")
+            if re.search(rf"(?<!\d){re.escape(answer)}(?!\d)", stem):
+                failures.append(f"pregunta {qid}: la respuesta {answer} aparece copiada en el enunciado")
+            signature = (section, re.sub(r"\s+", " ", stem.casefold()))
+            if signature in seen_stems:
+                failures.append(f"pregunta {qid}: enunciado duplicado dentro de la sección {section}")
+            seen_stems.add(signature)
 
-        # E. Validación según Tipo de Pregunta
-        if tipo_p == 'MULTIPLE_OPCION':
-            cur.execute("SELECT id, texto, es_correcta FROM alternativas WHERE pregunta_id = %s ORDER BY orden;", (q_id,))
-            alts = cur.fetchall()
-            correct_count = sum(1 for a in alts if a[2] is True)
-            if len(alts) != 4 or correct_count != 1:
-                invalid_mult_choice.append((q_id, seccion, sub_nivel, f"Alternativas={len(alts)}, Correctas={correct_count}"))
-        
-        elif tipo_p == 'RESPUESTA_NUMERICA':
-            if not resp_corr or not resp_corr.strip():
-                invalid_numeric_ans.append((q_id, seccion, sub_nivel, "Respuesta correcta vacía/nula"))
+            if row["option_count"] != 4 or row["correct_count"] != 1:
+                failures.append(
+                    f"pregunta {qid}: opciones={row['option_count']}, correctas={row['correct_count']}"
+                )
+            if row["distinct_option_count"] != 4:
+                failures.append(f"pregunta {qid}: alternativas duplicadas")
+            if row["wrong_without_feedback"]:
+                failures.append(f"pregunta {qid}: distractor sin retroalimentación")
 
-    print("\n--- RESULTADOS DE LA AUDITORÍA COMPLETA ---")
-    print(f"  1. SVGs con atributos width/height sin max-width/auto: {len(bad_svg_tags)} {'✅ (0 OK)' if len(bad_svg_tags)==0 else '❌'}")
-    print(f"  2. Preguntas con placeholders vacíos (NaN, null, etc): {len(missing_values)} {'✅ (0 OK)' if len(missing_values)==0 else '❌'}")
-    print(f"  3. Preguntas con URLs locales (http://localhost): {len(broken_urls)} {'✅ (0 OK)' if len(broken_urls)==0 else '❌'}")
-    print(f"  4. Preguntas con caracteres corruptos (?): {len(corrupt_encoding)} {'✅ (0 OK)' if len(corrupt_encoding)==0 else '❌'}")
-    print(f"  5. Preguntas Opción Múltiple con número de opciones != 4 o != 1 correcta: {len(invalid_mult_choice)} {'✅ (0 OK)' if len(invalid_mult_choice)==0 else '❌'}")
-    print(f"  6. Preguntas Respuesta Numérica con respuesta vacía/nula: {len(invalid_numeric_ans)} {'✅ (0 OK)' if len(invalid_numeric_ans)==0 else '❌'}")
+            if not data.get("requiere_figura") or not data.get("tipo_visual"):
+                failures.append(f"pregunta {qid}: contrato visual ausente")
+            if any(key in data for key in ("es_espejo", "pregunta_espejo", "mirror")):
+                failures.append(f"pregunta {qid}: metadato de pregunta espejo")
+            steps = explanation.get("pasos") if isinstance(explanation, dict) else None
+            if not steps or not all(str(step.get("texto", "")).strip() for step in steps):
+                failures.append(f"pregunta {qid}: explicación paso a paso incompleta")
 
-    if bad_svg_tags:
-        print("\n--- EJEMPLOS DE SVGS CON ATRIBUTOS FIXES ---")
-        for item in bad_svg_tags[:5]:
-            print(f"  ID {item[0]} | Mód {item[1]} Niv {item[2]}: {item[3]}")
+            template_id = str(data.get("plantilla_id", ""))
+            is_equivalence = section in (102, 1012) or (
+                section == 99099 and template_id.startswith(("tpl_m1_n2", "tplx_m1_n2", "tplr_m1_n2"))
+            )
+            if is_equivalence:
+                if data.get("tipo_visual") != "equivalence_strip":
+                    failures.append(f"pregunta {qid}: equivalencia sin tira comparativa")
+                if not str(data.get("objetivo_visual", "")).strip():
+                    failures.append(f"pregunta {qid}: equivalencia sin objetivo visual específico")
+                if "expresion_visual" in data or "×" in str(data.get("objetivo_visual", "")):
+                    failures.append(f"pregunta {qid}: el visual entrega la operación en vez del reto")
+                fractions = [data.get("fraccion_izquierda"), data.get("fraccion_derecha")]
+                if not all(isinstance(fr, dict) and set(fr) == {"numerador", "denominador"} for fr in fractions):
+                    failures.append(f"pregunta {qid}: contrato de fracciones comparadas incompleto")
+                else:
+                    visible_terms = {
+                        str(value) for fraction in fractions for value in fraction.values()
+                        if value is not None
+                    }
+                    if answer in visible_terms:
+                        failures.append(f"pregunta {qid}: la figura copia la respuesta {answer}")
 
-    loc_conn.close()
+        equivalence_skills = (await session.execute(text("""
+            SELECT DISTINCT datos_numericos->>'habilidad'
+            FROM preguntas
+            WHERE fase_id=5
+              AND datos_numericos->>'plantilla_id' ~ '^tpl[r|x]?_m1_n2'
+        """))).scalars().all()
+        required_equivalence_skills = {
+            "inferir_factor", "simplificar_inversa", "leer_subdivision",
+            "contar_cortes", "detectar_error", "simplificar",
+            "comparar_representaciones",
+        }
+        if not required_equivalence_skills <= set(equivalence_skills):
+            failures.append(
+                "M1N2 sin variedad cognitiva requerida: "
+                f"faltan {sorted(required_equivalence_skills - set(equivalence_skills))}"
+            )
+
+        theory_count = (await session.execute(text(
+            "SELECT count(*) FROM niveles_teoria_pool WHERE fase_id=5"
+        ))).scalar_one()
+        config_count = (await session.execute(text(
+            "SELECT count(*) FROM configuracion_progreso WHERE fase_id=5"
+        ))).scalar_one()
+        if theory_count != 12:
+            failures.append(f"bloques de teoría={theory_count}; esperado=12")
+        if config_count != 26:
+            failures.append(f"configuraciones={config_count}; esperado=26")
+
+    root = Path(__file__).resolve().parents[1]
+    router = (root / "app" / "fase5" / "router.py").read_text(encoding="utf-8")
+    if "pausa_obligatoria_segundos=0 if es_correcta else 10" not in router:
+        failures.append("backend: bloqueo de 10 segundos ausente")
+
+    # El contenedor final del backend no monta el árbol del frontend. Cuando
+    # ambos árboles están disponibles (ejecución local), se añaden los checks
+    # estáticos; en Docker estos contratos quedan cubiertos por Vitest.
+    frontend = root.parent / "frontend" / "components" / "fase5"
+    if frontend.exists():
+        game = (frontend / "Fase5GameScreen.tsx").read_text(encoding="utf-8")
+        styles = (frontend / "Fase5Styles.css").read_text(encoding="utf-8")
+        feedback = (frontend / "Fase5FeedbackLockModal.tsx").read_text(encoding="utf-8")
+        if "Fase5FeedbackLockModal" not in game:
+            failures.append("frontend: modal de retroalimentación no conectado")
+        if "disabled={!ready || stepPage < totalStepPages - 1}" not in feedback:
+            failures.append("frontend: continuar no exige tiempo y lectura completa")
+        if not re.search(r"\.f5-screen-wrapper\s*\{[^}]*overflow:\s*hidden", styles, re.DOTALL):
+            failures.append("frontend: gameplay no garantiza cero scroll")
+        if not re.search(r"\.f5-welcome-screen\s*\{[^}]*overflow-y:\s*auto", styles, re.DOTALL):
+            failures.append("frontend: selector de contenidos no permite scroll")
+
+    report = {
+        "phase": 5,
+        "questions": len(rows),
+        "sections": len(EXPECTED_SECTIONS),
+        "theory_blocks": 12,
+        "configurations": 26,
+        "failures": failures,
+    }
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    if failures:
+        raise SystemExit(1)
+
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(run())

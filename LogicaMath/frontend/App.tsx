@@ -18,8 +18,8 @@ const WelcomeScreenPhase6 = React.lazy(() => import('./components/fase6/WelcomeS
 const Fase6GameScreen = React.lazy(() => import('./components/fase6/Fase6GameScreen'));
 const WelcomeScreenPhase7 = React.lazy(() => import('./components/fase7/WelcomeScreenPhase7'));
 const Fase7GameScreen = React.lazy(() => import('./components/fase7/Fase7GameScreen'));
-const WelcomeScreenPhase8 = React.lazy(() => import('./components/fase_generic/WelcomeScreenPhaseGeneric'));
-const Fase8GameScreen = React.lazy(() => import('./components/fase_generic/FaseGenericGameScreen'));
+const WelcomeScreenPhase8 = React.lazy(() => import('./components/fase9/WelcomeScreenPhase9'));
+const Fase8GameScreen = React.lazy(() => import('./components/fase9/Fase9GameScreen'));
 const WelcomeScreenPhase9 = React.lazy(() => import('./components/fase11/WelcomeScreenPhase11'));
 const Fase9GameScreen = React.lazy(() => import('./components/fase11/Fase11GameScreen').then(m => ({ default: m.Fase11GameScreen })));
 const Fase9ResultsScreen = React.lazy(() => import('./components/fase11/Fase11ResultsScreen').then(m => ({ default: m.Fase11ResultsScreen })));
@@ -197,7 +197,13 @@ const Fase8GameScreenWrapper: React.FC<{ isEvaluatorMode: boolean; isAdmin?: boo
   return (
     <UXFeedbackOverlay fase={8} moduloId={parseInt(moduloId as string, 10)} nivelId={parseInt(nivelId as string, 10)} isAdmin={isAdmin}>
       <div data-component="Fase8GameScreen" style={{ display: 'contents' }}>
-        <Fase8GameScreen isEvaluatorMode={isEvaluatorMode} />
+        <Fase8GameScreen
+          moduloId={parseInt(moduloId as string, 10)}
+          nivelId={parseInt(nivelId as string, 10)}
+          isEvaluatorMode={isEvaluatorMode}
+          onComplete={() => navigate('/welcome-fase8')}
+          onBack={() => navigate('/welcome-fase8')}
+        />
       </div>
     </UXFeedbackOverlay>
   );
@@ -268,6 +274,10 @@ const AppContent: React.FC = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  // El scroll está prohibido dentro de las actividades para mantener el foco,
+  // pero los catálogos son la excepción: allí el alumno debe poder recorrer y
+  // escoger todos los módulos, niveles y desafíos disponibles.
+  const permiteScrollDeCatalogo = location.pathname === '/map' || location.pathname.startsWith('/welcome');
 
   // Restore state from navigation state to prevent URL manipulation
   useEffect(() => {
@@ -511,12 +521,20 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 text-slate-900 dark:bg-[#070b14] dark:text-slate-100 flex flex-col items-center justify-center p-4 overflow-hidden transition-colors duration-300">
+    <div className={`w-full bg-slate-50 text-slate-900 dark:bg-[#070b14] dark:text-slate-100 flex flex-col items-center justify-center transition-colors duration-300 ${
+      permiteScrollDeCatalogo
+        ? 'min-h-screen p-4 overflow-y-auto overflow-x-hidden'
+        : 'h-dvh min-h-0 p-0 overflow-hidden'
+    }`}>
       {/* Decorative Circles */}
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/5 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/5 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="w-full max-w-4xl flex justify-center items-center relative z-10 min-h-[600px]">
+      <div className={`w-full flex justify-center items-center relative z-10 ${
+        permiteScrollDeCatalogo
+          ? 'max-w-4xl min-h-[600px]'
+          : 'max-w-none h-full min-h-0'
+      }`}>
         <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}>
         <Routes>
           <Route path="/login" element={

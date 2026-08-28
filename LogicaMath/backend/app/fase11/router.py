@@ -33,6 +33,10 @@ from ..models.sql_models import (
     PlatformSettings, User,
 )
 from ..utils.math_utils import normalize_response, calcular_max_errores
+from ..core.progression import (
+    PRACTICE_REQUIRED_CORRECT_ANSWERS,
+    calculate_progress_percentage,
+)
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from .schemas import (
     Fase11Dashboard, Fase11ModuloInfo, Fase11NivelInfo,
@@ -123,8 +127,8 @@ async def _get_global_config(db: AsyncSession) -> dict:
     if not settings:
         return {
             "practica_libre": {
-                "cantidad_requerida": 15,
-                "porcentaje_aprobacion": 80,
+                "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+                "porcentaje_aprobacion": 100,
                 "usa_cronometro": False,
                 "tiempo_default_segundos": 15,
                 "tipo_feedback": "simple"
@@ -686,7 +690,7 @@ async def get_pregunta_fase9(
                 pl_cfg = global_cfg.get("practica_libre", {})
                 tiene_crono = pl_cfg.get("usa_cronometro", False)
                 tiempo_lim = pl_cfg.get("tiempo_default_segundos", 15)
-                cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+                cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
         if not tiene_crono:
             tiempo_lim = None
@@ -1079,26 +1083,13 @@ async def responder_fase11(
         else:
             global_cfg = await _get_global_config(db)
             pl_cfg = global_cfg.get("practica_libre", {})
-            cantidad_req = pl_cfg.get("cantidad_requerida", 15)
-            porc_aprobacion = pl_cfg.get("porcentaje_aprobacion", 80)
+            cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
+            porc_aprobacion = pl_cfg.get("porcentaje_aprobacion", 100)
 
-        # NUEVO CÁLCULO DE PROGRESO POR COMPLETITUD (Familias únicas resueltas con éxito o bypass)
-        res_fam_resueltas = await db.execute(
-            select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-            .join(Intento, Intento.pregunta_id == Pregunta.id)
-            .where(and_(
-                Intento.alumno_id == alumno.id,
-                Intento.fase_id == fase9_ID,
-                Intento.seccion == seccion,
-                or_(
-                    Intento.es_correcta == True,
-                    Intento.respuesta_dada == "BYPASS_EXPLICACION"
-                )
-            ))
+        progreso.porcentaje_actual = calculate_progress_percentage(
+            progreso.aciertos_acumulados,
+            cantidad_req,
         )
-        familias_resueltas = res_fam_resueltas.scalar() or 0
-        
-        progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
         bloque_completado = False
         fase_completada = False
@@ -1215,25 +1206,12 @@ async def cerrar_rescate_fase9(
     else:
         global_cfg = await _get_global_config(db)
         pl_cfg = global_cfg.get("practica_libre", {})
-        cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+        cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
-    # Calcular progreso por completitud (familias resueltas con éxito o bypass)
-    res_fam_resueltas = await db.execute(
-        select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-        .join(Intento, Intento.pregunta_id == Pregunta.id)
-        .where(and_(
-            Intento.alumno_id == alumno.id,
-            Intento.fase_id == fase9_ID,
-            Intento.seccion == seccion,
-            or_(
-                Intento.es_correcta == True,
-                Intento.respuesta_dada == "BYPASS_EXPLICACION"
-            )
-        ))
+    progreso.porcentaje_actual = calculate_progress_percentage(
+        progreso.aciertos_acumulados,
+        cantidad_req,
     )
-    familias_resueltas = res_fam_resueltas.scalar() or 0
-    
-    progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
     bloque_completado = False
     fase_completada = False

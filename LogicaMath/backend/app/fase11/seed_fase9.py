@@ -10,8 +10,20 @@ from app.models.sql_models import (
     Intento, PoolAsignadoAlumno
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
+from app.models.simulado_questao import SimuladoQuestao
 
 FASE11_ID = 9
+
+
+def _cuatro_alternativas(item: dict) -> list[str]:
+    """Construye las cuatro opciones visibles: clave única y tres distractores."""
+    opciones = [item["correcta"]]
+    for distractor in item["distractores"]:
+        if distractor not in opciones:
+            opciones.append(distractor)
+        if len(opciones) == 4:
+            return opciones
+    raise ValueError(f"Distractores insuficientes para: {item['enunciado'][:80]}")
 
 async def clear_fase9_data(session: AsyncSession):
     print("Purging existing Fase 9 data...")
@@ -115,7 +127,7 @@ async def inject_pedro_ii_history(session: AsyncSession):
         for pos, q_idx in enumerate(orden):
             q = BANCO_SIMULADOS[q_idx]
             rng = random.Random(FASE11_ID * 100000 + seccion_id * 100 + pos)
-            alts = [q["correcta"]] + list(q["distractores"])
+            alts = _cuatro_alternativas(q)
             rng.shuffle(alts)
 
             payload = {
@@ -141,6 +153,41 @@ async def inject_pedro_ii_history(session: AsyncSession):
             session.add(p)
     await session.commit()
 
+
+async def seed_simulados_operativos(session: AsyncSession):
+    """Genera los 20 simulacros que sirve la API activa de Fase 9.
+
+    No modifica sesiones ni intentos existentes. Si el banco operacional ya
+    existe, se conserva íntegro para que las sesiones anteriores sigan siendo
+    reproducibles.
+    """
+    existentes = await session.scalar(select(func.count(SimuladoQuestao.id)))
+    if existentes:
+        print(f"simulado_questao ya contiene {existentes} preguntas; se conserva.")
+        return
+
+    from app.fase11.banco_simulados import BANCO_SIMULADOS
+    letras = "ABCD"
+    for numero in range(1, 21):
+        indices = random.Random(9_900_000 + numero).sample(range(len(BANCO_SIMULADOS)), 10)
+        for orden, indice in enumerate(indices, start=1):
+            item = BANCO_SIMULADOS[indice]
+            alternativas = _cuatro_alternativas(item)
+            random.Random(9_910_000 + numero * 100 + orden).shuffle(alternativas)
+            correcta = letras[alternativas.index(item["correcta"])]
+            dificultad = {1: "facil", 2: "medio", 3: "dificil"}.get(item["dificultad"], "medio")
+            session.add(SimuladoQuestao(
+                simulacro_numero=numero, ordem_na_prova=orden,
+                enunciado=item["enunciado"],
+                alternativa_a=alternativas[0], alternativa_b=alternativas[1],
+                alternativa_c=alternativas[2], alternativa_d=alternativas[3],
+                alternativa_correta=correcta,
+                resolucao=[{"paso": 1, "texto": item["explicacion"]}],
+                tema=item["tema"], dificuldade=dificultad,
+            ))
+    await session.commit()
+    print("200 preguntas operativas sembradas en simulado_questao (20 simulacros × 10).")
+
 async def run_fase9_seed():
     print("=" * 60)
     print("Iniciando inyección de datos semilla de FASE 9...")
@@ -154,6 +201,7 @@ async def run_fase9_seed():
         await clear_fase9_data(session)
         await seed_teoria_niveles_fase9(session)
         await inject_pedro_ii_history(session)
+        await seed_simulados_operativos(session)
     print("FASE 9 COMPLETADA.")
     print("=" * 60)
 

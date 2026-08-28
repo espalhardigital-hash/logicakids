@@ -14,6 +14,10 @@ from pydantic import BaseModel as PydanticBaseModel
 from ..schemas import Token, UserRegister, UserLogin, User, CategoryLevelUpdate, UserCreate
 from ..db.session import get_db
 from ..core.storage import storage_service
+from ..core.progression import (
+    PRACTICE_REQUIRED_CORRECT_ANSWERS,
+    calculate_progress_percentage,
+)
 from ..models.sql_models import (
     User as UserModel,
     Fase,
@@ -941,6 +945,21 @@ async def get_progress_history(
     )
     intentos = result.scalars().all()
 
+    result_configs = await db.execute(
+        select(ConfiguracionProgreso).where(ConfiguracionProgreso.activo == True)
+    )
+    configs = result_configs.scalars().all()
+    config_map = {
+        (
+            config.fase_id,
+            config.seccion,
+            config.operacion.value
+            if hasattr(config.operacion, "value")
+            else config.operacion,
+        ): config
+        for config in configs
+    }
+
     sessions = []
     intentos_sorted = sorted(intentos, key=lambda x: x.fecha)
     
@@ -986,19 +1005,29 @@ async def get_progress_history(
         
         avg_time = sum(s["times"]) / len(s["times"]) if s["times"] else 0
         porcentaje = int((s["aciertos"] / s["intentos_totales"]) * 100)
-        completitud = min(int((s["intentos_totales"] / 15) * 100), 100)
-        
         is_challenge = s["seccion"] >= 1000 or modulo_id == 99
+        config = config_map.get((s["fase_id"], s["seccion"], s["operacion"]))
+        cantidad_requerida = (
+            config.cantidad_requerida
+            if config
+            else (20 if is_challenge else PRACTICE_REQUIRED_CORRECT_ANSWERS)
+        )
+        completitud = calculate_progress_percentage(
+            s["aciertos"],
+            cantidad_requerida,
+        )
+
         tipo_pool = "desafio" if is_challenge else "practica"
         
         estado_resultado = "EN_PROGRESO"
         if is_challenge:
-            if porcentaje >= 90:
+            porcentaje_aprobacion = config.porcentaje_aprobacion if config else 90
+            if s["intentos_totales"] >= cantidad_requerida and porcentaje >= porcentaje_aprobacion:
                 estado_resultado = "APROBADO"
             else:
                 estado_resultado = "NO_APROBADO"
         else:
-            if s["aciertos"] >= 15:
+            if s["aciertos"] >= cantidad_requerida:
                 estado_resultado = "APROBADO"
             else:
                 estado_resultado = "EN_PROGRESO"

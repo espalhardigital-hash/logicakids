@@ -1,6 +1,6 @@
 # Fase 5 — Fracciones, porcentajes y proporciones
 
-> **Estado:** implementada y auditada localmente el 2026-08-23.
+> **Estado:** implementada y auditada localmente el 2026-08-27.
 > **Fuente de estado:** [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](../ESTADO_IMPLEMENTACION_FASES_5_6.md).
 > Esta ficha sustituye especificaciones antiguas que asignaban decimales a la Fase 5.
 
@@ -12,7 +12,7 @@ El estudiante interpreta fracciones como parte de un todo y de una colección, r
 
 | Módulo | Foco | Visual dominante |
 |---|---|---|
-| 1. La fracción visual | Partes de un todo, lectura de numerador y denominador | Pizza o banda fraccionada |
+| 1. La fracción visual | Partes de un todo, equivalencias, término faltante, subdivisión, simplificación y detección de errores | Figura parte-todo y tiras fraccionarias comparadas |
 | 2. Fracción de cantidad | Partes iguales de una colección | Rejilla de colecciones |
 | 3. Porcentajes y comparación | Parte, total y lectura de barras | Gráfico de barras |
 | 4. Razones y mezclas | Relaciones entre dos cantidades | Rejilla de razón |
@@ -28,9 +28,11 @@ El estudiante interpreta fracciones como parte de un todo y de una colección, r
 
 ## Banco y verificaciones
 
-- 1.296 preguntas locales, identificadas por familia y con contrato visual.
+- **1.430 preguntas locales**, identificadas por familia y con contrato visual.
+- Módulo 1/Nivel 2: **13 familias**, 9 habilidades y al menos 7 estructuras de respuesta distintas. Las tareas incluyen completar términos, inferir relaciones, leer subdivisiones, corregir equivalencias y simplificar.
 - Cada visual usa `requiere_figura` y `tipo_visual`; toda figura requerida es verificable antes de publicar.
-- La suite específica de Fase 5 y la auditoría de fórmulas, alternativas y contrato de figura son requisitos de cierre.
+- Una equivalencia se representa como relación entre dos tiras. Los términos buscados aparecen como `?` y las equivalencias falsas marcan el dato que debe revisarse, sin exponer la operación ni la solución.
+- Cierre vigente: 61 pruebas backend y 56 frontend aprobadas; auditorías profunda y narrativa sin fallos; siembra determinista verificada dos veces.
 
 ## Restricciones visuales
 

@@ -95,8 +95,6 @@ export const RatioGridVisualizer: React.FC<Props> = ({ pregunta, moduleColor }) 
   const baseA = ratioA;
   const baseB = ratioB;
   const hasScaledRecipe = factor > 1;
-  const dupA = ratioA * factor;
-  const dupB = ratioB * factor;
 
   const renderBlocks = (countA: number, countB: number) => {
     const total = countA + countB;
@@ -142,12 +140,15 @@ export const RatioGridVisualizer: React.FC<Props> = ({ pregunta, moduleColor }) 
         {/* Separador */}
         {hasScaledRecipe && <div className="flex items-center justify-center text-3xl font-black text-slate-600">➔</div>}
 
-        {/* Receta Proporcional */}
-        {hasScaledRecipe && <div className="flex flex-col items-center gap-2 flex-1">
-          <span className="text-xs font-black uppercase tracking-wider text-purple-400">
-            Escalado ×{factor} ({dupA}:{dupB})
+        {/* Objetivo proporcional: se conserva la incógnita, nunca se dibuja
+            el resultado que el estudiante debe obtener. */}
+        {hasScaledRecipe && <div className="flex flex-col items-center justify-center gap-3 flex-1 rounded-xl border border-purple-400/25 bg-purple-500/5 p-4">
+          <span className="text-xs font-black uppercase tracking-wider text-purple-300">
+            Escalar ×{factor}
           </span>
-          {renderBlocks(dupA, dupB)}
+          <span className="text-sm font-black text-slate-100">{labelA}: {baseA} × {factor} = ?</span>
+          <span className="text-sm font-black text-slate-100">{labelB}: {baseB} × {factor} = ?</span>
+          <span className="text-[10px] font-bold text-slate-400">Calcula la cantidad solicitada.</span>
         </div>}
       </div>
 
@@ -155,11 +156,11 @@ export const RatioGridVisualizer: React.FC<Props> = ({ pregunta, moduleColor }) 
       <div className="flex justify-center gap-6 mt-4 pt-3 border-t border-slate-800/80 w-full text-[10px] font-bold text-slate-400">
         <div className="flex items-center gap-1.5">
           <div className="w-3.5 h-3.5 rounded-sm border border-white/5" style={{ backgroundColor: colorA }} />
-          <span>{labelA}: {baseA}{hasScaledRecipe ? ` → ${dupA}` : ''}</span>
+          <span>{labelA}: {baseA}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3.5 h-3.5 rounded-sm border border-white/5" style={{ backgroundColor: colorB }} />
-          <span>{labelB}: {baseB}{hasScaledRecipe ? ` → ${dupB}` : ''}</span>
+          <span>{labelB}: {baseB}</span>
         </div>
       </div>
     </div>

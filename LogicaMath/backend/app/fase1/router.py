@@ -18,6 +18,11 @@ from ..models.sql_models import (
 )
 from ..auth import get_current_user
 from ..services.pedagogia_service import recalcular_y_sincronizar_fase_actual
+from ..core.progression import (
+    PRACTICE_REQUIRED_CORRECT_ANSWERS,
+    calculate_progress_percentage,
+    practice_is_complete,
+)
 
 router = APIRouter(prefix="/fase1", tags=["fase1"])
 
@@ -270,7 +275,7 @@ async def responder_pregunta(
         )
         settings = result_settings.scalar_one_or_none()
         global_cfg = settings.value if settings else {
-            "practica_libre": {"cantidad_requerida": 15, "porcentaje_aprobacion": 80, "usa_cronometro": False, "tiempo_default_segundos": 15, "tipo_feedback": "simple"},
+            "practica_libre": {"cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100, "usa_cronometro": False, "tiempo_default_segundos": 15, "tipo_feedback": "simple"},
             "desafios": {"cantidad_requerida": 20, "porcentaje_aprobacion": 90, "usa_cronometro": True, "tiempo_default_segundos_11": 25, "tiempo_default_segundos_12": 40, "tiempo_default_segundos_13": 50, "tipo_feedback": "simple"}
         }
         
@@ -281,8 +286,14 @@ async def responder_pregunta(
             fase_id=pregunta.fase_id,
             seccion=pregunta.seccion,
             operacion=pregunta.operacion,
-            cantidad_requerida=sec_cfg.get("cantidad_requerida", 15),
-            porcentaje_aprobacion=sec_cfg.get("porcentaje_aprobacion", 80),
+            cantidad_requerida=sec_cfg.get(
+                "cantidad_requerida",
+                20 if is_challenge else PRACTICE_REQUIRED_CORRECT_ANSWERS,
+            ),
+            porcentaje_aprobacion=sec_cfg.get(
+                "porcentaje_aprobacion",
+                90 if is_challenge else 100,
+            ),
             usa_cronometro=sec_cfg.get("usa_cronometro", False),
             tiempo_default_segundos=sec_cfg.get("tiempo_default_segundos", 15),
             tipo_feedback=sec_cfg.get("tipo_feedback", "simple")
@@ -343,12 +354,15 @@ async def responder_pregunta(
     if es_correcta and not ya_resuelta:
         progreso.aciertos_acumulados += 1
         
-    progreso.porcentaje_actual = int((progreso.aciertos_acumulados / config.cantidad_requerida) * 100) if config.cantidad_requerida > 0 else 0
+    progreso.porcentaje_actual = calculate_progress_percentage(
+        progreso.aciertos_acumulados,
+        config.cantidad_requerida,
+    )
     
     bloque_completado = False
     fase_completada = False
     
-    if progreso.porcentaje_actual >= config.porcentaje_aprobacion and progreso.aciertos_acumulados >= config.cantidad_requerida:
+    if practice_is_complete(progreso.aciertos_acumulados, config.cantidad_requerida):
         if progreso.estado != EstadoProgresoEnum.APROBADO:
             progreso.estado = EstadoProgresoEnum.APROBADO
             progreso.fecha_aprobacion = datetime.utcnow()

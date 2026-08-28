@@ -12,6 +12,7 @@ import { GlobalConfigPanel } from './GlobalConfigPanel';
 import { PhaseDefaultPanel } from './PhaseDefaultPanel';
 import { ModuleGridPanel } from './ModuleGridPanel';
 import { OverridesSummaryPanel } from './OverridesSummaryPanel';
+import { PRACTICE_REQUIRED_CORRECT_ANSWERS } from '../common/progression';
 
 // ==========================================
 // STATIC MAP OF PHASES
@@ -503,8 +504,8 @@ const STATIC_PHASES: StaticPhase[] = [
 
 const DEFAULT_GLOBAL_CONFIG: PedagogyConfig = {
   practica_libre: {
-    cantidad_requerida: 15,
-    porcentaje_aprobacion: 80,
+    cantidad_requerida: PRACTICE_REQUIRED_CORRECT_ANSWERS,
+    porcentaje_aprobacion: 100,
     usa_cronometro: false,
     tiempo_default_segundos: 15,
     tipo_feedback: 'simple',

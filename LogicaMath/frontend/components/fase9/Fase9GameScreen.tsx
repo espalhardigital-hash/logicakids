@@ -8,10 +8,10 @@
  */
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { PRACTICE_REQUIRED_CORRECT_ANSWERS } from '../common/progression';
 import './Fase9Styles.css';
 import { getFase9Question, submitFase9Answer, getFase9Reading, closeFase9Rescate } from './Fase9Service';
 import { Fase9TheoryModal } from './Fase9TheoryModal';
-import { Fase9MirrorModal } from './Fase9MirrorModal';
 import { Fase9FabricHistogram } from './Fase9FabricHistogram';
 import type {
   Fase9Pregunta,
@@ -660,6 +660,7 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   const [paso, setPaso]           = useState<1 | 2>(1);
   const [paso1Valor, setPaso1Valor] = useState<string | null>(null);
   const [feedback, setFeedback]   = useState<FeedbackState>({ visible: false, esCorrecta: false });
+  const [correctionRemaining, setCorrectionRemaining] = useState(0);
   const [error, setError]         = useState<string | null>(null);
   const [progreso, setProgreso]   = useState({ aciertos: 0, intentos: 0, porcentaje: 0 });
   const [shaking, setShaking]     = useState(false);
@@ -670,11 +671,6 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   const [readingData, setReadingData] = useState<Fase9Lectura | null>(null);
   const [userAvatar, setUserAvatar] = useState<string | undefined>(undefined);
   const [showRescate, setShowRescate] = useState(false);
-  const [showMirrorModal, setShowMirrorModal] = useState(false);
-  const [mirrorPregunta, setMirrorPregunta] = useState<Fase9Pregunta | null>(null);
-  const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string | undefined>(undefined);
-  const [lastQuestionEnunciado, setLastQuestionEnunciado] = useState<string | undefined>(undefined);
-  const [lastWrongAnswer, setLastWrongAnswer] = useState<string | undefined>(undefined);
   const [showEarlyExit, setShowEarlyExit] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [isFaseCompletada, setIsFaseCompletada] = useState(false);
@@ -689,12 +685,32 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoAdvanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Un error no abre una pregunta espejo: mantiene la devolución visible diez
+  // segundos antes de permitir continuar hacia la explicación.
+  useEffect(() => {
+    if (!feedback.visible || feedback.esCorrecta) {
+      setCorrectionRemaining(0);
+      return;
+    }
+    setCorrectionRemaining(10);
+    const interval = window.setInterval(() => {
+      setCorrectionRemaining((seconds) => {
+        if (seconds <= 1) {
+          window.clearInterval(interval);
+          return 0;
+        }
+        return seconds - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [feedback.visible, feedback.esCorrecta]);
+
   // Memoized values
   const isChallenge = useMemo(() => moduloId === 99 || (nivelId >= 11 && nivelId <= 13), [moduloId, nivelId]);
   const moduleName  = useMemo(() => MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`, [moduloId]);
   const moduleColor = useMemo(() => MODULE_COLORS[moduloId] ?? '#10B981', [moduloId]);
   // maxAciertos is dynamic — set by Admin via ConfiguracionProgreso, updated from API response
-  const [maxAciertos, setMaxAciertos] = useState<number>(moduloId === 99 ? 20 : (nivelId >= 11 && nivelId <= 13 ? (nivelId === 13 ? 10 : 25) : 15));
+  const [maxAciertos, setMaxAciertos] = useState<number>(moduloId === 99 ? 20 : (nivelId >= 11 && nivelId <= 13 ? (nivelId === 13 ? 10 : 25) : PRACTICE_REQUIRED_CORRECT_ANSWERS));
   const barWidth    = useMemo(() => Math.min(100, (progreso.aciertos / maxAciertos) * 100), [progreso.aciertos, maxAciertos]);
 
   const maxErroresPermitidos = useMemo(() => {
@@ -814,17 +830,7 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         porcentaje: data.porcentaje_actual,
       });
 
-      if (data.datos_numericos?.es_espejo) {
-        setMirrorPregunta(data);
-        setShowMirrorModal(true);
-        setPregunta(data); // <-- FIX: Set it to data so the background UI renders behind the modal
-        setLoading(false);
-        return;
-      }
-
       setPregunta(data);
-      setShowMirrorModal(false);
-      setMirrorPregunta(null);
       // Sync dynamic required count from backend config
       if (data.cantidad_requerida) setMaxAciertos(data.cantidad_requerida);
       
@@ -892,9 +898,6 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         setShowRescate(true);
       } else if (isChallenge) { 
         loadPregunta(); 
-      } else if (feedback.resultado?.es_espejo) {
-        setLastCorrectAnswer(feedback.resultado?.respuesta_correcta);
-        loadPregunta();
       } else {
         setRespuesta('');
         setTokensSeleccionados([]);
@@ -973,10 +976,6 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
         setShaking(true);
         setTimeout(() => setShaking(false), 450);
         setFeedback({ visible: true, esCorrecta: false, resultado });
-        if (!isChallenge && resultado.es_espejo) {
-          setLastQuestionEnunciado(pregunta.enunciado);
-          setLastWrongAnswer(respuesta || String(selectedAltId || ''));
-        }
         if (isChallenge) {
           autoAdvanceTimeoutRef.current = setTimeout(() => handleFeedbackClose(), 1500);
         }
@@ -1241,7 +1240,7 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
             Reintentar
           </button>
         </div>
-      ) : !pregunta && !showMirrorModal && !showReading ? (
+      ) : !pregunta && !showReading ? (
         <div className="f9-loading">
           <div className="f9-spinner" style={{ borderTopColor: moduleColor }} />
           <span>Preparando siguiente desafío…</span>
@@ -1351,7 +1350,7 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                     <button 
                       className="f9-submit-btn mt-6 w-full" 
                       onClick={handleSubmit} 
-                      disabled={!feedback.visible && !pregunta.datos_numericos?.initialValues && !respuesta.trim()} 
+                      disabled={correctionRemaining > 0 || (!feedback.visible && !pregunta.datos_numericos?.initialValues && !respuesta.trim())} 
                       style={{ 
                         background: `linear-gradient(135deg, ${moduleColor}cc, ${moduleColor})`, 
                         padding: '16px', 
@@ -1364,7 +1363,7 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
                         gap: '8px'
                       }}
                     >
-                      {feedback.visible ? (feedback.esCorrecta || isChallenge ? 'Continuar →' : 'Intentar de nuevo') : 'Confirmar'}
+                      {correctionRemaining > 0 ? `Lee la corrección (${correctionRemaining}s)` : feedback.visible ? (feedback.esCorrecta || isChallenge ? 'Continuar →' : 'Ver explicación →') : 'Confirmar'}
                     </button>
 
                     {!isChallenge && <div className="f9-scores-container"><div className="f9-score-box correct"><span className="f9-score-label">CORRECTAS</span><span className="f9-score-value">{progreso.aciertos}</span></div><div className="f9-score-box incorrect"><span className="f9-score-label">ERRORES</span><span className="f9-score-value">{feedback.resultado?.errores_sesion ?? (progreso.intentos - progreso.aciertos)}</span></div></div>}
@@ -1683,15 +1682,6 @@ const Fase9GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
           <Fase9RescateModal explicacion={feedback.resultado.explicacion} moduleColor={moduleColor} onClose={async () => {
             if (pregunta?.id) try { await closeFase9Rescate(moduloId, nivelId, pregunta.id); } catch(e){}
             setShowRescate(false); loadPregunta();
-          }} />
-        )}
-        {showMirrorModal && mirrorPregunta && (
-          <Fase9MirrorModal pregunta={mirrorPregunta} moduleColor={moduleColor} lastCorrectAnswer={lastCorrectAnswer} lastQuestionEnunciado={lastQuestionEnunciado} lastWrongAnswer={lastWrongAnswer} onClose={(res) => {
-            if (res) {
-              setProgreso({ aciertos: res.aciertos_acumulados, intentos: res.intentos_totales, porcentaje: res.porcentaje_actual });
-              if (res.soporte_avanzado) { setFeedback({ visible: true, esCorrecta: false, resultado: res }); setShowRescate(true); setShowMirrorModal(false); }
-              else { setShowMirrorModal(false); loadPregunta(); }
-            } else setShowMirrorModal(false);
           }} />
         )}
         {showEarlyExit && (

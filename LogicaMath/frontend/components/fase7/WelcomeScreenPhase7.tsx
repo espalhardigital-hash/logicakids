@@ -1,7 +1,7 @@
 /**
  * WelcomeScreenPhase2.tsx
  * ─────────────────────────────────────────────────────────────
- * Hub de selección de módulos para la Fase 6.
+ * Hub de selección de módulos para la Fase 7.
  * Replica el diseño de la imagen de referencia:
  *   - Header con saludo, badge FASE 2, avatar y puntaje
  *   - 5 tarjetas de módulo con ícono de color, badge de estado y barra de progreso
@@ -154,7 +154,7 @@ const WelcomeScreenPhase7: React.FC<Props> = ({
       <div className="f6-screen">
         <div className="f6-loading">
           <div className="f6-spinner" />
-          <span>Cargando Fase 6…</span>
+          <span>Cargando Fase 7…</span>
         </div>
       </div>
     );
@@ -209,8 +209,8 @@ const WelcomeScreenPhase7: React.FC<Props> = ({
                 ¡Hola, {nombre}! <span>👋</span>
               </div>
               <div className="f6-header-subtitle">
-                <span className="f6-badge-fase">FASE 6</span>
-                <span className="f6-header-fasename">Geometría Espacial, Volumen y Magnitudes Físicas</span>
+                <span className="f6-badge-fase">FASE 7</span>
+                <span className="f6-header-fasename">Coordenadas, Rutas y Tiempo</span>
               </div>
             </div>
           </div>
@@ -249,7 +249,7 @@ const WelcomeScreenPhase7: React.FC<Props> = ({
               <div className="f6-challenge-banner">
                 <div className="f6-challenge-icon">🏆</div>
                 <div className="f6-challenge-text">
-                  <div className="f6-challenge-title">Desafío Mixto de la Fase 6</div>
+                  <div className="f6-challenge-title">Desafío Mixto de la Fase 7</div>
                   <div className="f6-challenge-desc">
                     ¡Has completado exitosamente todos los módulos! Es momento de resolver el Desafío Mixto y demostrar tu maestría en Razonamiento Matemático.
                   </div>

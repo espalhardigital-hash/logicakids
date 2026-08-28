@@ -34,6 +34,10 @@ from ..models.sql_models import (
     PlatformSettings, User,
 )
 from ..utils.math_utils import normalize_response
+from ..core.progression import (
+    PRACTICE_REQUIRED_CORRECT_ANSWERS,
+    calculate_progress_percentage,
+)
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from .compositor_fase4 import CompositorFase4
 from .theory_examples import obtener_ejemplos_expandidos_fase4
@@ -185,8 +189,8 @@ async def _get_global_config(db: AsyncSession) -> dict:
     if not settings:
         return {
             "practica_libre": {
-                "cantidad_requerida": 15,
-                "porcentaje_aprobacion": 80,
+                "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+                "porcentaje_aprobacion": 100,
                 "usa_cronometro": False,
                 "tiempo_default_segundos": 15,
                 "tipo_feedback": "simple"
@@ -384,7 +388,7 @@ async def get_fase4_dashboard(
                 estado = "bloqueado"
                 porcentaje = 0
                 aciertos = 0
-                requeridos = pl_cfg.get("cantidad_requerida", 15)
+                requeridos = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
             elif progreso is None:
                 estado = "en_progreso" if _is_nivel_unlocked(progresos, mod_id, niv_id) else "bloqueado"
                 porcentaje = 0
@@ -703,10 +707,9 @@ async def get_pregunta_fase4(
         )
         latest_attempt = result.scalar_one_or_none()
 
-        espejo_pregunta = None
-        
-        # Lógica Bucle Espejo (solo si el último intento fue fallido y no fue bypass)
-        if False:  # SISTEMA ESPEJO ELIMINADO: no se sirven hermanos-espejo tras un fallo
+        # Sistema espejo eliminado: el alumno conserva la pregunta original y
+        # recibe su explicación; nunca se selecciona un hermano de la familia.
+        if False:
             result_q = await db.execute(
                 select(Pregunta).options(selectinload(Pregunta.alternativas)).where(Pregunta.id == latest_attempt.pregunta_id)
             )
@@ -747,9 +750,7 @@ async def get_pregunta_fase4(
                     if unattempted_mirrors:
                         espejo_pregunta = random.choice(unattempted_mirrors)
 
-        if espejo_pregunta:
-            pregunta_elex = espejo_pregunta
-        else:
+        if True:
             # Seleccionar una nueva familia (pregunta original: es_espejo = False)
             result_qs = await db.execute(
                 select(Pregunta).options(selectinload(Pregunta.alternativas))
@@ -819,7 +820,7 @@ async def get_pregunta_fase4(
                 pl_cfg = global_cfg.get("practica_libre", {})
                 tiene_crono = pl_cfg.get("usa_cronometro", False)
                 tiempo_lim = pl_cfg.get("tiempo_default_segundos", 15)
-                cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+                cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
         if not tiene_crono:
             tiempo_lim = None
@@ -1226,10 +1227,9 @@ async def responder_fase4(
     else:
         # Práctica Libre (1-10): No contamos intentos ni aciertos si es una variante espejo 
         # para no penalizar el "Score" visual del alumno en modo entrenamiento.
-        es_variante_espejo = (pregunta.datos_numericos and pregunta.datos_numericos.get("es_espejo"))
+        es_variante_espejo = False
         
-        if not es_variante_espejo:
-            progreso.intentos_totales += 1
+        progreso.intentos_totales += 1
         
         ya_resuelta = False
         if es_correcta:
@@ -1253,23 +1253,13 @@ async def responder_fase4(
         else:
             global_cfg = await _get_global_config(db)
             pl_cfg = global_cfg.get("practica_libre", {})
-            cantidad_req = pl_cfg.get("cantidad_requerida", 15)
-            porc_aprobacion = pl_cfg.get("porcentaje_aprobacion", 80)
+            cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
+            porc_aprobacion = pl_cfg.get("porcentaje_aprobacion", 100)
 
-        # NUEVO CÁLCULO DE PROGRESO POR COMPLETITUD (Familias únicas resueltas con éxito o bypass)
-        res_fam_resueltas = await db.execute(
-            select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-            .join(Intento, Intento.pregunta_id == Pregunta.id)
-            .where(and_(
-                Intento.alumno_id == alumno.id,
-                Intento.fase_id == FASE_DECIMALES_ID,
-                Intento.seccion == seccion,
-                Intento.es_correcta == True  # P1: solo acierto real cuenta
-            ))
+        progreso.porcentaje_actual = calculate_progress_percentage(
+            progreso.aciertos_acumulados,
+            cantidad_req,
         )
-        familias_resueltas = res_fam_resueltas.scalar() or 0
-        
-        progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
         bloque_completado = False
         fase_completada = False
@@ -1393,22 +1383,12 @@ async def cerrar_rescate_fase4(
     else:
         global_cfg = await _get_global_config(db)
         pl_cfg = global_cfg.get("practica_libre", {})
-        cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+        cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
-    # Calcular progreso por completitud (familias resueltas con éxito o bypass)
-    res_fam_resueltas = await db.execute(
-        select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-        .join(Intento, Intento.pregunta_id == Pregunta.id)
-        .where(and_(
-            Intento.alumno_id == alumno.id,
-            Intento.fase_id == FASE_DECIMALES_ID,
-            Intento.seccion == seccion,
-            Intento.es_correcta == True  # P1: solo acierto real cuenta
-        ))
+    progreso.porcentaje_actual = calculate_progress_percentage(
+        progreso.aciertos_acumulados,
+        cantidad_req,
     )
-    familias_resueltas = res_fam_resueltas.scalar() or 0
-    
-    progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
     bloque_completado = False
     fase_completada = False

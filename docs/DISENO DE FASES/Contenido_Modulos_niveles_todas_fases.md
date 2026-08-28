@@ -2,6 +2,8 @@ Aquí tienes el documento maestro actualizado, consolidado y refactorizado con t
 
 He ajustado la numeración (por ejemplo, en la Fase 2, al eliminar la redundancia del "Detective Matemático", el Módulo 5 pasó a ser el Módulo 4) y he eliminado las notas antiguas que ya no aplicaban.
 
+> **Aviso de vigencia (2026-08-27):** este mapa conserva propuestas históricas y no es la fuente operativa de la aplicación. Para la Fase 5 vigente —Fracciones, porcentajes y proporciones— prevalecen [`fase5.md`](fase5.md) y [`ESTADO_IMPLEMENTACION_FASES_5_6.md`](../ESTADO_IMPLEMENTACION_FASES_5_6.md). En la Fase 5 desplegada no existe el mecanismo de preguntas espejo.
+
 ```text
 MAPA DE RUTA PEDAGÓGICO GLOBAL: LOGICAKIDS PRO (FASES 1 A 9)
 ARQUITECTURA COMPLETA DE NIVELES Y CONCEPTOS MATEMÁTICOS
@@ -165,7 +167,7 @@ Propósito: Romper el pensamiento del número entero; dominar relaciones relacio
  │
  ├── [MÓDULO 1: La Fracción Visual] -> Tema: Concepto parte-todo y fracciones equivalentes.
  │    ├── Nivel 1: [Lectura y modelado de numerador/denominador en polígonos simétricos] (Mecánica: Sombrear áreas, sin tiempo)
- │    ├── Nivel 2: [Construcción de equivalencias visuales mediante la subdivisión de redes] (Mecánica: División dinámica, Bucle Espejo)
+ │    ├── Nivel 2: [Construcción de equivalencias visuales mediante subdivisión, términos faltantes y detección de equivalencias falsas] (Mecánica: inferencia visual y retroalimentación correctiva obligatoria de 10 s; sin pregunta espejo)
  │    ├── Nivel 3: [Determinación de áreas fraccionarias en composiciones geométricas asimétricas] (Mecánica: Análisis geométrico, fluidez)
  │    │
  │    ├── DESAFÍO 1: [Identificación directa de fracciones sobre figuras estándar con tiempo] (Mecánica: El Filtro, >80%)
@@ -174,7 +176,7 @@ Propósito: Romper el pensamiento del número entero; dominar relaciones relacio
  │
  ├── [MÓDULO 2: Fracción de Cantidad] -> Tema: Operador fraccionario sobre conjuntos finitos naturales.
  │    ├── Nivel 1: [Cálculo de porciones unitarias simples (1/n) sobre grupos de objetos] (Mecánica: Selección de grupos, sin tiempo)
- │    ├── Nivel 2: [Operador compuesto (m/n de X) combinando multiplicación y división] (Mecánica: Algoritmo de dos pasos, Bucle Espejo)
+ │    ├── Nivel 2: [Operador compuesto (m/n de X) combinando multiplicación y división] (Mecánica: algoritmo de dos pasos y retroalimentación correctiva obligatoria de 10 s; sin pregunta espejo)
  │    ├── Nivel 3: [Lógica del complemento fraccionario: deducir el resto a partir del gasto] (Mecánica: Deducción de remanentes, fluidez)
  │    │
  │    ├── DESAFÍO 1: [Cálculo directo de fracciones compuestas sobre inventarios grandes] (Mecánica: El Filtro, >80%)
@@ -183,7 +185,7 @@ Propósito: Romper el pensamiento del número entero; dominar relaciones relacio
  │
  ├── [MÓDULO 3: Porcentajes Rápidos y Promedios] -> Tema: Equivalencias porcentuales, análisis estadístico y media aritmética.
  │    ├── Nivel 1: [Mapeo de porcentajes intuitivos: 50% (1/2), 25% (1/4), 10% (1/10)] (Mecánica: Conexión de bloques, sin tiempo)
- │    ├── Nivel 2: [Lectura, análisis e interpretación directa de gráficos circulares (Pie Charts)] (Mecánica: Extracción visual, Bucle Espejo)
+ │    ├── Nivel 2: [Lectura, análisis e interpretación directa de gráficos circulares (Pie Charts)] (Mecánica: extracción visual y retroalimentación correctiva obligatoria de 10 s; sin pregunta espejo)
  │    ├── Nivel 3: [Comparación de tasas y crecimiento porcentual sobre gráficos de barras] (Mecánica: Lectura de métricas, fluidez)
  │    ├── Nivel 4: [El Punto de Equilibrio] -> Nivelación de datos para calcular la media aritmética a partir de gráficos de barras o tablas (Mecánica: Nivelador interactivo de barras, fluidez analítica)
  │    │
@@ -193,7 +195,7 @@ Propósito: Romper el pensamiento del número entero; dominar relaciones relacio
  │
  └── [MÓDULO 4: Razón y Mezclas] -> Tema: Escalas numéricas, razones geométricas y reparto proporcional.
       ├── Nivel 1: [Cálculo de razones simples (a:b) y proporcionalidad directa en recetas] (Mecánica: Multiplicadores visuales, sin tiempo)
-      ├── Nivel 2: [Reparto proporcional de un volumen macro basándose en porciones relativas] (Mecánica: Distribución guiada, Bucle Espejo)
+      ├── Nivel 2: [Reparto proporcional de un volumen macro basándose en porciones relativas] (Mecánica: distribución guiada y retroalimentación correctiva obligatoria de 10 s; sin pregunta espejo)
       ├── Nivel 3: [Homogeneización de mezclas complejas y cálculo de tasas unitarias fijas] (Mecánica: Simulación de fluidos, fluidez)
       │
       ├── DESAFÍO 1: [Escalado directo de proporciones en problemas narrativos cortos] (Mecánica: El Filtro, >80%)

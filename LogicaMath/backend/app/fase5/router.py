@@ -18,6 +18,10 @@ from ..models.sql_models import (
 )
 from ..fase2.models import NivelTeoria  # tabla niveles_teoria_pool (teoría E7)
 from ..utils.math_utils import normalize_response, calcular_max_errores
+from ..core.progression import (
+    PRACTICE_REQUIRED_CORRECT_ANSWERS,
+    calculate_progress_percentage,
+)
 from .schemas import (
     Fase5Dashboard, Fase5ModuloInfo, Fase5NivelInfo, Fase5DesafioInfo,
     Fase5PreguntaParaAlumno, Fase5AlternativaOut, Fase5ResponderPregunta,
@@ -130,8 +134,8 @@ async def _get_global_config(db: AsyncSession) -> dict:
     if not settings:
         return {
             "practica_libre": {
-                "cantidad_requerida": 15,
-                "porcentaje_aprobacion": 90,
+                "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+                "porcentaje_aprobacion": 100,
                 "usa_cronometro": False,
                 "tiempo_default_segundos": 15,
                 "tipo_feedback": "detallado"
@@ -409,21 +413,6 @@ async def get_dashboard(
         modulos=modulos_list
     )
 
-async def _recalcular_porcentaje_fase5(db: AsyncSession, alumno_id: int, seccion: int, cantidad_req: int) -> int:
-    # El dominio se mide por preguntas acertadas, no por variantes o rescates.
-    res_preguntas_resueltas = await db.execute(
-        select(func.count(func.distinct(Pregunta.id)))
-        .join(Intento, Intento.pregunta_id == Pregunta.id)
-        .where(and_(
-            Intento.alumno_id == alumno_id,
-            Intento.fase_id == FASE5_ID,
-            Intento.seccion == seccion,
-            Intento.es_correcta == True,
-        ))
-    )
-    preguntas_resueltas = res_preguntas_resueltas.scalar() or 0
-    return min(100, int((preguntas_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
-
 # ─────────────────────────────────────────────────────────────────────────────
 # OBTENER PREGUNTA
 # ─────────────────────────────────────────────────────────────────────────────
@@ -554,22 +543,16 @@ async def get_pregunta(
             )
             await db.flush()
             
-        # Consultar pool general de la base de datos para esta sección
-        if is_challenge and modulo_id == 99:
-            result_q = await db.execute(
-                select(Pregunta).where(and_(
-                    Pregunta.fase_id == FASE5_ID,
-                    Pregunta.estado == StatusEnum.ACTIVO
-                ))
-            )
-        else:
-            result_q = await db.execute(
-                select(Pregunta).where(and_(
-                    Pregunta.fase_id == FASE5_ID,
-                    Pregunta.seccion == seccion,
-                    Pregunta.estado == StatusEnum.ACTIVO
-                ))
-            )
+        # Cada bloque consume exclusivamente su banco certificado. El desafío
+        # mixto tiene su propia sección 99099; no debe mezclar preguntas de
+        # práctica ni de los desafíos de módulo.
+        result_q = await db.execute(
+            select(Pregunta).where(and_(
+                Pregunta.fase_id == FASE5_ID,
+                Pregunta.seccion == seccion,
+                Pregunta.estado == StatusEnum.ACTIVO
+            ))
+        )
         preguntas_db = result_q.scalars().all()
         if not preguntas_db:
             raise HTTPException(status_code=404, detail="No se encontraron preguntas en el banco para este nivel.")
@@ -651,7 +634,7 @@ async def get_pregunta(
         aciertos_acumulados=progreso.aciertos_acumulados,
         intentos_totales=progreso.intentos_totales,
         porcentaje_actual=progreso.porcentaje_actual,
-        cantidad_requerida=config.cantidad_requerida if config else 15
+        cantidad_requerida=config.cantidad_requerida if config else PRACTICE_REQUIRED_CORRECT_ANSWERS
     )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -843,7 +826,10 @@ async def responder_fase5(
                 )
                 
     # Recalcular porcentaje de completitud
-    progreso.porcentaje_actual = await _recalcular_porcentaje_fase5(db, alumno.id, seccion, config.cantidad_requerida)
+    progreso.porcentaje_actual = calculate_progress_percentage(
+        progreso.aciertos_acumulados,
+        config.cantidad_requerida,
+    )
 
     # Comprobar si se completó el bloque
     bloque_completado = False
@@ -924,7 +910,7 @@ async def get_lectura(
     )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GRADUACIÓN A FASE 5 (Exige 25 niveles aprobados)
+# GRADUACIÓN DE FASE 5 (Exige los 25 bloques aprobados)
 # ─────────────────────────────────────────────────────────────────────────────
 @router.post("/graduate")
 async def graduate_fase5(
@@ -942,7 +928,10 @@ async def graduate_fase5(
     if aprobados < 25:
         raise HTTPException(
             status_code=400,
-            detail=f"Debes dominar los 25 niveles de Fase 5 (13 de práctica y 12 desafíos). Llevas {aprobados}/25.",
+            detail=(
+                "Debes dominar los 25 bloques de Fase 5 "
+                f"(12 de práctica, 12 desafíos y 1 desafío mixto). Llevas {aprobados}/25."
+            ),
         )
 
     result = await db.execute(select(Fase).where(Fase.orden == 6))

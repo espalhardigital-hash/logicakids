@@ -24,6 +24,7 @@ from app.fase2.models import NivelTeoria, IntentoPregunta
 from app.fase5.theory_examples import obtener_ejemplos_expandidos_fase5
 from app.fase5.compositor_fase5 import CompositorFase5, _coerce_tipo_error
 from app.fase5.contenido_teoria import TEORIA_FASE5
+from app.core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 
 FASE5_ID = 5
 _COMPOSITOR = CompositorFase5()
@@ -120,7 +121,7 @@ async def seed_configuraciones_fase5(session: AsyncSession):
         seccion=0,
         operacion=OperacionEnum.MIXTA,
         porcentaje_aprobacion=100.0,
-        cantidad_requerida=15,
+        cantidad_requerida=PRACTICE_REQUIRED_CORRECT_ANSWERS,
         errores_tolerados=2,
         orden_desbloqueo=orden,
         tipo_feedback="detallado",
@@ -141,7 +142,7 @@ async def seed_configuraciones_fase5(session: AsyncSession):
                 seccion=sec,
                 operacion=OperacionEnum.MIXTA,
                 porcentaje_aprobacion=100.0,
-                cantidad_requerida=10,
+                cantidad_requerida=PRACTICE_REQUIRED_CORRECT_ANSWERS,
                 errores_tolerados=2,
                 orden_desbloqueo=orden,
                 tipo_feedback="detallado",
@@ -199,22 +200,33 @@ async def seed_configuraciones_fase5(session: AsyncSession):
 async def seed_preguntas_fase5(session: AsyncSession):
     print("Generando y sembrando preguntas de Fase 5 con CompositorFase5...")
 
-    # 1. Práctica: 12 familias (6 base + 6 de transferencia) × 5 variantes.
+    # 1. Práctica: familias base, de transferencia y visuales de referencia.
     for mod_id in (1, 2, 3, 4):
         for niv_id in (1, 2, 3):
             sec = mod_id * 100 + niv_id
             q_count = 0
+            seen_enunciados: set[str] = set()
             # Las variaciones son preguntas independientes de la batería.
-            for fam_idx in range(12):
+            family_count = _COMPOSITOR.family_count(mod_id, niv_id)
+            for fam_idx in range(family_count):
                 for var_idx in range(5):
                     seed_val = 500000 + sec * 100 + fam_idx * 5 + var_idx
-                    preg_data = _COMPOSITOR.componer_pregunta_practica(
-                        modulo_id=mod_id,
-                        nivel_id=niv_id,
-                        fam_idx=fam_idx,
-                        var_idx=var_idx,
-                        seed_val=seed_val
-                    )
+                    for unique_attempt in range(50):
+                        preg_data = _COMPOSITOR.componer_pregunta_practica(
+                            modulo_id=mod_id,
+                            nivel_id=niv_id,
+                            fam_idx=fam_idx,
+                            var_idx=var_idx + unique_attempt,
+                            seed_val=seed_val + unique_attempt * 1_000_003,
+                        )
+                        if preg_data["enunciado"] not in seen_enunciados:
+                            seen_enunciados.add(preg_data["enunciado"])
+                            break
+                    else:
+                        raise RuntimeError(
+                            f"No se pudo producir un enunciado único para F5 sección {sec}, "
+                            f"familia {fam_idx}, variante {var_idx}."
+                        )
 
                     ans_str = preg_data["respuesta_correcta"]
                     is_num = _is_numeric_answer(ans_str)
@@ -267,23 +279,37 @@ async def seed_preguntas_fase5(session: AsyncSession):
                     q_count += 1
             print(f"  [OK] Módulo {mod_id} Nivel {niv_id} (sección {sec}): {q_count} preguntas sembradas.")
 
-    # 2. Desafíos: las 12 familias, con tres versiones cada una. Así un
+    # 2. Desafíos: todas las familias, con tres versiones cada una. Así un
     # desafío mide transferencia y no solo seis patrones conocidos.
     for mod_id in (1, 2, 3, 4):
         for niv_id in (11, 12, 13):
             sec = mod_id * 1000 + niv_id
             target_niv = (niv_id - 10)  # Maps 11->1, 12->2, 13->3
             q_count = 0
-            for fam_idx in range(12):
-                for var_idx in range(3):
+            seen_enunciados: set[str] = set()
+            family_count = _COMPOSITOR.family_count(mod_id, target_niv)
+            for fam_idx in range(family_count):
+                # El desafío de equivalencias conserva 15 preguntas distintas
+                # aunque su banco se limita a tres habilidades pedagógicas.
+                variantes_por_familia = 5 if (mod_id, target_niv) == (1, 2) else 3
+                for var_idx in range(variantes_por_familia):
                     seed_val = 600000 + sec * 100 + fam_idx * 3 + var_idx
-                    preg_data = _COMPOSITOR.componer_pregunta_practica(
-                        modulo_id=mod_id,
-                        nivel_id=target_niv,
-                        fam_idx=fam_idx,
-                        var_idx=var_idx,
-                        seed_val=seed_val
-                    )
+                    for unique_attempt in range(50):
+                        preg_data = _COMPOSITOR.componer_pregunta_practica(
+                            modulo_id=mod_id,
+                            nivel_id=target_niv,
+                            fam_idx=fam_idx,
+                            var_idx=var_idx + unique_attempt,
+                            seed_val=seed_val + unique_attempt * 1_000_003,
+                        )
+                        if preg_data["enunciado"] not in seen_enunciados:
+                            seen_enunciados.add(preg_data["enunciado"])
+                            break
+                    else:
+                        raise RuntimeError(
+                            f"No se pudo producir un enunciado único para F5 desafío {sec}, "
+                            f"familia {fam_idx}, variante {var_idx}."
+                        )
 
                     ans_str = preg_data["respuesta_correcta"]
                     padre_id = f"f5_d{sec}_q{q_count:03d}"
@@ -334,17 +360,28 @@ async def seed_preguntas_fase5(session: AsyncSession):
     # 3. Mixto final: una evidencia de cada familia de cada nivel (144).
     sec_mixto = 99099
     q_count = 0
+    seen_enunciados: set[str] = set()
     for mod_id in (1, 2, 3, 4):
         for niv_id in (1, 2, 3):
-            for fam_idx in range(12):
+            family_count = _COMPOSITOR.family_count(mod_id, niv_id)
+            for fam_idx in range(family_count):
                 seed_val = 700000 + mod_id * 1000 + niv_id * 100 + fam_idx
-                preg_data = _COMPOSITOR.componer_pregunta_practica(
-                    modulo_id=mod_id,
-                    nivel_id=niv_id,
-                    fam_idx=fam_idx,
-                    var_idx=fam_idx % 3,
-                    seed_val=seed_val
-                )
+                for unique_attempt in range(50):
+                    preg_data = _COMPOSITOR.componer_pregunta_practica(
+                        modulo_id=mod_id,
+                        nivel_id=niv_id,
+                        fam_idx=fam_idx,
+                        var_idx=(fam_idx % 3) + unique_attempt,
+                        seed_val=seed_val + unique_attempt * 1_000_003,
+                    )
+                    if preg_data["enunciado"] not in seen_enunciados:
+                        seen_enunciados.add(preg_data["enunciado"])
+                        break
+                else:
+                    raise RuntimeError(
+                        f"No se pudo producir un enunciado único para el mixto F5, "
+                        f"M{mod_id}N{niv_id}, familia {fam_idx}."
+                    )
 
                 ans_str = preg_data["respuesta_correcta"]
                 padre_id = f"f5_mixto_q{q_count:03d}"

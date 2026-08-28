@@ -3,6 +3,7 @@ import { GameStats, Question, GameCategory, Difficulty, UserSettings, Explicacio
 import { generateQuestion, calculateTimeLimit } from '../../services/mathService';
 import { Clock, CheckCircle2, XCircle, LogOut, Delete, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PRACTICE_REQUIRED_CORRECT_ANSWERS } from '../common/progression';
 
 interface DetailedFeedbackData {
   explicacion?: ExplicacionPasoAPaso | null;
@@ -78,7 +79,7 @@ interface Props {
 
 type FeedbackState = 'none' | 'correct' | 'incorrect';
 
-const FALLBACK_TOTAL_QUESTIONS = 5;
+const FALLBACK_TOTAL_QUESTIONS = PRACTICE_REQUIRED_CORRECT_ANSWERS;
 
 const CATEGORY_LABELS: Record<GameCategory, string> = {
   addition: 'Sumas',

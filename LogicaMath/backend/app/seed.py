@@ -20,6 +20,7 @@ from app.models.sql_models import (
     TipoErrorEnum,
 )
 from app.auth import get_password_hash
+from app.core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 
 # ============================================================
 # DATOS: PLATFORM SETTINGS (Pedagogy Config)
@@ -41,7 +42,7 @@ SEED_VERSIONS = {
 
 PEDAGOGY_CONFIG_KEY = "pedagogy_config"
 DEFAULT_PEDAGOGY_CONFIG = {
-    "questionsPerPhase": 50,
+    "questionsPerPhase": PRACTICE_REQUIRED_CORRECT_ANSWERS,
     "timers": {
         "easy": 10,
         "easy_medium": 12,
@@ -132,7 +133,7 @@ for lvl in range(1, 6):
     time_limit = {1: 15, 2: 15, 3: 20, 4: 25, 5: 30}[lvl]
     CONFIGURACION_DATA.append({
         "fase_id": 1, "seccion": 100 + lvl, "operacion": OperacionEnum.SUMA,
-        "cantidad_requerida": 15, "porcentaje_aprobacion": 90,
+        "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100,
         "orden_desbloqueo": lvl, "tipo_feedback": "simple",
         "usa_cronometro": True, "tiempo_default_segundos": time_limit
     })
@@ -142,7 +143,7 @@ for lvl in range(1, 6):
     time_limit = {1: 15, 2: 15, 3: 20, 4: 25, 5: 30}[lvl]
     CONFIGURACION_DATA.append({
         "fase_id": 1, "seccion": 200 + lvl, "operacion": OperacionEnum.RESTA,
-        "cantidad_requerida": 15, "porcentaje_aprobacion": 90,
+        "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100,
         "orden_desbloqueo": lvl, "tipo_feedback": "simple",
         "usa_cronometro": True, "tiempo_default_segundos": time_limit
     })
@@ -152,7 +153,7 @@ for lvl in range(1, 7):
     time_limit = {1: 15, 2: 15, 3: 20, 4: 25, 5: 30, 6: 20}[lvl]
     CONFIGURACION_DATA.append({
         "fase_id": 1, "seccion": 300 + lvl, "operacion": OperacionEnum.MULTIPLICACION,
-        "cantidad_requerida": 15, "porcentaje_aprobacion": 90,
+        "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100,
         "orden_desbloqueo": lvl, "tipo_feedback": "simple",
         "usa_cronometro": True, "tiempo_default_segundos": time_limit
     })
@@ -162,7 +163,7 @@ for lvl in range(1, 6):
     time_limit = {1: 15, 2: 15, 3: 20, 4: 25, 5: 30}[lvl]
     CONFIGURACION_DATA.append({
         "fase_id": 1, "seccion": 400 + lvl, "operacion": OperacionEnum.DIVISION,
-        "cantidad_requerida": 15, "porcentaje_aprobacion": 90,
+        "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100,
         "orden_desbloqueo": lvl, "tipo_feedback": "simple",
         "usa_cronometro": True, "tiempo_default_segundos": time_limit
     })
@@ -170,19 +171,19 @@ for lvl in range(1, 6):
 # Agregar también las configuraciones legacy seccion = 1 para compatibilidad/fallback
 CONFIGURACION_DATA.extend([
     {"fase_id": 1, "seccion": 1, "operacion": OperacionEnum.SUMA,
-     "cantidad_requerida": 50, "porcentaje_aprobacion": 90,
+     "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100,
      "orden_desbloqueo": 1, "tipo_feedback": "simple",
      "usa_cronometro": True, "tiempo_default_segundos": 14},
     {"fase_id": 1, "seccion": 1, "operacion": OperacionEnum.RESTA,
-     "cantidad_requerida": 50, "porcentaje_aprobacion": 90,
+     "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100,
      "orden_desbloqueo": 2, "tipo_feedback": "simple",
      "usa_cronometro": True, "tiempo_default_segundos": 14},
     {"fase_id": 1, "seccion": 1, "operacion": OperacionEnum.MULTIPLICACION,
-     "cantidad_requerida": 50, "porcentaje_aprobacion": 90,
+     "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100,
      "orden_desbloqueo": 3, "tipo_feedback": "simple",
      "usa_cronometro": True, "tiempo_default_segundos": 14},
     {"fase_id": 1, "seccion": 1, "operacion": OperacionEnum.DIVISION,
-     "cantidad_requerida": 50, "porcentaje_aprobacion": 90,
+     "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS, "porcentaje_aprobacion": 100,
      "orden_desbloqueo": 4, "tipo_feedback": "simple",
      "usa_cronometro": True, "tiempo_default_segundos": 14},
 ])

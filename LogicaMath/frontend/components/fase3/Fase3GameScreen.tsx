@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { PRACTICE_REQUIRED_CORRECT_ANSWERS } from '../common/progression';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getFase3Question, submitFase3Answer, getFase3Reading, graduateFase3, closeFase3Rescate } from './Fase3Service';
 import { Fase3Pregunta, Fase3AnswerResult, Fase3Lectura } from './Fase3Types';
@@ -572,7 +573,7 @@ export const Fase3GameScreen: React.FC<{ isEvaluatorMode?: boolean }> = ({ isEva
   
   const isChallenge = moduloId === 99 || (nivelId >= 11 && nivelId <= 13);
   // maxAciertos is dynamic — comes from the API (cantidad_requerida set by Admin)
-  const [maxAciertos, setMaxAciertos] = useState<number>(isChallenge ? (nivelId === 13 ? 10 : 20) : 15);
+  const [maxAciertos, setMaxAciertos] = useState<number>(isChallenge ? (nivelId === 13 ? 10 : 20) : PRACTICE_REQUIRED_CORRECT_ANSWERS);
   const moduleName = MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`;
   const moduleColor = MODULE_COLORS[moduloId] ?? '#F97316';
 

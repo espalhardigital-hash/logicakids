@@ -11,6 +11,7 @@ import { ContextualPercentageVisualizer } from './ContextualPercentageVisualizer
 import { FractionPercentageVisualizer } from './FractionPercentageVisualizer';
 import { RatioGridVisualizer } from './RatioGridVisualizer';
 import { CollectionGridVisualizer } from './CollectionGridVisualizer';
+import { DataTableVisual, EquivalentFractionPuzzleVisual, FractionStripVisual, GroupCardsVisual, HundredGridVisual, RatioTableVisual } from './ReferenceMathVisuals';
 
 const SHAPES = ['circle', 'square', 'pentagon', 'hexagon'] as const;
 // Referencia estable: evita recrear una función nueva en cada render cuando
@@ -200,52 +201,25 @@ export const Fase5VisualizerEngine: React.FC<Props> = ({
 
   // Modo estándar/repaso o no interactivo
   if (tipoVisual === 'pizza') {
-    if (moduloId === 1 && nivelId === 2 && pregunta.datos_numericos?.num_base !== undefined) {
+    // En desafíos el nivel de ruta es 11/12/13, no el nivel pedagógico 1/2/3.
+    // La representación de equivalencia se identifica por su propio contrato
+    // de datos, nunca por el identificador de ruta; de otro modo una fracción
+    // 2/6 caía en el dibujo por defecto de 8 sectores.
+    if (pregunta.datos_numericos?.num_base !== undefined && pregunta.datos_numericos?.den_base !== undefined) {
       const num_base = pregunta.datos_numericos.num_base;
       const den_base = pregunta.datos_numericos.den_base;
       const factor = pregunta.datos_numericos.factor;
-      const incognita = pregunta.datos_numericos.incognita || '';
-      const den_eq = den_base * factor;
-      const shape = getSemanticShape(pregunta.enunciado);
-
-      // Determinamos qué mostrar en la fracción de la derecha para no hacer spoiler
-      let rightLabel = '? / ?';
-      if (incognita === 'nuevo_numerador') {
-        rightLabel = `? / ${den_eq}`;
-      } else if (incognita === 'nuevo_denominador' || incognita === 'cuadruple_den') {
-        rightLabel = `${num_base * factor} / ?`;
-      }
-
-      return (
-        <div className="flex items-center justify-center gap-6 my-4 scale-[0.9] origin-top">
-          <div className="flex flex-col items-center">
-            <PizzaFractionVisualizer
-              slices={den_base}
-              initialSombreados={Array.from({ length: num_base }, (_, i) => i)}
-              interactive={false}
-              hideText={true}
-              color={moduleColor}
-              shape={shape}
-            />
-            <span className="text-slate-300 font-black text-lg">{num_base}/{den_base}</span>
-          </div>
-          <div className="flex flex-col items-center justify-center">
-            <span className="text-xs font-bold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full mb-1">× {factor}</span>
-            <div className="text-3xl font-black" style={{ color: moduleColor }}>=</div>
-          </div>
-          <div className="flex flex-col items-center">
-            <PizzaFractionVisualizer
-              slices={den_eq}
-              initialSombreados={[]}
-              interactive={false}
-              hideText={true}
-              color={moduleColor}
-              shape={shape}
-            />
-            <span className="text-amber-400 font-black text-lg">{rightLabel}</span>
-          </div>
-        </div>
-      );
+      const objetivo = pregunta.datos_numericos.objetivo_visual || 'término solicitado';
+      const buscaDenominador = objetivo.toLowerCase().includes('denominador');
+      return <EquivalentFractionPuzzleVisual
+        left={{ numerador: num_base, denominador: den_base }}
+        right={{
+          numerador: buscaDenominador ? num_base * factor : null,
+          denominador: buscaDenominador ? null : den_base * factor,
+        }}
+        objective={objetivo}
+        color={moduleColor}
+      />;
     }
 
     return (
@@ -428,6 +402,62 @@ export const Fase5VisualizerEngine: React.FC<Props> = ({
         moduleColor={moduleColor}
       />
     );
+  }
+
+  if (tipoVisual === 'equivalence_strip') {
+    return <EquivalentFractionPuzzleVisual
+      left={pregunta.datos_numericos?.fraccion_izquierda || { numerador: null, denominador: null }}
+      right={pregunta.datos_numericos?.fraccion_derecha || { numerador: null, denominador: null }}
+      objective={pregunta.datos_numericos?.objetivo_visual}
+      mode={pregunta.datos_numericos?.modo_visual}
+      incorrectTerm={pregunta.datos_numericos?.termino_incorrecto}
+      showCuts={!!pregunta.datos_numericos?.mostrar_cortes}
+      color={moduleColor}
+    />;
+  }
+
+  if (tipoVisual === 'fraction_strip') {
+    return <FractionStripVisual
+      numerator={pregunta.datos_numericos?.numerador || 0}
+      denominator={pregunta.datos_numericos?.denominador || 1}
+      color={moduleColor}
+    />;
+  }
+
+  if (tipoVisual === 'group_cards') {
+    return <GroupCardsVisual
+      total={pregunta.datos_numericos?.total || 0}
+      groups={pregunta.datos_numericos?.grupos || 1}
+      highlighted={pregunta.datos_numericos?.grupos_destacados || 0}
+      itemLabel={pregunta.datos_numericos?.etiqueta_elementos}
+      color={moduleColor}
+    />;
+  }
+
+  if (tipoVisual === 'hundred_grid') {
+    return <HundredGridVisual
+      percentage={pregunta.datos_numericos?.porcentaje || 0}
+      total={pregunta.datos_numericos?.total || 0}
+      color={moduleColor}
+    />;
+  }
+
+  if (tipoVisual === 'data_table') {
+    return <DataTableVisual
+      values={pregunta.datos_numericos?.valores_tabla || []}
+      labels={pregunta.datos_numericos?.etiquetas || []}
+      color={moduleColor}
+    />;
+  }
+
+  if (tipoVisual === 'ratio_table') {
+    return <RatioTableVisual
+      a={pregunta.datos_numericos?.ratio_a || 0}
+      b={pregunta.datos_numericos?.ratio_b || 0}
+      factor={pregunta.datos_numericos?.factor}
+      total={pregunta.datos_numericos?.total}
+      color={moduleColor}
+    />;
   }
 
   console.warn(

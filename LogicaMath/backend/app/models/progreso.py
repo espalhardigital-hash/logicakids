@@ -20,7 +20,7 @@ class ConfiguracionProgreso(Base):
     seccion = Column(Integer, nullable=False)
     operacion = Column(Enum(OperacionEnum, name="operacion_config", native_enum=False), nullable=False)
 
-    cantidad_requerida = Column(Integer, nullable=False)  # Ej: 50 preguntas
+    cantidad_requerida = Column(Integer, nullable=False)  # 10 en práctica; dinámica en desafíos
     porcentaje_aprobacion = Column(Integer, nullable=False)  # Ej: 95
 
     # Orden de desbloqueo dentro de una seccion

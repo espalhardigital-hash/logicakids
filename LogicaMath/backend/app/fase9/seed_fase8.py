@@ -11,6 +11,7 @@ from app.models.sql_models import (
     Intento, PoolAsignadoAlumno
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
+from app.core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 
 FASE9_ID = 8
 
@@ -123,7 +124,7 @@ def _generate_svg_tree_diagram(op1: int, op2: int) -> str:
             svg += f'<circle cx="240" cy="{y2}" r="8" fill="#10B981"/>'
             svg += f'<text x="240" y="{y2+3}" font-size="9" font-family="Arial" font-weight="bold" fill="#FFF" text-anchor="middle">B{j+1}</text>'
             
-    svg += f'<text x="160" y="168" font-size="11" font-family="Arial" font-weight="bold" fill="#F8FAFC" text-anchor="middle">Total de Combinaciones = {op1} × {op2} = {op1*op2}</text>'
+    svg += f'<text x="160" y="168" font-size="11" font-family="Arial" font-weight="bold" fill="#F8FAFC" text-anchor="middle">Total de combinaciones: {op1} × {op2} = ?</text>'
     svg += '</svg>'
     return _svg_to_base64(svg)
 
@@ -132,11 +133,9 @@ def _generate_svg_multiplicative_groups(op1: int, op2: int, op3: int = None) -> 
     svg += '<text x="160" y="22" font-size="12" font-family="Arial" font-weight="bold" fill="#8B5CF6" text-anchor="middle">Principio Multiplicativo</text>'
     
     if op3:
-        total = op1 * op2 * op3
-        txt_formula = f"{op1} × {op2} × {op3} = {total}"
+        txt_formula = f"{op1} × {op2} × {op3} = ?"
     else:
-        total = op1 * op2
-        txt_formula = f"{op1} × {op2} = {total}"
+        txt_formula = f"{op1} × {op2} = ?"
         
     svg += f'<rect x="30" y="40" width="70" height="40" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>'
     svg += f'<text x="65" y="65" font-size="14" font-family="Arial" font-weight="bold" fill="#3b82f6" text-anchor="middle">{op1} Opciones</text>'
@@ -167,7 +166,7 @@ def _generate_svg_mcd_groups(num1: int, num2: int, mcd_val: int) -> str:
     svg += f'<text x="232" y="58" font-size="11" font-family="Arial" font-weight="bold" fill="#f59e0b" text-anchor="middle">Grupo B: {num2} unidades</text>'
     svg += f'<text x="232" y="74" font-size="10" font-family="Arial" fill="#94a3b8" text-anchor="middle">({num2//mcd_val} por canasta)</text>'
 
-    svg += f'<text x="160" y="118" font-size="12" font-weight="bold" font-family="Arial" fill="#10b981" text-anchor="middle">MCD({num1}, {num2}) = {mcd_val} Canastas Máximas</text>'
+    svg += f'<text x="160" y="118" font-size="12" font-weight="bold" font-family="Arial" fill="#10b981" text-anchor="middle">MCD({num1}, {num2}) = ? canastas máximas</text>'
     svg += '</svg>'
     return _svg_to_base64(svg)
 
@@ -262,7 +261,10 @@ async def _gen_fase8_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             rng.shuffle(alts)
 
             enunciado = f"{nombre} analiza la siguiente secuencia: {seq_str}. ¿Qué número falta en el espacio en blanco?"
-            svg_data = _generate_svg_seq_arithmetic(start if is_plus else (start - step*4), step, is_plus)
+            # La figura debe mostrar exactamente la misma secuencia del enunciado.
+            # En una progresión descendente, partir desde el resultado revelaba la
+            # respuesta en la primera casilla visual.
+            svg_data = _generate_svg_seq_arithmetic(start, step, is_plus)
 
             return {
                 "enunciado": enunciado,
@@ -528,7 +530,7 @@ async def seed_configuracion_progreso_fase8(session: AsyncSession):
                 tiempo = 60
         else:
             seccion_id = mod_id * 100 + lvl_id
-            num_questions = 15
+            num_questions = PRACTICE_REQUIRED_CORRECT_ANSWERS
             usa_crono = False
             tiempo = None
             
@@ -537,7 +539,7 @@ async def seed_configuracion_progreso_fase8(session: AsyncSession):
             seccion=seccion_id,
             operacion=OperacionEnum.MIXTA,
             cantidad_requerida=num_questions,
-            porcentaje_aprobacion=90,
+            porcentaje_aprobacion=90 if lvl_id > 10 else 100,
             orden_desbloqueo=lvl_id,
             usa_cronometro=usa_crono,
             tiempo_default_segundos=tiempo
@@ -558,11 +560,8 @@ async def seed_practica_pool_fase8(session: AsyncSession):
             num_questions = 20
             
         for i in range(num_questions):
-            # Práctica (lvl 1-3): cada índice es una FAMILIA con 1 original +
-            # 2 variantes espejo (mismo estructura_padre_id, flag es_espejo) para
-            # que el Bucle Espejo del router (busca hermanos con es_espejo True)
-            # pueda disparar. Antes cada pregunta era familia de 1 y nunca
-            # disparaba. Desafíos (lvl>10) cuentan aciertos, sin espejo.
+            # Práctica (niveles 1-3): tres variaciones originales por familia
+            # para ampliar la variedad, nunca como preguntas espejo.
             if lvl_id <= 3:
                 fam_id = f"f8_m{mod_id}_l{lvl_id}_q{i:03d}"
                 n_variantes = 3

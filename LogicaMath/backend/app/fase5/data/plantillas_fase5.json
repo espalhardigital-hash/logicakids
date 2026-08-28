@@ -35,7 +35,7 @@
     "formula": "(b-a)-a",
     "marcos_alternativos": [
       "En {articulo} {objeto} de {b} partes, {sujeto_nombre} {sujeto} {a} partes. ¿Cuántas partes más quedan libres que tomadas?",
-      "De {b} porciones de {objeto}, {a} fueron usadas. ¿Cuál es la diferencia entre las porciones libres y las usadas?"
+      "De {b} porciones de {objeto}, se usaron {a} porciones. ¿Cuál es la diferencia entre las porciones libres y las usadas?"
     ]
   },
   {
@@ -126,8 +126,8 @@
     ],
     "formula": "a*c",
     "marcos_alternativos": [
-      "En {articulo} {objeto}, una fracción tiene numerador {a} y denominador {b}. Si amplificamos ambos multiplicando por {c}, ¿cuál es el nuevo numerador?",
-      "Para {articulo} {objeto} con fracción base {a}/{b}, se multiplica el numerador {a} por el factor {c}. ¿Cuánto resulta el nuevo numerador?"
+      "Dos representaciones muestran la misma cantidad: {a}/{b} = ?/{b_times_c}. ¿Qué número falta en el numerador?",
+      "Una tira representa {a}/{b}. Otra tira equivalente está dividida en {b_times_c} partes iguales. ¿Cuántas de esas partes deben estar coloreadas?"
     ]
   },
   {
@@ -144,76 +144,8 @@
     ],
     "formula": "b*c",
     "marcos_alternativos": [
-      "Si amplificamos la fracción {a}/{b} de {articulo} {objeto} multiplicando por {c}, ¿cuál es el nuevo denominador resultante?",
-      "En {articulo} {objeto}, al multiplicar el numerador {a} y denominador {b} por el factor {c}, ¿qué valor obtiene el denominador?"
-    ]
-  },
-  {
-    "id": "tpl_m1_n2_suma_amplif",
-    "modulo_id": 1,
-    "nivel_id": 2,
-    "magnitud": "fraccion_visual",
-    "operacion_correcta": "suma_amplificada",
-    "incognita": "suma_amplif",
-    "campos_requeridos": [
-      "objeto",
-      "articulo"
-    ],
-    "formula": "(a*c)+(b*c)",
-    "marcos_alternativos": [
-      "Al amplificar la fracción {a}/{b} de {articulo} {objeto} por el factor {c}, ¿cuánto suman el nuevo numerador y el nuevo denominador?",
-      "En {articulo} {objeto}, si se amplifica la fracción {a}/{b} multiplicando por {c}, ¿cuál es la suma de los nuevos términos obtenidos?"
-    ]
-  },
-  {
-    "id": "tpl_m1_n2_dif_amplif",
-    "modulo_id": 1,
-    "nivel_id": 2,
-    "magnitud": "fraccion_visual",
-    "operacion_correcta": "dif_amplificada",
-    "incognita": "dif_amplif",
-    "campos_requeridos": [
-      "objeto",
-      "articulo"
-    ],
-    "formula": "(b*c)-(a*c)",
-    "marcos_alternativos": [
-      "Al amplificar la fracción {a}/{b} de {articulo} {objeto} por el factor {c}, ¿cuál es la diferencia entre el nuevo denominador y el nuevo numerador?",
-      "En {articulo} {objeto}, al amplificar {a}/{b} por el factor {c}, resta el nuevo numerador del nuevo denominador."
-    ]
-  },
-  {
-    "id": "tpl_m1_n2_doble_nuevo_num",
-    "modulo_id": 1,
-    "nivel_id": 2,
-    "magnitud": "fraccion_visual",
-    "operacion_correcta": "doble_num",
-    "incognita": "doble_num",
-    "campos_requeridos": [
-      "objeto",
-      "articulo"
-    ],
-    "formula": "(a*c)*2",
-    "marcos_alternativos": [
-      "En {articulo} {objeto}, si amplificamos la fracción {a}/{b} por el factor {c}, ¿cuál sería el doble del nuevo numerador?",
-      "En {articulo} {objeto}, calcula el doble del resultado de amplificar el numerador {a} por {c}."
-    ]
-  },
-  {
-    "id": "tpl_m1_n2_den_cuadruple",
-    "modulo_id": 1,
-    "nivel_id": 2,
-    "magnitud": "fraccion_visual",
-    "operacion_correcta": "cuadruple_den",
-    "incognita": "cuadruple_den",
-    "campos_requeridos": [
-      "objeto",
-      "articulo"
-    ],
-    "formula": "b*4",
-    "marcos_alternativos": [
-      "Si la fracción base de {articulo} {objeto} es {a}/{b}, ¿cuál es el denominador si amplificamos por 4?",
-      "Al cuadruplicar el denominador {b} de {articulo} {objeto}, ¿cuál es el nuevo denominador?"
+      "Dos representaciones muestran la misma cantidad: {a}/{b} = {a_times_c}/?. ¿Qué número falta en el denominador?",
+      "Una tira representa {a}/{b}. En otra tira equivalente hay {a_times_c} partes coloreadas. ¿En cuántas partes iguales debe estar dividida la tira completa?"
     ]
   },
   {
@@ -231,7 +163,7 @@
     "formula": "b-a",
     "marcos_alternativos": [
       "{articulo} {objeto} se dividió en {b} porciones totales. Si {sujeto_nombre} {sujeto} {a} porciones, ¿cuántas porciones quedan libres?",
-      "En {articulo} {objeto} de {b} partes, {a} partes están coloreadas. ¿Cuántas partes quedan sin colorear?"
+      "En {articulo} {objeto} de {b} partes, hay {a} partes coloreadas. ¿Cuántas partes quedan sin colorear?"
     ]
   },
   {
@@ -275,17 +207,17 @@
     "modulo_id": 1,
     "nivel_id": 3,
     "magnitud": "fraccion_visual",
-    "operacion_correcta": "suma_resto_usadas",
-    "incognita": "suma_rest_usadas",
+    "operacion_correcta": "usadas_mas_mitad_resto",
+    "incognita": "partes_nueva_composicion",
     "campos_requeridos": [
       "objeto",
       "sujeto",
       "articulo"
     ],
-    "formula": "(b-a)+a",
+    "formula": "a+((b-a)//2)",
     "marcos_alternativos": [
-      "Si sumas las porciones libres y las {a} porciones usadas de {articulo} {objeto} de {b} partes, ¿cuántas porciones obtienes en total?",
-      "Verifica el total de porciones sumando las {a} partes marcadas y las partes sin marcar de {articulo} {objeto} de {b} divisiones."
+      "Una nueva composición usa las {a} partes marcadas de {articulo} {objeto} y la mitad de las partes que quedaron sin marcar. Si hay {b} partes en total, ¿cuántas partes tendrá la nueva composición?",
+      "De las {b} partes de {articulo} {objeto}, hay {a} partes marcadas. Para otra composición se usarán todas las marcadas y la mitad exacta de las restantes. ¿Cuántas partes se usarán?"
     ]
   },
   {
@@ -514,7 +446,7 @@
     ],
     "formula": "((total//b)*a)//2",
     "marcos_alternativos": [
-      "Si {a}/{b} de {total} {objeto} es la porción tomada, ¿cuánto es la mitad de esa porción de {objeto}?",
+      "Si se toma {a}/{b} de {total} {objeto}, ¿cuántos {objeto} corresponden a la mitad de la cantidad tomada?",
       "Divide entre 2 el resultado de {a}/{b} sobre {total} {objeto}."
     ]
   },
@@ -530,8 +462,8 @@
     ],
     "formula": "total-((total//b)*a)",
     "marcos_alternativos": [
-      "{sujeto_nombre} tenía {total} {objeto}. Regala {a}/{b} del total a sus amigos. ¿Cuántos {objeto} le quedan?",
-      "En un depósito de {total} {objeto}, se utilizan {a}/{b} de las existencias. ¿Cuántos {objeto} quedan disponibles?"
+      "{sujeto_nombre} dispone de {total} {objeto} y reserva {a}/{b} para una actividad. ¿Cuántos {objeto} quedan disponibles?",
+      "En un depósito hay {total} {objeto}. Se utilizan {a}/{b} de las existencias. ¿Cuántos {objeto} quedan disponibles?"
     ]
   },
   {
@@ -546,8 +478,8 @@
     ],
     "formula": "(total//b)*a",
     "marcos_alternativos": [
-      "De {total} {objeto}, {sujeto_nombre} regala {a}/{b}. ¿Cuántos {objeto} regaló específicamente?",
-      "En un grupo de {total} {objeto}, se usaron {a}/{b} del total. ¿Cuántos {objeto} se usaron?"
+      "De una colección de {total} {objeto}, {sujeto_nombre} selecciona {a}/{b} para una exposición. ¿Cuántos {objeto} selecciona?",
+      "En un grupo de {total} {objeto}, se utilizan {a}/{b} del total. ¿Cuántos {objeto} se utilizan?"
     ]
   },
   {
@@ -562,8 +494,8 @@
     ],
     "formula": "(total-((total//b)*a))//2",
     "marcos_alternativos": [
-      "De los {total} {objeto}, tras gastar {a}/{b}, si la mitad de lo que queda se dona, ¿cuántos {objeto} se donan?",
-      "Divide entre 2 la cantidad restante de {objeto} tras usar {a}/{b} de {total}."
+      "De {total} {objeto} se utilizan {a}/{b}. Lo que queda se reparte por igual entre dos equipos. ¿Cuántos {objeto} recibe cada equipo?",
+      "Tras utilizar {a}/{b} de un total de {total} {objeto}, la cantidad restante se distribuye en dos cajas iguales. ¿Cuántos {objeto} van en cada caja?"
     ]
   },
   {
@@ -578,8 +510,8 @@
     ],
     "formula": "((total//b)*a)+total",
     "marcos_alternativos": [
-      "Si a una colección original de {total} {objeto} le sumamos otra entrega igual a los {a}/{b}, ¿cuántos {objeto} hay en total?",
-      "Suma los {a}/{b} de {total} {objeto} a la cantidad inicial {total}."
+      "Una colección tiene {total} {objeto} y recibe una nueva entrega equivalente a {a}/{b} de esa cantidad. ¿Cuántos {objeto} hay después de la entrega?",
+      "En el depósito hay {total} {objeto}. Llega otro lote con una cantidad igual a {a}/{b} del inventario inicial. ¿Cuál es el nuevo total?"
     ]
   },
   {
@@ -594,8 +526,8 @@
     ],
     "formula": "(total-((total//b)*a))*3",
     "marcos_alternativos": [
-      "Tras apartar {a}/{b} de {total} {objeto}, ¿cuánto sería el triple de los {objeto} sobrantes?",
-      "Multiplica por 3 el resto de {total} {objeto} tras utilizar {a}/{b}."
+      "Tres cajas idénticas contienen {total} {objeto} cada una. En cada caja se utiliza {a}/{b}. ¿Cuántos {objeto} quedan entre las tres cajas?",
+      "En cada uno de tres lotes de {total} {objeto} se aparta {a}/{b}. ¿Cuántos {objeto} permanecen disponibles en total?"
     ]
   },
   {
@@ -610,8 +542,8 @@
     ],
     "formula": "((total//b)*a)*4",
     "marcos_alternativos": [
-      "Si la porción de {a}/{b} de {total} {objeto} es calculada, ¿cuántos {objeto} serían en 4 porciones iguales?",
-      "Multiplica por 4 la porción de {a}/{b} calculada sobre {total} {objeto}."
+      "Cuatro cajas idénticas contienen {total} {objeto} cada una. De cada caja se selecciona {a}/{b}. ¿Cuántos {objeto} se seleccionan entre las cuatro cajas?",
+      "En cada uno de cuatro lotes de {total} {objeto} se utiliza la fracción {a}/{b}. ¿Cuántos {objeto} se utilizan en total?"
     ]
   },
   {
@@ -681,8 +613,8 @@
     ],
     "formula": "((total*a)//100)*2",
     "marcos_alternativos": [
-      "Si el {a}% de {total} {unidad} de {articulo} {objeto} es calculado, ¿cuál sería el doble de ese resultado?",
-      "Calcula 2 veces el {a}% de {total} {unidad} de {articulo} {objeto}."
+      "Dos grupos iguales tienen {total} {unidad} de {articulo} {objeto} cada uno. En cada grupo se selecciona el {a}%. ¿Cuántos {unidad} se seleccionan entre ambos grupos?",
+      "En dos jornadas idénticas se registra el {a}% de {total} {unidad} de {articulo} {objeto} por jornada. ¿Cuántos {unidad} se registran en total?"
     ]
   },
   {
@@ -699,8 +631,8 @@
     ],
     "formula": "((total*a)//100)//2",
     "marcos_alternativos": [
-      "Si el {a}% de {total} {unidad} de {articulo} {objeto} es obtenido, ¿cuánto es la mitad de ese valor?",
-      "Divide entre 2 el resultado de calcular el {a}% de {total} {unidad} de {articulo} {objeto}."
+      "El {a}% de {total} {unidad} de {articulo} {objeto} se reparte por igual entre dos equipos. ¿Cuántos {unidad} recibe cada equipo?",
+      "Se selecciona el {a}% de {total} {unidad} de {articulo} {objeto} y luego se distribuye en dos partes iguales. ¿Cuántos {unidad} hay en cada parte?"
     ]
   },
   {
@@ -1181,7 +1113,7 @@
     "formula": "(b*100)//(a+b)",
     "marcos_alternativos": [
       "En {articulo} {objeto} de {a} partes de esencia y {b} partes de diluyente (total {total} partes), ¿qué porcentaje representa el diluyente?",
-      "Si {a} ml son de activo y {b} ml de agua en {total} ml de {objeto}, ¿cuál es el porcentaje de agua?"
+      "Una mezcla contiene {a} ml de activo y {b} ml de agua en {total} ml de {objeto}. ¿Cuál es el porcentaje de agua?"
     ]
   },
   {
@@ -1249,7 +1181,7 @@
     "formula": "100-((a*100)//(a+b))",
     "marcos_alternativos": [
       "Si en {articulo} {objeto} el ingrediente A representa el {a_pct}% del volumen total, ¿qué porcentaje de la mezcla NO es ingrediente A?",
-      "Si la esencia concentrada ocupa el {a_pct}% de {articulo} {objeto}, resta ese porcentaje de 100%."
+      "Si la esencia concentrada ocupa el {a_pct}% de {articulo} {objeto}, ¿qué porcentaje de la mezcla corresponde al resto?"
     ]
   }
 ]

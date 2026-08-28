@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Lock, ChevronRight, Trophy, BookOpen, Star,
+  Lock, ChevronLeft, ChevronRight, Trophy, BookOpen, Star,
   Clock, RotateCcw, Play, ArrowLeft, Loader2,
   CheckCircle2, Target, Zap, AlertCircle,
 } from 'lucide-react';
@@ -70,6 +70,7 @@ export default function WelcomeScreenPhase11({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [moduloSelecionado, setModuloSelecionado] = useState<number | null>(null);
+  const [paginaSimulacros, setPaginaSimulacros] = useState(0);
 
   // ── Fetch progresso from backend ──────────────────────────────────────────
 
@@ -100,6 +101,12 @@ export default function WelcomeScreenPhase11({
   const simulacrosDoModulo = moduloSelecionado
     ? (progresso?.simulacros ?? []).filter(s => s.modulo === moduloSelecionado)
     : [];
+  const simulacrosPorPagina = 5;
+  const totalPaginas = Math.max(1, Math.ceil(simulacrosDoModulo.length / simulacrosPorPagina));
+  const simulacrosPagina = simulacrosDoModulo.slice(
+    paginaSimulacros * simulacrosPorPagina,
+    (paginaSimulacros + 1) * simulacrosPorPagina,
+  );
 
   const moduloAtivo = progresso?.modulos.find(m => m.modulo_id === moduloSelecionado);
 
@@ -116,6 +123,7 @@ export default function WelcomeScreenPhase11({
   const handleBack = () => {
     if (moduloSelecionado !== null) {
       setModuloSelecionado(null);
+      setPaginaSimulacros(0);
     } else {
       onBack();
     }
@@ -156,7 +164,7 @@ export default function WelcomeScreenPhase11({
 
   if (moduloSelecionado !== null) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
+      <div className="h-screen overflow-hidden bg-slate-950 text-slate-200 font-sans flex flex-col">
         {/* Header */}
         <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-4 flex items-center gap-4">
           <button
@@ -178,8 +186,8 @@ export default function WelcomeScreenPhase11({
         </header>
 
         {/* Lista de simulacros */}
-        <main className="max-w-3xl mx-auto p-4 sm:p-8 space-y-3">
-          {simulacrosDoModulo.map((sim) => {
+        <main className="max-w-3xl mx-auto w-full p-4 sm:p-6 space-y-3">
+          {simulacrosPagina.map((sim) => {
             const bloqueado = sim.estado === 'bloqueado';
             const concluido = sim.estado === 'concluido';
             const disponivel = sim.estado === 'disponivel';
@@ -284,6 +292,21 @@ export default function WelcomeScreenPhase11({
               </div>
             );
           })}
+          {totalPaginas > 1 && (
+            <div className="flex items-center justify-between pt-1">
+              <button
+                onClick={() => setPaginaSimulacros(p => Math.max(0, p - 1))}
+                disabled={paginaSimulacros === 0}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-800 text-slate-300 disabled:opacity-40"
+              ><ChevronLeft className="w-4 h-4" />Anterior</button>
+              <span className="text-xs text-slate-400">Página {paginaSimulacros + 1} de {totalPaginas}</span>
+              <button
+                onClick={() => setPaginaSimulacros(p => Math.min(totalPaginas - 1, p + 1))}
+                disabled={paginaSimulacros === totalPaginas - 1}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-800 text-slate-300 disabled:opacity-40"
+              >Siguiente<ChevronRight className="w-4 h-4" /></button>
+            </div>
+          )}
         </main>
       </div>
     );
@@ -292,7 +315,7 @@ export default function WelcomeScreenPhase11({
   // ── Vista principal: 3 módulos ────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
+    <div className="h-screen overflow-hidden bg-slate-950 text-slate-200 font-sans">
 
       {/* Header */}
       <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-4 flex items-center justify-between">
@@ -359,7 +382,12 @@ export default function WelcomeScreenPhase11({
             return (
               <button
                 key={modulo.modulo_id}
-                onClick={() => !todoBloqueado && setModuloSelecionado(modulo.modulo_id)}
+                onClick={() => {
+                  if (!todoBloqueado) {
+                    setPaginaSimulacros(0);
+                    setModuloSelecionado(modulo.modulo_id);
+                  }
+                }}
                 disabled={todoBloqueado}
                 className={`fg-module-card
                   relative text-left rounded-2xl border p-6 transition-all duration-200 group

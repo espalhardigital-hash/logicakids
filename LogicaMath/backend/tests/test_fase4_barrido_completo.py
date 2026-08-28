@@ -18,7 +18,7 @@ from app.fase4.seed import _generate_practice_question, _generate_challenge_ques
 MODULOS = (1, 2, 3, 4)
 NIVELES = (1, 2, 3)
 DESAFIOS = (11, 12, 13)
-FAMILIAS_PRACTICA = 72
+FAMILIAS_PRACTICA = 76
 VARIANTES_PRACTICA = 4
 PREGUNTAS_POR_BLOQUE_DESAFIO = 150
 
@@ -35,7 +35,7 @@ def _validar_pregunta_comun(enunciado: str, respuesta: str, etiqueta: str):
     assert prosa.strip(), f"{etiqueta}: enunciado vacío tras quitar HTML"
 
 
-def test_barrido_completo_practica_3456_preguntas():
+def test_barrido_completo_practica_ampliada():
     total = 0
     for m in MODULOS:
         for n in NIVELES:
@@ -49,7 +49,7 @@ def test_barrido_completo_practica_3456_preguntas():
                     assert r["estructura_padre_id"].startswith("f4_"), (
                         f"{etiqueta}: prefijo inesperado {r['estructura_padre_id']!r}")
                     total += 1
-    assert total == 3456, f"Se esperaban 3.456 preguntas de práctica, se generaron {total}"
+    assert total == 3648, f"Se esperaban 3.648 preguntas de práctica, se generaron {total}"
 
 
 def test_barrido_completo_desafios_1950_preguntas():

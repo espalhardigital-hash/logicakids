@@ -1,7 +1,7 @@
 # Estado de implementación — Fases 5 y 6
 
 > **Estado:** vigente y verificable en el entorno local.
-> **Actualización:** 2026-08-23.
+> **Actualización:** 2026-08-28.
 > **Alcance:** `fase_id=5` y `fase_id=6`. Este documento prevalece sobre planes de reconstrucción previos cuando describan un mecanismo ya retirado.
 
 ## Decisiones pedagógicas vigentes
@@ -11,13 +11,18 @@
 3. **El error no acredita dominio.** El progreso de práctica se obtiene solo con aciertos reales; no existe bypass de explicación ni avance por rendirse.
 4. **Cero scroll vertical.** Las pantallas de práctica, teoría, retroalimentación y graduación no desplazan verticalmente. La teoría, diccionario y explicaciones extensas se dividen en diapositivas.
 5. **Contrato visual por pregunta.** Toda pregunta declara una familia (`plantilla_id`) y si requiere figura (`requiere_figura`, `tipo_visual`). Si la figura es necesaria, viaja con el enunciado como SVG inline y no revela el resultado.
+6. **Progresión única de práctica.** Cada nivel se completa exactamente con **10 aciertos**; encabezado, porcentaje y cierre usan el mismo contador y quedan limitados a `10/10`. Véase [`CONTRATO_PROGRESION_PRACTICA.md`](./CONTRATO_PROGRESION_PRACTICA.md).
 
 ## Fase 5 — Fracciones, porcentajes y proporciones
 
-- Banco local: **1.296 preguntas**; 12 familias por cada nivel de práctica y desafíos.
-- Visuales: pizza/fracción, rejilla de colecciones, gráfico de barras y rejilla de razones según el objetivo matemático.
+- Banco local: **1.430 preguntas**, 25 secciones, 12 bloques de teoría y 26 configuraciones de progresión.
+- El Módulo 1, Nivel 2 contiene **13 familias cognitivas diferentes**. No se limita a multiplicar términos: incluye completar numerador o denominador, inferir el factor, recuperar términos originales, interpretar subdivisiones, contar cortes nuevos, detectar equivalencias falsas y simplificar.
+- Las equivalencias usan dos tiras fraccionarias y términos ocultos o cuestionados. La figura no muestra la multiplicación, el factor ni la respuesta.
+- Visuales restantes: fracción parte-todo, rejilla de colecciones, cuadrícula porcentual, tablas, gráfico de barras y rejilla de razones según el objetivo matemático.
 - Entrada: teclado numérico con separador decimal cuando la respuesta lo requiere.
-- Verificación ejecutada: 46 pruebas de Fase 5 aprobadas; auditoría de enunciado, respuesta, fórmula, alternativas y contrato visual sin hallazgos.
+- Verificación ejecutada: **61 pruebas backend** específicas de Fase 5 y **56 pruebas frontend** aprobadas. Auditorías profunda y narrativa sin hallazgos.
+- Reproducibilidad: dos siembras consecutivas produjeron el mismo banco y el mismo hash `5ce90372abc90b850e833218c202cc25:1a00e4202bf5c8a9534e696e22e345af`.
+- UX comprobada en computador y tableta: práctica, teoría y retroalimentación sin scroll; selector de contenidos con scroll habilitado como única excepción intencional.
 
 ## Fase 6 — Geometría plana multiforme y áreas
 

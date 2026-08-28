@@ -45,7 +45,16 @@ export const Fase9TheoryModal: React.FC<Fase9TheoryModalProps> = ({
 
   const slides = useMemo(() => {
     const s: { type: string; data: any }[] = [];
-    s.push({ type: 'intro', data: null });
+    // Cada idea ocupa su propia diapositiva. Esto conserva el foco y evita
+    // el scroll vertical aun cuando un nivel incluya diccionario extenso.
+    const paragraphs = readingData.parrafos?.length ? readingData.parrafos : [''];
+    paragraphs.forEach((paragraph) => s.push({ type: 'intro', data: { paragraph } }));
+
+    if (readingData.diccionario && Object.keys(readingData.diccionario).length > 0) {
+      Object.entries(readingData.diccionario).forEach(([termino, definicion]) => {
+        s.push({ type: 'dictionary', data: { termino, definicion } });
+      });
+    }
     
     if (readingData.ejemplos && readingData.ejemplos.length > 0) {
       const chunks = chunkArray(readingData.ejemplos, 1);
@@ -205,23 +214,28 @@ export const Fase9TheoryModal: React.FC<Fase9TheoryModalProps> = ({
                 transition={{ duration: 0.3 }}
                 className="f9-flashcard-content"
               >
-                {readingData.parrafos.map((p, idx) => (
-                  <p key={idx} className="f9-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(p) }} />
-                ))}
+                <p className="f9-reading-p" dangerouslySetInnerHTML={{ __html: formatContent(currentSlide.data.paragraph) }} />
+              </motion.div>
+            )}
 
-                {readingData.diccionario && Object.keys(readingData.diccionario).length > 0 && (
-                  <div className="f9-reading-dictionary">
-                    <h3>📖 EL DICCIONARIO DEL NIVEL:</h3>
-                    <div className="f9-dict-grid">
-                      {Object.entries(readingData.diccionario).map(([termino, definicion], idx) => (
-                        <div key={idx} className="f9-dict-card" style={{ borderColor: `${moduleColor}55` }}>
-                          <div className="f9-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(termino) }} />
-                          <div className="f9-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(definicion as string) }} />
-                        </div>
-                      ))}
-                    </div>
+            {currentSlide?.type === 'dictionary' && (
+              <motion.div
+                key={`dictionary-${currentStep}`}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3 }}
+                className="f9-flashcard-content"
+              >
+                <div className="f9-reading-dictionary">
+                  <h3>📖 PALABRA CLAVE</h3>
+                  <div className="f9-dict-card" style={{ borderColor: `${moduleColor}55` }}>
+                    <div className="f9-dict-term" style={{ color: moduleColor }} dangerouslySetInnerHTML={{ __html: formatContent(currentSlide.data.termino) }} />
+                    <div className="f9-dict-def" dangerouslySetInnerHTML={{ __html: formatContent(currentSlide.data.definicion) }} />
                   </div>
-                )}
+                </div>
               </motion.div>
             )}
 

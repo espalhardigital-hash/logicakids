@@ -35,6 +35,7 @@ from app.models.sql_models import (
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from app.fase4.theory_data import FASE4_TEORIA_DATA
+from app.core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 from app.utils.svg_figuras import (
     fig_rectangulo, fig_cuadrado, fig_triangulo, fig_L, fig_T,
     escalera_unidades, recta_numerica_decimal, tabla_datos, comparador_opciones,
@@ -67,6 +68,38 @@ def _is_numeric_answer(resp_str: str) -> bool:
     return clean.isdigit()
 
 NOMBRES_POOL = ["Leo", "Emma", "Thiago", "Mía", "Hugo", "Alba", "Nina", "Bruno", "Salma", "Iker", "Zoe", "Dante", "Lía", "Owen", "Sofía"]
+FAMILIAS_PRACTICA = 76
+
+
+def _componer_referencia_fase4(modulo_id: int, nivel_id: int, fam_idx: int, var_idx: int, personaje: str) -> dict:
+    """Familia visual original: datos, cálculo y respuesta nacen del mismo modelo."""
+    a = round(2.4 + (fam_idx - 72) * 0.3 + var_idx * 0.2, 2)
+    b = round(1.35 + var_idx * 0.25, 2)
+    unidad = ""
+    if modulo_id == 1:
+        if nivel_id == 2:
+            total, result, formula, op, prompt = round(a + b + 2, 2), b, "total-a", "restar", "¿Cuánto dinero queda después de pagar el primer precio?"
+            rows = [("Dinero inicial", f"R$ {_fmt_money(total)}"), ("Pago", f"R$ {_fmt_money(a)}")]
+        else:
+            result, formula, op, prompt = round(a + b, 2), "a+b", "sumar", "¿Cuál es el total de los dos precios?"
+            rows = [("Producto A", f"R$ {_fmt_money(a)}"), ("Producto B", f"R$ {_fmt_money(b)}")]
+        answer, unidad = _fmt_money(result), "R$"
+    elif modulo_id == 2:
+        multiplicador = 2 + var_idx
+        result, formula, op, prompt = round(a * multiplicador, 2), "a*b", "multiplicar", "¿Cuál es el producto?"
+        rows, answer = [("Medida decimal", _fmt_dec(a)), ("Veces", str(multiplicador))], _fmt_dec(result)
+    elif modulo_id == 3:
+        divisor = 2 + var_idx
+        result = round(1.2 + (fam_idx - 72) * .2, 2); a = round(result * divisor, 2)
+        formula, op, prompt = "a/b", "dividir", "¿Cuál es el valor de cada parte?"
+        rows, answer = [("Total", _fmt_dec(a)), ("Partes iguales", str(divisor))], _fmt_dec(result)
+    else:
+        factor, origen, destino = ((100, "m", "cm") if nivel_id == 1 else ((100, "cm", "m") if nivel_id == 2 else (10, "mm", "cm")))
+        result = round(a * factor if nivel_id == 1 else a / factor, 2)
+        formula, op = (("a*100", "multiplicar") if nivel_id == 1 else (("a/100", "dividir") if nivel_id == 2 else ("a/10", "dividir")))
+        prompt = f"¿A cuántos {destino} equivale la medida?"
+        rows, answer = [("Medida inicial", f"{_fmt_dec(a)} {origen}"), ("Unidad final", destino)], _fmt_dec(result)
+    return {"plantilla_id": f"ref_m{modulo_id}_n{nivel_id}_tabla", "escenario_id": "referencia_visual", "personaje": personaje, "enunciado": f"{personaje} observa la tabla. {prompt}", "operacion_correcta": op, "formula": formula, "valores": {"a": a, "b": b, "c": 0, "total": result, "n_cant": 1}, "resultado_num": result, "respuesta_correcta": answer, "unidad": unidad, "figura_svg": tabla_datos(rows, titulo="Datos para resolver", color=color_modulo(modulo_id, nivel_id), marco=False)}
 
 async def upsert_fila_fases(session: AsyncSession):
     # Fase 4: Operatoria Decimal y Conversiones
@@ -414,9 +447,9 @@ def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var
     # esc["nombre"] y confusiones_mod[6], ausentes en los catálogos nuevos. Si el
     # compositor no puede componer, la siembra debe fallar y no colar una
     # pregunta de otra magnitud.
-    comp = _COMPOSITOR.componer_pregunta_practica(
-        modulo_id, nivel_id, fam_idx, var_idx, seed_val
-    )
+    comp = (_componer_referencia_fase4(modulo_id, nivel_id, fam_idx, var_idx, personaje)
+            if fam_idx >= 72
+            else _COMPOSITOR.componer_pregunta_practica(modulo_id, nivel_id, fam_idx, var_idx, seed_val))
     confusiones_mod = [c for c in _COMPOSITOR.confusiones if c["modulo_id"] == modulo_id]
 
     enunciado_final = _enunciado_con_svg(comp["enunciado"], comp.get("figura_svg"), 200)
@@ -459,14 +492,14 @@ def _generate_practice_question(modulo_id: int, nivel_id: int, fam_idx: int, var
 
 
 async def seed_practica_pool(session: AsyncSession):
-    print("Sembrando 3.456 preguntas de práctica libre (4 módulos × 3 niveles × 72 familias × 4 variantes)...")
+    print(f"Sembrando práctica libre ampliada ({FAMILIAS_PRACTICA} familias por nivel)...")
     total_q = 0
     batch_questions = []
 
     for mod_id in range(1, 5):
         for lvl_id in range(1, 4):
             sec = mod_id * 100 + lvl_id
-            for fam_idx in range(72):
+            for fam_idx in range(FAMILIAS_PRACTICA):
                 for var_idx in range(4):
                     seed_val = 50000000 + sec * 100000 + fam_idx * 10 + var_idx
                     q_dict = _generate_practice_question(mod_id, lvl_id, fam_idx, var_idx, seed_val)
@@ -775,8 +808,8 @@ async def seed_configuracion_progreso(session: AsyncSession):
         fase_id=FASE_DECIMALES_ID,
         seccion=0,
         operacion=OperacionEnum.MIXTA,
-        cantidad_requerida=15,
-        porcentaje_aprobacion=90,
+        cantidad_requerida=PRACTICE_REQUIRED_CORRECT_ANSWERS,
+        porcentaje_aprobacion=100,
         orden_desbloqueo=99,
         tipo_feedback="normal",
         usa_cronometro=True,
@@ -795,7 +828,7 @@ async def seed_configuracion_progreso(session: AsyncSession):
                 fase_id=FASE_DECIMALES_ID,
                 seccion=sec,
                 operacion=OperacionEnum.MIXTA,
-                cantidad_requerida=15,
+                cantidad_requerida=PRACTICE_REQUIRED_CORRECT_ANSWERS,
                 porcentaje_aprobacion=100,
                 orden_desbloqueo=lvl_id,
                 tipo_feedback="bucle_espejo",

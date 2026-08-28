@@ -21,6 +21,7 @@ from ..models.sql_models import (
 from ..auth import get_admin_user
 from ..services.pedagogia_service import recalcular_y_sincronizar_fase_actual
 from ..core.storage import storage_service
+from ..core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 
 class BulkDeletePayload(BaseModel):
     user_ids: List[str]
@@ -50,8 +51,8 @@ PEDAGOGY_CONFIG_KEY = "pedagogy_config"
 
 DEFAULT_PEDAGOGY_CONFIG = {
     "practica_libre": {
-        "cantidad_requerida": 15,
-        "porcentaje_aprobacion": 80,
+        "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+        "porcentaje_aprobacion": 100,
         "usa_cronometro": False,
         "tiempo_default_segundos": 15,
         "tipo_feedback": "simple"
@@ -601,7 +602,11 @@ async def override_alumno_progress(alumno_id: int, payload: ProgressOverridePayl
         )
         progreso = result_alt.scalar_one_or_none()
     
-    cant_req = 15
+    cant_req = (
+        20
+        if payload.seccion >= 1000
+        else PRACTICE_REQUIRED_CORRECT_ANSWERS
+    )
     result_config = await db.execute(
         select(ConfiguracionProgreso).where(and_(
             ConfiguracionProgreso.fase_id == payload.fase_id,
@@ -795,7 +800,11 @@ async def override_alumno_progress_bulk(
             progreso = result_alt.scalar_one_or_none()
 
         # Fetch ConfiguracionProgreso to know cantidad_requerida
-        cant_req = 15
+        cant_req = (
+            20
+            if item.seccion >= 1000
+            else PRACTICE_REQUIRED_CORRECT_ANSWERS
+        )
         result_config = await db.execute(
             select(ConfiguracionProgreso).where(and_(
                 ConfiguracionProgreso.fase_id == item.fase_id,

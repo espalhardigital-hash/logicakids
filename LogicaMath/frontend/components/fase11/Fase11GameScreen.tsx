@@ -92,7 +92,7 @@ export const Fase11GameScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans flex flex-col">
+    <div className="h-screen overflow-hidden bg-slate-950 text-slate-200 font-sans flex flex-col">
       {/* HEADER STICKY */}
       <header className="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-sm flex items-center justify-between px-4 sm:px-8 py-4">
         <div className="flex items-center space-x-3">
@@ -123,10 +123,10 @@ export const Fase11GameScreen: React.FC = () => {
         </button>
       </header>
 
-      <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+      <main className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden relative">
         
         {/* PANEL IZQUIERDO: GRID DE NAVEGACIÓN */}
-        <div className="md:w-72 bg-slate-900 border-r border-slate-800 p-4 overflow-y-auto flex-shrink-0 flex flex-col hidden md:flex">
+        <div className="md:w-72 bg-slate-900 border-r border-slate-800 p-4 overflow-hidden flex-shrink-0 flex flex-col hidden md:flex">
           <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">Preguntas ({preguntas.length})</h3>
           <div className="grid grid-cols-4 gap-3">
             {preguntas.map((q, idx) => {
@@ -185,11 +185,11 @@ export const Fase11GameScreen: React.FC = () => {
         </div>
 
         {/* ÁREA CENTRAL: PREGUNTA Y ALTERNATIVAS */}
-        <div className="flex-1 flex flex-col h-full bg-slate-950 overflow-y-auto">
-          <div className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-8 flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col bg-slate-950 overflow-hidden">
+          <div className="flex-1 min-h-0 max-w-4xl mx-auto w-full p-4 lg:p-6 flex flex-col overflow-hidden">
             
             {/* Controles superiores de pregunta */}
-            <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
               <div className="flex items-center space-x-4">
                 <span className="text-2xl font-black text-slate-300">Questão {currentQIndex + 1}</span>
               </div>
@@ -207,21 +207,21 @@ export const Fase11GameScreen: React.FC = () => {
             </div>
 
             {/* Enunciado (sin animaciones lúdicas) */}
-            <div className="prose prose-invert max-w-none mb-10">
-              <p className="text-xl leading-relaxed text-slate-200 whitespace-pre-wrap font-serif">
+            <div className="prose prose-invert max-w-none mb-4">
+              <p className="text-lg leading-relaxed text-slate-200 whitespace-pre-wrap font-serif">
                 {currentQ.enunciado}
               </p>
             </div>
 
             {/* Alternativas */}
-            <div className="space-y-4 mt-auto mb-12">
+            <div className="grid grid-cols-2 gap-3 mt-auto mb-3">
               {currentQ.alternativas.map((alt) => {
                 const isSelected = selectedAlt === alt.id;
                 return (
                   <button
                     key={alt.id}
                     onClick={() => seleccionarRespuesta(currentQ.id, alt.id)}
-                    className={`fg-alternative-button w-full text-left p-5 rounded-xl border-2 transition-all flex items-start space-x-4 group ${
+                    className={`fg-alternative-button w-full text-left p-3 rounded-xl border-2 transition-all flex items-start space-x-3 group ${
                       isSelected 
                         ? 'bg-indigo-600/10 border-indigo-500 text-indigo-100 shadow-inner' 
                         : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-800/80'
@@ -232,7 +232,7 @@ export const Fase11GameScreen: React.FC = () => {
                     }`}>
                       {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-white"></div>}
                     </div>
-                    <span className="text-lg leading-tight font-medium pt-0.5">{alt.texto}</span>
+                    <span className="text-base leading-tight font-medium pt-0.5">{alt.texto}</span>
                   </button>
                 );
               })}
@@ -241,7 +241,7 @@ export const Fase11GameScreen: React.FC = () => {
           </div>
 
           {/* BARRA DE NAVEGACIÓN INFERIOR MOBILE & NEXT/PREV */}
-          <div className="bg-slate-900 border-t border-slate-800 p-4 sticky bottom-0 z-40 mt-auto">
+          <div className="bg-slate-900 border-t border-slate-800 p-3 z-40 mt-auto">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
               <button
                 onClick={() => setCurrentQIndex(i => Math.max(0, i - 1))}

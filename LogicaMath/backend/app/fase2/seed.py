@@ -22,6 +22,7 @@ from app.models.sql_models import (
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from app.fase2.theory_examples import obtener_ejemplos_expandidos_fase2
+from app.core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 
 # ID de la Fase 2 en la base de datos
 
@@ -747,8 +748,8 @@ async def seed_configuracion_progreso(session: AsyncSession):
         configs.append({
             "seccion": 1 * 100 + l,
             "operacion": OperacionEnum.SUMA,
-            "cantidad_requerida": 15,
-            "porcentaje_aprobacion": 80,
+            "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+            "porcentaje_aprobacion": 100,
             "orden_desbloqueo": l,
             "usa_cronometro": False,
             "tiempo_default_segundos": 0,
@@ -760,8 +761,8 @@ async def seed_configuracion_progreso(session: AsyncSession):
         configs.append({
             "seccion": 2 * 100 + l,
             "operacion": OperacionEnum.MULTIPLICACION,
-            "cantidad_requerida": 15,
-            "porcentaje_aprobacion": 80,
+            "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+            "porcentaje_aprobacion": 100,
             "orden_desbloqueo": l,
             "usa_cronometro": False,
             "tiempo_default_segundos": 0,
@@ -773,8 +774,8 @@ async def seed_configuracion_progreso(session: AsyncSession):
         configs.append({
             "seccion": 3 * 100 + l,
             "operacion": OperacionEnum.MIXTA,
-            "cantidad_requerida": 15,
-            "porcentaje_aprobacion": 80,
+            "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+            "porcentaje_aprobacion": 100,
             "orden_desbloqueo": l,
             "usa_cronometro": False,
             "tiempo_default_segundos": 0,
@@ -786,8 +787,8 @@ async def seed_configuracion_progreso(session: AsyncSession):
         configs.append({
             "seccion": 4 * 100 + l,
             "operacion": OperacionEnum.MIXTA,
-            "cantidad_requerida": 15,
-            "porcentaje_aprobacion": 80,
+            "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+            "porcentaje_aprobacion": 100,
             "orden_desbloqueo": l,
             "usa_cronometro": False,
             "tiempo_default_segundos": 0,

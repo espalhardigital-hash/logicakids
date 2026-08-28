@@ -154,10 +154,13 @@ app.include_router(fase7_router)
 # (fase_id=9) INALCANZABLES. Se desregistran ambos para que /fase9 resuelva a
 # fase11_router (Simulados). Ningún componente vivo del frontend llama a estos
 # dos routers (el componente fase9 muerto llamaba a /fase8, no a /fase9).
-# app.include_router(fase8_router)   # huérfano: /fase8 -> fase_id 7 (duplicado de Fase 7)
-# app.include_router(fase9_router)   # huérfano y hacía shadowing de Simulados en /fase9
+# El router de `fase9` conserva su ubicación histórica, pero sirve la Fase 8
+# real (lógica, combinatoria y probabilidad) y publica exclusivamente /fase8.
+app.include_router(fase9_router)
 app.include_router(fase10_router)
-app.include_router(fase11_router)
+# El motor heredado `fase11_router` no pertenece al flujo operativo de la
+# Fase 9 y conserva lógica de preguntas espejo. Los simulacros activos se
+# atienden exclusivamente desde `simulados_router`.
 app.include_router(simulados_router)
 
 # ============================================================

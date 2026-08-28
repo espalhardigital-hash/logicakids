@@ -22,8 +22,8 @@ def test_no_identity_formula_templates():
         assert p["formula"].strip() not in identidades, f"Plantilla {p['id']} usa fórmula identidad: {p['formula']}"
 
 
-def test_at_least_12_templates_per_level():
-    """Cada nivel combina seis familias base y seis de transferencia."""
+def test_at_least_13_templates_per_level():
+    """Cada nivel incluye una familia visual de referencia además del banco previo."""
     data_dir = os.path.join(os.path.dirname(__file__), "..", "app", "fase5", "data")
     with open(os.path.join(data_dir, "plantillas_fase5.json"), "r", encoding="utf-8") as f:
         plantillas = json.load(f)
@@ -32,7 +32,7 @@ def test_at_least_12_templates_per_level():
     for m in (1, 2, 3, 4):
         for n in (1, 2, 3):
             pl_nivel = [p for p in comp.plantillas if p["modulo_id"] == m and p["nivel_id"] == n]
-            assert len(pl_nivel) >= 12, f"Módulo {m} Nivel {n} tiene solo {len(pl_nivel)} plantillas (se exigen ≥ 12)"
+            assert len(pl_nivel) >= 13, f"Módulo {m} Nivel {n} tiene solo {len(pl_nivel)} plantillas (se exigen ≥ 13)"
 
 
 def test_variedad_enunciados_por_bloque():
@@ -41,7 +41,7 @@ def test_variedad_enunciados_por_bloque():
     for m in (1, 2, 3, 4):
         for n in (1, 2, 3):
             stems = set()
-            for fam in range(12):
+            for fam in range(comp.family_count(m, n)):
                 for var in range(5):
                     seed_val = m * 10000 + n * 1000 + fam * 5 + var
                     data = comp.componer_pregunta_practica(m, n, fam, var, seed_val)

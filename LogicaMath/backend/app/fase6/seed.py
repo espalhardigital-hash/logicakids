@@ -34,9 +34,12 @@ from app.models.sql_models import (
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 from app.fase6.theory_data import FASE6_TEORIA_DATA
+from app.core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 from app.utils.svg_figuras import (
-    fig_rectangulo, fig_cuadrado, fig_L, fig_T,
-    fig_poligono_regular, fig_triangulo,
+    fig_rectangulo, fig_cuadrado, fig_L, fig_T, fig_malla,
+    fig_poligono_regular, fig_triangulo, fig_circulo, fig_paralelogramo,
+    fig_rombo, fig_trapecio, fig_compuesta_suma, fig_compuesta_hueco,
+    fig_inscrita,
     color_modulo
 )
 
@@ -181,23 +184,31 @@ def _gen_practice_question(
     # M1 N2 (102): Clasificación polígonos/cuadriláteros
     elif mod_id == 1 and lvl_id == 2:
         opciones_clasif = [
-            ("Regular", "Irregular", "Triángulo", "Trapecio"),
-            ("Paralelogramo", "Trapecio", "Trapezoide", "Pentágono"),
-            ("Irregular", "Regular", "Octágono", "Hexágono")
+            ("Regular", ["Irregular", "Triángulo", "Trapecio"]),
+            ("Paralelogramo", ["Trapecio", "Trapezoide", "Pentágono"]),
+            ("Irregular", ["Regular", "Octágono", "Hexágono"]),
         ]
-        cat_idx = fam_idx % 3
-        ans_str = opciones_clasif[cat_idx][0]
+        cat_idx = fam_idx % len(opciones_clasif)
+        ans_str, falsas_clasif = opciones_clasif[cat_idx]
         tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
         op_enum = OperacionEnum.SUMA
         w_rect = 6 + (fam_idx % 4) + var_idx
         h_rect = 3 + (var_idx % 2)
-        svg_code = fig_rectangulo(w_rect, h_rect, unit="cm", color=accent)
-        enunciado = f"{personaje} analiza las medidas del cuadrilátero #{q_global_num} (lados de {w_rect} cm y {h_rect} cm). ¿Cómo se clasifica según sus lados?<br/>{svg_code}"
+        if cat_idx == 0:
+            svg_code = fig_cuadrado(w_rect, unit="cm", color=accent)
+            descripcion_figura = f"un cuadrado de lado {w_rect} cm"
+        elif cat_idx == 1:
+            svg_code = fig_paralelogramo(w_rect, h_rect, unit="cm", color=accent)
+            descripcion_figura = f"un paralelogramo de base {w_rect} cm y altura {h_rect} cm"
+        else:
+            svg_code = fig_trapecio(w_rect + 3, w_rect - 1, h_rect, unit="cm", color=accent)
+            descripcion_figura = "un cuadrilátero con un solo par de lados paralelos"
+        enunciado = f"{personaje} observa {descripcion_figura}. ¿Cómo se clasifica según sus propiedades?<br/>{svg_code}"
         datos_num = {"lados_distintos": True, "tipo": ans_str}
         
         alts = [{"texto": ans_str, "es_correcta": True, "tipo_error": None, "feedback_error": ""}]
         err_dict = {}
-        for f_txt in opciones_clasif[cat_idx][1:]:
+        for f_txt in falsas_clasif:
             alts.append({
                 "texto": f_txt,
                 "es_correcta": False,
@@ -212,8 +223,8 @@ def _gen_practice_question(
         fig_ejes = [
             ("cuadrado", 4, fig_cuadrado(4, unit="cm", color=accent)),
             ("rectángulo", 2, fig_rectangulo(6, 3, unit="cm", color=accent)),
-            ("triángulo equilátero", 3, fig_cuadrado(3, unit="cm", color=accent)),
-            ("círculo", 999, fig_cuadrado(5, unit="cm", color=accent)) # 999 representa infinitos
+            ("triángulo equilátero", 3, fig_poligono_regular(3, color=accent)),
+            ("círculo", 999, fig_circulo(radio=5, unit="cm", color=accent, mostrar="radio")) # 999 representa infinitos
         ]
         f_nombre, n_ejes, svg_code = fig_ejes[fam_idx % len(fig_ejes)]
         if n_ejes == 999:
@@ -259,12 +270,14 @@ def _gen_practice_question(
     elif mod_id == 2 and lvl_id == 1:
         w1, h1 = 4 + (fam_idx % 5) + var_idx, 4 + ((fam_idx + var_idx) % 4)
         w2, h2 = 2 + (var_idx % 2), 2 + ((fam_idx + var_idx) % 2)
-        perim = 2 * (w1 + h1)
+        # La figura L incluye la extensión horizontal `w2`: su borde exterior
+        # es 2 × (w1 + w2 + h1), no el perímetro del rectángulo principal.
+        perim = 2 * (w1 + w2 + h1)
         ans_str = str(perim)
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.SUMA
         svg_code = fig_L(w1, h1, w2, h2, unit="cm", color=accent)
-        enunciado = f"{personaje} calcula el perímetro exterior de la figura en L #{q_global_num} (ancho total {w1} cm, alto total {h1} cm).<br/>{svg_code}"
+        enunciado = f"{personaje} calcula el perímetro exterior de la figura en L #{q_global_num}: el tramo horizontal principal mide {w1} cm, la extensión mide {w2} cm y el alto total mide {h1} cm. No cuentes líneas internas.<br/>{svg_code}"
         datos_num = {"w1": w1, "h1": h1, "w2": w2, "h2": h2, "perimetro": perim}
         alts = []
         err_dict = {str(perim + w2): "No sumes las líneas divisorias internas; solo el contorno exterior."}
@@ -277,7 +290,7 @@ def _gen_practice_question(
         ans_str = str(oculto)
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.RESTA
-        svg_code = fig_L(w_total, 10, w_parcial, 5, unit="m", color=accent)
+        svg_code = fig_L(oculto, 10, w_parcial, 5, unit="m", color=accent, ocultar_lado=0)
         enunciado = f"{personaje} observa que el ancho total de la figura #{q_global_num} es {w_total} m y un tramo mide {w_parcial} m. ¿Cuánto mide el lado horizontal oculto '?'?<br/>{svg_code}"
         datos_num = {"w_total": w_total, "w_parcial": w_parcial, "oculto": oculto}
         alts = []
@@ -291,7 +304,7 @@ def _gen_practice_question(
         ans_str = circ_str
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.MULTIPLICACION
-        svg_code = fig_cuadrado(r, unit="cm", color=accent)
+        svg_code = fig_circulo(radio=r, unit="cm", color=accent, mostrar="radio")
         enunciado = f"{personaje} calcula la circunferencia (perímetro) del círculo #{q_global_num} de radio {r} cm usando π = 3,14.<br/>{svg_code}"
         datos_num = {"radio": r, "pi": 3.14, "circunferencia": circ}
         alts = []
@@ -307,7 +320,12 @@ def _gen_practice_question(
         ans_str = str(area)
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.SUMA
-        svg_code = fig_cuadrado(enteros, unit="cm²", color=accent)
+        slots = enteros + mitades
+        cols = 5
+        rows = (slots + cols - 1) // cols
+        celdas = [(index % cols, index // cols) for index in range(enteros)]
+        medias = [((enteros + index) % cols, (enteros + index) // cols, "BL" if index % 2 == 0 else "TR") for index in range(mitades)]
+        svg_code = fig_malla(celdas, medias, cols=cols, rows=rows, unit="cm", color=accent)
         enunciado = f"{personaje} cuenta el área en cm² de la figura #{q_global_num} en la malla ({enteros} cuadrados enteros y {mitades} medios cuadrados).<br/>{svg_code}"
         datos_num = {"enteros": enteros, "mitades": mitades, "area": area}
         alts = []
@@ -340,7 +358,7 @@ def _gen_practice_question(
         ans_str = area_str
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.MIXTA
-        svg_code = fig_cuadrado(b, unit="cm", color=accent)
+        svg_code = fig_triangulo(b, h, unit="cm", color=accent)
         enunciado = f"{personaje} calcula el área del triángulo #{q_global_num} de base {b} cm y altura perpendicular {h} cm.<br/>{svg_code}"
         datos_num = {"base": b, "altura": h, "area": area}
         alts = []
@@ -356,19 +374,19 @@ def _gen_practice_question(
             area = b * h
             fig_name = "paralelogramo"
             enunciado_txt = f"calcula el área del paralelogramo de base {b} cm y altura perpendicular {h} cm"
-            svg_code = fig_rectangulo(b, h, unit="cm", color=accent)
+            svg_code = fig_paralelogramo(b, h, unit="cm", color=accent)
         elif fig_type == 1: # Rombo
             D, d = 6 + (fam_idx % 4) * 2, 4 + (var_idx % 2) * 2
             area = (D * d) // 2
             fig_name = "rombo"
             enunciado_txt = f"calcula el área del rombo de diagonal mayor {D} cm y diagonal menor {d} cm"
-            svg_code = fig_cuadrado(D, unit="cm", color=accent)
+            svg_code = fig_rombo(D, d, unit="cm", color=accent)
         else: # Trapecio
             B, b_menor, h = 10 + var_idx, 6, 3 + (fam_idx % 4)
             area = ((B + b_menor) * h) // 2
             fig_name = "trapecio"
             enunciado_txt = f"calcula el área del trapecio de base mayor {B} cm, base menor {b_menor} cm y altura {h} cm"
-            svg_code = fig_rectangulo(B, h, unit="cm", color=accent)
+            svg_code = fig_trapecio(B, b_menor, h, unit="cm", color=accent)
             
         ans_str = str(area)
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
@@ -386,7 +404,7 @@ def _gen_practice_question(
         ans_str = area_str
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.MULTIPLICACION
-        svg_code = fig_cuadrado(r, unit="cm", color=accent)
+        svg_code = fig_circulo(radio=r, unit="cm", color=accent, mostrar="radio")
         enunciado = f"{personaje} calcula el área del círculo #{q_global_num} de radio {r} cm usando π = 3,14.<br/>{svg_code}"
         datos_num = {"radio": r, "pi": 3.14, "area": area}
         alts = []
@@ -402,7 +420,7 @@ def _gen_practice_question(
         ans_str = str(area)
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.SUMA
-        svg_code = fig_L(w1, h1, w2, h2, unit="cm", color=accent)
+        svg_code = fig_compuesta_suma((w1, h1), (w2, h2), unit="cm", color=accent)
         enunciado = f"{personaje} calcula el área total de la figura compuesta #{q_global_num} descomponiéndola en dos rectángulos ({w1}×{h1} cm y {w2}×{h2} cm).<br/>{svg_code}"
         datos_num = {"w1": w1, "h1": h1, "w2": w2, "h2": h2, "area": area}
         alts = []
@@ -416,7 +434,7 @@ def _gen_practice_question(
         ans_str = str(area)
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.RESTA
-        svg_code = fig_rectangulo(w_ext, h_ext, unit="cm", color=accent)
+        svg_code = fig_compuesta_hueco((w_ext, h_ext), (w_int, h_int), unit="cm", color=accent)
         enunciado = f"{personaje} observa un marco de fotos rectangular #{q_global_num} de {w_ext}×{h_ext} cm con un hueco interior de {w_int}×{h_int} cm. ¿Cuál es el área sombreada del marco?<br/>{svg_code}"
         datos_num = {"w_ext": w_ext, "h_ext": h_ext, "w_int": w_int, "h_int": h_int, "area": area}
         alts = []
@@ -433,7 +451,7 @@ def _gen_practice_question(
         ans_str = area_str
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.RESTA
-        svg_code = fig_cuadrado(lado, unit="cm", color=accent)
+        svg_code = fig_inscrita("circulo_en_cuadrado", "circulo", {"lado": lado, "radio": r}, unit="cm", color=accent)
         enunciado = f"{personaje} observa un cuadrado #{q_global_num} de {lado} cm de lado donde se inscribe un círculo de radio {r} cm (π = 3,14). ¿Cuál es el área de las esquinas sombreadas exteriores?<br/>{svg_code}"
         datos_num = {"lado": lado, "radio": r, "area_sombreada": area_esquinas}
         alts = []
@@ -640,7 +658,7 @@ async def seed_fase6_full() -> None:
                 fase_id=6,
                 seccion=seccion_code,
                 operacion=OperacionEnum.MIXTA,
-                cantidad_requerida=15,
+                cantidad_requerida=PRACTICE_REQUIRED_CORRECT_ANSWERS,
                 porcentaje_aprobacion=100,
                 orden_desbloqueo=lvl_id,
                 tipo_feedback="feedback_bloqueado",
@@ -699,7 +717,7 @@ async def seed_fase6_full() -> None:
             fase_id=6,
             seccion=0,
             operacion=OperacionEnum.MIXTA,
-            cantidad_requerida=15,
+            cantidad_requerida=PRACTICE_REQUIRED_CORRECT_ANSWERS,
             porcentaje_aprobacion=100,
             orden_desbloqueo=0,
             tipo_feedback="feedback_bloqueado",

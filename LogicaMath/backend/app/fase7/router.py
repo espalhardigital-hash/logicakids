@@ -67,6 +67,10 @@ from ..models.sql_models import (
 )
 
 from ..utils.math_utils import normalize_response, calcular_max_errores
+from ..core.progression import (
+    PRACTICE_REQUIRED_CORRECT_ANSWERS,
+    calculate_progress_percentage,
+)
 
 from ..fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
 
@@ -254,9 +258,9 @@ async def _get_global_config(db: AsyncSession) -> dict:
 
             "practica_libre": {
 
-                "cantidad_requerida": 15,
+                "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
 
-                "porcentaje_aprobacion": 80,
+                "porcentaje_aprobacion": 100,
 
                 "usa_cronometro": False,
 
@@ -602,7 +606,7 @@ async def get_fase6_dashboard(
 
                 aciertos = 0
 
-                requeridos = pl_cfg.get("cantidad_requerida", 15)
+                requeridos = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
             elif progreso is None:
 
@@ -1557,7 +1561,7 @@ async def get_pregunta_fase6(
 
                 tiempo_lim = pl_cfg.get("tiempo_default_segundos", 15)
 
-                cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+                cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
 
 
@@ -2287,39 +2291,19 @@ async def responder_fase7(
 
         pl_cfg = global_cfg.get("practica_libre", {})
 
-        cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+        cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
-        porc_aprobacion = pl_cfg.get("porcentaje_aprobacion", 80)
+        porc_aprobacion = pl_cfg.get("porcentaje_aprobacion", 100)
 
 
 
-    # NUEVO C├üLCULO DE PROGRESO POR COMPLETITUD (Familias ├║nicas resueltas con ├®xito o bypass)
+    progreso.porcentaje_actual = calculate_progress_percentage(
 
-    res_fam_resueltas = await db.execute(
+        progreso.aciertos_acumulados,
 
-        select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-
-        .join(Intento, Intento.pregunta_id == Pregunta.id)
-
-        .where(and_(
-
-            Intento.alumno_id == alumno.id,
-
-            Intento.fase_id == FASE7_ID,
-
-            Intento.seccion == seccion,
-
-            Intento.es_correcta == True  # E6/DA1 Progreso P1: solo acierto real
-
-        ))
+        cantidad_req,
 
     )
-
-    familias_resueltas = res_fam_resueltas.scalar() or 0
-
-    
-
-    progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
 
 
@@ -2493,37 +2477,17 @@ async def _legacy_cerrar_rescate_eliminado(
 
         pl_cfg = global_cfg.get("practica_libre", {})
 
-        cantidad_req = pl_cfg.get("cantidad_requerida", 15)
+        cantidad_req = pl_cfg.get("cantidad_requerida", PRACTICE_REQUIRED_CORRECT_ANSWERS)
 
 
 
-    # Calcular progreso por completitud (familias resueltas con ├®xito o bypass)
+    progreso.porcentaje_actual = calculate_progress_percentage(
 
-    res_fam_resueltas = await db.execute(
+        progreso.aciertos_acumulados,
 
-        select(func.count(func.distinct(Pregunta.estructura_padre_id)))
-
-        .join(Intento, Intento.pregunta_id == Pregunta.id)
-
-        .where(and_(
-
-            Intento.alumno_id == alumno.id,
-
-            Intento.fase_id == FASE7_ID,
-
-            Intento.seccion == seccion,
-
-            Intento.es_correcta == True  # E6/DA1 Progreso P1: solo acierto real
-
-        ))
+        cantidad_req,
 
     )
-
-    familias_resueltas = res_fam_resueltas.scalar() or 0
-
-    
-
-    progreso.porcentaje_actual = min(100, int((familias_resueltas / cantidad_req) * 100)) if cantidad_req > 0 else 0
 
 
 

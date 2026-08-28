@@ -25,6 +25,7 @@ from app.models.sql_models import (
 )
 from app.fase2.models import NivelTeoria
 from app.fase3.theory_examples import obtener_ejemplos_expandidos_fase3
+from app.core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 
 # ID de la Fase 3 en la base de datos
 FASE3_ID = 3
@@ -751,8 +752,8 @@ async def seed_configuracion_progreso(session: AsyncSession):
             configs.append({
                 "seccion": mod_id * 100 + l,
                 "operacion": "mixta",
-                "cantidad_requerida": 15,
-                "porcentaje_aprobacion": 80,
+                "cantidad_requerida": PRACTICE_REQUIRED_CORRECT_ANSWERS,
+                "porcentaje_aprobacion": 100,
                 "orden_desbloqueo": l,
                 "usa_cronometro": False,
                 "tiempo_default_segundos": 0,

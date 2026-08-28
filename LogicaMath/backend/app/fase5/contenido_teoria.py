@@ -28,12 +28,15 @@ TEORIA_FASE5 = {
         "parrafos": [
             "Dos fracciones son equivalentes si representan la misma cantidad, aunque se escriban con números distintos.",
             "Para hallar una equivalente, multiplica (amplificar) o divide (simplificar) el numerador y el denominador por el mismo número.",
+            "Si falta un término, compara primero los dos numeradores o los dos denominadores conocidos para descubrir el factor. Después aplica el mismo factor al término que falta.",
+            "Para comprobar una propuesta, verifica ambos pares de términos: si no cambian con el mismo factor, las fracciones no son equivalentes.",
             "Ejemplo: 1/2 = 2/4 = 3/6, porque todas valen la mitad del entero.",
         ],
         "diccionario": {
             "Equivalente": "Fracciones que valen lo mismo aunque tengan otros números.",
             "Amplificar": "Multiplicar numerador y denominador por el mismo número.",
             "Simplificar": "Dividir numerador y denominador por el mismo número.",
+            "Factor común": "El número por el que cambian ambos términos para conservar el valor de la fracción.",
         },
         "sabias": "1/2 y 50/100 son exactamente la misma cantidad.",
     },

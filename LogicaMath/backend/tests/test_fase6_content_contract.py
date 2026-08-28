@@ -48,3 +48,29 @@ def test_challenge_questions_always_ship_their_required_figure(modulo, desafio, 
     assert data["plantilla_id"]
     assert data["requiere_figura"] is True
     assert data["tipo_visual"] == "inline_svg"
+
+
+def test_geometry_templates_use_a_figure_that_matches_the_statement():
+    """Evita volver a dibujar rectángulos para conceptos geométricos distintos."""
+    samples = (
+        (2, 1, 201, 0, 0, "figura en l", ("tramo horizontal principal", "extensión")),
+        (2, 3, 203, 0, 0, "círculo", ("<circle",)),
+        (3, 1, 301, 0, 0, "malla", ("<rect", "<polygon")),
+        (3, 3, 303, 0, 0, "triángulo", ("<polygon",)),
+        (3, 5, 305, 0, 0, "círculo", ("<circle",)),
+        (4, 2, 402, 0, 0, "marco de fotos", ("<rect",)),
+    )
+    for modulo, nivel, seccion, family, variant, phrase, svg_markers in samples:
+        question, _ = _gen_practice_question(
+            modulo, nivel, seccion, family, variant, _get_confusiones_map(modulo)
+        )
+        content = question["enunciado"].lower()
+        assert phrase in content
+        assert "<svg" in content
+        assert all(marker in content for marker in svg_markers)
+
+
+def test_l_perimeter_includes_the_visible_extension():
+    question, _ = _gen_practice_question(2, 1, 201, 7, 2, _get_confusiones_map(2))
+    data = question["datos_numericos"]
+    assert int(question["respuesta_correcta"]) == 2 * (data["w1"] + data["w2"] + data["h1"])

@@ -11,6 +11,7 @@ from app.models.sql_models import (
     Intento, PoolAsignadoAlumno
 )
 from app.fase2.models import NivelTeoria, IntentoPregunta, IntentoPaso
+from app.core.progression import PRACTICE_REQUIRED_CORRECT_ANSWERS
 
 FASE7_ID = 7
 
@@ -166,7 +167,7 @@ def _generate_svg_clock(hours: int, minutes: int) -> str:
 </svg>"""
     return _svg_to_base64(svg)
 
-def _generate_svg_time_addition(h1: int, m1: int, h2: int, m2: int, total_h: int, total_m: int) -> str:
+def _generate_svg_time_addition(h1: int, m1: int, h2: int, m2: int) -> str:
     """SVG representativo de la suma de dos intervalos de tiempo (Mod 3 Nivel 3)."""
     svg = f"""<svg viewBox="0 0 280 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
   <rect x="5" y="5" width="270" height="130" rx="10" fill="#0f172a" stroke="#0F766E" stroke-width="2"/>
@@ -183,7 +184,7 @@ def _generate_svg_time_addition(h1: int, m1: int, h2: int, m2: int, total_h: int
 
   <line x1="20" y1="95" x2="260" y2="95" stroke="#334155" stroke-width="1"/>
 
-  <text x="140" y="118" font-family="Arial" font-size="12" font-weight="bold" fill="#10b981" text-anchor="middle">Total = {total_h}h {total_m}m</text>
+  <text x="140" y="118" font-family="Arial" font-size="12" font-weight="bold" fill="#cbd5e1" text-anchor="middle">Total = ?</text>
 </svg>"""
     return _svg_to_base64(svg)
 
@@ -212,7 +213,7 @@ def _generate_svg_schedule(line1_name: str, line1_t1: str, line1_t2: str, line2_
 </svg>"""
     return _svg_to_base64(svg)
 
-def _generate_svg_transit_route(trip1: int, wait: int, trip2: int, total: int) -> str:
+def _generate_svg_transit_route(trip1: int, wait: int, trip2: int) -> str:
     """Diagrama de transbordo (Mod 4 Nivel 2)."""
     svg = f"""<svg viewBox="0 0 300 130" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
   <rect x="5" y="5" width="290" height="120" rx="10" fill="#0f172a" stroke="#115E59" stroke-width="2"/>
@@ -234,7 +235,7 @@ def _generate_svg_transit_route(trip1: int, wait: int, trip2: int, total: int) -
   <text x="215" y="69" font-family="Arial" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Bus B</text>
   <text x="215" y="95" font-family="Arial" font-size="10" fill="#94a3b8" text-anchor="middle">{trip2} min</text>
 
-  <text x="150" y="115" font-family="Arial" font-size="11" font-weight="bold" fill="#10b981" text-anchor="middle">Total: {total} min</text>
+  <text x="150" y="115" font-family="Arial" font-size="11" font-weight="bold" fill="#cbd5e1" text-anchor="middle">Tiempo total: ? min</text>
 </svg>"""
     return _svg_to_base64(svg)
 
@@ -248,9 +249,9 @@ def _generate_svg_route_options(tA: int, tB: int, tC: int) -> str:
   <text x="60" y="58" font-family="Arial" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">Ruta A</text>
   <text x="60" y="73" font-family="Arial" font-size="10" fill="#94a3b8" text-anchor="middle">{tA} min</text>
 
-  <rect x="115" y="40" width="70" height="40" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
-  <text x="150" y="58" font-family="Arial" font-size="11" font-weight="bold" fill="#10b981" text-anchor="middle">Ruta B</text>
-  <text x="150" y="73" font-family="Arial" font-size="10" fill="#10b981" text-anchor="middle">{tB} min ⭐</text>
+  <rect x="115" y="40" width="70" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1"/>
+  <text x="150" y="58" font-family="Arial" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">Ruta B</text>
+  <text x="150" y="73" font-family="Arial" font-size="10" fill="#94a3b8" text-anchor="middle">{tB} min</text>
 
   <rect x="205" y="40" width="70" height="40" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="1"/>
   <text x="240" y="58" font-family="Arial" font-size="11" font-weight="bold" fill="#f8fafc" text-anchor="middle">Ruta C</text>
@@ -574,7 +575,7 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
             
             errores_previstos[f"{wrong_hours}h {wrong_mins}m"] = "Sumaste minutos directo, pero cada 60m se convierten en 1 hora."
             
-            svg_data = _generate_svg_time_addition(hours1, mins1, hours2, mins2, total_hours, rem_mins)
+            svg_data = _generate_svg_time_addition(hours1, mins1, hours2, mins2)
             
             return {
                 "enunciado": enunciado,
@@ -646,7 +647,7 @@ async def _gen_fase7_pool(rng: random.Random, mod_id: int, lvl_id: int) -> dict:
 
             errores_previstos[str(trip1 + trip2)] = "No sumaste el tiempo muerto de espera en la parada."
             
-            svg_data = _generate_svg_transit_route(trip1, wait, trip2, total)
+            svg_data = _generate_svg_transit_route(trip1, wait, trip2)
             
             return {
                 "enunciado": enunciado,
@@ -695,7 +696,7 @@ async def seed_configuracion_progreso_fase7(session: AsyncSession):
                 tiempo = 60
         else:
             seccion_id = mod_id * 100 + lvl_id
-            num_questions = 15
+            num_questions = PRACTICE_REQUIRED_CORRECT_ANSWERS
             usa_crono = False
             tiempo = None
             
@@ -704,7 +705,7 @@ async def seed_configuracion_progreso_fase7(session: AsyncSession):
             seccion=seccion_id,
             operacion=OperacionEnum.MIXTA,
             cantidad_requerida=num_questions,
-            porcentaje_aprobacion=90,
+            porcentaje_aprobacion=90 if lvl_id > 10 else 100,
             orden_desbloqueo=lvl_id,
             usa_cronometro=usa_crono,
             tiempo_default_segundos=tiempo

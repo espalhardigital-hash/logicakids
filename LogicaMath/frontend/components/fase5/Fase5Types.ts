@@ -24,7 +24,7 @@ export interface Fase5Pregunta {
   tiene_cronometro: boolean;
   tiempo_limite_segundos?: number;
   datos_numericos?: {
-    tipo_visual?: 'pizza' | 'thermometer' | 'pie' | 'percentage_thermometer' | 'beaker' | 'percentage_beaker' | 'non_homogeneous_polygon' | 'shapes' | 'bar_chart' | 'contextual_bar' | 'fraction_percentage' | 'ratio_grid' | 'collection_grid';
+    tipo_visual?: 'pizza' | 'thermometer' | 'pie' | 'percentage_thermometer' | 'beaker' | 'percentage_beaker' | 'non_homogeneous_polygon' | 'shapes' | 'bar_chart' | 'contextual_bar' | 'fraction_percentage' | 'ratio_grid' | 'collection_grid' | 'fraction_strip' | 'equivalence_strip' | 'group_cards' | 'hundred_grid' | 'data_table' | 'ratio_table';
     cortes?: number;
     sombreados?: number[];
     nivel?: number;

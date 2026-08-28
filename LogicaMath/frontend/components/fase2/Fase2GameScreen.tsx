@@ -8,6 +8,7 @@
  */
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { PRACTICE_REQUIRED_CORRECT_ANSWERS } from '../common/progression';
 import './Fase2Styles.css';
 import { getFase2Question, submitFase2Answer, getFase2Reading, closeFase2Rescate, graduateFase2 } from './Fase2Service';
 import { Fase2TheoryModal } from './Fase2TheoryModal';
@@ -701,7 +702,7 @@ const Fase2GameScreen: React.FC<Props> = ({ moduloId, nivelId, isEvaluatorMode, 
   const moduleName  = useMemo(() => MODULE_NAMES[moduloId] ?? `Módulo ${moduloId}`, [moduloId]);
   const moduleColor = useMemo(() => MODULE_COLORS[moduloId] ?? '#10B981', [moduloId]);
   // maxAciertos is dynamic — set by Admin via ConfiguracionProgreso, updated from API response
-  const [maxAciertos, setMaxAciertos] = useState<number>(moduloId === 99 ? 20 : (nivelId >= 11 && nivelId <= 13 ? (nivelId === 13 ? 10 : 25) : 15));
+  const [maxAciertos, setMaxAciertos] = useState<number>(moduloId === 99 ? 20 : (nivelId >= 11 && nivelId <= 13 ? (nivelId === 13 ? 10 : 25) : PRACTICE_REQUIRED_CORRECT_ANSWERS));
   const barWidth    = useMemo(() => Math.min(100, (progreso.aciertos / maxAciertos) * 100), [progreso.aciertos, maxAciertos]);
 
   const maxErroresPermitidos = useMemo(() => {

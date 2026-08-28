@@ -143,7 +143,7 @@ export const WelcomeScreenPhase5: React.FC<Props> = ({
 
   if (loading) {
     return (
-      <div className="f5-screen-wrapper">
+      <div className="f5-welcome-screen">
         <div className="f5-loading-spinner-wrap">
           <div className="f5-spinner-element" />
           <span>Cargando Fase 5…</span>
@@ -154,7 +154,7 @@ export const WelcomeScreenPhase5: React.FC<Props> = ({
 
   if (!dashboard) {
     return (
-      <div className="f5-screen-wrapper">
+      <div className="f5-welcome-screen">
         <div style={{ textAlign: 'center', padding: '40px 20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', maxWidth: '400px', margin: 'auto' }}>
           <p className="text-red-400 font-bold mb-4">{error || 'No se pudo cargar el mapa de misiones.'}</p>
           <button
@@ -172,7 +172,7 @@ export const WelcomeScreenPhase5: React.FC<Props> = ({
   const nombre = dashboard.alumno_nombre || studentName;
 
   return (
-    <div className="f5-screen-wrapper">
+    <div className="f5-welcome-screen">
       {/* ── Header Premium ── */}
       <header className="f5-dashboard-header">
         <div className="f5-header-left-wrap">
