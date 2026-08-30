@@ -213,43 +213,43 @@
     "modulo_id": 4,
     "magnitud": "razon_mezclas",
     "sub_magnitud": "volumen",
-    "objeto": "mezcla de pintura",
+    "objeto": "témpera para pintar",
     "sujeto": "combinó",
-    "unidad": "litro",
+    "unidad": "bote",
     "articulo": "la",
-    "contenedor": "balde"
+    "contenedor": "paleta"
   },
   {
     "id": "esc_rm_aleacion",
     "modulo_id": 4,
     "magnitud": "razon_mezclas",
     "sub_magnitud": "volumen",
-    "objeto": "aleación metálica",
-    "sujeto": "fundió",
+    "objeto": "plastilina de modelar",
+    "sujeto": "amasó",
     "unidad": "gramo",
     "articulo": "la",
-    "contenedor": "molde"
+    "contenedor": "mesa"
   },
   {
     "id": "esc_rm_jugo",
     "modulo_id": 4,
     "magnitud": "razon_mezclas",
     "sub_magnitud": "volumen",
-    "objeto": "jugo de frutas",
-    "sujeto": "mezcló",
+    "objeto": "batido de frutas",
+    "sujeto": "licuó",
     "unidad": "vaso",
     "articulo": "el",
-    "contenedor": "licuadora"
+    "contenedor": "jarra"
   },
   {
     "id": "esc_rm_jarabe",
     "modulo_id": 4,
     "magnitud": "razon_mezclas",
     "sub_magnitud": "volumen",
-    "objeto": "medicina",
-    "sujeto": "disolvió",
+    "objeto": "jarabe frutal",
+    "sujeto": "mezcló",
     "unidad": "ml",
-    "articulo": "la",
+    "articulo": "el",
     "contenedor": "frasco"
   },
   {
@@ -257,10 +257,10 @@
     "modulo_id": 4,
     "magnitud": "razon_mezclas",
     "sub_magnitud": "volumen",
-    "objeto": "mezcla de concreto",
-    "sujeto": "preparó",
-    "unidad": "kg",
+    "objeto": "masa de galletas",
+    "sujeto": "horneó",
+    "unidad": "taza",
     "articulo": "la",
-    "contenedor": "carretilla"
+    "contenedor": "bandeja"
   }
 ]

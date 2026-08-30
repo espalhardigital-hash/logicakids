@@ -32,13 +32,6 @@ def _practice_scope(model):
 async def normalize_practice_progress_goal() -> dict:
     """Apply the practice goal without modifying questions, attempts, or challenges."""
     async with AsyncSessionLocal() as session:
-        legacy_state_result = await session.execute(
-            text(
-                "UPDATE progreso_maestria "
-                "SET estado = 'APROBADO' "
-                "WHERE lower(estado) = 'aprobado' AND estado <> 'APROBADO'"
-            )
-        )
         config_before = await session.scalar(
             select(func.count(ConfiguracionProgreso.id)).where(
                 _practice_scope(ConfiguracionProgreso),
@@ -80,7 +73,7 @@ async def normalize_practice_progress_goal() -> dict:
                 estado=case(
                     (
                         ProgresoMaestria.aciertos_acumulados >= goal,
-                        EstadoProgresoEnum.APROBADO,
+                        "APROBADO",
                     ),
                     else_=ProgresoMaestria.estado,
                 ),
@@ -94,6 +87,18 @@ async def normalize_practice_progress_goal() -> dict:
                     ),
                     else_=ProgresoMaestria.fecha_aprobacion,
                 ),
+            )
+        )
+
+        # Older data used enum *values* (``aprobado``), while the current
+        # SQLAlchemy Enum persists and reads member *names* (``APROBADO``).
+        # Run this after the bulk CASE update so no expression can reintroduce
+        # the incompatible lower-case representation.
+        legacy_state_result = await session.execute(
+            text(
+                "UPDATE progreso_maestria "
+                "SET estado = 'APROBADO' "
+                "WHERE lower(estado) = 'aprobado' AND estado <> 'APROBADO'"
             )
         )
 

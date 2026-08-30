@@ -880,8 +880,8 @@
     ],
     "formula": "b*c",
     "marcos_alternativos": [
-      "Una receta de {objeto} requiere {a} partes de base por {b} partes de mezcla. Si preparamos {c} lotes (usando {a_times_c} partes de base), ¿cuántas partes de mezcla se necesitan?",
-      "Para preparar {objeto}, por cada {a} porciones principales se añaden {b} porciones secundarias. Al multiplicar por {c} (total base {a_times_c}), ¿cuántas porciones secundarias corresponden?"
+      "Para preparar {objeto}, se usan {a} {unidad}s del ingrediente A por cada {b} del ingrediente B. Si preparamos {c} tandas iguales (usando {a_times_c} {unidad}s de A), ¿cuántos {unidad}s de B se necesitan?",
+      "En una receta de {objeto} con razón {a}:{b}, preparamos {c} tandas usando {a_times_c} {unidad}s del primer ingrediente. ¿Cuántos {unidad}s del segundo ingrediente corresponden?"
     ]
   },
   {
@@ -898,8 +898,8 @@
     ],
     "formula": "a*c",
     "marcos_alternativos": [
-      "En la receta {a}:{b} para {objeto}, si escalamos por un factor de {c} (para obtener {b_times_c} partes secundarias), ¿cuántas partes de la base {a} se necesitan?",
-      "En {articulo} {objeto}, si multiplicamos por {c} la mezcla de {a} partes de base por {b} partes secundarias, ¿cuántas partes de la base se usan?"
+      "En una receta de {objeto} con razón {a}:{b}, preparamos {c} tandas usando {b_times_c} {unidad}s del segundo ingrediente. ¿Cuántos {unidad}s del primer ingrediente se usaron?",
+      "Para {articulo} {objeto} en proporción {a}:{b}, si al multiplicar la receta por {c} se obtienen {b_times_c} {unidad}s del segundo ingrediente, ¿cuántos {unidad}s del primero se necesitan?"
     ]
   },
   {
@@ -916,8 +916,8 @@
     ],
     "formula": "(a*c)+(b*c)",
     "marcos_alternativos": [
-      "Si preparamos {c} lotes de {objeto} con {a_times_c} partes de base y {b_times_c} partes secundarias, ¿cuántas partes totales suma la mezcla?",
-      "En {articulo} {objeto}, suma las partes de base ({a_times_c}) y las partes secundarias ({b_times_c}) producidas al escalar por {c}."
+      "Si preparamos {c} tandas de {objeto} juntando {a_times_c} {unidad}s del primer ingrediente y {b_times_c} del segundo, ¿cuántos {unidad}s en total tiene la mezcla?",
+      "Para {articulo} {objeto} en {c} tandas, suma los {a_times_c} {unidad}s del primer ingrediente y los {b_times_c} {unidad}s del segundo ingrediente."
     ]
   },
   {
@@ -934,8 +934,8 @@
     ],
     "formula": "(b*c)-(a*c)",
     "marcos_alternativos": [
-      "En {c} lotes de {objeto} (con {a_times_c} partes base y {b_times_c} secundarias), ¿por cuántas partes superan las secundarias a la base?",
-      "En {articulo} {objeto}, resta las partes de base ({a_times_c}) de las partes secundarias ({b_times_c}) al escalar por {c}."
+      "Al preparar {c} tandas de {objeto} con {a_times_c} {unidad}s del primer ingrediente y {b_times_c} del segundo, ¿por cuántos {unidad}s supera el segundo ingrediente al primero?",
+      "Para {articulo} {objeto} en {c} tandas, resta los {a_times_c} {unidad}s del primer ingrediente a los {b_times_c} {unidad}s del segundo ingrediente."
     ]
   },
   {
@@ -952,8 +952,8 @@
     ],
     "formula": "(b*c)*2",
     "marcos_alternativos": [
-      "En {articulo} {objeto}, si en {c} lotes se usan {b_times_c} partes secundarias, ¿cuántas partes secundarias requerirían el doble de lotes?",
-      "En {articulo} {objeto}, calcula 2 veces las {b_times_c} partes secundarias necesarias para {c} lotes."
+      "Para preparar {c} tandas de {objeto} se usan {b_times_c} {unidad}s del segundo ingrediente. ¿Cuántos {unidad}s de ese ingrediente se necesitarán para preparar el doble de tandas?",
+      "En {articulo} {objeto}, si para {c} tandas se usan {b_times_c} {unidad}s del segundo ingrediente, calcula el doble de esa cantidad."
     ]
   },
   {
@@ -970,8 +970,8 @@
     ],
     "formula": "(a*c)*3",
     "marcos_alternativos": [
-      "En {articulo} {objeto}, si para {c} lotes se requieren {a_times_c} partes de base, ¿cuántas partes de base requerirían 3 producciones iguales?",
-      "En {articulo} {objeto}, multiplica por 3 las {a_times_c} partes de base calculadas."
+      "Para preparar {c} tandas de {objeto} se usan {a_times_c} {unidad}s del primer ingrediente. ¿Cuántos {unidad}s de ese ingrediente se necesitarán para 3 pedidos iguales?",
+      "En {articulo} {objeto}, si para {c} tandas se necesitan {a_times_c} {unidad}s del primer ingrediente, calcula el triple de esa cantidad."
     ]
   },
   {
@@ -988,8 +988,8 @@
     ],
     "formula": "(total//(a+b))*a",
     "marcos_alternativos": [
-      "Una mezcla de {objeto} contiene {a} {unidad} de tinte A y {b} {unidad} de tinte B (sumando {n_cant} {unidad} base). Para un contenedor de {total} {unidad}, ¿cuántos {unidad} de tinte A se usan?",
-      "En {articulo} {objeto}, se combinan {a} partes de componente A y {b} partes de componente B en una receta base de {n_cant} partes. En una producción total de {total} partes, ¿cuántas partes corresponden al componente A?"
+      "Una mezcla de {objeto} combina {a} {unidad}s del ingrediente A y {b} {unidad}s del B (sumando {n_cant} {unidad}s base). Para un total de {total} {unidad}s, ¿cuántos {unidad}s del ingrediente A se usan?",
+      "En {articulo} {objeto}, se reparte un total de {total} {unidad}s según la razón {a}:{b} (base {n_cant}). ¿Cuántos {unidad}s corresponden al ingrediente A?"
     ]
   },
   {
@@ -1006,8 +1006,8 @@
     ],
     "formula": "(total//(a+b))*b",
     "marcos_alternativos": [
-      "En {articulo} {objeto} con mezcla {a}:{b} (base {n_cant} {unidad}), para un lote de {total} {unidad}, ¿cuántos {unidad} del componente B se usan?",
-      "En {articulo} {objeto}, para un total de {total} partes en proporción {a} a {b} (base {n_cant}), ¿cuántas partes de componente B se necesitan?"
+      "En {articulo} {objeto} con razón {a}:{b} (base {n_cant} {unidad}s), para un total de {total} {unidad}s, ¿cuántos {unidad}s corresponden al ingrediente B?",
+      "Para preparar un total de {total} {unidad}s de {objeto} en razón {a}:{b} (base {n_cant}), ¿cuántos {unidad}s del ingrediente B se necesitan?"
     ]
   },
   {
@@ -1024,8 +1024,8 @@
     ],
     "formula": "((total//(a+b))*b)-((total//(a+b))*a)",
     "marcos_alternativos": [
-      "En {articulo} {objeto}, un lote de {total} {unidad} con proporción {a}:{b}, ¿en cuánto supera el componente B al A?",
-      "En {articulo} {objeto}, un lote de {total} {unidad} con proporción {a}:{b} entre los componentes A y B, resta la cantidad de A a la cantidad de B."
+      "En {articulo} {objeto}, se preparan {total} {unidad}s en razón {a}:{b}. ¿Por cuántos {unidad}s supera el ingrediente B al ingrediente A?",
+      "En una mezcla de {total} {unidad}s de {objeto} en razón {a}:{b}, calcula la diferencia entre la cantidad del ingrediente B y la del ingrediente A."
     ]
   },
   {
@@ -1042,8 +1042,8 @@
     ],
     "formula": "((total//(a+b))*a)*2",
     "marcos_alternativos": [
-      "En {articulo} {objeto}, un lote de {total} {unidad} con proporción {a}:{b}, si calculamos la cantidad de componente A, ¿cuánto sería el doble de esa cantidad?",
-      "En {articulo} {objeto}, un lote de {total} {unidad} con razón {a}:{b}, multiplica por 2 la cantidad que corresponde al componente A."
+      "En {articulo} {objeto}, se preparan {total} {unidad}s en razón {a}:{b}. Tras calcular la cantidad del ingrediente A, ¿cuánto sería el doble de esa cantidad?",
+      "En una mezcla de {total} {unidad}s de {objeto} con razón {a}:{b}, calcula el doble de la cantidad que corresponde al ingrediente A."
     ]
   },
   {
@@ -1060,8 +1060,8 @@
     ],
     "formula": "((total//(a+b))*a)+5",
     "marcos_alternativos": [
-      "En {articulo} {objeto}, un lote de {total} {unidad} con proporción {a}:{b}, si a las partes del componente A le agregamos 5 partes extra de refuerzo, ¿cuántas partes de A hay ahora?",
-      "En {articulo} {objeto}, un lote de {total} {unidad} con razón {a}:{b}, suma 5 unidades a la cantidad que corresponde al componente A."
+      "En {articulo} {objeto}, se preparan {total} {unidad}s en razón {a}:{b}. Si a la cantidad del ingrediente A le sumamos 5 {unidad}s extra, ¿cuántos {unidad}s de A resultan en total?",
+      "En una mezcla de {total} {unidad}s de {objeto} en razón {a}:{b}, calcula la cantidad del ingrediente A y súmale 5 {unidad}s."
     ]
   },
   {
@@ -1078,8 +1078,8 @@
     ],
     "formula": "((total//(a+b))*a)//2",
     "marcos_alternativos": [
-      "En {articulo} {objeto}, si el lote requiere partes del componente A en proporción {a}:{b} sobre {total} {unidad}, ¿cuántas partes representa la mitad de ese componente?",
-      "En {articulo} {objeto}, un contenedor de {total} {unidad} con proporción {a}:{b}, divide entre 2 la cantidad que corresponde al componente A."
+      "En {articulo} {objeto}, se preparan {total} {unidad}s en razón {a}:{b}. Tras calcular la cantidad del ingrediente A, ¿cuánto es la mitad de esa cantidad?",
+      "En una mezcla de {total} {unidad}s de {objeto} en razón {a}:{b}, divide entre 2 la cantidad que corresponde al ingrediente A."
     ]
   },
   {
@@ -1095,8 +1095,8 @@
     ],
     "formula": "(a*100)//(a+b)",
     "marcos_alternativos": [
-      "{articulo} {objeto} contiene {a} partes de esencia concentrada y {b} partes de diluyente (sumando {total} partes en total). ¿Qué porcentaje representa la esencia concentrada?",
-      "En un frasco de {objeto} con {a} ml de ingrediente activo y {b} ml de agua (volumen total {total} ml), ¿cuál es el porcentaje del ingrediente activo?"
+      "Un preparado de {objeto} combina {a} partes de fruta y {b} partes de leche (total: {total} partes). ¿Qué porcentaje de la mezcla representa la fruta?",
+      "En un frasco de {objeto} con {a} partes del ingrediente principal y {b} partes de agua (total: {total} partes), ¿cuál es el porcentaje del ingrediente principal?"
     ]
   },
   {
@@ -1112,8 +1112,8 @@
     ],
     "formula": "(b*100)//(a+b)",
     "marcos_alternativos": [
-      "En {articulo} {objeto} de {a} partes de esencia y {b} partes de diluyente (total {total} partes), ¿qué porcentaje representa el diluyente?",
-      "Una mezcla contiene {a} ml de activo y {b} ml de agua en {total} ml de {objeto}. ¿Cuál es el porcentaje de agua?"
+      "En un preparado de {objeto} con {a} partes de fruta y {b} partes de leche (total: {total} partes), ¿qué porcentaje representa la leche?",
+      "Una mezcla contiene {a} partes de concentrado y {b} partes de agua en {total} partes de {objeto}. ¿Cuál es el porcentaje de agua?"
     ]
   },
   {
@@ -1129,8 +1129,8 @@
     ],
     "formula": "((b*100)//(a+b))-((a*100)//(a+b))",
     "marcos_alternativos": [
-      "En {articulo} {objeto} de {total} partes (con {a} del componente A y {b} del B), el porcentaje de B es {b_pct}% y el de A es {a_pct}%. ¿Cuál es la diferencia de porcentajes?",
-      "Si el ingrediente A representa el {a_pct}% y el B el {b_pct}% de {articulo} {objeto}, resta el porcentaje de A al de B."
+      "En una mezcla de {objeto} de {total} partes (con {a} del ingrediente A y {b} del B), el porcentaje de B es {b_pct}% y el de A es {a_pct}%. ¿Cuál es la diferencia entre ambos porcentajes?",
+      "Si en {articulo} {objeto} el ingrediente A representa el {a_pct}% y el B el {b_pct}%, resta el porcentaje de A al porcentaje de B."
     ]
   },
   {
@@ -1146,8 +1146,8 @@
     ],
     "formula": "((a*100)//(a+b))*2",
     "marcos_alternativos": [
-      "Si el porcentaje de esencia concentrada en {objeto} es {a_pct}%, ¿cuál sería el doble de ese porcentaje?",
-      "Si el ingrediente activo representa el {a_pct}% de {articulo} {objeto}, multiplica ese porcentaje por 2."
+      "Si el porcentaje del ingrediente principal en {objeto} es {a_pct}%, ¿cuál sería el doble de ese porcentaje?",
+      "Si la fruta representa el {a_pct}% en {articulo} {objeto}, multiplica ese porcentaje por 2."
     ]
   },
   {
@@ -1163,8 +1163,8 @@
     ],
     "formula": "((a*100)//(a+b))//2",
     "marcos_alternativos": [
-      "Si en {articulo} {objeto} el ingrediente concentrado ocupa el {a_pct}%, ¿cuál es la mitad de ese porcentaje?",
-      "Si la esencia concentrada representa el {a_pct}% de {articulo} {objeto}, divide ese porcentaje entre 2."
+      "Si en {articulo} {objeto} el ingrediente principal ocupa el {a_pct}%, ¿cuál es la mitad de ese porcentaje?",
+      "Si la fruta representa el {a_pct}% de {articulo} {objeto}, divide ese porcentaje entre 2."
     ]
   },
   {
@@ -1180,8 +1180,8 @@
     ],
     "formula": "100-((a*100)//(a+b))",
     "marcos_alternativos": [
-      "Si en {articulo} {objeto} el ingrediente A representa el {a_pct}% del volumen total, ¿qué porcentaje de la mezcla NO es ingrediente A?",
-      "Si la esencia concentrada ocupa el {a_pct}% de {articulo} {objeto}, ¿qué porcentaje de la mezcla corresponde al resto?"
+      "Si en {articulo} {objeto} el ingrediente principal representa el {a_pct}%, ¿qué porcentaje le falta para completar el 100% de la mezcla?",
+      "Si el concentrado ocupa el {a_pct}% de {articulo} {objeto}, ¿qué porcentaje de la mezcla corresponde al resto de ingredientes?"
     ]
   }
 ]

@@ -23,7 +23,7 @@ La normalización local se ejecuta de forma idempotente con:
 docker compose -f Datos_localhost/docker-compose.local.yml exec -T backend python -m scripts.normalize_practice_progress_goal
 ```
 
-El proceso preserva estados ya aprobados, limita contadores históricos superiores a 10, aprueba progresos que ya tenían al menos 10 aciertos y no modifica preguntas, intentos ni configuraciones de desafío.
+El proceso preserva estados ya aprobados, limita contadores históricos superiores a 10, aprueba progresos que ya tenían al menos 10 aciertos y normaliza el valor heredado `aprobado` al nombre de enum vigente `APROBADO`. No modifica preguntas, intentos ni configuraciones de desafío.
 
 ## Precedencia documental
 
@@ -34,6 +34,7 @@ Este contrato reemplaza cualquier referencia histórica a 15 o 50 preguntas de p
 - Configuraciones activas normalizadas: **117** filas de práctica en fases 1–8, incluidas las cuatro filas heredadas de fase 1.
 - Configuraciones de práctica inválidas después de la migración: **0**.
 - Progresos con más de 10 aciertos después de la migración: **0**.
-- Pruebas backend transversales: **146 aprobadas**.
+- Estados heredados incompatibles corregidos: **114** registros (`aprobado` → `APROBADO`).
+- Suite backend global: **237 aprobadas**, 1 omitida y 2 xfail esperadas.
 - Pruebas frontend: **61 aprobadas**.
 - Compilación TypeScript y build Vite de producción: **aprobados**.

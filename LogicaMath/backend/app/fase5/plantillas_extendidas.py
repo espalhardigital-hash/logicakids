@@ -86,28 +86,28 @@ _SPECS: dict[tuple[int, int], list[tuple[str, str, str, str]]] = {
         ("promedio_mas_dos", "((a+b+c)//3)+2", "el promedio y dos unidades más", "promedio_transferencia"),
     ],
     (4, 1): [
-        ("doble_componente_a", "(a*c)*2", "el doble de la cantidad del primer componente", "razon_escalada"),
-        ("triple_componente_b", "(b*c)*3", "el triple de la cantidad del segundo componente", "razon_escalada"),
-        ("suma_componentes", "(a*c)+(b*c)", "la suma de ambos componentes escalados", "total_razon"),
-        ("diferencia_componentes", "(b*c)-(a*c)", "la diferencia entre los componentes escalados", "comparar_razon"),
-        ("a_mas_dos", "(a*c)+2", "el primer componente escalado y dos unidades más", "dos_pasos"),
-        ("b_mas_dos", "(b*c)+2", "el segundo componente escalado y dos unidades más", "dos_pasos"),
+        ("doble_componente_a", "(a*c)*2", "el doble de la cantidad del primer ingrediente", "razon_escalada"),
+        ("triple_componente_b", "(b*c)*3", "el triple de la cantidad del segundo ingrediente", "razon_escalada"),
+        ("suma_componentes", "(a*c)+(b*c)", "la suma de ambos ingredientes", "total_razon"),
+        ("diferencia_componentes", "(b*c)-(a*c)", "la diferencia entre ambos ingredientes", "comparar_razon"),
+        ("a_mas_dos", "(a*c)+2", "el primer ingrediente con dos unidades extra", "dos_pasos"),
+        ("b_mas_dos", "(b*c)+2", "el segundo ingrediente con dos unidades extra", "dos_pasos"),
     ],
     (4, 2): [
-        ("unidad_razon", "total//(a+b)", "el tamaño de una unidad de la razón", "unidad_proporcional"),
-        ("doble_a", "((total//(a+b))*a)*2", "el doble de la parte A", "reparto_proporcional"),
-        ("triple_b", "((total//(a+b))*b)*3", "el triple de la parte B", "reparto_proporcional"),
-        ("a_mas_dos", "((total//(a+b))*a)+2", "la parte A y dos unidades más", "dos_pasos"),
-        ("b_mas_dos", "((total//(a+b))*b)+2", "la parte B y dos unidades más", "dos_pasos"),
-        ("diferencia_mas_dos", "((total//(a+b))*b)-((total//(a+b))*a)+2", "la diferencia entre partes y dos unidades más", "comparar_reparto"),
+        ("unidad_razon", "total//(a+b)", "el tamaño de una porción base de la razón", "unidad_proporcional"),
+        ("doble_a", "((total//(a+b))*a)*2", "el doble de la cantidad del ingrediente A", "reparto_proporcional"),
+        ("triple_b", "((total//(a+b))*b)*3", "el triple de la cantidad del ingrediente B", "reparto_proporcional"),
+        ("a_mas_dos", "((total//(a+b))*a)+2", "la cantidad del ingrediente A con dos unidades extra", "dos_pasos"),
+        ("b_mas_dos", "((total//(a+b))*b)+2", "la cantidad del ingrediente B con dos unidades extra", "dos_pasos"),
+        ("diferencia_mas_dos", "((total//(a+b))*b)-((total//(a+b))*a)+2", "la diferencia entre ingredientes con dos unidades extra", "comparar_reparto"),
     ],
     (4, 3): [
-        ("doble_porcentaje_a", "((a*100)//(a+b))*2", "el doble del porcentaje del componente A", "porcentaje_razon"),
-        ("mitad_porcentaje_a", "((a*100)//(a+b))//2", "la mitad del porcentaje del componente A", "porcentaje_razon"),
-        ("porcentaje_b_mas_dos", "((b*100)//(a+b))+2", "el porcentaje del componente B y dos puntos más", "porcentaje_razon"),
-        ("diferencia_porcentual", "((b*100)//(a+b))-((a*100)//(a+b))", "la diferencia entre los porcentajes de ambos componentes", "comparar_porcentajes"),
-        ("complemento_a", "100-((a*100)//(a+b))", "el porcentaje que complementa al componente A", "complemento_porcentaje"),
-        ("porcentaje_a_mas_dos", "((a*100)//(a+b))+2", "el porcentaje del componente A y dos puntos más", "porcentaje_razon"),
+        ("doble_porcentaje_a", "((a*100)//(a+b))*2", "el doble del porcentaje del ingrediente A", "porcentaje_razon"),
+        ("mitad_porcentaje_a", "((a*100)//(a+b))//2", "la mitad del porcentaje del ingrediente A", "porcentaje_razon"),
+        ("porcentaje_b_mas_dos", "((b*100)//(a+b))+2", "el porcentaje del ingrediente B y dos puntos más", "porcentaje_razon"),
+        ("diferencia_porcentual", "((b*100)//(a+b))-((a*100)//(a+b))", "la diferencia entre los porcentajes de ambos ingredientes", "comparar_porcentajes"),
+        ("complemento_a", "100-((a*100)//(a+b))", "el porcentaje que falta para completar el 100%", "complemento_porcentaje"),
+        ("porcentaje_a_mas_dos", "((a*100)//(a+b))+2", "el porcentaje del ingrediente A y dos puntos más", "porcentaje_razon"),
     ],
 }
 
@@ -151,9 +151,9 @@ _STARTS = {
         (3, 1): "Una barra representa {a}% de un total de {total} unidades.",
         (3, 2): "Un precio de {total} tiene un descuento de {a}%.",
         (3, 3): "Un gráfico muestra los datos {a}, {b} y {c}.",
-        (4, 1): "Una receta mantiene la razón {a}:{b} y usa el factor {c}.",
-        (4, 2): "Una mezcla respeta la razón {a}:{b} y tiene {total} unidades en total.",
-        (4, 3): "Una mezcla contiene {a} partes del componente A y {b} del componente B.",
+        (4, 1): "Una receta de cocina mantiene la razón {a}:{b} y se preparan {c} tandas iguales.",
+        (4, 2): "Se prepara una mezcla de {total} unidades siguiendo la razón {a}:{b}.",
+        (4, 3): "Un batido combina {a} vasos de frutilla y {b} vasos de leche (total: {total} vasos).",
 }
 
 _ALT_STARTS = {
@@ -206,22 +206,22 @@ _ALT_STARTS = {
         "Tres grupos reúnen {a}, {b} y {c} fichas.",
     ],
     (4, 1): [
-        "Una pintura conserva la razón {a}:{b} y se prepara {c} veces.",
-        "Un mosaico repite la razón de colores {a}:{b} con factor {c}.",
-        "Una bebida mantiene la razón {a}:{b} y se amplía por {c}.",
-        "Un diseño repite la razón {a}:{b} en {c} lotes iguales.",
+        "Para pintar un mural se mezclan témperas en razón {a}:{b} y se preparan {c} botes iguales.",
+        "Un mosaico decorativo combina baldosas en razón {a}:{b} en {c} filas iguales.",
+        "Un batido de frutas combina jugo y leche en razón {a}:{b} en {c} jarras iguales.",
+        "Una masa de galletas mezcla ingredientes en razón {a}:{b} para {c} bandejas iguales.",
     ],
     (4, 2): [
-        "Un reparto usa la razón {a}:{b} para distribuir {total} unidades.",
-        "Dos equipos comparten {total} fichas en la razón {a}:{b}.",
-        "Una mezcla divide {total} gramos según la razón {a}:{b}.",
-        "Dos salones reciben {total} materiales en la razón {a}:{b}.",
+        "Se reparten {total} fichas de juego entre dos amigos en razón {a}:{b}.",
+        "Dos equipos reciben {total} puntos de premio en razón {a}:{b}.",
+        "Para moldear plastilina se usan {total} gramos combinando dos colores en razón {a}:{b}.",
+        "Dos salones se reparten {total} lápices de colores en razón {a}:{b}.",
     ],
     (4, 3): [
-        "Un diseño combina {a} piezas del color A y {b} del color B.",
-        "Una receta reúne {a} medidas del ingrediente A y {b} del B.",
-        "Un mosaico usa {a} fichas claras y {b} fichas oscuras.",
-        "Una aleación combina {a} partes del metal A y {b} del metal B.",
+        "Un dibujo artístico combina {a} témperas azules y {b} témperas amarillas (total {total}).",
+        "Una receta de galletas reúne {a} tazas de azúcar y {b} de harina (total {total} tazas).",
+        "Una figura de plastilina mezcla {a} gramos verdes y {b} gramos blancos (total {total} g).",
+        "Un jarabe frutal combina {a} ml de concentrado y {b} ml de agua (total {total} ml).",
     ],
 }
 
@@ -229,24 +229,23 @@ _ALT_STARTS = {
 def _frame_from_start(inicio: str, suffix: str, instruction: str) -> str:
 
     # Las operaciones de transferencia solo se publican si existe un propósito
-    # narrativo explícito. Así “doble”, “mitad” o “+2” no aparecen como una
-    # manipulación arbitraria desconectada de la situación.
+    # narrativo explícito y amigable para un niño de 10 años.
     if "doble" in suffix:
         base = instruction.replace("el doble de ", "").replace("doble de ", "")
         return (
-            f"{inicio} Después de hallar {base}, se prepara una segunda situación idéntica. "
-            "¿Cuántas unidades se reúnen entre las dos?"
+            f"{inicio} Al calcular {base}, se decide preparar el doble. "
+            "¿Cuántas unidades se obtienen en total?"
         )
     if "triple" in suffix or "tres_" in suffix:
         base = instruction.replace("el triple de ", "").replace("triple de ", "")
         return (
-            f"{inicio} Después de hallar {base}, la misma cantidad se necesita en tres situaciones iguales. "
-            "¿Cuántas unidades se reúnen en total?"
+            f"{inicio} Si necesitamos el triple de {base}, "
+            "¿cuántas unidades se reúnen en total?"
         )
     if "cuatro" in suffix or "cuadruple" in suffix:
         return (
-            f"{inicio} La misma cantidad de un grupo se necesita en cuatro grupos, sin superar los grupos disponibles. "
-            "¿Cuántas unidades abarcan esos cuatro grupos?"
+            f"{inicio} Si esa misma cantidad se necesita en cuatro grupos iguales, "
+            "¿cuántas unidades abarcan esos cuatro grupos?"
         )
     if "mitad" in suffix:
         base = instruction
@@ -257,16 +256,16 @@ def _frame_from_start(inicio: str, suffix: str, instruction: str) -> str:
         else:
             base = base.removeprefix("la mitad de ")
         return (
-            f"{inicio} Después de hallar {base}, esa cantidad se reparte por igual entre dos equipos. "
-            "¿Cuántas unidades recibe cada equipo?"
+            f"{inicio} Si {base} se reparte en partes iguales entre dos amigos, "
+            "¿cuántas unidades recibe cada uno?"
         )
     if "mas_diez" in suffix:
-        return f"{inicio} Después del primer cálculo se incorporan 10 unidades nuevas. ¿Cuántas unidades hay ahora?"
+        return f"{inicio} Si a esa cantidad obtenida le sumamos 10 unidades extra, ¿cuántas unidades resultan en total?"
     if "mas_dos" in suffix or "mas_uno" in suffix:
         adicionales = 1 if "mas_uno" in suffix else 2
         return (
-            f"{inicio} Después del primer cálculo se incorporan {adicionales} unidades nuevas. "
-            "¿Cuántas unidades hay ahora?"
+            f"{inicio} Si a esa cantidad obtenida le sumamos {adicionales} unidades extra, "
+            "¿cuántas unidades resultan en total?"
         )
     return f"{inicio} {_pregunta_nominal(instruction)}"
 

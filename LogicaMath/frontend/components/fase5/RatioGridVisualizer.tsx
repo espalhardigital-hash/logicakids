@@ -9,7 +9,23 @@ interface Props {
 const getRatioTheme = (enunciado: string) => {
   const text = (enunciado || '').toLowerCase();
   
-  if (text.includes('limon') || text.includes('refresco')) {
+  if (text.includes('batido') || text.includes('frutilla') || text.includes('fruta') || text.includes('jugo') || text.includes('jarabe')) {
+    return {
+      labelA: 'Fruta',
+      colorA: '#f43f5e', // Rosa Fresa
+      labelB: text.includes('agua') ? 'Agua' : 'Leche',
+      colorB: text.includes('agua') ? '#38bdf8' : '#f8fafc', // Celeste o Blanco
+    };
+  }
+  if (text.includes('plastilina') || text.includes('slime') || text.includes('escarcha')) {
+    return {
+      labelA: text.includes('escarcha') ? 'Escarcha' : 'Plastilina A',
+      colorA: '#c084fc', // Violeta brillante
+      labelB: text.includes('líquida') || text.includes('liquida') ? 'Base' : 'Plastilina B',
+      colorB: '#2dd4bf', // Turquesa
+    };
+  }
+  if (text.includes('limon') || text.includes('limonada') || text.includes('refresco')) {
     return {
       labelA: 'Limón',
       colorA: '#fbbf24', // Amarillo
@@ -17,10 +33,10 @@ const getRatioTheme = (enunciado: string) => {
       colorB: '#60a5fa', // Azul
     };
   }
-  if (text.includes('pintura') || text.includes('verde') || text.includes('rosa')) {
-    let labelA = 'Pintura A';
+  if (text.includes('pintura') || text.includes('témpera') || text.includes('tempera') || text.includes('mural') || text.includes('verde') || text.includes('rosa')) {
+    let labelA = 'Témpera A';
     let colorA = '#ef4444'; // Rojo por defecto
-    let labelB = 'Pintura B';
+    let labelB = 'Témpera B';
     let colorB = '#f1f5f9'; // Blanco por defecto
     
     if (text.includes('amarilla') || text.includes('amarillo')) {
@@ -41,28 +57,28 @@ const getRatioTheme = (enunciado: string) => {
     }
     return { labelA, colorA, labelB, colorB };
   }
+  if (text.includes('galleta') || text.includes('harina') || text.includes('azúcar') || text.includes('azucar') || text.includes('masa')) {
+    return {
+      labelA: text.includes('leche') ? 'Leche' : 'Azúcar',
+      colorA: '#fb923c', // Naranja suave
+      labelB: 'Harina',
+      colorB: '#f1f5f9', // Blanco harina
+    };
+  }
+  if (text.includes('ficha') || text.includes('amigo') || text.includes('premio') || text.includes('punto')) {
+    return {
+      labelA: 'Parte A',
+      colorA: '#a855f7', // Púrpura
+      labelB: 'Parte B',
+      colorB: '#38bdf8', // Celeste
+    };
+  }
   if (text.includes('arcilla')) {
     return {
       labelA: 'Agua',
       colorA: '#3b82f6',
       labelB: 'Arcilla',
       colorB: '#c2410c', // Terracota
-    };
-  }
-  if (text.includes('huevo') || text.includes('harina') || text.includes('masa') || text.includes('croquetas') || text.includes('paté') || text.includes('pate')) {
-    return {
-      labelA: text.includes('croquetas') ? 'Croquetas' : 'Huevo',
-      colorA: '#f97316', // Naranja
-      labelB: text.includes('paté') || text.includes('pate') ? 'Paté' : 'Harina',
-      colorB: '#cbd5e1', // Gris suave
-    };
-  }
-  if (text.includes('motor') || text.includes('engranaje') || text.includes('robot')) {
-    return {
-      labelA: 'Motores',
-      colorA: '#64748b', // Gris oscuro
-      labelB: 'Engranajes',
-      colorB: '#d97706', // Ámbar
     };
   }
   if (text.includes('cemento') || text.includes('arena')) {
@@ -74,7 +90,7 @@ const getRatioTheme = (enunciado: string) => {
     };
   }
   
-  // Fallback
+  // Fallback amigable
   return {
     labelA: 'Ingrediente A',
     colorA: '#c084fc',

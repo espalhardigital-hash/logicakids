@@ -815,106 +815,106 @@ def obtener_ejemplos_expandidos_fase5(modulo_id: int, nivel_id: int) -> list:
                 ]
             },
             {
-                "enunciado": "Una pared se pinta combinando <span class=\"keyword-highlight\">2 litros de rojo y 3 de blanco</span> (2:3). Si compras <span class=\"keyword-highlight\">6 litros de rojo</span>, ¿cuántos de blanco necesitas?",
+                "enunciado": "Para pintar un mural se mezclan <span class=\"keyword-highlight\">2 botes de rojo y 3 de blanco</span> (2:3). Si compras <span class=\"keyword-highlight\">6 botes de rojo</span>, ¿cuántos de blanco necesitas?",
                 "pasos": [
                     {"orden": 1, "texto": "Hallamos el factor multiplicador: el rojo pasó de 2 a 6. Esto es el triple: <span class=\"keyword-highlight\">6 ÷ 2 = 3</span> veces."},
-                    {"orden": 2, "texto": "Multiplicamos el blanco por el mismo factor de 3: <span class=\"keyword-highlight\">3 × 3 = 9</span> litros."},
-                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">9 litros de blanco</span>."}
+                    {"orden": 2, "texto": "Multiplicamos el blanco por el mismo factor de 3: <span class=\"keyword-highlight\">3 × 3 = 9</span> botes."},
+                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">9 botes de blanco</span>."}
                 ]
             },
             {
-                "enunciado": "Para preparar cemento se usa <span class=\"keyword-highlight\">1 porción de cemento por 4 de arena</span>. Si usas <span class=\"keyword-highlight\">2 de cemento</span>, ¿cuánta arena aportas?",
+                "enunciado": "Para hacer plastilina verde combinamos <span class=\"keyword-highlight\">1 porción de azul por 4 de amarillo</span> (1:4). Si usas <span class=\"keyword-highlight\">2 de azul</span>, ¿cuántas de amarillo necesitas?",
                 "pasos": [
-                    {"orden": 1, "texto": "El cemento se duplicó (de 1 a 2)."},
-                    {"orden": 2, "texto": "Multiplicamos la arena por 2: <span class=\"keyword-highlight\">4 × 2 = 8</span>."},
-                    {"orden": 3, "texto": "Resultado: <span class=\"keyword-highlight\">8 porciones de arena</span>."}
+                    {"orden": 1, "texto": "La porción de azul se duplicó (de 1 a 2)."},
+                    {"orden": 2, "texto": "Multiplicamos las porciones de amarillo por 2: <span class=\"keyword-highlight\">4 × 2 = 8</span>."},
+                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">8 porciones de amarillo</span>."}
                 ]
             },
             {
-                "enunciado": "La masa de galletas requiere <span class=\"keyword-highlight\">1 vaso de leche por 2 de harina</span> (1:2). Si pones <span class=\"keyword-highlight\">4 vasos de harina</span>, ¿cuántos de leche usarás?",
+                "enunciado": "La masa de galletas requiere <span class=\"keyword-highlight\">1 taza de leche por 2 de harina</span> (1:2). Si pones <span class=\"keyword-highlight\">4 tazas de harina</span>, ¿cuántas de leche usarás?",
                 "pasos": [
-                    {"orden": 1, "texto": "La harina requerida aumentó de 2 a 4 vasos (se duplicó)."},
-                    {"orden": 2, "texto": "Para balancear, dividimos la harina entre 2 para saber la leche: <span class=\"keyword-highlight\">4 ÷ 2 = 2</span>."},
-                    {"orden": 3, "texto": "Resultado: Usarás <span class=\"keyword-highlight\">2 vasos de leche</span>."}
+                    {"orden": 1, "texto": "La harina requerida aumentó de 2 a 4 tazas (se duplicó)."},
+                    {"orden": 2, "texto": "Para saber la leche necesaria, dividimos la harina entre 2: <span class=\"keyword-highlight\">4 ÷ 2 = 2</span>."},
+                    {"orden": 3, "texto": "Resultado: Usarás <span class=\"keyword-highlight\">2 tazas de leche</span>."}
                 ]
             }
         ],
         # Nivel 2: Reparto proporcional de volúmenes macro
         (4, 2): [
             {
-                "enunciado": "Para hacer pintura verde mezclas <span class=\"keyword-highlight\">2 litros de azul y 3 de amarillo</span> (haciendo 5 litros en total). Si quieres <span class=\"keyword-highlight\">30 litros de verde</span>, ¿cuántos de azul usas?<br/>"
+                "enunciado": "Para hacer témpera verde mezclas <span class=\"keyword-highlight\">2 botes de azul y 3 de amarillo</span> (haciendo 5 botes en total). Si quieres <span class=\"keyword-highlight\">30 botes de verde</span>, ¿cuántos de azul usas?<br/>"
                              "<svg width='180' height='60' viewBox='0 0 180 60' style='margin:10px auto; display:block;'>"
                              "  <!-- Tubo medidor con azul y amarillo -->"
                              "  <rect x='10' y='10' width='160' height='25' fill='none' stroke='#FFF' stroke-width='2' rx='5'/>"
                              "  <rect x='11' y='11' width='64' height='23' fill='#3B82F6' rx='4'/>"
                              "  <rect x='75' y='11' width='94' height='23' fill='#FBBF24' rx='4'/>"
-                             "  <text x='43' y='26' fill='#FFF' font-size='9' font-weight='black' text-anchor='middle'>Azul (12L)</text>"
-                             "  <text x='122' y='26' fill='#111827' font-size='9' font-weight='black' text-anchor='middle'>Amarillo (18L)</text>"
-                             "  <text x='90' y='50' fill='#FFF' font-size='10' text-anchor='middle'>Verde total = 30 Litros</text>"
+                             "  <text x='43' y='26' fill='#FFF' font-size='9' font-weight='black' text-anchor='middle'>Azul (12)</text>"
+                             "  <text x='122' y='26' fill='#111827' font-size='9' font-weight='black' text-anchor='middle'>Amarillo (18)</text>"
+                             "  <text x='90' y='50' fill='#FFF' font-size='10' text-anchor='middle'>Verde total = 30 Botes</text>"
                              "</svg>",
                 "pasos": [
                     {"orden": 1, "texto": "<b>Paso 1 (Escala):</b> Dividimos la cantidad total deseada entre la receta base: <span class=\"keyword-highlight\">30 ÷ 5 = 6 veces</span> la receta."},
-                    {"orden": 2, "texto": "<b>Paso 2 (Multiplicar):</b> Escalamos el ingrediente azul por el factor 6: <span class=\"keyword-highlight\">2 × 6 = 12</span> litros."},
-                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">12 litros de azul</span>."}
+                    {"orden": 2, "texto": "<b>Paso 2 (Multiplicar):</b> Escalamos el ingrediente azul por el factor 6: <span class=\"keyword-highlight\">2 × 6 = 12</span> botes."},
+                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">12 botes de azul</span>."}
                 ]
             },
             {
-                "enunciado": "Haces pintura rosa con <span class=\"keyword-highlight\">1 litro de rojo y 4 de blanco</span> (5 litros total). Para un lote de <span class=\"keyword-highlight\">50 litros</span>, ¿cuánto blanco comprarás?",
+                "enunciado": "Haces témpera rosa con <span class=\"keyword-highlight\">1 bote de rojo y 4 de blanco</span> (5 botes en total). Para preparar <span class=\"keyword-highlight\">50 botes</span> de témpera rosa, ¿cuántos botes de blanco necesitas?",
                 "pasos": [
-                    {"orden": 1, "texto": "Escala de la mezcla: dividimos el total entre la receta base: <span class=\"keyword-highlight\">50 ÷ 5 = 10 lotes</span>."},
+                    {"orden": 1, "texto": "Escala de la mezcla: dividimos el total entre la receta base: <span class=\"keyword-highlight\">50 ÷ 5 = 10 tandas</span>."},
                     {"orden": 2, "texto": "Multiplicamos el ingrediente blanco por 10: <span class=\"keyword-highlight\">4 × 10 = 40</span>."},
-                    {"orden": 3, "texto": "Resultado: Comprarás <span class=\"keyword-highlight\">40 litros de blanco</span>."}
+                    {"orden": 3, "texto": "Resultado: Necesitas <span class=\"keyword-highlight\">40 botes de blanco</span>."}
                 ]
             },
             {
-                "enunciado": "Una mezcla de concreto tiene <span class=\"keyword-highlight\">3 paladas de arena y 7 de grava</span> (10 en total). Si necesitas <span class=\"keyword-highlight\">40 paladas</span> de mezcla total, ¿cuántas son de arena?",
+                "enunciado": "Un slime brillante lleva <span class=\"keyword-highlight\">3 medidas de escarcha y 7 de base líquida</span> (10 en total). Si preparas <span class=\"keyword-highlight\">40 medidas</span> de slime, ¿cuántas son de escarcha?",
                 "pasos": [
-                    {"orden": 1, "texto": "Escala de mezcla: dividimos el total deseado entre la base: <span class=\"keyword-highlight\">40 ÷ 10 = 4 veces</span>."},
-                    {"orden": 2, "texto": "Multiplicamos la arena por 4: <span class=\"keyword-highlight\">3 × 4 = 12</span> paladas."},
-                    {"orden": 3, "texto": "Resultado: Aportarás <span class=\"keyword-highlight\">12 paladas de arena</span>."}
+                    {"orden": 1, "texto": "Escala de la mezcla: dividimos el total deseado entre la base: <span class=\"keyword-highlight\">40 ÷ 10 = 4 veces</span>."},
+                    {"orden": 2, "texto": "Multiplicamos la escarcha por 4: <span class=\"keyword-highlight\">3 × 4 = 12</span> medidas."},
+                    {"orden": 3, "texto": "Resultado: Usarás <span class=\"keyword-highlight\">12 medidas de escarcha</span>."}
                 ]
             },
             {
-                "enunciado": "Un jarabe se hace con <span class=\"keyword-highlight\">1 taza de agua y 1 de jugo concentrado de fruta</span> (2 en total). Si quieres hacer <span class=\"keyword-highlight\">20 litros</span> de jarabe, ¿cuánto concentrado lleva?",
+                "enunciado": "Un batido delicioso se hace con <span class=\"keyword-highlight\">1 vaso de frutilla y 1 de leche</span> (2 vasos en total). Si quieres preparar <span class=\"keyword-highlight\">20 vasos</span> de batido, ¿cuántos vasos de frutilla lleva?",
                 "pasos": [
-                    {"orden": 1, "texto": "Escala de la mezcla: dividimos los litros finales entre la base: <span class=\"keyword-highlight\">20 ÷ 2 = 10 veces</span>."},
-                    {"orden": 2, "texto": "Multiplicamos el jugo concentrado por 10: <span class=\"keyword-highlight\">1 × 10 = 10</span>."},
-                    {"orden": 3, "texto": "Resultado: Lleva <span class=\"keyword-highlight\">10 litros de concentrado</span>."}
+                    {"orden": 1, "texto": "Escala de la mezcla: dividimos los vasos finales entre la base: <span class=\"keyword-highlight\">20 ÷ 2 = 10 veces</span>."},
+                    {"orden": 2, "texto": "Multiplicamos los vasos de frutilla por 10: <span class=\"keyword-highlight\">1 × 10 = 10</span>."},
+                    {"orden": 3, "texto": "Resultado: Lleva <span class=\"keyword-highlight\">10 vasos de frutilla</span>."}
                 ]
             }
         ],
-        # Nivel 3: Homogeneización de mezclas complejas
+        # Nivel 3: Porcentajes en mezclas
         (4, 3): [
             {
-                "enunciado": "Un frasco de perfume mezcla <span class=\"keyword-highlight\">1 parte de esencia por 4 partes de alcohol</span> (1:4). ¿Qué porcentaje representa la esencia?",
+                "enunciado": "Un batido combina <span class=\"keyword-highlight\">1 vaso de fruta concentrada por 4 de leche</span> (razón 1:4). ¿Qué porcentaje del batido representa la fruta?",
                 "pasos": [
-                    {"orden": 1, "texto": "Sumamos todas las partes de la mezcla: <span class=\"keyword-highlight\">1 + 4 = 5 partes en total</span>."},
-                    {"orden": 2, "texto": "La esencia representa 1 de esas 5 partes, es decir, la fracción: <span class=\"keyword-highlight\">1/5</span>."},
+                    {"orden": 1, "texto": "Sumamos todas las partes de la mezcla: <span class=\"keyword-highlight\">1 + 4 = 5 vasos en total</span>."},
+                    {"orden": 2, "texto": "La fruta representa 1 de esos 5 vasos, es decir, la fracción: <span class=\"keyword-highlight\">1/5</span>."},
                     {"orden": 3, "texto": "Convertimos 1/5 a porcentaje: (1 ÷ 5) × 100 = <span class=\"keyword-highlight\">20%</span>. Resultado: <span class=\"keyword-highlight\">20%</span>."}
                 ]
             },
             {
-                "enunciado": "Si tienes una bebida de 300 ml que contiene <span class=\"keyword-highlight\">10% de jugo real</span>, ¿cuántos ml de jugo real tiene?",
+                "enunciado": "Si tienes una jarra de 300 ml de refresco que contiene <span class=\"keyword-highlight\">10% de jugo natural de fruta</span>, ¿cuántos ml de jugo natural tiene?",
                 "pasos": [
                     {"orden": 1, "texto": "El 10% representa una décima parte del líquido total (dividir entre 10)."},
-                    {"orden": 2, "texto": "Dividimos el total de la bebida: <span class=\"keyword-highlight\">300 ÷ 10 = 30</span>."},
-                    {"orden": 3, "texto": "Resultado: Tiene <span class=\"keyword-highlight\">30 ml</span> de jugo real."}
+                    {"orden": 2, "texto": "Dividimos el total del refresco: <span class=\"keyword-highlight\">300 ÷ 10 = 30</span>."},
+                    {"orden": 3, "texto": "Resultado: Contiene <span class=\"keyword-highlight\">30 ml</span> de jugo natural."}
                 ]
             },
             {
-                "enunciado": "En una aleación de oro y cobre de 100 gramos, el 75% es oro. ¿Cuántos gramos de cobre hay?",
+                "enunciado": "En una figura de plastilina de 100 gramos, el 75% es azul y el resto es amarilla. ¿Cuántos gramos de plastilina amarilla hay?",
                 "pasos": [
-                    {"orden": 1, "texto": "Si el 75% es oro, el cobre restante es: <span class=\"keyword-highlight\">100% - 75% = 25%</span> (un cuarto)."},
+                    {"orden": 1, "texto": "Si el 75% es azul, la plastilina amarilla restante es: <span class=\"keyword-highlight\">100% - 75% = 25%</span> (un cuarto)."},
                     {"orden": 2, "texto": "Calculamos el 25% de 100 gramos: <span class=\"keyword-highlight\">100 ÷ 4 = 25</span> gramos."},
-                    {"orden": 3, "texto": "Resultado: Hay <span class=\"keyword-highlight\">25 gramos de cobre</span>."}
+                    {"orden": 3, "texto": "Resultado: Hay <span class=\"keyword-highlight\">25 gramos de plastilina amarilla</span>."}
                 ]
             },
             {
-                "enunciado": "Una mezcla de agua salada de 80 gramos contiene <span class=\"keyword-highlight\">10% de sal</span>. Si se evaporan 30 gramos de agua pura, ¿cuánta sal queda?",
+                "enunciado": "Una masa de galletas de 80 gramos contiene <span class=\"keyword-highlight\">10% de chispas de chocolate</span>. Si agregamos 20 gramos de masa sin chispas, ¿cuántos gramos de chispas de chocolate contiene en total?",
                 "pasos": [
-                    {"orden": 1, "texto": "La sal no se evapora, solo el agua pura. Así que la sal sigue siendo la misma masa."},
-                    {"orden": 2, "texto": "Calculamos la sal inicial: 10% de 80 g = <span class=\"keyword-highlight\">8 gramos</span> de sal."},
-                    {"orden": 3, "texto": "Resultado final: Quedan exactamente <span class=\"keyword-highlight\">8 gramos de sal</span>."}
+                    {"orden": 1, "texto": "Las chispas de chocolate iniciales siguen siendo las mismas, no cambian de peso al agregar masa."},
+                    {"orden": 2, "texto": "Calculamos las chispas iniciales: 10% de 80 g = <span class=\"keyword-highlight\">8 gramos</span> de chispas."},
+                    {"orden": 3, "texto": "Resultado final: Contiene exactamente <span class=\"keyword-highlight\">8 gramos de chispas</span>."}
                 ]
             }
         ]
