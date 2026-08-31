@@ -1,0 +1,102 @@
+{
+  "suite": "PHRONESIS-RC-004-11-PLAN-A1",
+  "configuration": "PHRONESIS-RC-004-11 / CFG-20260821-14",
+  "operation_scope": "PRODUCT_REGRESSION",
+  "side_effects": "NONE",
+  "historical_missions_opened": false,
+  "historical_missions_modified": false,
+  "pass": 15,
+  "total": 15,
+  "results": [
+    {
+      "case_id": "A1-POS-PRODUCTION",
+      "expected": "ALL_COMPONENTS_PASS_AND_PROMOTION_TRUE",
+      "observed": {
+        "ORCHESTRATOR_1.8": "PASS",
+        "MOTOR_3.7_PREFLIGHT": "PASS",
+        "AUDITOR_2.9": "PASS",
+        "CERTIFIER_1.5": "PASS"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-POS-REGRESSION-NO-PROMOTION",
+      "expected": "VALID_WITH_PROMOTION_FALSE",
+      "observed": false,
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-PRE-LENGTH",
+      "expected_control": "PRE-LEN-01",
+      "observed_gate_final": "FAIL",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-PRE-DISTRACTOR-FAMILY",
+      "expected_control": "PRE-DIS-01",
+      "observed_gate_final": "FAIL",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-PRE-DISTRACTOR-CODE",
+      "expected_control": "PRE-DIS-01",
+      "observed_gate_final": "FAIL",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-TAX-CORE-HASH",
+      "expected_control": "PRE-TAX-01",
+      "observed_gate_final": "FAIL",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-TAX-EXT-HASH",
+      "expected_control": "PRE-TAX-01",
+      "observed_gate_final": "FAIL",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-SCHEMA-BINDING",
+      "expected_control": "AUD-SCHEMA-01",
+      "observed_gate_final": "FAIL",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-CONFIG-BINDING",
+      "expected_control": "AUD-SCHEMA-01",
+      "observed_gate_final": "FAIL",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-TAX-SYNTHETIC-SCOPE",
+      "expected_control": "PRE-TAX-01",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-MIG-DETERMINISTIC",
+      "expected": "IDENTICAL_OUTPUT",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-MIG-INPUT-IMMUTABLE",
+      "expected": "SOURCE_UNCHANGED",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-MIG-INVALIDATES-EVIDENCE",
+      "expected": "EXPERT_AND_PILOT_INVALIDATED",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-MIG-FAIL-CLOSED",
+      "expected": "BLOCKERS_NO_PROMOTION",
+      "result": "PASS"
+    },
+    {
+      "case_id": "A1-NO-HISTORICAL-REFERENCES",
+      "expected": "NO_HISTORICAL_TOKENS",
+      "observed": [],
+      "result": "PASS"
+    }
+  ]
+}
