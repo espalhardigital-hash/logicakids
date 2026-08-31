@@ -81,25 +81,28 @@ async def _sync_unlocked_levels(db: AsyncSession, alumno_id: int, operacion: str
 # ─────────────────────────────────────────────────────────────────────────────
 
 MODULOS_META = {
-    1: {"nombre": "Reconocimiento 3D", "descripcion": "Identificación de poliedros y vistas 3D.", "icono": "box", "color": "#10B981"},
-    2: {"nombre": "Patrones de Crecimiento", "descripcion": "Análisis de sucesiones espaciales.", "icono": "bar-chart", "color": "#8B5CF6"},
-    3: {"nombre": "Cubos Unitarios", "descripcion": "Modelado del concepto de volumen (u³).", "icono": "database", "color": "#F59E0B"},
-    4: {"nombre": "Medidas Físicas", "descripcion": "Magnitudes de masa y temperatura.", "icono": "thermometer", "color": "#EC4899"},
+    1: {"nombre": "Perímetro y borde", "descripcion": "Lados, vértices, clasificación y perímetro de figuras planas.", "icono": "box", "color": "#10B981"},
+    2: {"nombre": "Área en malla", "descripcion": "Conteo y composición de unidades cuadradas.", "icono": "bar-chart", "color": "#8B5CF6"},
+    3: {"nombre": "Figuras compuestas", "descripcion": "Descomposición, suma y resta de áreas.", "icono": "database", "color": "#F59E0B"},
+    4: {"nombre": "Conversión y pantallas", "descripcion": "Lectura de medidas, equivalencias y resolución encadenada.", "icono": "thermometer", "color": "#EC4899"},
 }
 
 NIVELES_META = {
-    (1, 1): {"nombre": "Identificación de poliedros", "descripcion": "Vértices, aristas y caras ocultas en formas sólidas."},
-    (1, 2): {"nombre": "Detección de bloques", "descripcion": "Detección de bloques ocultos por perspectivas isométricas."},
-    (1, 3): {"nombre": "Moldes desplegados", "descripcion": "Asociación de moldes desplegados a figuras cerradas 3D."},
-    (2, 1): {"nombre": "Análisis de sucesiones", "descripcion": "Análisis de sucesiones espaciales (Patrones geométricos crecientes)."},
-    (2, 2): {"nombre": "Conteo volumétrico", "descripcion": "Conteo volumétrico estratificado (Capa por capa)."},
-    (2, 3): {"nombre": "Generalización", "descripcion": "Generalización algebraica de la capa N."},
-    (3, 1): {"nombre": "Concepto de volumen", "descripcion": "Modelado del concepto de volumen (u³)."},
-    (3, 2): {"nombre": "Prismas rectangulares", "descripcion": "Cálculo analítico formal de prismas rectangulares (Base x Altura)."},
-    (3, 3): {"nombre": "Volumen y líquidos", "descripcion": "Relación entre volumen cúbico y líquidos (1 dm³ = 1 L)."},
-    (4, 1): {"nombre": "Balanzas y termómetros", "descripcion": "Interpretación analítica de balanzas y termómetros."},
-    (4, 2): {"nombre": "Variaciones térmicas", "descripcion": "Variaciones térmicas y comprensión del signo negativo térmico."},
-    (4, 3): {"nombre": "La Máquina Kelvin", "descripcion": "La Máquina Kelvin: Sumar 273 grados (conversión sin negativos)."},
+    (1, 1): {"nombre": "Nombrar y contar", "descripcion": "Identificación de figuras planas, conteo de vértices y lados."},
+    (1, 2): {"nombre": "Clasificación", "descripcion": "Clasificación de polígonos: regulares, irregulares y cuadriláteros."},
+    (1, 3): {"nombre": "Ejes de simetría", "descripcion": "Conteo de ejes de simetría en figuras planas."},
+    (1, 4): {"nombre": "Perímetro", "descripcion": "Cálculo del perímetro sumando lados con decimales."},
+    (2, 1): {"nombre": "Figuras en L y T", "descripcion": "Perímetro exterior de figuras compuestas en L, T y escaleras."},
+    (2, 2): {"nombre": "Lados ocultos", "descripcion": "Deducción de lados ocultos por paralelismo."},
+    (2, 3): {"nombre": "Circunferencia", "descripcion": "Perímetro del círculo y relación con π."},
+    (3, 1): {"nombre": "Área en malla", "descripcion": "Conteo de unidades cuadradas en malla y figuras irregulares."},
+    (3, 2): {"nombre": "Área del rectángulo", "descripcion": "Cálculo analítico del área base × altura."},
+    (3, 3): {"nombre": "Área del triángulo", "descripcion": "Cálculo del área como (base × altura) ÷ 2."},
+    (3, 4): {"nombre": "Paralelogramo y trapecio", "descripcion": "Área de paralelogramos, rombos y trapecios."},
+    (3, 5): {"nombre": "Área del círculo", "descripcion": "Cálculo del área como π × radio²."},
+    (4, 1): {"nombre": "Compuestas por suma", "descripcion": "Área de figuras compuestas sumando partes rectangulares."},
+    (4, 2): {"nombre": "Compuestas por resta", "descripcion": "Área sombreada restando huecos interiores."},
+    (4, 3): {"nombre": "Figuras inscritas", "descripcion": "Área de esquinas sombreadas en figuras inscritas."},
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -210,7 +213,7 @@ def _is_nivel_unlocked(progresos: dict, modulo_id: int, nivel_id: int) -> bool:
     
     if nivel_id == 1 and modulo_id > 1:
         prev_mod = modulo_id - 1
-        prev_mod_levels = {1: 3, 2: 3, 3: 3}[prev_mod]
+        prev_mod_levels = {1: 4, 2: 3, 3: 5}[prev_mod]
         
         # Check all practice levels of previous module
         for p_level in range(1, prev_mod_levels + 1):
@@ -282,7 +285,7 @@ async def get_fase6_dashboard(
     des_cfg = global_cfg.get("desafios", {})
 
     modulos = []
-    modulo_niveles_map = {1: 3, 2: 3, 3: 3, 4: 3}
+    modulo_niveles_map = {1: 4, 2: 3, 3: 5, 4: 3}
     
     for mod_id in range(1, 5):
         meta = MODULOS_META[mod_id]

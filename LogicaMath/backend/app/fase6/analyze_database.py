@@ -56,7 +56,7 @@ async def run_audit_fase6() -> bool:
             print("[PASS] 2  estructura_padre_id NULL: 0 violaciones")
 
         # -------------------------------------------------------------------------
-        # Chequeo 2b: Exactamente 120 familias de práctica por nivel
+        # Chequeo 2b: Familias de práctica por nivel (M1 con preguntas únicas, 120 en el resto)
         # -------------------------------------------------------------------------
         familias_query = text("""
             SELECT seccion, COUNT(DISTINCT estructura_padre_id) 
@@ -67,12 +67,19 @@ async def run_audit_fase6() -> bool:
             GROUP BY seccion
         """)
         familias = (await session.execute(familias_query)).fetchall()
-        wrong_fams = [f for f in familias if f[1] != 120]
+        m1_expected = {101: 18, 102: 21, 103: 18, 104: 25}
+        wrong_fams = []
+        for f in familias:
+            expected = m1_expected.get(f[0], 120)
+            if f[1] != expected:
+                wrong_fams.append(f)
         if wrong_fams or len(familias) < 15:
-            print(f"[FAIL] 2b Familias de práctica: {len(wrong_fams)} niveles con número distinto de 120 familias")
+            print(f"[FAIL] 2b Familias de práctica: {len(wrong_fams)} niveles con número incorrecto de familias")
+            for wf in wrong_fams:
+                print(f"       Sección {wf[0]}: {wf[1]} familias (esperadas {m1_expected.get(wf[0], 120)})")
             all_pass = False
         else:
-            print("[PASS] 2b Familias de práctica: 15/15 niveles con exactamente 120 familias")
+            print("[PASS] 2b Familias de práctica: 15/15 niveles validados")
 
         # -------------------------------------------------------------------------
         # Chequeo 3: Opción múltiple tiene exactamente 4 alternativas y 1 correcta
@@ -194,7 +201,7 @@ async def run_audit_fase6() -> bool:
             print(f"[PASS] 8  Pistas sin revelar operación/resultado: 0 violaciones ({len(pista_rows)} verificados)")
 
         # -------------------------------------------------------------------------
-        # Chequeo 9: Volumetría por sección (15 práctica @ 480 + 13 desafíos @ 150 = 9150 total)
+        # Chequeo 9: Volumetría por sección (M1: 18+21+18+25 = 82; 11 práctica @ 480; 13 desafíos @ 150 = 7.312 total)
         # -------------------------------------------------------------------------
         vol_query = text("""
             SELECT seccion, COUNT(*) 
@@ -206,7 +213,11 @@ async def run_audit_fase6() -> bool:
         vol_dict = {v[0]: v[1] for v in vols}
         
         vol_bad = False
-        for s in [101,102,103,104, 201,202,203, 301,302,303,304,305, 401,402,403]:
+        m1_vol = {101: 18, 102: 21, 103: 18, 104: 25}
+        for s, expected in m1_vol.items():
+            if vol_dict.get(s) != expected:
+                vol_bad = True
+        for s in [201,202,203, 301,302,303,304,305, 401,402,403]:
             if vol_dict.get(s) != 480:
                 vol_bad = True
         for s in [1011,1012,1013, 2011,2012,2013, 3011,3012,3013, 4011,4012,4013, 99099]:
@@ -214,11 +225,11 @@ async def run_audit_fase6() -> bool:
                 vol_bad = True
 
         total_q = sum(vol_dict.values())
-        if vol_bad or total_q != 9150:
-            print(f"[FAIL] 9  Volumetría por sección: Total = {total_q} (esperado 9.150)")
+        if vol_bad or total_q != 7312:
+            print(f"[FAIL] 9  Volumetría por sección: Total = {total_q} (esperado 7.312)")
             all_pass = False
         else:
-            print(f"[PASS] 9  Volumetría por sección: 28/28 secciones exactas (Total 9.150 preguntas)")
+            print(f"[PASS] 9  Volumetría por sección: 28/28 secciones exactas (Total 7.312 preguntas)")
 
         # -------------------------------------------------------------------------
         # Chequeo 10: Sin filas INACTIVO

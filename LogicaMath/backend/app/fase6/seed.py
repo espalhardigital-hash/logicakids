@@ -132,21 +132,21 @@ def _gen_practice_question(
     
     # M1 N1 (101): Nombrar figuras, contar vértices y lados
     if mod_id == 1 and lvl_id == 1:
-        # La figura DEBE coincidir con la respuesta: se dibuja el polígono
-        # regular real de N lados (antes se usaba fig_cuadrado para todas, así
-        # que un "triángulo" se veía como cuadrado y contradecía la respuesta).
         figuras = [
-            ("triángulo", 3, 3, "regular", fig_poligono_regular(3, color=accent)),
-            ("cuadrilátero", 4, 4, "regular", fig_poligono_regular(4, color=accent)),
-            ("pentágono", 5, 5, "regular", fig_poligono_regular(5, color=accent)),
-            ("hexágono", 6, 6, "regular", fig_poligono_regular(6, color=accent)),
-            ("octágono", 8, 8, "regular", fig_poligono_regular(8, color=accent))
+            ("triángulo", 3, 3, fig_poligono_regular(3, color=accent)),
+            ("cuadrilátero", 4, 4, fig_poligono_regular(4, color=accent)),
+            ("pentágono", 5, 5, fig_poligono_regular(5, color=accent)),
+            ("hexágono", 6, 6, fig_poligono_regular(6, color=accent)),
+            ("heptágono", 7, 7, fig_poligono_regular(7, color=accent)),
+            ("octágono", 8, 8, fig_poligono_regular(8, color=accent))
         ]
-        fig_nombre, n_lados, n_vert, _, svg_code = figuras[fam_idx % len(figuras)]
+        fig_idx = fam_idx % len(figuras)
+        sub_tipo = (fam_idx // len(figuras)) % 3
         
-        sub_tipo = var_idx % 3
+        fig_nombre, n_lados, n_vert, svg_code = figuras[fig_idx]
+        
         if sub_tipo == 0:
-            enunciado = f"{personaje} observa la figura plana #{q_global_num}. ¿Cuántos vértices (esquinas) tiene?<br/>{svg_code}"
+            enunciado = f"Observa la figura plana. ¿Cuántos vértices (esquinas) tiene?<br/>{svg_code}"
             ans_str = str(n_vert)
             tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
             op_enum = OperacionEnum.SUMA
@@ -154,7 +154,7 @@ def _gen_practice_question(
             alts = []
             err_dict = {str(n_vert + 1): "Cuenta las esquinas donde se unen dos lados rectos."}
         elif sub_tipo == 1:
-            enunciado = f"{personaje} observa la figura plana #{q_global_num}. ¿Cuántos lados rectos tiene el contorno?<br/>{svg_code}"
+            enunciado = f"Observa la figura plana. ¿Cuántos lados rectos tiene el contorno?<br/>{svg_code}"
             ans_str = str(n_lados)
             tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
             op_enum = OperacionEnum.SUMA
@@ -162,7 +162,7 @@ def _gen_practice_question(
             alts = []
             err_dict = {str(n_lados + 1): "Cuenta los segmentos rectos del borde exterior."}
         else:
-            enunciado = f"{personaje} pregunta: ¿qué nombre recibe esta figura #{q_global_num} según su cantidad de lados?<br/>{svg_code}"
+            enunciado = f"¿Qué nombre recibe esta figura según su cantidad de lados?<br/>{svg_code}"
             ans_str = fig_nombre.capitalize()
             tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
             op_enum = OperacionEnum.SUMA
@@ -181,89 +181,146 @@ def _gen_practice_question(
                 err_dict[nf] = f"Tiene {n_lados} lados, se llama {ans_str}."
             rng.shuffle(alts)
 
-    # M1 N2 (102): Clasificación polígonos/cuadriláteros
+    # M1 N2 (102): Clasificación de polígonos — 7 figuras × 3 perspectivas = 21 preguntas únicas
     elif mod_id == 1 and lvl_id == 2:
-        opciones_clasif = [
-            ("Regular", ["Irregular", "Triángulo", "Trapecio"]),
-            ("Paralelogramo", ["Trapecio", "Trapezoide", "Pentágono"]),
-            ("Irregular", ["Regular", "Octágono", "Hexágono"]),
+        figuras_clasif = [
+            ("cuadrado", True, fig_cuadrado(6, unit="cm", color=accent)),
+            ("rectángulo", False, fig_rectangulo(8, 5, unit="cm", color=accent)),
+            ("rombo", False, fig_rombo(8, 6, unit="cm", color=accent)),
+            ("paralelogramo", False, fig_paralelogramo(9, 5, unit="cm", color=accent)),
+            ("trapecio", False, fig_trapecio(10, 6, 5, unit="cm", color=accent)),
+            ("pentágono regular", True, fig_poligono_regular(5, color=accent)),
+            ("hexágono regular", True, fig_poligono_regular(6, color=accent)),
         ]
-        cat_idx = fam_idx % len(opciones_clasif)
-        ans_str, falsas_clasif = opciones_clasif[cat_idx]
+        fig_idx = fam_idx % len(figuras_clasif)
+        sub_tipo = (fam_idx // len(figuras_clasif)) % 3
+
+        nombre, es_regular, svg_code = figuras_clasif[fig_idx]
         tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
         op_enum = OperacionEnum.SUMA
-        w_rect = 6 + (fam_idx % 4) + var_idx
-        h_rect = 3 + (var_idx % 2)
-        if cat_idx == 0:
-            svg_code = fig_cuadrado(w_rect, unit="cm", color=accent)
-            descripcion_figura = f"un cuadrado de lado {w_rect} cm"
-        elif cat_idx == 1:
-            svg_code = fig_paralelogramo(w_rect, h_rect, unit="cm", color=accent)
-            descripcion_figura = f"un paralelogramo de base {w_rect} cm y altura {h_rect} cm"
+
+        todos_nombres = [f[0].capitalize() for f in figuras_clasif]
+
+        if sub_tipo == 0:
+            enunciado = f"Observa la figura. ¿Qué nombre recibe según sus propiedades?<br/>{svg_code}"
+            ans_str = nombre.capitalize()
+            nombres_falsos = [n for n in todos_nombres if n != ans_str][:3]
+            datos_num = {"figura": nombre, "tipo": "nombre"}
+        elif sub_tipo == 1:
+            enunciado = f"Observa la figura. ¿Es un polígono regular o irregular?<br/>{svg_code}"
+            ans_str = "Regular" if es_regular else "Irregular"
+            nombres_falsos = ["Irregular", "Cóncavo", "Abierto"] if es_regular else ["Regular", "Cóncavo", "Abierto"]
+            datos_num = {"figura": nombre, "tipo": "regularidad", "es_regular": es_regular}
         else:
-            svg_code = fig_trapecio(w_rect + 3, w_rect - 1, h_rect, unit="cm", color=accent)
-            descripcion_figura = "un cuadrilátero con un solo par de lados paralelos"
-        enunciado = f"{personaje} observa {descripcion_figura}. ¿Cómo se clasifica según sus propiedades?<br/>{svg_code}"
-        datos_num = {"lados_distintos": True, "tipo": ans_str}
-        
+            es_cuadrilatero = nombre in ("cuadrado", "rectángulo", "rombo", "paralelogramo", "trapecio")
+            enunciado = f"Observa la figura. ¿Es un cuadrilátero (figura de 4 lados)?<br/>{svg_code}"
+            ans_str = "Sí" if es_cuadrilatero else "No"
+            nombres_falsos = ["No", "Tiene 3 lados", "Tiene más de 4"] if es_cuadrilatero else ["Sí", "Tiene 4 lados", "Es un cuadrado"]
+            datos_num = {"figura": nombre, "tipo": "cuadrilatero", "es_cuadrilatero": es_cuadrilatero}
+
         alts = [{"texto": ans_str, "es_correcta": True, "tipo_error": None, "feedback_error": ""}]
         err_dict = {}
-        for f_txt in falsas_clasif:
+        for nf in nombres_falsos:
             alts.append({
-                "texto": f_txt,
+                "texto": nf,
                 "es_correcta": False,
                 "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA,
-                "feedback_error": f"Revisa las características de la figura: la respuesta correcta es {ans_str}."
+                "feedback_error": f"La respuesta correcta es {ans_str}."
             })
-            err_dict[f_txt] = f"La clasificación correcta es {ans_str}."
+            err_dict[nf] = f"La respuesta correcta es {ans_str}."
         rng.shuffle(alts)
 
-    # M1 N3 (103): Ejes de simetría
+    # M1 N3 (103): Ejes de simetría — 9 figuras × 2 perspectivas = 18 preguntas únicas
     elif mod_id == 1 and lvl_id == 3:
         fig_ejes = [
-            ("cuadrado", 4, fig_cuadrado(4, unit="cm", color=accent)),
-            ("rectángulo", 2, fig_rectangulo(6, 3, unit="cm", color=accent)),
+            ("cuadrado", 4, fig_cuadrado(5, unit="cm", color=accent)),
+            ("rectángulo", 2, fig_rectangulo(7, 4, unit="cm", color=accent)),
             ("triángulo equilátero", 3, fig_poligono_regular(3, color=accent)),
-            ("círculo", 999, fig_circulo(radio=5, unit="cm", color=accent, mostrar="radio")) # 999 representa infinitos
+            ("hexágono regular", 6, fig_poligono_regular(6, color=accent)),
+            ("pentágono regular", 5, fig_poligono_regular(5, color=accent)),
+            ("rombo", 2, fig_rombo(8, 6, unit="cm", color=accent)),
+            ("triángulo isósceles", 1, fig_triangulo(4, 8, unit="cm", color=accent)),
+            ("círculo", 999, fig_circulo(radio=5, unit="cm", color=accent, mostrar="radio")),
+            ("triángulo escaleno", 0, fig_triangulo(9, 3, unit="cm", color=accent)),
         ]
-        f_nombre, n_ejes, svg_code = fig_ejes[fam_idx % len(fig_ejes)]
-        if n_ejes == 999:
-            ans_str = "Infinitos"
-            tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
-            alts = [
-                {"texto": "Infinitos", "es_correcta": True, "tipo_error": None, "feedback_error": ""},
-                {"texto": "1", "es_correcta": False, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Cualquier recta que pase por el centro divide al círculo en dos mitades idénticas."},
-                {"texto": "2", "es_correcta": False, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Tiene infinitos ejes de simetría."},
-                {"texto": "4", "es_correcta": False, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Tiene infinitos ejes de simetría."}
-            ]
-            rng.shuffle(alts)
-            err_dict = {"1": "Tiene infinitos ejes.", "2": "Tiene infinitos ejes.", "4": "Tiene infinitos ejes."}
-        else:
-            ans_str = str(n_ejes)
-            tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
-            alts = []
-            err_dict = {str(n_ejes + 1): f"Un {f_nombre} tiene exactamente {n_ejes} ejes de simetría."}
-        
-        enunciado = f"{personaje} pregunta: ¿cuántos ejes de simetría exactos tiene un {f_nombre} (variante #{q_global_num})?<br/>{svg_code}"
+        fig_idx = fam_idx % len(fig_ejes)
+        sub_tipo = (fam_idx // len(fig_ejes)) % 2
+
+        f_nombre, n_ejes, svg_code = fig_ejes[fig_idx]
         op_enum = OperacionEnum.SUMA
         datos_num = {"figura": f_nombre, "ejes": n_ejes}
 
-    # M1 N4 (104): Perímetro sumando lados con decimales
+        if sub_tipo == 0:
+            # ¿Cuántos ejes de simetría tiene?
+            enunciado = f"¿Cuántos ejes de simetría tiene esta figura ({f_nombre})?<br/>{svg_code}"
+            if n_ejes == 999:
+                ans_str = "Infinitos"
+                tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+                alts = [
+                    {"texto": "Infinitos", "es_correcta": True, "tipo_error": None, "feedback_error": ""},
+                    {"texto": "1", "es_correcta": False, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "Cualquier recta que pase por el centro divide al círculo en dos mitades idénticas."},
+                    {"texto": "4", "es_correcta": False, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "El círculo tiene infinitos ejes de simetría."},
+                    {"texto": "8", "es_correcta": False, "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA, "feedback_error": "El círculo tiene infinitos ejes de simetría."}
+                ]
+                rng.shuffle(alts)
+                err_dict = {"1": "Tiene infinitos ejes.", "4": "Tiene infinitos ejes.", "8": "Tiene infinitos ejes."}
+            else:
+                ans_str = str(n_ejes)
+                tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
+                alts = []
+                err_dict = {str(n_ejes + 1): f"Un {f_nombre} tiene exactamente {n_ejes} eje(s) de simetría."}
+        else:
+            # ¿Tiene al menos un eje de simetría?
+            enunciado = f"¿Tiene al menos un eje de simetría esta figura ({f_nombre})?<br/>{svg_code}"
+            tiene = n_ejes > 0 or n_ejes == 999
+            ans_str = "Sí" if tiene else "No"
+            tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+            if tiene:
+                falsas = ["No", "No se puede determinar", "Solo si es regular"]
+            else:
+                falsas = ["Sí, tiene 1", "Sí, tiene 2", "No se puede determinar"]
+            alts = [{"texto": ans_str, "es_correcta": True, "tipo_error": None, "feedback_error": ""}]
+            for nf in falsas:
+                alts.append({
+                    "texto": nf,
+                    "es_correcta": False,
+                    "tipo_error": TipoErrorEnum.OPERACION_INCORRECTA,
+                    "feedback_error": f"Un {f_nombre} {'sí' if tiene else 'no'} tiene eje de simetría."
+                })
+            err_dict = {nf: f"La respuesta correcta es {ans_str}." for nf in falsas}
+            rng.shuffle(alts)
+
+    # M1 N4 (104): Perímetro con decimales — 25 preguntas únicas (20 rectángulos + 5 cuadrados)
     elif mod_id == 1 and lvl_id == 4:
-        a = round(2.1 + (fam_idx * 0.05) + (var_idx * 0.02), 1)
-        b = round(1.5 + (fam_idx * 0.03) + (var_idx * 0.01), 1)
-        perim = round(2 * (a + b), 1)
+        rect_dims = [
+            (3.5, 2.0), (4.2, 3.1), (5.0, 2.5), (6.3, 4.0), (7.1, 3.5),
+            (8.0, 5.5), (4.8, 2.3), (5.5, 3.2), (6.0, 4.5), (7.5, 2.8),
+            (3.0, 1.5), (4.0, 2.0), (5.2, 3.8), (6.5, 4.2), (7.0, 5.0),
+            (8.5, 3.0), (9.0, 4.5), (3.8, 2.2), (4.5, 3.5), (5.8, 4.0),
+        ]
+        cuad_dims = [3.5, 4.0, 5.5, 6.0, 7.5]
+
+        if fam_idx < len(rect_dims):
+            a, b = rect_dims[fam_idx]
+            perim = round(2 * (a + b), 1)
+            svg_code = fig_rectangulo(a, b, unit="cm", color=accent)
+            enunciado = f"Calcula el perímetro de este rectángulo.<br/>{svg_code}"
+        else:
+            lado = cuad_dims[fam_idx - len(rect_dims)]
+            a, b = lado, lado
+            perim = round(4 * lado, 1)
+            svg_code = fig_cuadrado(lado, unit="cm", color=accent)
+            enunciado = f"Calcula el perímetro de este cuadrado.<br/>{svg_code}"
+
         perim_str = f"{perim}".replace(".", ",")
         ans_str = perim_str
         tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
         op_enum = OperacionEnum.SUMA
-        svg_code = fig_rectangulo(a, b, unit="cm", color=accent)
-        enunciado = f"{personaje} calcula el perímetro del rectángulo #{q_global_num} sumando todos sus lados (lados de {str(a).replace('.',',')} cm y {str(b).replace('.',',')} cm).<br/>{svg_code}"
         datos_num = {"a": a, "b": b, "perimetro": perim}
         alts = []
         err_dict = {
-            f"{round(a*b, 1)}".replace(".", ","): "Sumaste el contorno; no multipliques (eso sería área).",
-            f"{round(a+b, 1)}".replace(".", ","): "Faltó sumar los otros dos lados del rectángulo."
+            f"{round(a * b, 1)}".replace(".", ","): "Multiplicaste los lados (eso da el área); para el perímetro, suma los 4 lados.",
+            f"{round(a + b, 1)}".replace(".", ","): "Faltó sumar los otros dos lados: el perímetro es 2 × (largo + ancho)."
         }
 
     # M2 N1 (201): Figuras en L, T y escaleras
@@ -590,8 +647,8 @@ async def seed_fase6_full() -> None:
         # 2. Siembra de Teoría
         await seed_fase6_theory(session)
 
-        # 3. Siembra de Práctica (15 niveles × 120 familias × 4 variantes = 7.200 preguntas)
-        print("Sembrando 7.200 preguntas de práctica (15 niveles × 120 familias × 4)...")
+        # 3. Siembra de Práctica (M1: 82 preguntas únicas + 11 niveles × 480 = 5.362 preguntas)
+        print("Sembrando preguntas de práctica...")
         niveles_practica = [
             (1, 1, 101), (1, 2, 102), (1, 3, 103), (1, 4, 104),
             (2, 1, 201), (2, 2, 202), (2, 3, 203),
@@ -599,11 +656,16 @@ async def seed_fase6_full() -> None:
             (4, 1, 401), (4, 2, 402), (4, 3, 403)
         ]
 
+        # Secciones de M1 con preguntas únicas (sin variantes redundantes)
+        M1_UNIQUE_FAMS = {101: 18, 102: 21, 103: 18, 104: 25}
+
         total_practica = 0
         for mod_id, lvl_id, seccion_code in niveles_practica:
             conf_map = _get_confusiones_map(mod_id)
-            for fam_idx in range(120):
-                for var_idx in range(4):
+            num_fams = M1_UNIQUE_FAMS.get(seccion_code, 120)
+            num_vars = 1 if seccion_code in M1_UNIQUE_FAMS else 4
+            for fam_idx in range(num_fams):
+                for var_idx in range(num_vars):
                     p_dict, alts = _gen_practice_question(mod_id, lvl_id, seccion_code, fam_idx, var_idx, conf_map)
                     p_obj = Pregunta(**p_dict)
                     session.add(p_obj)

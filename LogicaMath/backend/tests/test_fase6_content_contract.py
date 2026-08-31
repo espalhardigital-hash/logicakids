@@ -21,8 +21,11 @@ PRACTICE_LEVELS = (
 def test_practice_questions_have_identity_and_visual_contract(modulo, nivel, seccion):
     families = set()
     confusions = _get_confusiones_map(modulo)
-    for family_index in range(120):
-        for variant_index in range(4):
+    M1_UNIQUE_FAMS = {101: 18, 102: 21, 103: 18, 104: 25}
+    num_fams = M1_UNIQUE_FAMS.get(seccion, 120)
+    num_vars = 1 if seccion in M1_UNIQUE_FAMS else 4
+    for family_index in range(num_fams):
+        for variant_index in range(num_vars):
             question, _ = _gen_practice_question(modulo, nivel, seccion, family_index, variant_index, confusions)
             data = question["datos_numericos"]
             assert question["enunciado"].strip()
@@ -31,7 +34,7 @@ def test_practice_questions_have_identity_and_visual_contract(modulo, nivel, sec
             assert data["tipo_visual"] in {"inline_svg", "textual"}
             assert data["requiere_figura"] == ("<svg" in question["enunciado"].lower())
             families.add(data["plantilla_id"])
-    assert len(families) == 120
+    assert len(families) == num_fams
 
 
 @pytest.mark.parametrize("modulo,desafio,seccion", (
