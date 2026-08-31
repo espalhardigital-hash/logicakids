@@ -37,20 +37,30 @@ def test_practice_questions_have_identity_and_visual_contract(modulo, nivel, sec
     assert len(families) == num_fams
 
 
-@pytest.mark.parametrize("modulo,desafio,seccion", (
-    (1, 1, 1011), (1, 2, 1012), (1, 3, 1013),
-    (2, 1, 2011), (2, 2, 2012), (2, 3, 2013),
-    (3, 1, 3011), (3, 2, 3012), (3, 3, 3013),
-    (4, 1, 4011), (4, 2, 4012), (4, 3, 4013), (1, 4, 99099),
-))
-def test_challenge_questions_always_ship_their_required_figure(modulo, desafio, seccion):
-    question, _ = _gen_challenge_question(modulo, desafio, seccion, 0, _get_confusiones_map(modulo))
-    data = question["datos_numericos"]
-    assert question["enunciado"].strip()
-    assert "<svg" in question["enunciado"].lower()
-    assert data["plantilla_id"]
-    assert data["requiere_figura"] is True
-    assert data["tipo_visual"] == "inline_svg"
+CHALLENGE_SECTIONS = (
+    (1, 1, 1011, 18), (1, 2, 1012, 18), (1, 3, 1013, 20),
+    (2, 1, 2011, 18), (2, 2, 2012, 18), (2, 3, 2013, 20),
+    (3, 1, 3011, 18), (3, 2, 3012, 18), (3, 3, 3013, 20),
+    (4, 1, 4011, 18), (4, 2, 4012, 18), (4, 3, 4013, 20),
+    (1, 4, 99099, 24),
+)
+
+
+@pytest.mark.parametrize("modulo,desafio,seccion,expected_count", CHALLENGE_SECTIONS)
+def test_challenge_questions_always_ship_their_required_figure(modulo, desafio, seccion, expected_count):
+    confusions = _get_confusiones_map(modulo)
+    seen_ids = set()
+    for q_idx in range(expected_count):
+        question, _ = _gen_challenge_question(modulo, desafio, seccion, q_idx, confusions)
+        data = question["datos_numericos"]
+        assert question["enunciado"].strip()
+        assert question["respuesta_correcta"].strip()
+        assert "<svg" in question["enunciado"].lower()
+        assert data["plantilla_id"]
+        assert data["requiere_figura"] is True
+        assert data["tipo_visual"] == "inline_svg"
+        seen_ids.add(data["plantilla_id"])
+    assert len(seen_ids) == expected_count
 
 
 def test_geometry_templates_use_a_figure_that_matches_the_statement():

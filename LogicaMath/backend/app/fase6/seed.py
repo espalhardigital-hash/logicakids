@@ -548,38 +548,450 @@ def _gen_practice_question(
 def _gen_challenge_question(
     mod_id: int, des_idx: int, seccion: int, q_idx: int, conf_map: Dict[str, dict]
 ) -> tuple[dict, list[dict]]:
-    """Genera 1 pregunta de desafío para Fase 6."""
+    """Genera 1 pregunta de desafío para Fase 6 de forma pedagógicamente pertinente y variada."""
     fam_id_str = f"f6_d{seccion}_q{q_idx:03d}"
     seed_val = seccion * 1000 + q_idx
     rng = random.Random(seed_val)
     accent = color_modulo(6, mod_id)
 
-    # D1 (1011, 2011, 3011, 4011) o D2 (1012, 2012, 3012, 4012) o DM (99099): MULTIPLE_OPCION
-    # DF (1013, 2013, 3013, 4013): RESPUESTA_NUMERICA
-    es_df = (des_idx == 3 and seccion != 99099)
-    
-    a = rng.randint(4, 15)
-    b = rng.randint(3, 10)
-    res_val = a * b if mod_id >= 3 else 2 * (a + b)
-    ans_str = str(res_val)
+    # ─────────────────────────────────────────────────────────────────────────
+    # MÓDULO 1: Perímetro y borde (1011: Polígonos, 1012: Simetría, 1013: Perímetro Numérico)
+    # ─────────────────────────────────────────────────────────────────────────
+    if seccion == 1011:
+        # D1: Reconocimiento y propiedades de polígonos (18 preguntas)
+        poligonos = [
+            ("triángulo", 3, 3, fig_poligono_regular(3, color=accent)),
+            ("cuadrilátero", 4, 4, fig_poligono_regular(4, color=accent)),
+            ("pentágono", 5, 5, fig_poligono_regular(5, color=accent)),
+            ("hexágono", 6, 6, fig_poligono_regular(6, color=accent)),
+            ("heptágono", 7, 7, fig_poligono_regular(7, color=accent)),
+            ("octágono", 8, 8, fig_poligono_regular(8, color=accent)),
+        ]
+        sub = q_idx // len(poligonos)
+        p_nombre, n_lados, n_vert, svg_code = poligonos[q_idx % len(poligonos)]
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        op_enum = OperacionEnum.SUMA
 
-    personajes = ["Leo", "Emma", "Thiago", "Mía", "Hugo", "Alba", "Nina", "Bruno", "Salma", "Iker", "Zoe", "Dante", "Lía", "Owen", "Sofía"]
-    personaje = personajes[q_idx % len(personajes)]
-    svg_code = fig_rectangulo(a, b, unit="cm", color=accent)
-    enunciado = f"{personaje} analiza el rectángulo #{q_idx+1} ({a} cm × {b} cm). ¿Cuál es su {'área' if mod_id >= 3 else 'perímetro'} total?<br/>{svg_code}"
-    
+        if sub == 0:
+            enunciado = f"¿Cuántos vértices tiene este polígono?<br/>{svg_code}"
+            ans_str = str(n_vert)
+            falsas = [str(n_vert + 1), str(n_vert + 2), str(max(2, n_vert - 1))]
+        elif sub == 1:
+            enunciado = f"¿Cuántos lados rectos delimitan este polígono?<br/>{svg_code}"
+            ans_str = str(n_lados)
+            falsas = [str(n_lados + 1), str(n_lados + 2), str(max(2, n_lados - 1))]
+        else:
+            enunciado = f"¿Qué nombre recibe este polígono regular según su número de lados?<br/>{svg_code}"
+            ans_str = p_nombre.capitalize()
+            falsas = [p[0].capitalize() for p in poligonos if p[0] != p_nombre][:3]
+
+        datos_num = {"lados": n_lados, "vertices": n_vert, "nombre": p_nombre}
+
+    elif seccion == 1012:
+        # D2: Ejes de simetría y clasificación (18 preguntas)
+        fig_ejes = [
+            ("cuadrado", 4, fig_cuadrado(5, unit="cm", color=accent)),
+            ("rectángulo", 2, fig_rectangulo(7, 4, unit="cm", color=accent)),
+            ("rombo", 2, fig_rombo(8, 6, unit="cm", color=accent)),
+            ("triángulo equilátero", 3, fig_poligono_regular(3, color=accent)),
+            ("hexágono regular", 6, fig_poligono_regular(6, color=accent)),
+            ("pentágono regular", 5, fig_poligono_regular(5, color=accent)),
+            ("triángulo isósceles", 1, fig_triangulo(4, 8, unit="cm", color=accent)),
+            ("triángulo escaleno", 0, fig_triangulo(9, 3, unit="cm", color=accent)),
+            ("círculo", 999, fig_circulo(radio=5, unit="cm", color=accent, mostrar="radio")),
+        ]
+        sub = q_idx // len(fig_ejes)
+        f_nombre, n_ejes, svg_code = fig_ejes[q_idx % len(fig_ejes)]
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        op_enum = OperacionEnum.SUMA
+
+        if sub == 0:
+            enunciado = f"¿Cuántos ejes de simetría tiene esta figura ({f_nombre})?<br/>{svg_code}"
+            if n_ejes == 999:
+                ans_str = "Infinitos"
+                falsas = ["1", "2", "4"]
+            else:
+                ans_str = str(n_ejes)
+                falsas = [str(n_ejes + 1), str(n_ejes + 2), str(max(0, n_ejes - 1))]
+        else:
+            enunciado = f"¿Tiene esta figura ({f_nombre}) al menos un eje de simetría?<br/>{svg_code}"
+            tiene = (n_ejes > 0 or n_ejes == 999)
+            ans_str = "Sí" if tiene else "No"
+            falsas = ["No", "No se puede determinar", "Solo si es regular"] if tiene else ["Sí, tiene 1", "Sí, tiene 2", "No se puede determinar"]
+
+        datos_num = {"figura": f_nombre, "ejes": n_ejes}
+
+    elif seccion == 1013:
+        # DF: Perímetro numérico directo (20 preguntas)
+        rect_dims = [
+            (6, 4), (8, 5), (7, 3), (9, 6), (10, 4),
+            (12, 5), (11, 7), (8, 6), (14, 8), (15, 9)
+        ]
+        cuad_dims = [4, 6, 7, 9, 12]
+        poly_dims = [
+            ("triángulo equilátero", 3, 6),
+            ("pentágono regular", 5, 5),
+            ("hexágono regular", 6, 4),
+            ("octágono regular", 8, 3),
+            ("heptágono regular", 7, 4),
+        ]
+
+        tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
+        op_enum = OperacionEnum.SUMA
+
+        if q_idx < len(rect_dims):
+            a, b = rect_dims[q_idx]
+            perim = 2 * (a + b)
+            svg_code = fig_rectangulo(a, b, unit="cm", color=accent)
+            enunciado = f"Calcula el perímetro total de este rectángulo.<br/>{svg_code}"
+            datos_num = {"a": a, "b": b, "perimetro": perim}
+        elif q_idx < len(rect_dims) + len(cuad_dims):
+            lado = cuad_dims[q_idx - len(rect_dims)]
+            perim = 4 * lado
+            svg_code = fig_cuadrado(lado, unit="cm", color=accent)
+            enunciado = f"Calcula el perímetro total de este cuadrado.<br/>{svg_code}"
+            datos_num = {"lado": lado, "perimetro": perim}
+        else:
+            p_nom, n_l, l_val = poly_dims[q_idx - len(rect_dims) - len(cuad_dims)]
+            perim = n_l * l_val
+            svg_code = fig_poligono_regular(n_l, color=accent)
+            enunciado = f"Calcula el perímetro de este {p_nom} si cada lado mide {l_val} cm.<br/>{svg_code}"
+            datos_num = {"figura": p_nom, "lados": n_l, "lado_cm": l_val, "perimetro": perim}
+
+        ans_str = str(perim)
+        falsas = []
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # MÓDULO 2: Área en malla y perímetro compuesto (2011: L y T, 2012: Lados Ocultos, 2013: Circunferencia DF)
+    # ─────────────────────────────────────────────────────────────────────────
+    elif seccion == 2011:
+        # D1: Perímetro exterior de figuras en L y T (18 preguntas)
+        l_dims = [
+            (5, 6, 3, 2), (6, 7, 4, 3), (4, 5, 2, 2), (7, 8, 3, 4), (5, 5, 2, 2),
+            (8, 9, 4, 3), (6, 8, 3, 4), (4, 6, 3, 2), (7, 7, 3, 3), (5, 8, 4, 3)
+        ]
+        t_dims = [
+            (8, 3, 4, 5), (10, 4, 4, 6), (9, 3, 3, 5), (12, 4, 4, 6),
+            (8, 2, 4, 4), (10, 3, 4, 5), (7, 2, 3, 4), (11, 3, 5, 6)
+        ]
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        op_enum = OperacionEnum.SUMA
+
+        if q_idx < len(l_dims):
+            w1, h1, w2, h2 = l_dims[q_idx]
+            perim = 2 * (w1 + w2 + h1)
+            svg_code = fig_L(w1, h1, w2, h2, unit="cm", color=accent)
+            enunciado = f"Calcula el perímetro exterior de esta figura en L.<br/>{svg_code}"
+            datos_num = {"w1": w1, "h1": h1, "w2": w2, "h2": h2, "perimetro": perim}
+        else:
+            ala, h_ala, tallo, h_tallo = t_dims[q_idx - len(l_dims)]
+            perim = 2 * ala + 2 * (h_ala + h_tallo)
+            svg_code = fig_T(ala, h_ala, tallo, h_tallo, unit="cm", color=accent)
+            enunciado = f"Calcula el perímetro exterior de esta figura en T.<br/>{svg_code}"
+            datos_num = {"ala": ala, "h_ala": h_ala, "tallo": tallo, "h_tallo": h_tallo, "perimetro": perim}
+
+        ans_str = str(perim)
+        falsas = [str(perim + 2), str(perim - 2), str(perim + 4)]
+
+    elif seccion == 2012:
+        # D2: Deducción de lados ocultos por paralelismo (18 preguntas)
+        lados_data = [
+            (10, 4, 8, 3), (12, 5, 9, 4), (14, 6, 10, 5), (9, 3, 7, 2), (15, 7, 11, 5),
+            (11, 4, 8, 3), (13, 8, 9, 4), (16, 9, 12, 6), (8, 3, 6, 2), (10, 6, 7, 3),
+            (12, 7, 8, 4), (14, 8, 10, 4), (15, 6, 9, 3), (11, 5, 7, 2), (13, 6, 8, 3),
+            (16, 7, 11, 4), (9, 4, 6, 2), (12, 4, 8, 3)
+        ]
+        w_tot, w_par, h_tot, h_par = lados_data[q_idx % len(lados_data)]
+        w2 = w_tot - w_par
+        h2 = h_tot - h_par
+        ans_str = str(w2)
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        op_enum = OperacionEnum.RESTA
+        svg_code = fig_L(w_par, h_tot, w2, h2, unit="cm", color=accent, ocultar_lado=1)
+        enunciado = f"Observa los lados paralelos de la figura. ¿Cuánto mide el lado horizontal señalado con '?'?<br/>{svg_code}"
+        datos_num = {"w_total": w_tot, "w_parcial": w_par, "lado_oculto": w2}
+        falsas = [str(w2 + 2), str(max(1, w2 - 2)), str(w2 + 1)]
+
+    elif seccion == 2013:
+        # DF: Circunferencia y perímetros combinados (20 preguntas)
+        radios = [3, 4, 5, 6, 7, 8, 9, 10, 12, 15]
+        l_dims_df = [
+            (6, 8, 4, 3), (8, 10, 5, 4), (7, 9, 3, 3), (9, 11, 4, 5), (10, 12, 5, 4),
+            (5, 7, 3, 2), (8, 8, 4, 3), (11, 13, 5, 6), (7, 10, 4, 4), (6, 9, 3, 3)
+        ]
+        tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
+        op_enum = OperacionEnum.SUMA
+
+        if q_idx < len(radios):
+            r = radios[q_idx]
+            circ = round(2 * 3.14 * r, 1)
+            ans_str = f"{circ}".replace(".", ",")
+            svg_code = fig_circulo(radio=r, unit="cm", color=accent)
+            enunciado = f"Calcula la longitud de la circunferencia de radio {r} cm (usa π = 3,14).<br/>{svg_code}"
+            datos_num = {"radio": r, "circunferencia": circ}
+        else:
+            w1, h1, w2, h2 = l_dims_df[q_idx - len(radios)]
+            perim = 2 * (w1 + w2 + h1)
+            ans_str = str(perim)
+            svg_code = fig_L(w1, h1, w2, h2, unit="cm", color=accent)
+            enunciado = f"Calcula el perímetro exterior total de esta figura en L.<br/>{svg_code}"
+            datos_num = {"w1": w1, "h1": h1, "w2": w2, "h2": h2, "perimetro": perim}
+        falsas = []
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # MÓDULO 3: Figuras compuestas y áreas analíticas (3011: Malla/Triángulo, 3012: Rombo/Trapecio, 3013: DF Áreas)
+    # ─────────────────────────────────────────────────────────────────────────
+    elif seccion == 3011:
+        # D1: Área en cuadrícula/malla y triángulos (18 preguntas)
+        tri_dims = [
+            (6, 4), (8, 5), (10, 6), (7, 4), (9, 6),
+            (12, 5), (8, 3), (10, 4), (14, 6)
+        ]
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        op_enum = OperacionEnum.MULTIPLICACION
+
+        if q_idx < 9:
+            # Malla con conteos de 3 a 11 celdas
+            cols, rows = 5, 4
+            num_llenas = 3 + q_idx
+            celdas_llenas = [(i % cols, i // cols) for i in range(num_llenas)]
+            medias = [(num_llenas % cols, num_llenas // cols, "TR"), ((num_llenas + 1) % cols, (num_llenas + 1) // cols, "BL")]
+            area_u = num_llenas + 1 # 2 medias celdas = 1 entera
+            ans_str = str(area_u)
+            svg_code = fig_malla(celdas_llenas, medias, cols, rows, unit="u", color=accent)
+            enunciado = f"Calcula el área total de la figura #{q_idx+1} sombreada en la cuadrícula (en u²).<br/>{svg_code}"
+            datos_num = {"celdas_enteras": num_llenas, "medias": 2, "area": area_u}
+            falsas = [str(area_u + 1), str(max(1, area_u - 1)), str(area_u + 2)]
+        else:
+            # Triángulo
+            b, h = tri_dims[q_idx - 9]
+            area = (b * h) // 2
+            ans_str = str(area)
+            svg_code = fig_triangulo(b, h, unit="cm", color=accent)
+            enunciado = f"Calcula el área de este triángulo (base = {b} cm, altura = {h} cm).<br/>{svg_code}"
+            datos_num = {"base": b, "altura": h, "area": area}
+            falsas = [str(b * h), str(area + 2), str(max(1, area - 2))]
+
+    elif seccion == 3012:
+        # D2: Paralelogramo, rombo y trapecio (18 preguntas)
+        paralelos = [(8, 5), (10, 6), (9, 4), (12, 5), (7, 6), (11, 4)]
+        rombos = [(10, 6), (8, 4), (12, 8), (14, 6), (10, 8), (16, 8)]
+        trapecios = [(10, 6, 4), (12, 8, 5), (9, 5, 4), (14, 8, 6), (11, 7, 5), (13, 7, 4)]
+
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        op_enum = OperacionEnum.MULTIPLICACION
+
+        if q_idx < 6:
+            b, h = paralelos[q_idx]
+            area = b * h
+            ans_str = str(area)
+            svg_code = fig_paralelogramo(b, h, unit="cm", color=accent)
+            enunciado = f"Calcula el área de este paralelogramo (base = {b} cm, altura = {h} cm).<br/>{svg_code}"
+            datos_num = {"base": b, "altura": h, "area": area}
+            falsas = [str(area + 4), str(area - 4), str(area + 8)]
+        elif q_idx < 12:
+            d_may, d_men = rombos[q_idx - 6]
+            area = (d_may * d_men) // 2
+            ans_str = str(area)
+            svg_code = fig_rombo(d_may, d_men, unit="cm", color=accent)
+            enunciado = f"Calcula el área de este rombo (D = {d_may} cm, d = {d_men} cm).<br/>{svg_code}"
+            datos_num = {"D": d_may, "d": d_men, "area": area}
+            falsas = [str(d_may * d_men), str(area + 4), str(max(2, area - 4))]
+        else:
+            b_may, b_men, h = trapecios[q_idx - 12]
+            area = ((b_may + b_men) * h) // 2
+            ans_str = str(area)
+            svg_code = fig_trapecio(b_may, b_men, h, unit="cm", color=accent)
+            enunciado = f"Calcula el área de este trapecio (B = {b_may} cm, b = {b_men} cm, h = {h} cm).<br/>{svg_code}"
+            datos_num = {"B": b_may, "b": b_men, "h": h, "area": area}
+            falsas = [str((b_may + b_men) * h), str(area + 3), str(max(2, area - 3))]
+
+    elif seccion == 3013:
+        # DF: Cálculo exacto de áreas analíticas (20 preguntas numéricas)
+        tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
+        op_enum = OperacionEnum.MULTIPLICACION
+
+        if q_idx < 5:
+            tri = [(6, 4), (8, 6), (10, 5), (12, 4), (14, 5)][q_idx]
+            area = (tri[0] * tri[1]) // 2
+            svg_code = fig_triangulo(tri[0], tri[1], unit="cm", color=accent)
+            enunciado = f"Calcula el área exacta de este triángulo.<br/>{svg_code}"
+            datos_num = {"base": tri[0], "altura": tri[1], "area": area}
+        elif q_idx < 10:
+            par = [(7, 5), (9, 4), (10, 6), (11, 5), (12, 7)][q_idx - 5]
+            area = par[0] * par[1]
+            svg_code = fig_paralelogramo(par[0], par[1], unit="cm", color=accent)
+            enunciado = f"Calcula el área exacta de este paralelogramo.<br/>{svg_code}"
+            datos_num = {"base": par[0], "altura": par[1], "area": area}
+        elif q_idx < 15:
+            rom = [(10, 6), (12, 8), (14, 6), (16, 8), (8, 6)][q_idx - 10]
+            area = (rom[0] * rom[1]) // 2
+            svg_code = fig_rombo(rom[0], rom[1], unit="cm", color=accent)
+            enunciado = f"Calcula el área exacta de este rombo.<br/>{svg_code}"
+            datos_num = {"D": rom[0], "d": rom[1], "area": area}
+        else:
+            trap = [(10, 6, 4), (12, 8, 5), (14, 6, 5), (16, 10, 6), (11, 7, 4)][q_idx - 15]
+            area = ((trap[0] + trap[1]) * trap[2]) // 2
+            svg_code = fig_trapecio(trap[0], trap[1], trap[2], unit="cm", color=accent)
+            enunciado = f"Calcula el área exacta de este trapecio.<br/>{svg_code}"
+            datos_num = {"B": trap[0], "b": trap[1], "h": trap[2], "area": area}
+
+        ans_str = str(area)
+        falsas = []
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # MÓDULO 4: Figuras compuestas y áreas sombreadas (4011: Suma, 4012: Resta/Hueco, 4013: DF Inscritas)
+    # ─────────────────────────────────────────────────────────────────────────
+    elif seccion == 4011:
+        # D1: Figuras compuestas por adición (18 preguntas)
+        sumas = [
+            ((6, 4), (4, 3)), ((7, 5), (5, 3)), ((8, 4), (4, 2)), ((9, 5), (6, 3)),
+            ((5, 4), (3, 2)), ((10, 6), (6, 4)), ((8, 5), (5, 2)), ((7, 4), (4, 3)),
+            ((6, 5), (3, 3)), ((9, 6), (5, 4)), ((8, 6), (4, 3)), ((10, 5), (6, 3)),
+            ((7, 3), (4, 2)), ((8, 3), (5, 2)), ((11, 6), (6, 4)), ((6, 3), (3, 2)),
+            ((9, 4), (5, 3)), ((10, 4), (4, 2))
+        ]
+        r_a, r_b = sumas[q_idx % len(sumas)]
+        area = (r_a[0] * r_a[1]) + (r_b[0] * r_b[1])
+        ans_str = str(area)
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        op_enum = OperacionEnum.SUMA
+        svg_code = fig_compuesta_suma(r_a, r_b, unit="cm", color=accent)
+        enunciado = f"Calcula el área total de la figura sumando las regiones A ({r_a[0]}×{r_a[1]} cm) y B ({r_b[0]}×{r_b[1]} cm).<br/>{svg_code}"
+        datos_num = {"rect_a": r_a, "rect_b": r_b, "area": area}
+        falsas = [str(area + 6), str(area - 6), str(area + 10)]
+
+    elif seccion == 4012:
+        # D2: Marcos y figuras con hueco interior por sustracción (18 preguntas)
+        huecos = [
+            ((10, 8), (4, 3)), ((12, 9), (5, 4)), ((11, 7), (4, 3)), ((14, 10), (6, 4)),
+            ((9, 7), (3, 2)), ((15, 10), (7, 5)), ((10, 7), (4, 2)), ((12, 8), (5, 3)),
+            ((13, 9), (6, 4)), ((11, 8), (4, 3)), ((14, 8), (6, 3)), ((10, 6), (4, 2)),
+            ((12, 10), (5, 5)), ((15, 9), (7, 4)), ((13, 8), (5, 3)), ((9, 6), (3, 2)),
+            ((14, 9), (6, 4)), ((11, 9), (4, 4))
+        ]
+        ext, inc = huecos[q_idx % len(huecos)]
+        area = (ext[0] * ext[1]) - (inc[0] * inc[1])
+        ans_str = str(area)
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        op_enum = OperacionEnum.RESTA
+        svg_code = fig_compuesta_hueco(ext, inc, unit="cm", color=accent)
+        enunciado = f"Calcula el área sombreada del marco restando el hueco interior ({ext[0]}×{ext[1]} cm con hueco de {inc[0]}×{inc[1]} cm).<br/>{svg_code}"
+        datos_num = {"exterior": ext, "interior": inc, "area": area}
+        falsas = [str((ext[0] * ext[1]) + (inc[0] * inc[1])), str(area + 6), str(max(4, area - 6))]
+
+    elif seccion == 4013:
+        # DF: Figuras inscritas y áreas sombreadas exteriores (20 preguntas numéricas únicas)
+        lados_cuad = [6, 8, 10, 12, 14, 16, 18, 20, 22, 24]
+        tri_rects = [
+            (8, 4), (10, 5), (12, 6), (14, 7), (16, 8),
+            (9, 4), (11, 5), (13, 6), (15, 7), (18, 8)
+        ]
+        tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
+        op_enum = OperacionEnum.RESTA
+
+        if q_idx < len(lados_cuad):
+            lado = lados_cuad[q_idx]
+            r = lado / 2
+            area_cuad = lado * lado
+            area_circ = round(3.14 * r * r, 2)
+            area_somb = round(area_cuad - area_circ, 2)
+            ans_str = f"{area_somb}".replace(".", ",")
+            svg_code = fig_inscrita("circulo_en_cuadrado", "circulo", {"lado": lado, "radio": r}, unit="cm", color=accent)
+            enunciado = f"Calcula el área de las esquinas sombreadas exteriores (cuadrado de {lado} cm con círculo inscrito de radio {int(r) if r.is_integer() else r} cm, π = 3,14).<br/>{svg_code}"
+            datos_num = {"lado": lado, "radio": r, "area_sombreada": area_somb}
+        else:
+            bw, bh = tri_rects[q_idx - len(lados_cuad)]
+            area_rec = bw * bh
+            area_tri = (bw * bh) / 2
+            area_somb = area_rec - area_tri
+            ans_str = str(int(area_somb))
+            svg_code = fig_inscrita("triangulo_en_rectangulo", "triangulo", {"base": bw, "altura": bh}, unit="cm", color=accent)
+            enunciado = f"Calcula el área de la zona sombreada exterior al triángulo inscrito (rectángulo de {bw}×{bh} cm).<br/>{svg_code}"
+            datos_num = {"base": bw, "altura": bh, "area_sombreada": area_somb}
+
+        falsas = []
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # DESAFÍO MAESTRO DE FASE 6 (99099: Integrador de los 4 módulos, 24 preguntas)
+    # ─────────────────────────────────────────────────────────────────────────
+    else: # seccion == 99099
+        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
+        if q_idx < 6:
+            # M1: Propiedades y simetría
+            fig_maestro = [
+                ("hexágono regular", 6, fig_poligono_regular(6, color=accent)),
+                ("pentágono regular", 5, fig_poligono_regular(5, color=accent)),
+                ("octágono regular", 8, fig_poligono_regular(8, color=accent)),
+                ("triángulo equilátero", 3, fig_poligono_regular(3, color=accent)),
+                ("cuadrado", 4, fig_cuadrado(6, unit="cm", color=accent)),
+                ("rombo", 2, fig_rombo(8, 6, unit="cm", color=accent)),
+            ]
+            f_nom, f_ejes, svg_code = fig_maestro[q_idx]
+            ans_str = str(f_ejes)
+            op_enum = OperacionEnum.SUMA
+            enunciado = f"Desafío Maestro: ¿Cuántos ejes de simetría tiene un {f_nom}?<br/>{svg_code}"
+            datos_num = {"figura": f_nom, "ejes": f_ejes}
+            falsas = [str(f_ejes + 1), str(f_ejes + 2), str(max(0, f_ejes - 1))]
+        elif q_idx < 12:
+            # M2: Perímetro de compuestas en L
+            w1, h1, w2, h2 = [(6, 7, 3, 3), (8, 9, 4, 3), (5, 6, 3, 2), (7, 8, 4, 3), (9, 10, 4, 4), (6, 8, 3, 3)][q_idx - 6]
+            perim = 2 * (w1 + w2 + h1)
+            ans_str = str(perim)
+            op_enum = OperacionEnum.SUMA
+            svg_code = fig_L(w1, h1, w2, h2, unit="cm", color=accent)
+            enunciado = f"Desafío Maestro: Calcula el perímetro exterior de esta figura en L.<br/>{svg_code}"
+            datos_num = {"w1": w1, "h1": h1, "w2": w2, "h2": h2, "perimetro": perim}
+            falsas = [str(perim + 3), str(perim - 3), str(perim + 6)]
+        elif q_idx < 18:
+            # M3: Áreas de triángulos y trapecios
+            if q_idx % 2 == 0:
+                b, h = [(8, 5), (10, 6), (12, 5)][(q_idx - 12) // 2]
+                area = (b * h) // 2
+                svg_code = fig_triangulo(b, h, unit="cm", color=accent)
+                enunciado = f"Desafío Maestro: Calcula el área de este triángulo (base = {b} cm, altura = {h} cm).<br/>{svg_code}"
+                datos_num = {"base": b, "altura": h, "area": area}
+            else:
+                b_may, b_men, h = [(10, 6, 4), (12, 8, 5), (14, 8, 6)][(q_idx - 13) // 2]
+                area = ((b_may + b_men) * h) // 2
+                svg_code = fig_trapecio(b_may, b_men, h, unit="cm", color=accent)
+                enunciado = f"Desafío Maestro: Calcula el área de este trapecio (B = {b_may} cm, b = {b_men} cm, h = {h} cm).<br/>{svg_code}"
+                datos_num = {"B": b_may, "b": b_men, "h": h, "area": area}
+            ans_str = str(area)
+            op_enum = OperacionEnum.MULTIPLICACION
+            falsas = [str(area + 4), str(area - 4), str(area + 8)]
+        else:
+            # M4: Áreas sombreadas con hueco
+            ext, inc = [((12, 9), (5, 4)), ((14, 10), (6, 4)), ((11, 8), (4, 3)), ((15, 10), (7, 5)), ((13, 9), (5, 4)), ((16, 11), (7, 5))][q_idx - 18]
+            area = (ext[0] * ext[1]) - (inc[0] * inc[1])
+            ans_str = str(area)
+            op_enum = OperacionEnum.RESTA
+            svg_code = fig_compuesta_hueco(ext, inc, unit="cm", color=accent)
+            enunciado = f"Desafío Maestro: Calcula el área sombreada del marco restando el hueco interior.<br/>{svg_code}"
+            datos_num = {"exterior": ext, "interior": inc, "area": area}
+            falsas = [str((ext[0] * ext[1]) + (inc[0] * inc[1])), str(area + 8), str(max(4, area - 8))]
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Generación de alternativas y contrato final
+    # ─────────────────────────────────────────────────────────────────────────
     pista_text = "Analiza las dimensiones dadas y aplica el procedimiento correspondiente a la figura."
     
-    if es_df:
-        tipo_preg = TipoPreguntaEnum.RESPUESTA_NUMERICA
+    if tipo_preg == TipoPreguntaEnum.RESPUESTA_NUMERICA:
         alts = []
-        err_dict = {str(res_val + 2): "Revisa la operación aplicada a los lados de la figura."}
+        err_dict = {}
     else:
-        tipo_preg = TipoPreguntaEnum.MULTIPLE_OPCION
-        falsas = [str(res_val + 2), str(res_val - 2), str(res_val + 4)]
         alts = [{"texto": ans_str, "es_correcta": True, "tipo_error": None, "feedback_error": ""}]
         err_dict = {}
-        for f_val in falsas:
+        # Asegurar exactamente 3 alternativas falsas únicas
+        falsas_unicas = []
+        for f in falsas:
+            if f != ans_str and f not in falsas_unicas and len(falsas_unicas) < 3:
+                falsas_unicas.append(f)
+        while len(falsas_unicas) < 3:
+            cand = str(int(ans_str) + len(falsas_unicas) + 2) if ans_str.isdigit() else f"Alternativa {len(falsas_unicas)+2}"
+            if cand != ans_str and cand not in falsas_unicas:
+                falsas_unicas.append(cand)
+        for f_val in falsas_unicas:
             alts.append({
                 "texto": f_val,
                 "es_correcta": False,
@@ -593,12 +1005,12 @@ def _gen_challenge_question(
         "fase_id": 6,
         "seccion": seccion,
         "estructura_padre_id": fam_id_str,
-        "operacion": OperacionEnum.MULTIPLICACION if mod_id >= 3 else OperacionEnum.SUMA,
+        "operacion": op_enum,
         "tipo_pregunta": tipo_preg,
         "enunciado": enunciado,
         "respuesta_correcta": ans_str,
         "datos_numericos": {
-            "a": a, "b": b, "resultado": res_val,
+            **datos_num,
             "plantilla_id": fam_id_str,
             "requiere_figura": True,
             "tipo_visual": "inline_svg",
@@ -606,7 +1018,7 @@ def _gen_challenge_question(
         "errores_previstos": err_dict,
         "explicacion_paso_a_paso": {
             "titulo": "Resolución del Desafío",
-            "pasos": [{"orden": 1, "texto": f"Aplica la fórmula adecuada para obtener {ans_str}."}],
+            "pasos": [{"orden": 1, "texto": f"Aplica la fórmula o procedimiento geométrico para obtener {ans_str}."}],
             "pista": {"texto": pista_text, "penalizacion_segundos": 5}
         },
         "estado": StatusEnum.ACTIVO,
@@ -683,8 +1095,8 @@ async def seed_fase6_full() -> None:
         await session.commit()
         print(f"Práctica sembrada: {total_practica} preguntas.")
 
-        # 4. Siembra de Desafíos (13 bloques × 150 = 1.950 preguntas)
-        print("Sembrando 1.950 preguntas de desafíos (13 bloques × 150)...")
+        # 4. Siembra de Desafíos (13 bloques = 248 preguntas únicas y pertinentes)
+        print("Sembrando preguntas de desafíos...")
         bloques_desafios = [
             (1, 1, 1011), (1, 2, 1012), (1, 3, 1013),
             (2, 1, 2011), (2, 2, 2012), (2, 3, 2013),
@@ -693,10 +1105,19 @@ async def seed_fase6_full() -> None:
             (1, 4, 99099) # Desafío Mixto de Fase
         ]
 
+        CHALLENGE_COUNTS = {
+            1011: 18, 1012: 18, 1013: 20,
+            2011: 18, 2012: 18, 2013: 20,
+            3011: 18, 3012: 18, 3013: 20,
+            4011: 18, 4012: 18, 4013: 20,
+            99099: 24,
+        }
+
         total_desafios = 0
         for mod_id, des_idx, seccion_code in bloques_desafios:
             conf_map = _get_confusiones_map(mod_id)
-            for q_idx in range(150):
+            num_q = CHALLENGE_COUNTS.get(seccion_code, 18)
+            for q_idx in range(num_q):
                 p_dict, alts = _gen_challenge_question(mod_id, des_idx, seccion_code, q_idx, conf_map)
                 p_obj = Pregunta(**p_dict)
                 session.add(p_obj)

@@ -201,7 +201,7 @@ async def run_audit_fase6() -> bool:
             print(f"[PASS] 8  Pistas sin revelar operación/resultado: 0 violaciones ({len(pista_rows)} verificados)")
 
         # -------------------------------------------------------------------------
-        # Chequeo 9: Volumetría por sección (M1: 18+21+18+25 = 82; 11 práctica @ 480; 13 desafíos @ 150 = 7.312 total)
+        # Chequeo 9: Volumetría por sección (Práctica: 5.362; Desafíos: 248 = 5.610 total)
         # -------------------------------------------------------------------------
         vol_query = text("""
             SELECT seccion, COUNT(*) 
@@ -220,16 +220,23 @@ async def run_audit_fase6() -> bool:
         for s in [201,202,203, 301,302,303,304,305, 401,402,403]:
             if vol_dict.get(s) != 480:
                 vol_bad = True
-        for s in [1011,1012,1013, 2011,2012,2013, 3011,3012,3013, 4011,4012,4013, 99099]:
-            if vol_dict.get(s) != 150:
+        des_expected = {
+            1011: 18, 1012: 18, 1013: 20,
+            2011: 18, 2012: 18, 2013: 20,
+            3011: 18, 3012: 18, 3013: 20,
+            4011: 18, 4012: 18, 4013: 20,
+            99099: 24,
+        }
+        for s, expected in des_expected.items():
+            if vol_dict.get(s) != expected:
                 vol_bad = True
 
         total_q = sum(vol_dict.values())
-        if vol_bad or total_q != 7312:
-            print(f"[FAIL] 9  Volumetría por sección: Total = {total_q} (esperado 7.312)")
+        if vol_bad or total_q != 5610:
+            print(f"[FAIL] 9  Volumetría por sección: Total = {total_q} (esperado 5.610)")
             all_pass = False
         else:
-            print(f"[PASS] 9  Volumetría por sección: 28/28 secciones exactas (Total 7.312 preguntas)")
+            print(f"[PASS] 9  Volumetría por sección: 28/28 secciones exactas (Total 5.610 preguntas)")
 
         # -------------------------------------------------------------------------
         # Chequeo 10: Sin filas INACTIVO
